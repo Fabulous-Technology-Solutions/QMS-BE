@@ -32,21 +32,29 @@ export const refreshTokens = catchAsync(async (req: Request, res: Response) => {
 export const forgotPassword = catchAsync(async (req: Request, res: Response) => {
   const resetPasswordToken = await tokenService.generateResetPasswordToken(req.body.email);
   await emailService.sendResetPasswordEmail(req.body.email, resetPasswordToken);
-  res.status(httpStatus.NO_CONTENT).send();
+  res.status(httpStatus.OK).send({
+    message: 'Reset password email sent successfully'
+  });
 });
 
 export const resetPassword = catchAsync(async (req: Request, res: Response) => {
   await authService.resetPassword(req.query['token'], req.body.password);
-  res.status(httpStatus.NO_CONTENT).send();
+  res.status(httpStatus.OK).send({
+    message: 'Password reset successfully'
+  });
 });
 
 export const sendVerificationEmail = catchAsync(async (req: Request, res: Response) => {
   const verifyEmailToken = await tokenService.generateVerifyEmailToken(req.user);
-  await emailService.sendVerificationEmail(req.user.email, verifyEmailToken, req.user.name);
-  res.status(httpStatus.NO_CONTENT).send();
+  await emailService.sendVerificationEmail(req.user.email, verifyEmailToken, req.user.firstName );
+  res.status(httpStatus.OK).send({
+    message: 'Verification email sent successfully'
+  });
 });
 
 export const verifyEmail = catchAsync(async (req: Request, res: Response) => {
   await authService.verifyEmail(req.query['token']);
-  res.status(httpStatus.NO_CONTENT).send();
+  res.status(httpStatus.OK).send({
+    message: 'Email verified successfully'
+  });
 });

@@ -5,11 +5,17 @@ import toJSON from '../toJSON/toJSON';
 import paginate from '../paginate/paginate';
 import { roles } from '../../config/roles';
 import { IUserDoc, IUserModel } from './user.interfaces';
-const { PhoneNumberUtil } = require('google-libphonenumber');
+import pk from 'google-libphonenumber';
+const { PhoneNumberUtil } = pk;
 const phoneUtil = PhoneNumberUtil.getInstance();
 const userSchema = new mongoose.Schema<IUserDoc, IUserModel>(
   {
-    name: {
+    firstName: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    lastName: {
       type: String,
       required: true,
       trim: true,

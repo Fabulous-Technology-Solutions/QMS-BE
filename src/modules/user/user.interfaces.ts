@@ -3,7 +3,8 @@ import { QueryResult } from '../paginate/paginate';
 import { AccessAndRefreshTokens } from '../token/token.interfaces';
 
 export interface IUser {
-  name: string;
+  firstName: string;
+  lastName: string;
   email: string;
   password: string;
   contact?: string;
