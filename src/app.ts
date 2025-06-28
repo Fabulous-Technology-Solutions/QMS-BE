@@ -1,5 +1,5 @@
 import express, { Express } from 'express';
-import session from 'express-session';
+// import session from 'express-session';
 import helmet from 'helmet';
 import xss from 'xss-clean';
 import ExpressMongoSanitize from 'express-mongo-sanitize';
