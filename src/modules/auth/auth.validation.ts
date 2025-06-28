@@ -8,6 +8,9 @@ const registerBody: Record<keyof NewRegisteredUser, any> = {
   firstName: Joi.string().required(),
   lastName: Joi.string().required(),
   contact: Joi.string().optional(),
+  providers: Joi.array().items(Joi.string().valid('google', 'facebook')).optional()
+    .default(['local']),
+    googleId: Joi.string().optional(),
 };
 
 export const register = {

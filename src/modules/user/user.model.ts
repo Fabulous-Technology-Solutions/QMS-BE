@@ -32,10 +32,20 @@ const userSchema = new mongoose.Schema<IUserDoc, IUserModel>(
         }
       },
     },
+    providers: {
+      type: [String],
+      enum: ['google', 'local'],
+      default: ['local'],
+    },
+    googleId: {
+      type: String,
+      trim: true,
+      unique: true,
+      sparse: true, // allows multiple users to have no googleId
+    },
     contact: {
       type: String,
       trim: true,
-      // required: true,
       validate: {
         validator(value: string) {
           if (!value) return true;
@@ -51,7 +61,10 @@ const userSchema = new mongoose.Schema<IUserDoc, IUserModel>(
     },
     password: {
       type: String,
-      required: true,
+      required: function (this: any) {
+        // Required if 'local' is in providers array
+        return Array.isArray(this.providers) && this.providers.includes('local');
+      },
       trim: true,
       minlength: 8,
       validate(value: string) {

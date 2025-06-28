@@ -9,6 +9,8 @@ const createUserBody: Record<keyof NewCreatedUser, any> = {
   lastName: Joi.string().required(),
   role: Joi.string().required().valid('user', 'admin'),
   contact: Joi.string().optional(),
+  googleId: Joi.string().optional(),
+  providers: Joi.array().items(Joi.string().valid('google', 'local')).default(['local']),
 };
 
 export const createUser = {

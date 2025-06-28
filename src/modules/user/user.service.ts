@@ -29,6 +29,40 @@ export const registerUser = async (userBody: NewRegisteredUser): Promise<IUserDo
   return User.create(userBody);
 };
 
+// Add these imports at the top of your file
+import { Request, Response } from 'express';
+import { tokenService } from '../token';
+
+export const googleCallback = async (req: Request, res: Response) => {
+  console.log('in google callback', req.query);
+  let token: { access: { token: string } };
+  const user = (req as any).user;
+
+  if (!user) {
+    const error = encodeURIComponent('Authentication failed. Please try again.');
+    return res.redirect(`${process.env["CLIENT_URL"]}/login-error?error=${error}`);
+  }
+
+
+  token = await tokenService.generateAuthTokens(user);
+
+  const redirectUrl = new URL(`${process.env["CLIENT_URL"]}/login-success`);
+  redirectUrl.searchParams.set('token', token?.access["token"]);
+
+  return res.redirect(redirectUrl.toString());
+};
+
+
+
+
+export const getme= async (userId: mongoose.Types.ObjectId) => {
+  const user = await getUserById(userId);
+  if (!user) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'User not found');
+  }
+  return user;
+};
+
 /**
  * Query for users
  * @param {Object} filter - Mongo filter

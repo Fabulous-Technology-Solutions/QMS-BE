@@ -10,6 +10,8 @@ export interface IUser {
   contact?: string;
   role: string;
   isEmailVerified: boolean;
+  providers: string[];
+  googleId?: string;
 }
 
 export interface IUserDoc extends IUser, Document {
