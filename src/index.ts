@@ -2,9 +2,11 @@ import mongoose from 'mongoose';
 import app from './app';
 import config from './config/config';
 import logger from './modules/logger/logger';
+// import { seedPlans } from './modules/plans';
 
 let server: any;
 mongoose.connect(config.mongoose.url).then(() => {
+  // seedPlans();
   logger.info('Connected to MongoDB database');
   server = app.listen(config.port, () => {
     logger.info(`Listening to Port ${config.port}`);

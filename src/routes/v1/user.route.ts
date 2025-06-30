@@ -2,8 +2,6 @@ import express, { Router } from 'express';
 import { validate } from '../../modules/validate';
 import { auth } from '../../modules/auth';
 import { userController, userValidation } from '../../modules/user';
-import passport from 'passport';
-
 const router: Router = express.Router();
 
 router
@@ -12,36 +10,7 @@ router
   .get(auth('getUsers'), validate(userValidation.getUsers), userController.getUsers);
 
 router.get('/me', auth("admin"), userController.getMe);
-router.get('/login/withGoogle', (req, res, next) => {
-  const linking = req.query['linking'] === 'true';
-  const role = req.query['role'] || 'admin'; // Default to 'admin' if not provided
-  console.log(role, 'role from query params');
-  console.log(linking, 'linking from query params');
-  passport.authenticate('google', {
-    scope: ['profile', 'email'],
-    state: JSON.stringify({ linking, role })
-  })(req, res, next);
-});
-router.get(
-  '/login/google/callback',
-  (req, res, next) => {
-    passport.authenticate('google', async (err, user, info) => {
-      console.log('inside google callback', err, user, info);
-      if (err || !user) {
-        const error = encodeURIComponent(err?.toString() || 'Authentication failed.');
-        return res.redirect(`${process.env["CLIENT_URL"]}/login-error?error=${error}`);
-      }
-      req.login(user, async (loginErr) => {
-        if (loginErr) {
-          const error = encodeURIComponent(loginErr.toString());
-          return res.redirect(`${process.env["CLIENT_URL"]}/login-error?error=${error}`);
-        }
-        next(); // go to googleCallback
-      });
-    })(req, res, next);
-  },
-  userController.loginWithGoogle
-);
+
 
 router
   .route('/:userId')

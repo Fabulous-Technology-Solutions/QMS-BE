@@ -44,10 +44,6 @@ export const deleteUser = catchAsync(async (req: Request, res: Response) => {
 });
 
 
-export const loginWithGoogle = catchAsync(async (req: Request, res: Response) => {  
-
-  await userService.googleCallback(req, res);
-});
 
 
 export const getMe = catchAsync(async (req: Request, res: Response) => {

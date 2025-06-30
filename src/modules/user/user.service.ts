@@ -4,6 +4,7 @@ import User from './user.model';
 import ApiError from '../errors/ApiError';
 import { IOptions, QueryResult } from '../paginate/paginate';
 import { NewCreatedUser, UpdateUserBody, IUserDoc, NewRegisteredUser } from './user.interfaces';
+import axios from 'axios';
 
 /**
  * Create a user
@@ -29,33 +30,68 @@ export const registerUser = async (userBody: NewRegisteredUser): Promise<IUserDo
   return User.create(userBody);
 };
 
-// Add these imports at the top of your file
-import { Request, Response } from 'express';
-import { tokenService } from '../token';
 
-export const googleCallback = async (req: Request, res: Response) => {
-  console.log('in google callback', req.query);
-  let token: { access: { token: string } };
-  const user = (req as any).user;
+export const loginWithGoogle = async (body: any): Promise<IUserDoc> => {
+  const { access_token } = body;                                                                                                                                                                                                                                                                                                                                                                                                                         
 
-  if (!user) {
-    const error = encodeURIComponent('Authentication failed. Please try again.');
-    return res.redirect(`${process.env["CLIENT_URL"]}/login-error?error=${error}`);
+  const response = await axios.get('https://www.googleapis.com/oauth2/v3/userinfo', {
+    headers: {
+      Authorization: `Bearer ${access_token}`,
+    },
+  });
+
+  const userData = response.data;
+
+  console.log('User Data from Google:', userData);
+
+  let user = await User.findOne({ email: userData?.email });
+
+  if (user && user.providers.includes('local')) {
+    throw new ApiError(httpStatus.BAD_REQUEST, 'This email is already registered. Please log in using your email and password');
   }
 
+  if (user) {
+    let needsUpdate = false;
 
-  token = await tokenService.generateAuthTokens(user);
+    if (!user.providers.includes('google')) {
+      user.providers.push('google');
+      needsUpdate = true;
+    }
 
-  const redirectUrl = new URL(`${process.env["CLIENT_URL"]}/login-success`);
-  redirectUrl.searchParams.set('token', token?.access["token"]);
+    if (!user.googleId) {
+      user.googleId = userData?.sub;
+      needsUpdate = true;
+    }
 
-  return res.redirect(redirectUrl.toString());
+    if (!user.isEmailVerified) {
+      user.isEmailVerified = true;
+      needsUpdate = true;
+    }
+
+    if (needsUpdate) {
+      await user.save();
+    }
+
+    return user;
+  }
+
+  user = await User.create({
+    googleId: userData?.sub,
+    firstName: userData?.givenName || 'Unknown',
+    lastName: userData?.familyName || 'Unknown',
+    role: "admin",
+    email: userData?.email,
+    isEmailVerified: true,
+    providers: ['google']
+  });
+
+  return user;
 };
 
 
 
 
-export const getme= async (userId: mongoose.Types.ObjectId) => {
+export const getme = async (userId: mongoose.Types.ObjectId) => {
   const user = await getUserById(userId);
   if (!user) {
     throw new ApiError(httpStatus.NOT_FOUND, 'User not found');

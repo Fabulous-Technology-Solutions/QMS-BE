@@ -13,8 +13,6 @@ import { jwtStrategy } from './modules/auth';
 import { authLimiter } from './modules/utils';
 import { ApiError, errorConverter, errorHandler } from './modules/errors';
 import routes from './routes/v1';
-import configureGoogleStrategy from './modules/user/user.googlestrategy';
-configureGoogleStrategy(passport);
 
 
 const app: Express = express();
