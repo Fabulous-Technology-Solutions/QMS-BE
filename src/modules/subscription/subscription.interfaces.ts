@@ -1,8 +1,9 @@
-import { Document } from 'mongoose';
+import mongoose, { Document } from 'mongoose';
+import { IPlanFeature } from '../plans/plans.modal';
 
 export interface ISubscription extends Document {
-  userId: string;
-  planId: string;
+  userId: mongoose.Schema.Types.ObjectId;
+  planId: mongoose.Schema.Types.ObjectId;
   stripeCustomerId: string;
   stripeSubscriptionId: string;
   stripePriceId: string;
@@ -37,15 +38,11 @@ export interface IUpdateSubscriptionRequest {
 }
 
 export interface ISubscriptionWithDetails extends ISubscription {
-  plan: {
+
     name: string;
     category: string;
-    features: any[];
-  };
-  user: {
-    email: string;
-    name: string;
-  };
+    features: IPlanFeature;
+  
 }
 
 export interface IPaymentMethodRequest {

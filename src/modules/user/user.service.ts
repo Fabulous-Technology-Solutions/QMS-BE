@@ -131,7 +131,10 @@ export const queryUsers = async (filter: Record<string, any>, options: IOptions)
  * @param {mongoose.Types.ObjectId} id
  * @returns {Promise<IUserDoc | null>}
  */
-export const getUserById = async (id: mongoose.Types.ObjectId): Promise<IUserDoc | null> => User.findById(id);
+export const getUserById = async (id: mongoose.Types.ObjectId): Promise<IUserDoc | null> => {
+const user = await User.findById(id);
+return user;
+};
 
 /**
  * Get user by email

@@ -11,10 +11,12 @@ import {
   ISubscriptionWithDetails,
   IPaymentMethodRequest,
 } from './subscription.interfaces';
-import Stripe from 'stripe';
+import Stripe from 'stripe'; 
+
+
 
 /**
- * Create a new subscription
+ * Create a new                                                                                                                                        subscription
  */
 export const createSubscription = async (data: ICreateSubscriptionRequest): Promise<ISubscription> => {
   const { userId, planId, priceId, paymentMethodId, billingCycle } = data;
@@ -42,7 +44,7 @@ export const createSubscription = async (data: ICreateSubscriptionRequest): Prom
     const stripeCustomerId = await getOrCreateStripeCustomer(userId);
 
     // Attach payment method to customer
-    await subscriptionUtils.attachPaymentMethod({
+    await subscriptionUtils.attachPaymentMethod({                                               
       paymentMethodId,
       customerId: stripeCustomerId,
     });
@@ -95,16 +97,59 @@ export const createSubscription = async (data: ICreateSubscriptionRequest): Prom
 /**
  * Get user's subscription
  */
-export const getUserSubscription = async (userId: string): Promise<ISubscriptionWithDetails | null> => {
-  const subscription = await Subscription.findOne({
-    userId,
-    status: { $in: ['active', 'trialing', 'past_due'] },
-  })
-    .populate('planId', 'name category features')
-    .populate('userId', 'email name')
-    .lean();
+export const getUserSubscription = async (userId: string): Promise<ISubscriptionWithDetails[]> => {
+  const subscription = await Subscription.aggregate([
+    {
+      $match: {
+        userId: userId,
+        status: { $in: ['active', 'trialing', 'past_due'] },
+      },
+    },
+    {
+      $lookup: {
+        from: 'plans',
+        localField: 'planId',
+        foreignField: '_id',
+        as: 'plan',
+      },
+    },
+    {
+      $unwind: {
+        path: '$plan',
+        preserveNullAndEmptyArrays: true,
+      },
+    },
+    {
+      $lookup: {
+        from: 'users',
+        localField: 'userId',
+        foreignField: '_id',
+        as: 'user',
+      },
+    },
+    {
+      $unwind: {
+        path: '$user',
+        preserveNullAndEmptyArrays: true,
+      },
+    },
+    {
+      $project: {
+        _id: 1,
+        userId: 1,
+        planId: 1,
+        status: 1,
+        billingCycle: 1,
+        currentPeriodStart: 1,
+        currentPeriodEnd: 1,
+        name: '$plan.name',
+        category: '$plan.category',
+        features: '$plan.features'
+      },
+    },
+  ]);
 
-  return subscription as ISubscriptionWithDetails | null;
+  return subscription as ISubscriptionWithDetails[];
 };
 
 /**
@@ -372,10 +417,6 @@ async function handleSubscriptionUpdated(subscription: any): Promise<void> {
 
   if (localSubscription) {
     localSubscription.status = subscription.status;
-    localSubscription.currentPeriodStart = new Date(subscription.current_period_start * 1000);
-    localSubscription.currentPeriodEnd = new Date(subscription.current_period_end * 1000);
-    localSubscription.cancelAtPeriodEnd = subscription.cancel_at_period_end;
-
     await localSubscription.save();
   }
 }

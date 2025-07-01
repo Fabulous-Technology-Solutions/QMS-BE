@@ -3,6 +3,7 @@ import { Request, Response } from 'express';
 import catchAsync from '../utils/catchAsync';
 import * as planService from './plans.service';
 
+
 /**
  * Get all plans
  */
@@ -13,8 +14,10 @@ export const getPlans = catchAsync(async (req: Request, res: Response) => {
   if (category) {
     plans = await planService.getPlansByCategory(category as string);
   } else {
-    
-    plans = await planService.getAllPlans();
+    // req.headers.authorization;
+
+
+    plans = await planService.getAllPlans(req.user);
   }
 
   res.status(httpStatus.OK).json({

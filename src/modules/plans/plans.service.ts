@@ -2,6 +2,7 @@ import Plan, { IPlanDoc } from './plans.modal';
 import { ApiError } from '../errors';
 import httpStatus from 'http-status';
 import subscriptionUtils from '../utils/subscription.utils';
+import { IUserDoc } from '../user/user.interfaces';
 
 /**
  * Interface for plan with Stripe price IDs (plain object)
@@ -40,45 +41,92 @@ interface IPlanWithStripeIds {
  * @returns {Promise<IPlanWithStripeIds[]>}
  */
 
-export const getAllPlans = async (): Promise<Array<IPlanWithStripeIds>> => {
+export const getAllPlans = async (user: IUserDoc): Promise<Array<IPlanWithStripeIds>> => {
     try {
+
+        console.log("user:", user);
+        const userId = user?._id; // or wherever it comes from
+        const matchConditions = [
+
+        ];
+
+        if (userId) {
+            matchConditions.push({
+                $lookup: {
+                    from: "subscriptions",
+                    let: { planId: "$_id" },
+                    pipeline: [
+                        {
+                            $match: {
+                                $expr: {
+                                    $and: [
+                                        { $eq: ["$planId", "$$planId"] },
+                                        { $eq: ["$userId", userId] }
+                                    ]
+                                }
+                            }
+                        }
+                    ],
+                    as: "subscription"
+                }
+            },
+                {
+                    $unwind: {
+                        path: '$subscription',
+                        preserveNullAndEmptyArrays: true
+                    }
+                });
+
+        }
+
+
+
         const [stripeProducts, stripePrices, plans] = await Promise.all([
             subscriptionUtils.getProducts(),
             subscriptionUtils.getPrices(),
-            Plan.find({})
+            Plan.aggregate([
+                { $match: { isActive: true } },
+                ...matchConditions,
+            ])
         ]);
-        
+
+        console.log('Stripe Products:', plans);
+
         const plansWithStripeIds = plans.map(plan => {
-            const planObj = plan.toObject();
-            
+            const planObj = plan;
+
             // Find matching Stripe product by category (stored in metadata)
-            const matchingProduct = stripeProducts.data?.find((product: any) => 
+            const matchingProduct = stripeProducts.data?.find((product: any) =>
                 product.metadata?.category === plan.category
             );
-            
+
             let yearlyPriceId: string | undefined;
             let monthlyPriceId: string | undefined;
-            
+
             if (matchingProduct) {
                 // Find prices for this product
-                const productPrices = stripePrices.data?.filter((price: any) => 
+                const productPrices = stripePrices.data?.filter((price: any) =>
                     price.product === matchingProduct.id
                 );
-                
+
                 // Find yearly and monthly prices
-                yearlyPriceId = productPrices?.find((price: any) => 
+                yearlyPriceId = productPrices?.find((price: any) =>
                     price.recurring?.interval === 'year'
                 )?.id;
-                
-                monthlyPriceId = productPrices?.find((price: any) => 
+
+                monthlyPriceId = productPrices?.find((price: any) =>
                     price.recurring?.interval === 'month'
                 )?.id;
             }
-            
+
             return {
                 ...planObj,
                 yearlyPriceId,
-                monthlyPriceId
+                monthlyPriceId,
+                subscription: {
+                    status: plan?.subscription?.status,
+                    billingCycle: plan?.subscription?.billingCycle
+                }
             } as IPlanWithStripeIds;
         });
 
@@ -97,10 +145,10 @@ export const getAllPlans = async (): Promise<Array<IPlanWithStripeIds>> => {
 export const getAllPlansBasic = async (): Promise<Array<IPlanWithStripeIds>> => {
     try {
         const plans = await Plan.find({});
-        
+
         const plansWithStripeIds = plans.map(plan => {
             const planObj = plan.toObject();
-            
+
             return {
                 ...planObj,
                 yearlyPriceId: planObj.yearlyPriceId,

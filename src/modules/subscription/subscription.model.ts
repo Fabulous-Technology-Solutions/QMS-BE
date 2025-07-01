@@ -4,12 +4,12 @@ import { ISubscription } from './subscription.interfaces';
 const subscriptionSchema = new mongoose.Schema<ISubscription>(
   {
     userId: {
-      type: String,
+      type: mongoose.Schema.Types.ObjectId,
       required: true,
       ref: 'User',
     },
     planId: {
-      type: String,
+      type: mongoose.Schema.Types.ObjectId,
       required: true,
       ref: 'Plan',
     },
