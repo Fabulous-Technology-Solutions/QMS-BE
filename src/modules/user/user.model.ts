@@ -83,6 +83,11 @@ const userSchema = new mongoose.Schema<IUserDoc, IUserModel>(
       type: Boolean,
       default: false,
     },
+    stripeCustomerId: {
+      type: String,
+      unique: true,
+      sparse: true, // allows multiple users to have no stripeCustomerId
+    },
   },
   {
     timestamps: true,

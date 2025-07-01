@@ -31,6 +31,8 @@ export interface IPlanDoc extends mongoose.Document {
   createdAt: Date;
   updatedAt: Date;
   yearlyDiscount: number; // virtual property
+  yearlyPriceId?: string; // Stripe price ID for yearly billing
+  monthlyPriceId?: string; // Stripe price ID for monthly billing
 }
 
 export interface IPlanModel extends mongoose.Model<IPlanDoc> {

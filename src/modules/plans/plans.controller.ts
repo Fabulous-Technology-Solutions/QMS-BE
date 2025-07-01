@@ -13,6 +13,7 @@ export const getPlans = catchAsync(async (req: Request, res: Response) => {
   if (category) {
     plans = await planService.getPlansByCategory(category as string);
   } else {
+    
     plans = await planService.getAllPlans();
   }
 

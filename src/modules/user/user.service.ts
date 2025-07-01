@@ -30,24 +30,40 @@ export const registerUser = async (userBody: NewRegisteredUser): Promise<IUserDo
   return User.create(userBody);
 };
 
-
 export const loginWithGoogle = async (body: any): Promise<IUserDoc> => {
-  const { access_token } = body;                                                                                                                                                                                                                                                                                                                                                                                                                         
+  const { access_token } = body;
 
-  const response = await axios.get('https://www.googleapis.com/oauth2/v3/userinfo', {
-    headers: {
-      Authorization: `Bearer ${access_token}`,
-    },
-  });
+  if (!access_token) {
+    throw new ApiError(httpStatus.BAD_REQUEST, 'Access token is required');
+  }
 
-  const userData = response.data;
+  let userData;
 
-  console.log('User Data from Google:', userData);
+  try {
+    const response = await axios.get('https://www.googleapis.com/oauth2/v3/userinfo', {
+      headers: {
+        Authorization: `Bearer ${access_token}`,
+      },
+    });
 
-  let user = await User.findOne({ email: userData?.email });
+    userData = response.data;
+  } catch (err: any) {
+    console.error('Google token error:', err.response?.data || err.message);
+    throw new ApiError(httpStatus.UNAUTHORIZED, 'Invalid or expired Google access token');
+  }
+
+  const email = userData?.email;
+  if (!email) {
+    throw new ApiError(httpStatus.BAD_REQUEST, 'Google account did not return an email');
+  }
+
+  let user = await User.findOne({ email });
 
   if (user && user.providers.includes('local')) {
-    throw new ApiError(httpStatus.BAD_REQUEST, 'This email is already registered. Please log in using your email and password');
+    throw new ApiError(
+      httpStatus.BAD_REQUEST,
+      'This email is already registered. Please log in using your email and password'
+    );
   }
 
   if (user) {
@@ -75,19 +91,19 @@ export const loginWithGoogle = async (body: any): Promise<IUserDoc> => {
     return user;
   }
 
+  // Create a new user
   user = await User.create({
     googleId: userData?.sub,
-    firstName: userData?.givenName || 'Unknown',
-    lastName: userData?.familyName || 'Unknown',
-    role: "admin",
-    email: userData?.email,
+    firstName: userData?.given_name || 'Unknown',
+    lastName: userData?.family_name || 'Unknown',
+    role: 'admin',
+    email,
     isEmailVerified: true,
-    providers: ['google']
+    providers: ['google'],
   });
 
   return user;
 };
-
 
 
 

@@ -3,6 +3,7 @@ import authRoute from './auth.route';
 import docsRoute from './swagger.route';
 import userRoute from './user.route';
 import planRoute from '../../modules/plans/plans.route';
+import { subscriptionRoutes, webhookRouter } from '../../modules/subscription';
 import config from '../../config/config';
 
 const router = express.Router();
@@ -25,6 +26,18 @@ const defaultIRoute: IRoute[] = [
     path: '/plans',
     route: planRoute,
   },
+  {
+    path: '/subscriptions',
+    route: subscriptionRoutes,
+  },
+];
+
+// Add webhook route separately (should be public)
+const webhookIRoute: IRoute[] = [
+  {
+    path: '/stripe',
+    route: webhookRouter,
+  },
 ];
 
 const devIRoute: IRoute[] = [
@@ -36,6 +49,11 @@ const devIRoute: IRoute[] = [
 ];
 
 defaultIRoute.forEach((route) => {
+  router.use(route.path, route.route);
+});
+
+// Register webhook routes (these should be public)
+webhookIRoute.forEach((route) => {
   router.use(route.path, route.route);
 });
 

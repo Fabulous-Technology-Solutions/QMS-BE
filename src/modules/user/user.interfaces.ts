@@ -12,6 +12,7 @@ export interface IUser {
   isEmailVerified: boolean;
   providers: string[];
   googleId?: string;
+  stripeCustomerId?: string;
 }
 
 export interface IUserDoc extends IUser, Document {
@@ -25,9 +26,9 @@ export interface IUserModel extends Model<IUserDoc> {
 
 export type UpdateUserBody = Partial<IUser>;
 
-export type NewRegisteredUser = Omit<IUser, 'role' | 'isEmailVerified'>;
+export type NewRegisteredUser = Omit<IUser, 'role' | 'isEmailVerified' | 'stripeCustomerId'>;
 
-export type NewCreatedUser = Omit<IUser, 'isEmailVerified'>;
+export type NewCreatedUser = Omit<IUser, 'isEmailVerified' | 'stripeCustomerId'>;
 
 export interface IUserWithTokens {
   user: IUserDoc;
