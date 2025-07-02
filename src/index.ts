@@ -5,12 +5,17 @@ import logger from './modules/logger/logger';
 // import { seedPlans } from './modules/plans';
 
 let server: any;
+server = app.listen(config.port, () => {
+  logger.info(`Listening to Port ${config.port}`);
+});
+app.use("/", (_, res) => {
+
+  res.send("Hello World");
+})
 mongoose.connect(config.mongoose.url).then(() => {
   // seedPlans();
   logger.info('Connected to MongoDB database');
-  server = app.listen(config.port, () => {
-    logger.info(`Listening to Port ${config.port}`);
-  });
+
 });
 
 const exitHandler = () => {
@@ -38,4 +43,3 @@ process.on('SIGTERM', () => {
     server.close();
   }
 });
-                                                       
