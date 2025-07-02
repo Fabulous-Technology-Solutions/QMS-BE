@@ -9,7 +9,7 @@
       "@/modules/*": ["src/modules/*"]
     },
     "resolveJsonModule": true,
-    "sourceMap": true,
+    "sourceMap": false,
     "outDir": "./dist",
     "removeComments": false,
     "noEmitOnError": true,
