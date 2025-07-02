@@ -1,5 +1,4 @@
 import express, { Express } from 'express';
-// import session from 'express-session';
 import helmet from 'helmet';
 import xss from 'xss-clean';
 import ExpressMongoSanitize from 'express-mongo-sanitize';
@@ -14,7 +13,6 @@ import { authLimiter } from './modules/utils';
 import { ApiError, errorConverter, errorHandler } from './modules/errors';
 import routes from './routes/v1';
 
-
 const app: Express = express();
 
 if (config.env !== 'test') {
@@ -22,19 +20,6 @@ if (config.env !== 'test') {
   app.use(morgan.errorHandler);
 }
 app.set('trust proxy', 1);
-
-// app.use(
-//   session({
-//     secret:  'your-secret-key',
-//     resave: false,
-//     saveUninitialized: false,
-//     cookie: {
-//       secure: false, // true if using HTTPS
-//       maxAge: 1000 * 60 * 60 * 24 // 1 day
-//     },
-    
-//   })
-// );
 
 // set security HTTP headers
 app.use(helmet());
@@ -61,9 +46,7 @@ app.use(passport.initialize());
 passport.use('jwt', jwtStrategy);
 app.use(passport.initialize());
 
-
 // loading authentication strategies(Google, Facebook)
-
 
 // limit repeated failed requests to auth endpoints
 if (config.env === 'production') {
