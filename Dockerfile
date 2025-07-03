@@ -1,28 +1,42 @@
 # === Base build stage ===
-FROM node:18.0.0-alpine AS base
+FROM node:18-alpine AS base
 
-WORKDIR /usr/src/app
+WORKDIR /app
 
-# Copy project files
-COPY package.json yarn.lock tsconfig.json ecosystem.config.json ./
+# Copy package files
+COPY package.json yarn.lock tsconfig.json ./
+
+# Copy source code and necessary config files
 COPY ./src ./src
+COPY ./packages ./packages
 
-# Install dependencies and compile TypeScript
-RUN yarn install --pure-lockfile && yarn compile
+# Install all dependencies (including dev dependencies for building)
+RUN yarn install --frozen-lockfile
+
+# Compile TypeScript
+RUN yarn compile
 
 
 # === Production stage ===
 FROM node:18-alpine AS production
 
-WORKDIR /usr/prod/app
+WORKDIR /app
 ENV NODE_ENV=production
 
-# Copy only required files for production
-COPY package.json yarn.lock ecosystem.config.json ./
-RUN yarn install --production --pure-lockfile
+# Copy package files
+COPY package.json yarn.lock ./
+
+# Install only production dependencies
+RUN yarn install --production --frozen-lockfile
 
 # Copy compiled output from base stage
-COPY --from=base /usr/src/app/dist ./dist
+COPY --from=base /app/dist ./dist
 
-# Optional: run command
+# Copy ecosystem config for PM2 if using PM2
+COPY ecosystem.config.json ./
+
+# Expose port (adjust if needed)
+EXPOSE 3000
+
+# Run the application
 CMD ["node", "dist/index.js"]
