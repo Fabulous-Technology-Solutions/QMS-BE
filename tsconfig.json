@@ -1,9 +1,10 @@
 {
   "compilerOptions": {
-    "target": "es2018",
-    "module": "es6",
+    "target": "es2020",
+    "module": "commonjs",
     "rootDir": "./src",
     "moduleResolution": "node",
+    "allowSyntheticDefaultImports": true,
     "baseUrl": "./",
     "paths": {
       "@/modules/*": ["src/modules/*"]
@@ -34,7 +35,6 @@
     "noPropertyAccessFromIndexSignature": true,
     "allowUnusedLabels": false,
     "allowUnreachableCode": false,
-    "skipLibCheck": true,
-    "jsx": "react-jsx"
+    "skipLibCheck": true
   }
 }
