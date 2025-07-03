@@ -1,5 +1,5 @@
 # === Base build stage ===
-FROM node:18-alpine AS base
+FROM node:18.0.0-alpine AS base
 
 WORKDIR /usr/src/app
 
