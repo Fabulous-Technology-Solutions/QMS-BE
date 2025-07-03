@@ -4,7 +4,9 @@ FROM node:18-alpine AS base
 WORKDIR /app
 
 # Copy package files
-COPY package.json yarn.lock tsconfig.json ./
+COPY package.json ./
+COPY yarn.lock ./
+COPY tsconfig.json ./
 
 # Copy source code and necessary config files
 COPY ./src ./src
@@ -24,7 +26,8 @@ WORKDIR /app
 ENV NODE_ENV=production
 
 # Copy package files
-COPY package.json yarn.lock ./
+COPY package.json ./
+COPY yarn.lock ./
 
 # Install only production dependencies
 RUN yarn install --production --frozen-lockfile
