@@ -6,10 +6,6 @@ import logger from './modules/logger/logger';
 
 let server: any;
 
-app.use("/", (_, res) => {
-
-  res.send("Hello World");
-})
 mongoose.connect(config.mongoose.url).then(() => {
   server = app.listen(config.port, () => {
     logger.info(`Listening to Port ${config.port}`);
@@ -17,6 +13,7 @@ mongoose.connect(config.mongoose.url).then(() => {
   logger.info('Connected to MongoDB database');
 
 });
+
 
 const exitHandler = () => {
   if (server) {
