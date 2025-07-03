@@ -68,7 +68,7 @@ export const saveToken = async (
 export const verifyToken = async (token: string, type: string): Promise<ITokenDoc> => {
   const payload = jwt.verify(token, config.jwt.secret);
   if (typeof payload.sub !== 'string') {
-    throw new ApiError(httpStatus.BAD_REQUEST, 'bad user');
+    throw new ApiError('bad user', httpStatus.BAD_REQUEST);
   }
   const tokenDoc = await Token.findOne({
     token,
@@ -115,7 +115,7 @@ export const generateAuthTokens = async (user: IUserDoc): Promise<AccessAndRefre
 export const generateResetPasswordToken = async (email: string): Promise<string> => {
   const user = await userService.getUserByEmail(email);
   if (!user) {
-    throw new ApiError(httpStatus.NO_CONTENT, '');
+    throw new ApiError('User not found', httpStatus.NOT_FOUND);
   }
   const expires = moment().add(config.jwt.resetPasswordExpirationMinutes, 'minutes');
   const resetPasswordToken = generateToken(user.id, expires, tokenTypes.RESET_PASSWORD);

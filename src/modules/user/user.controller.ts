@@ -24,7 +24,7 @@ export const getUser = catchAsync(async (req: Request, res: Response) => {
   if (typeof req.params['userId'] === 'string') {
     const user = await userService.getUserById(new mongoose.Types.ObjectId(req.params['userId']));
     if (!user) {
-      throw new ApiError(httpStatus.NOT_FOUND, 'User not found');
+      throw new ApiError('User not found', httpStatus.NOT_FOUND);
     }
     res.send(user);
   }

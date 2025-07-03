@@ -26,7 +26,7 @@ export const createSubscription = async (data: ICreateSubscriptionRequest): Prom
     // Validate plan exists
     const plan = await Plan.findById(planId);
     if (!plan) {
-      throw new ApiError(httpStatus.NOT_FOUND, 'Plan not found');
+      throw new ApiError('Plan not found',httpStatus.NOT_FOUND,);
     }
 
     // Check if user already has an active subscription
@@ -37,7 +37,7 @@ export const createSubscription = async (data: ICreateSubscriptionRequest): Prom
     });
 
     if (existingSubscription) {
-      throw new ApiError(httpStatus.BAD_REQUEST, 'User already has an active subscription');
+      throw new ApiError('User already has an active subscription', httpStatus.BAD_REQUEST);
     }
 
     // Create Stripe customer if not exists (you'll need to implement this based on your user model)
@@ -225,7 +225,7 @@ export const getActiveSubscriptionwithPlan = async (userId: string): Promise<ISu
 export const getSubscriptionById = async (subscriptionId: string): Promise<ISubscription> => {
   const subscription = await Subscription.findById(subscriptionId);
   if (!subscription) {
-    throw new ApiError(httpStatus.NOT_FOUND, 'Subscription not found');
+    throw new ApiError('Subscription not found', httpStatus.NOT_FOUND);
   }
   return subscription;
 };
@@ -401,7 +401,7 @@ async function getOrCreateStripeCustomer(userId: string): Promise<string> {
     // Find the user by ID
     const user = await User.findById(userId);
     if (!user) {
-      throw new ApiError(httpStatus.NOT_FOUND, 'User not found');
+      throw new ApiError('User not found', httpStatus.NOT_FOUND);
     }
 
     // If user already has a Stripe customer ID, return it
@@ -431,7 +431,7 @@ async function getOrCreateStripeCustomer(userId: string): Promise<string> {
     if (error instanceof ApiError) {
       throw error;
     }
-    throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, 'Failed to create Stripe customer');
+    throw new ApiError('Failed to create Stripe customer', httpStatus.INTERNAL_SERVER_ERROR);
   }
 }
 
@@ -492,7 +492,7 @@ export const getUserStripeCustomerId = async (userId: string): Promise<string> =
   try {
     const user = await User.findById(userId);
     if (!user) {
-      throw new ApiError(httpStatus.NOT_FOUND, 'User not found');
+      throw new ApiError('User not found', httpStatus.NOT_FOUND);
     }
 
     if (!user.stripeCustomerId) {
@@ -506,7 +506,7 @@ export const getUserStripeCustomerId = async (userId: string): Promise<string> =
     if (error instanceof ApiError) {
       throw error;
     }
-    throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, 'Failed to get Stripe customer ID');
+    throw new ApiError('Failed to get Stripe customer ID', httpStatus.INTERNAL_SERVER_ERROR);
   }
 };
 
@@ -528,7 +528,7 @@ export const updateStripeCustomer = async (userId: string, updateData: {
   try {
     const user = await User.findById(userId);
     if (!user) {
-      throw new ApiError(httpStatus.NOT_FOUND, 'User not found');
+      throw new ApiError('User not found', httpStatus.NOT_FOUND);
     }
 
     const stripeCustomerId = await getUserStripeCustomerId(userId);
@@ -539,6 +539,6 @@ export const updateStripeCustomer = async (userId: string, updateData: {
     if (error instanceof ApiError) {
       throw error;
     }
-    throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, 'Failed to update Stripe customer');
+    throw new ApiError('Failed to update Stripe customer', httpStatus.INTERNAL_SERVER_ERROR);
   }
 };

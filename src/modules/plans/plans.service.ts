@@ -134,7 +134,7 @@ export const getAllPlans = async (user: IUserDoc): Promise<Array<IPlanWithStripe
         return plansWithStripeIds;
     } catch (error) {
         console.error('Error fetching plans with Stripe data:', error);
-        throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, 'Failed to fetch plans');
+        throw new ApiError('Failed to fetch plans', httpStatus.INTERNAL_SERVER_ERROR);
     }
 };
 
@@ -159,7 +159,7 @@ export const getAllPlansBasic = async (): Promise<Array<IPlanWithStripeIds>> => 
         return plansWithStripeIds;
     } catch (error) {
         console.error('Error fetching plans:', error);
-        throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, 'Failed to fetch plans');
+        throw new ApiError('Failed to fetch plans', httpStatus.INTERNAL_SERVER_ERROR);
     }
 };
 
@@ -172,7 +172,7 @@ export const getPlansByCategory = async (category: string): Promise<IPlanDoc[]> 
     const validCategories = ['document-control', 'audit-management', 'capa-management', 'risk-management'];
 
     if (!validCategories.includes(category)) {
-        throw new ApiError(httpStatus.BAD_REQUEST, 'Invalid plan category');
+        throw new ApiError('Invalid plan category', httpStatus.BAD_REQUEST);
     }
 
     return Plan.getActiveByCategory(category);
@@ -194,7 +194,7 @@ export const getPopularPlans = async (): Promise<IPlanDoc[]> => {
 export const getPlanBySlug = async (slug: string): Promise<IPlanDoc> => {
     const plan = await Plan.findOne({ slug, isActive: true });
     if (!plan) {
-        throw new ApiError(httpStatus.NOT_FOUND, 'Plan not found');
+        throw new ApiError('Plan not found', httpStatus.NOT_FOUND);
     }
     return plan;
 };
@@ -207,7 +207,7 @@ export const getPlanBySlug = async (slug: string): Promise<IPlanDoc> => {
 export const getPlanById = async (planId: string): Promise<IPlanDoc> => {
     const plan = await Plan.findById(planId);
     if (!plan) {
-        throw new ApiError(httpStatus.NOT_FOUND, 'Plan not found');
+        throw new ApiError('Plan not found', httpStatus.NOT_FOUND);
     }
     return plan;
 };

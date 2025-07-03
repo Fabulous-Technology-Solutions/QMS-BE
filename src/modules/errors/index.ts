@@ -1,4 +1,4 @@
 import ApiError from './ApiError';
-import { errorConverter, errorHandler } from './error';
+import GlobalError from './error';
 
-export { ApiError, errorHandler, errorConverter };
+export { ApiError, GlobalError };

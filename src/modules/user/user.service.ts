@@ -15,7 +15,7 @@ import subAdmin from './user.subAdmin';
  */
 export const createUser = async (userBody: CreateNewUser): Promise<IUserDoc> => {
   if (await User.isEmailTaken(userBody.email)) {
-    throw new ApiError(httpStatus.BAD_REQUEST, 'Email already taken');
+    throw new ApiError('Email already taken', httpStatus.BAD_REQUEST);
   }
   if(userBody.role === 'subAdmin') {
     return subAdmin.create(userBody);
@@ -30,7 +30,7 @@ export const createUser = async (userBody: CreateNewUser): Promise<IUserDoc> => 
  */
 export const registerUser = async (userBody: NewRegisteredUser): Promise<IUserDoc> => {
   if (await User.isEmailTaken(userBody.email)) {
-    throw new ApiError(httpStatus.BAD_REQUEST, 'Email already taken');
+    throw new ApiError('Email already taken', httpStatus.BAD_REQUEST);
   }
   return User.create(userBody);
 };
@@ -39,7 +39,7 @@ export const loginWithGoogle = async (body: any): Promise<IUserDoc> => {
   const { access_token } = body;
 
   if (!access_token) {
-    throw new ApiError(httpStatus.BAD_REQUEST, 'Access token is required');
+    throw new ApiError('Access token is required', httpStatus.BAD_REQUEST);
   }
 
   let userData;
@@ -54,20 +54,20 @@ export const loginWithGoogle = async (body: any): Promise<IUserDoc> => {
     userData = response.data;
   } catch (err: any) {
     console.error('Google token error:', err.response?.data || err.message);
-    throw new ApiError(httpStatus.UNAUTHORIZED, 'Invalid or expired Google access token');
+    throw new ApiError('Invalid or expired Google access token', httpStatus.UNAUTHORIZED);
   }
 
   const email = userData?.email;
   if (!email) {
-    throw new ApiError(httpStatus.BAD_REQUEST, 'Google account did not return an email');
+    throw new ApiError('Google account did not return an email', httpStatus.BAD_REQUEST);
   }
 
   let user = await User.findOne({ email });
 
   if (user && user.providers.includes('local')) {
     throw new ApiError(
-      httpStatus.BAD_REQUEST,
-      'This email is already registered. Please log in using your email and password'
+      'This email is already registered. Please log in using your email and password',
+      httpStatus.BAD_REQUEST
     );
   }
 
@@ -115,7 +115,7 @@ export const loginWithGoogle = async (body: any): Promise<IUserDoc> => {
 export const getme = async (userId: mongoose.Types.ObjectId) => {
   const user = await getUserById(userId);
   if (!user) {
-    throw new ApiError(httpStatus.NOT_FOUND, 'User not found');
+    throw new ApiError('User not found', httpStatus.NOT_FOUND);
   }
   return user;
 };
@@ -160,10 +160,10 @@ export const updateUserById = async (
 ): Promise<IUserDoc | null> => {
   const user = await getUserById(userId);
   if (!user) {
-    throw new ApiError(httpStatus.NOT_FOUND, 'User not found');
+    throw new ApiError('User not found', httpStatus.NOT_FOUND);
   }
   if (updateBody.email && (await User.isEmailTaken(updateBody.email, userId))) {
-    throw new ApiError(httpStatus.BAD_REQUEST, 'Email already taken');
+    throw new ApiError('Email already taken', httpStatus.BAD_REQUEST);
   }
   Object.assign(user, updateBody);
   await user.save();
@@ -178,7 +178,7 @@ export const updateUserById = async (
 export const deleteUserById = async (userId: mongoose.Types.ObjectId): Promise<IUserDoc | null> => {
   const user = await getUserById(userId);
   if (!user) {
-    throw new ApiError(httpStatus.NOT_FOUND, 'User not found');
+    throw new ApiError('User not found', httpStatus.NOT_FOUND);
   }
   await user.deleteOne();
   return user;

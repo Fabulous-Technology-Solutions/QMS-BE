@@ -11,7 +11,7 @@ import config from './config/config';
 import { morgan } from './modules/logger';
 import { jwtStrategy } from './modules/auth';
 import { authLimiter } from './modules/utils';
-import { ApiError, errorConverter, errorHandler } from './modules/errors';
+import { ApiError, GlobalError } from './modules/errors';
 import routes from './routes/v1';
 
 
@@ -32,7 +32,7 @@ app.set('trust proxy', 1);
 //       secure: false, // true if using HTTPS
 //       maxAge: 1000 * 60 * 60 * 24 // 1 day
 //     },
-    
+
 //   })
 // );
 
@@ -72,21 +72,20 @@ if (config.env === 'production') {
 
 // v1 api routes
 app.use('/v1', routes);
-app.use("/", (_, res) => {
-
-  res.send("Server is working .....");
-})
 
 
+
+app.get("/api/health", (_, res) => {
+  res.send({ status: "healthy" });
+});
 // send back a 404 error for any unknown api request
 app.use((_req, _res, next) => {
-  next(new ApiError(httpStatus.NOT_FOUND, 'Not found'));
+  next(new ApiError('Not found', httpStatus.NOT_FOUND));
 });
 
 // convert error to ApiError, if needed
-app.use(errorConverter);
+app.use(GlobalError);
 
-// handle error
-app.use(errorHandler);
+
 
 export default app;

@@ -1,0 +1,22 @@
+import mongoose, { Document } from 'mongoose';
+
+export interface ICapaworkspace extends Document {
+    moduleId: mongoose.Schema.Types.ObjectId;
+    createdBy: mongoose.Schema.Types.ObjectId;
+    name: string;
+    imageUrl: string;
+    imagekey: string;
+    description: string;
+    createdAt: Date;
+    updatedAt: Date;
+}
+
+
+
+export interface CreateCapaworkspaceRequest {
+    moduleId: string;
+    name: string;
+    imageUrl: string;
+    imagekey: string;
+    description: string;    
+}

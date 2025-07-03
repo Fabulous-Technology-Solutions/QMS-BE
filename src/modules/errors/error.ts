@@ -1,41 +1,78 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { Request, Response, NextFunction } from 'express';
-import mongoose from 'mongoose';
-import httpStatus from 'http-status';
-import config from '../../config/config';
+
 import { logger } from '../logger';
 import ApiError from './ApiError';
 
-export const errorConverter = (err: any, _req: Request, _res: Response, next: NextFunction) => {
-  let error = err;
-  if (!(error instanceof ApiError)) {
-    const statusCode =
-      error.statusCode || error instanceof mongoose.Error ? httpStatus.BAD_REQUEST : httpStatus.INTERNAL_SERVER_ERROR;
-    const message: string = error.message || `${httpStatus[statusCode]}`;
-    error = new ApiError(statusCode, message, false, err.stack);
-  }
-  next(error);
+require('dotenv').config();
+
+const handleCastErrorDB = (err: any) => {
+  const message = `Invalid ${err.path}: ${err.value}.`;
+  logger.error(`Cast Error: ${message}`);
+  return new ApiError(message, 400);
 };
 
-// eslint-disable-next-line no-unused-vars
-export const errorHandler = (err: ApiError, _req: Request, res: Response, _next: NextFunction) => {
-  let { statusCode, message } = err;
-  if (config.env === 'production' && !err.isOperational) {
-    statusCode = httpStatus.INTERNAL_SERVER_ERROR;
-    message = 'Internal Server Error';
-  }
 
-  res.locals['errorMessage'] = err.message;
+const handleDuplicateFieldsDB = (err: any) => {
+  const field:any = Object.keys(err.keyPattern)[0];
+  const message = { [field]: `${field} already exist` };
+  logger.error(`Duplicate field error: ${JSON.stringify(message)}`);
+  return new ApiError('Duplicate field error', 400, message);
+};
 
-  const response = {
-    code: statusCode,
-    message,
-    ...(config.env === 'development' && { stack: err.stack }),
+const handleValidationErrorDB = (err: any) => {
+  const fieldErrors: Record<string, string> = {};
+  Object.values(err.errors).forEach((error: any) => {
+    fieldErrors[error.path] = error.message;
+  });
+  logger.error(`Validation error: ${JSON.stringify(fieldErrors)}`);
+  return new ApiError('Validation error', 400, fieldErrors);
+};
+
+// JWT error handlers
+const handleJWTError = () =>
+  new ApiError('Invalid token. Please log in again!', 401, {
+    token: 'invalid token'
+  });
+const handleJWTExpiredError = () =>
+  new ApiError('Your token has expired! Please log in again.', 401, {
+    token: 'Token expired'
+  });
+
+// Global error handler
+const sendError = (err: any, error: any, _: Request, res: Response, next?: NextFunction) => {
+  const response: any = {
+    status: 'fail',
+    message: err.message || error.message || 'An error occurred'
   };
 
-  if (config.env === 'development') {
-    logger.error(err);
+  // Include field-specific errors if present
+  if (err.fieldErrors || error.fieldErrors) {
+    response.errors = err.fieldErrors || error.fieldErrors;
+  }
+  if(next){
+   
   }
 
-  res.status(statusCode).send(response);
+  return res.status(err.statusCode || 400).json(response);
+  
 };
+
+const GlobalError = (err: any, req: Request, _: Response, next: NextFunction) => {
+  logger.error('Error:', err);
+
+
+  let error = { ...err };
+  error.message = err.message;
+
+  // Customize MongoDB or JWT errors
+  if (err.name === 'CastError') error = handleCastErrorDB(err);
+  if (err.code === 11000) error = handleDuplicateFieldsDB(err);
+  if (err.name === 'ValidationError') error = handleValidationErrorDB(err);
+  if (err.name === 'JsonWebTokenError') error = handleJWTError();
+  if (err.name === 'TokenExpiredError') error = handleJWTExpiredError();
+
+  return sendError(error, error, req, _, next);
+};
+
+export default GlobalError;

@@ -11,7 +11,7 @@ const verifyCallback =
     console.log('Authentication attempt:',req.headers.authorization);
 
     if (err || info || !user) {
-      return reject(new ApiError(httpStatus.UNAUTHORIZED, 'Please authenticate'));
+      return reject(new ApiError('Please authenticate', httpStatus.UNAUTHORIZED));
     }
     req.user = user;
 
@@ -20,10 +20,10 @@ const verifyCallback =
     if (requiredRights.length) {
       console.log('Required rights:', roleRights);
       const userRights = roleRights.get(user.role);
-      if (!userRights) return reject(new ApiError(httpStatus.FORBIDDEN, 'Forbidden'));
+      if (!userRights) return reject(new ApiError('Forbidden', httpStatus.FORBIDDEN));
       const hasRequiredRights = requiredRights.every((requiredRight: string) => userRights.includes(requiredRight));
       if (!hasRequiredRights && req.params['userId'] !== user.id) {
-        return reject(new ApiError(httpStatus.FORBIDDEN, 'Forbidden'));
+        return reject(new ApiError('Forbidden', httpStatus.FORBIDDEN));
       }
     }
 
