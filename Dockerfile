@@ -1,26 +1,28 @@
-# development stage
-FROM node:18-alpine as production
+# === Base build stage ===
+FROM node:18-alpine AS base
 
 WORKDIR /usr/src/app
 
+# Copy project files
 COPY package.json yarn.lock tsconfig.json ecosystem.config.json ./
-
 COPY ./src ./src
 
-RUN ls -a
-
+# Install dependencies and compile TypeScript
 RUN yarn install --pure-lockfile && yarn compile
 
-# production stage
 
-FROM base as production
+# === Production stage ===
+FROM node:18-alpine AS production
 
 WORKDIR /usr/prod/app
-
 ENV NODE_ENV=production
 
+# Copy only required files for production
 COPY package.json yarn.lock ecosystem.config.json ./
-
 RUN yarn install --production --pure-lockfile
 
+# Copy compiled output from base stage
 COPY --from=base /usr/src/app/dist ./dist
+
+# Optional: run command
+CMD ["node", "dist/index.js"]
