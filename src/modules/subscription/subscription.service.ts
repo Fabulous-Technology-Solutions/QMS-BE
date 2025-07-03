@@ -12,6 +12,7 @@ import {
   IPaymentMethodRequest,
 } from './subscription.interfaces';
 import Stripe from 'stripe'; 
+import mongoose from 'mongoose';
 
 
 
@@ -101,7 +102,7 @@ export const getUserSubscription = async (userId: string): Promise<ISubscription
   const subscription = await Subscription.aggregate([
     {
       $match: {
-        userId: userId,
+        userId: new mongoose.Types.ObjectId(userId),
         status: { $in: ['active', 'trialing', 'past_due'] },
       },
     },
@@ -144,7 +145,73 @@ export const getUserSubscription = async (userId: string): Promise<ISubscription
         currentPeriodEnd: 1,
         name: '$plan.name',
         category: '$plan.category',
+        description: '$plan.description',
         features: '$plan.features'
+      },
+    },
+  ]);
+
+  return subscription as ISubscriptionWithDetails[];
+};
+export const getActiveSubscriptionwithPlan = async (userId: string): Promise<ISubscriptionWithDetails[]> => {
+  const subscription = await Subscription.aggregate([
+    {
+      $match: {
+        userId: new mongoose.Types.ObjectId(userId),
+        status: { $in: ['active', 'trialing', 'past_due'] },
+      },
+    },
+    {
+      $lookup: {
+        from: 'plans',
+        localField: 'planId',
+        foreignField: '_id',
+        as: 'plan',
+      },
+    },
+    {
+      $unwind: {
+        path: '$plan',
+        preserveNullAndEmptyArrays: true,
+      },
+    },
+    {
+      $lookup: {
+        from: 'users',
+        localField: 'userId',
+        foreignField: '_id',
+        as: 'user',
+      },
+    },
+    {
+      $unwind: {
+        path: '$user',
+        preserveNullAndEmptyArrays: true,
+      },
+    },
+    {
+      $project: {
+        _id: 1,
+        userId: 1,
+        planId: 1,
+        name: '$plan.name',
+        category: '$plan.category',
+        description: '$plan.description',
+        features: '$plan.features',
+        userLimit:"$plan.userLimit",
+        workspaceLimit:"$plan.workspaceLimit",
+        cloudStorage: "$plan.cloudStorage",
+        certifications: "$plan.certifications",
+        pricing:"$plan.pricing",
+        subscription:{
+          id: "$_id",
+          status: "$status",
+          billingCycle: "$billingCycle",
+          currentPeriodStart: "$currentPeriodStart",
+          currentPeriodEnd: "$currentPeriodEnd",
+        }
+
+
       },
     },
   ]);
@@ -228,48 +295,6 @@ export const cancelSubscription = async (subscriptionId: string): Promise<ISubsc
     return subscription;
   } catch (error) {
     console.error('Error canceling subscription:', error);
-    throw error;
-  }
-};
-
-/**
- * Pause subscription
- */
-export const pauseSubscription = async (subscriptionId: string): Promise<ISubscription> => {
-  try {
-    const subscription = await getSubscriptionById(subscriptionId);
-
-    // Pause in Stripe
-    await subscriptionUtils.pauseSubscription(subscription.stripeSubscriptionId);
-
-    // Update local record (you might want to add a 'paused' status)
-    subscription.status = 'past_due'; // or create a new 'paused' status
-
-    await subscription.save();
-    return subscription;
-  } catch (error) {
-    console.error('Error pausing subscription:', error);
-    throw error;
-  }
-};
-
-/**
- * Resume subscription
- */
-export const resumeSubscription = async (subscriptionId: string): Promise<ISubscription> => {
-  try {
-    const subscription = await getSubscriptionById(subscriptionId);
-
-    // Resume in Stripe
-    await subscriptionUtils.resumeSubscription(subscription.stripeSubscriptionId);
-
-    // Update local record
-    subscription.status = 'active';
-
-    await subscription.save();
-    return subscription;
-  } catch (error) {
-    console.error('Error resuming subscription:', error);
     throw error;
   }
 };

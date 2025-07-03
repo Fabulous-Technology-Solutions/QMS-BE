@@ -3,15 +3,8 @@
     "node": true,
     "jest": true
   },
-  "extends": [
-    "airbnb-base",
-    "plugin:security/recommended",
-    "plugin:prettier/recommended"
-  ],
-  "plugins": [
-    "security",
-    "prettier"
-  ],
+  "extends": ["airbnb-base", "plugin:jest/recommended", "plugin:security/recommended", "plugin:prettier/recommended"],
+  "plugins": ["jest", "security", "prettier"],
   "parserOptions": {
     "ecmaVersion": 2018
   },
@@ -25,24 +18,13 @@
   },
   "overrides": [
     {
-      "files": [
-        "src/**/*.ts"
-      ],
-      "extends": [
-        "airbnb-base",
-        "airbnb-typescript/base",
-        "plugin:prettier/recommended"
-      ],
-      "plugins": [
-        "@typescript-eslint",
-        "prettier"
-      ],
+      "files":["src/**/*.ts"],
+      "extends": ["airbnb-base", "airbnb-typescript/base", "plugin:prettier/recommended"],
+      "plugins": ["@typescript-eslint", "prettier"],
       "parser": "@typescript-eslint/parser",
       "parserOptions": {
         "ecmaVersion": 2018,
-        "project": [
-          "./tsconfig.json"
-        ]
+        "project": ["./tsconfig.json"]
       },
       "rules": {
         "no-console": "error",

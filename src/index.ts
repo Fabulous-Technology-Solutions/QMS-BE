@@ -2,15 +2,20 @@ import mongoose from 'mongoose';
 import app from './app';
 import config from './config/config';
 import logger from './modules/logger/logger';
+// import { seedPlans } from './modules/plans';
 
-const server = app.listen(config.port, () => {
+let server: any;
+server = app.listen(config.port, () => {
   logger.info(`Listening to Port ${config.port}`);
 });
-app.use('/', (_, res) => {
-  res.send('Hello World');
-});
+app.use("/", (_, res) => {
+
+  res.send("Hello World");
+})
 mongoose.connect(config.mongoose.url).then(() => {
+  // seedPlans();
   logger.info('Connected to MongoDB database');
+
 });
 
 const exitHandler = () => {
