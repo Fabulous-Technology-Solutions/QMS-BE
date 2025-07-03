@@ -70,7 +70,6 @@ const subscriptionSchema = new mongoose.Schema<ISubscription>(
   },
   {
     timestamps: true,
-    discriminatorKey: 'role' 
   }
 );
 

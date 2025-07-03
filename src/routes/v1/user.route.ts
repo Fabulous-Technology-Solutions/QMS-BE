@@ -119,7 +119,7 @@ export default router;
  *         name: page
  *         schema:
  *           type: integer
- *           minimum: 1                                                                    
+ *           minimum: 1
  *           default: 1
  *         description: Page number
  *     responses:

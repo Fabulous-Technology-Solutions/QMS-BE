@@ -54,30 +54,28 @@ export const getCurrentSubscription = catchAsync(async (req: Request, res: Respo
     data: subscription,
   });
 });
-export const getActiveSubscription = catchAsync(async (req: Request, res: Response): Promise<void> => {
-  const userId = req.user?.id;
 
-  if (!userId) {
-    res.status(httpStatus.UNAUTHORIZED).json({
+/**
+ * Get subscription by ID
+ */
+export const getSubscriptionById = catchAsync(async (req: Request, res: Response): Promise<void> => {
+  const { subscriptionId } = req.params;
+  
+  if (!subscriptionId) {
+    res.status(httpStatus.BAD_REQUEST).json({
       success: false,
-      message: 'User not authenticated',
+      message: 'Subscription ID is required',
     });
     return;
   }
 
-  const subscription = await subscriptionService.getActiveSubscriptionwithPlan(userId);
+  const subscription = await subscriptionService.getSubscriptionById(subscriptionId);
 
   res.status(httpStatus.OK).json({
     success: true,
     data: subscription,
   });
 });
-
-
-
-/**
- * Get subscription by ID
- */
 
 /**
  * Update subscription
@@ -131,7 +129,55 @@ export const cancelSubscription = catchAsync(async (req: Request, res: Response)
   });
 });
 
+/**
+ * Pause subscription
+ */
+export const pauseSubscription = catchAsync(async (req: Request, res: Response): Promise<void> => {
+  const { subscriptionId } = req.params;
+  
+  if (!subscriptionId) {
+    res.status(httpStatus.BAD_REQUEST).json({
+      success: false,
+      message: 'Subscription ID is required',
+    });
+    return;
+  }
 
+  const subscription = await subscriptionService.pauseSubscription(subscriptionId);
+
+  res.status(httpStatus.OK).json({
+    success: true,
+    data: subscription,
+    message: 'Subscription paused successfully',
+  });
+});
+
+/**
+ * Resume subscription
+ */
+export const resumeSubscription = catchAsync(async (req: Request, res: Response): Promise<void> => {
+  const { subscriptionId } = req.params;
+  
+  if (!subscriptionId) {
+    res.status(httpStatus.BAD_REQUEST).json({
+      success: false,
+      message: 'Subscription ID is required',
+    });
+    return;
+  }
+
+  const subscription = await subscriptionService.resumeSubscription(subscriptionId);
+
+  res.status(httpStatus.OK).json({
+    success: true,
+    data: subscription,
+    message: 'Subscription resumed successfully',
+  });
+});
+
+/**
+ * Update payment method
+ */
 export const updatePaymentMethod = catchAsync(async (req: Request, res: Response): Promise<void> => {
   const { paymentMethodId } = req.body;
   const userId = req.user?.id;

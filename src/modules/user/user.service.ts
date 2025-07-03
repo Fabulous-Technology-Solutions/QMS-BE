@@ -3,22 +3,17 @@ import mongoose from 'mongoose';
 import User from './user.model';
 import ApiError from '../errors/ApiError';
 import { IOptions, QueryResult } from '../paginate/paginate';
-import {  UpdateUserBody, IUserDoc, NewRegisteredUser, CreateNewUser } from './user.interfaces';
+import { NewCreatedUser, UpdateUserBody, IUserDoc, NewRegisteredUser } from './user.interfaces';
 import axios from 'axios';
-import subAdmin from './user.subAdmin';
-
 
 /**
  * Create a user
  * @param {NewCreatedUser} userBody
  * @returns {Promise<IUserDoc>}
  */
-export const createUser = async (userBody: CreateNewUser): Promise<IUserDoc> => {
+export const createUser = async (userBody: NewCreatedUser): Promise<IUserDoc> => {
   if (await User.isEmailTaken(userBody.email)) {
     throw new ApiError(httpStatus.BAD_REQUEST, 'Email already taken');
-  }
-  if(userBody.role === 'subAdmin') {
-    return subAdmin.create(userBody);
   }
   return User.create(userBody);
 };

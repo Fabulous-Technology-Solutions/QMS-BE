@@ -7,19 +7,23 @@ import * as subscriptionController from './subscription.controller';
 const router = express.Router();
 
 // Apply authentication to all routes
+router.use(auth('buySubscription'));
 
 // Subscription management routes
 router
   .route('/')
   .post(
     validate(subscriptionValidation.createSubscription),
-    auth('buySubscription'),
     subscriptionController.createSubscription
   )
-  .get(auth('getSubscriptions'),subscriptionController.getActiveSubscription);
+  .get(subscriptionController.getCurrentSubscription);
 
 router
   .route('/:subscriptionId')
+  .get(
+    validate(subscriptionValidation.getSubscription),
+    subscriptionController.getSubscriptionById
+  )
   .patch(
     validate(subscriptionValidation.updateSubscription),
     subscriptionController.updateSubscription
@@ -32,7 +36,17 @@ router.post(
   subscriptionController.cancelSubscription
 );
 
+router.post(
+  '/:subscriptionId/pause',
+  validate(subscriptionValidation.pauseSubscription),
+  subscriptionController.pauseSubscription
+);
 
+router.post(
+  '/:subscriptionId/resume',
+  validate(subscriptionValidation.resumeSubscription),
+  subscriptionController.resumeSubscription
+);
 
 // Payment method management
 router

@@ -77,7 +77,7 @@ const userSchema = new mongoose.Schema<IUserDoc, IUserModel>(
     role: {
       type: String,
       enum: roles,
-      default: 'admin'
+      default: 'user',
     },
     isEmailVerified: {
       type: Boolean,
