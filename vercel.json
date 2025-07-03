@@ -1,6 +1,5 @@
 {
   "version": 2,
-  "buildCommand": " yarn start:build",
   "builds": [
     {
       "src": "dist/index.js",
@@ -8,12 +7,6 @@
       "config": {
         "includeFiles": ["dist/**"]
       }
-    }
-  ],
-  "routes": [
-    {
-      "src": "/(.*)",
-      "dest": "dist/index.js"
     }
   ]
 }
