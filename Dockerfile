@@ -1,5 +1,5 @@
 # development stage
-FROM node:18
+FROM node:18-alpine as production
 
 WORKDIR /usr/src/app
 
