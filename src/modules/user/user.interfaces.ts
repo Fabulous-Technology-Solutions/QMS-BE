@@ -52,6 +52,6 @@ export interface CreateNewUser extends IUser {
   adminOF?: string[];
 }
 
-export interface IwithId extends IUser {
-  _id: mongoose.Types.ObjectId;
+export interface IwithId extends IUserDoc {
+
 }

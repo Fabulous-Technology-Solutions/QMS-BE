@@ -1,4 +1,4 @@
-import {  IwithId } from '@/modules/user/user.interfaces';
+import {  IUserDoc} from '@/modules/user/user.interfaces';
 import mongoose, { Document } from 'mongoose';
 
 export interface ICapaworkspace extends Document {
@@ -24,7 +24,14 @@ export interface CreateCapaworkspaceRequest {
 
 export interface getworkspacesofuserRequest {
    moduleId: string;
-   Page: number;
-   Limit: number;
-   user:IwithId
+   Page: any;
+   Limit: any;
+   user:IUserDoc
+}
+
+
+
+export interface IqueryofGetworkspaces {
+    moduleId: mongoose.Types.ObjectId;
+    createdBy?: mongoose.Types.ObjectId;
 }

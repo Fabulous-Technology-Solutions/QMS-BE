@@ -1,4 +1,5 @@
-import { CreateCapaworkspaceRequest, getworkspacesofuserRequest } from "./workspace.interfaces";
+import mongoose from "mongoose";
+import { CreateCapaworkspaceRequest, getworkspacesofuserRequest, IqueryofGetworkspaces } from "./workspace.interfaces";
 import CapaworkspaceModel from "./workspace.modal";
 
 export const createCapaworkspace = async (data: CreateCapaworkspaceRequest) => {
@@ -6,23 +7,23 @@ export const createCapaworkspace = async (data: CreateCapaworkspaceRequest) => {
     return await workspace.save();
 } 
 
-export const getAllCapaworkspaces = async (body:getworkspacesofuserRequest) => {
+export const getAllCapaworkspaces = async (body: getworkspacesofuserRequest) => {
     const { moduleId, Page, Limit, user } = body;
     const page = Page || 1;
     const limit = Limit || 10;
     const skip = (page - 1) * limit;
 
-    const query:any={
-        moduleId: moduleId
-    }
+    const query: IqueryofGetworkspaces = {
+        moduleId: new mongoose.Types.ObjectId(moduleId)
+    };
 
-    if(user.role==="admin"){
-        query['createdBy'] = user?._id;
-
+    // If user is not admin, filter by their created workspaces
+    if (user.role !== "admin") {
+        query.createdBy = new mongoose.Types.ObjectId(user._id);
     }
 
     const results = await CapaworkspaceModel.aggregate([
-        { $match: { moduleId } },
+        { $match: query },
         {
             $lookup: {
                 from: 'modules',
@@ -56,4 +57,10 @@ export const getAllCapaworkspaces = async (body:getworkspacesofuserRequest) => {
     ]);
 
     return results;
+};
+
+export const getCapaworkspaceById = async (workspaceId: string) => {
+    return await CapaworkspaceModel.findById(workspaceId)
+        .populate('moduleId', 'name')
+        .populate('createdBy', 'name email');
 }
