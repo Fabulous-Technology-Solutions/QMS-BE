@@ -2,7 +2,9 @@ import mongoose, { Model, Document } from 'mongoose';
 import { QueryResult } from '../paginate/paginate';
 import { AccessAndRefreshTokens } from '../token/token.interfaces';
 
+
 export interface IUser {
+
   firstName: string;
   lastName: string;
   email: string;
@@ -48,4 +50,8 @@ export interface CreateNewUser extends IUser {
   permissions: string[];
   createdBy?: string;
   adminOF?: string[];
+}
+
+export interface IwithId extends IUser {
+  _id: mongoose.Types.ObjectId;
 }

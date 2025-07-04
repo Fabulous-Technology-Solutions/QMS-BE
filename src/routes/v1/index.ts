@@ -3,6 +3,7 @@ import authRoute from './auth.route';
 import docsRoute from './swagger.route';
 import userRoute from './user.route';
 import capaRoute from './capa.route';
+import uploadRoute from "./upload.route";
 import planRoute from '../../modules/plans/plans.route';
 import { subscriptionRoutes, webhookRouter } from '../../modules/subscription';
 import config from '../../config/config';
@@ -34,6 +35,10 @@ const defaultIRoute: IRoute[] = [
   {
     path: '/subscriptions',
     route: subscriptionRoutes,
+  },
+  {
+    path: '/upload',
+    route: uploadRoute,
   },
 ];
 

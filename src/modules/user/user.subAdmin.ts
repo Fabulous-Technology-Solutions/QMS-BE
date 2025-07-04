@@ -10,8 +10,13 @@ const subAdminSchema = new mongoose.Schema({
     },
     adminOF: [{ 
         type: mongoose.Schema.Types.ObjectId, 
-        ref: "Subscription" 
+        ref: "Capaworkspace" 
     }],
+    subAdminRole:{
+        type: String, 
+        enum: ["subAdmin","standardUser"], 
+        default: "subAdmin"
+    },
     permissions: { 
         type: [String], 
         default: [] 

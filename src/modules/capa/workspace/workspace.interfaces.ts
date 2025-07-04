@@ -1,3 +1,4 @@
+import {  IwithId } from '@/modules/user/user.interfaces';
 import mongoose, { Document } from 'mongoose';
 
 export interface ICapaworkspace extends Document {
@@ -19,4 +20,11 @@ export interface CreateCapaworkspaceRequest {
     imageUrl: string;
     imagekey: string;
     description: string;    
+}
+
+export interface getworkspacesofuserRequest {
+   moduleId: string;
+   Page: number;
+   Limit: number;
+   user:IwithId
 }
