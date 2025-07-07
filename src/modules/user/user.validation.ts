@@ -1,20 +1,25 @@
 import Joi from 'joi';
 import { password, objectId } from '../validate/custom.validation';
-import { NewCreatedUser } from './user.interfaces';
+import {  NewCreatedUser } from './user.interfaces';
 
 const createUserBody: Record<keyof NewCreatedUser, any> = {
-  email: Joi.string().required().email(),
-  password: Joi.string().required().custom(password),
-  firstName: Joi.string().required(),
-  lastName: Joi.string().required(),
-  role: Joi.string().required().valid('subAdmin', 'admin'),
+  email: Joi.string().optional().email(),
+  password: Joi.string().optional().custom(password),
+  firstName: Joi.string().optional(),
+  lastName: Joi.string().optional(),
+  role: Joi.string().optional().valid('subAdmin', 'admin'),
   contact: Joi.string().optional(),
   googleId: Joi.string().optional(),
   providers: Joi.array().items(Joi.string().valid('google', 'local')).default(['local']),
+  permissions: Joi.array().items(Joi.string()).optional(),
+  adminOF: Joi.array().items(Joi.string().custom(objectId)).min(1).optional(),
+  subAdminRole: Joi.string().valid('subAdmin', 'standardUser').optional(),
+  createdBy: Joi.string().custom(objectId).optional(),
+  ownerId:Joi.string().custom(objectId).optional()
 };
 
 export const createUser = {
-  body: Joi.object().keys(createUserBody),                                                
+  body: Joi.object().keys(createUserBody).fork(['email', 'password', 'firstName', 'lastName', "subAdminRole", "adminOF"], (schema) => schema.required()),
 };
 
 export const getUsers = {

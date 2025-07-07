@@ -3,9 +3,10 @@ import mongoose from 'mongoose';
 import User from './user.model';
 import ApiError from '../errors/ApiError';
 import { IOptions, QueryResult } from '../paginate/paginate';
-import {  UpdateUserBody, IUserDoc, NewRegisteredUser, CreateNewUser } from './user.interfaces';
+import { UpdateUserBody, IUserDoc, NewRegisteredUser, CreateNewUser } from './user.interfaces';
 import axios from 'axios';
 import subAdmin from './user.subAdmin';
+import { sendEmail } from '../email/email.service';
 
 
 /**
@@ -17,10 +18,13 @@ export const createUser = async (userBody: CreateNewUser): Promise<IUserDoc> => 
   if (await User.isEmailTaken(userBody.email)) {
     throw new ApiError('Email already taken', httpStatus.BAD_REQUEST);
   }
-  if(userBody.role === 'subAdmin') {
-    return subAdmin.create(userBody);
-  }
-  return User.create(userBody);
+  const htmlbodyforsendpassword = `<p>Welcome to the Tellust, ${userBody.firstName}!</p>
+    <p>Email: ${userBody.email}</p>
+    <p>You have been granted sub-admin access. Your password is: ${userBody.password}</p>
+    <p>Please log in and change your password as soon as possible.</p>`;
+  sendEmail(userBody.email, 'Welcome to the Tellust!', "", htmlbodyforsendpassword);
+  return subAdmin.create({ ...userBody, role: "subAdmin" });
+
 };
 
 /**
@@ -30,6 +34,7 @@ export const createUser = async (userBody: CreateNewUser): Promise<IUserDoc> => 
  */
 export const registerUser = async (userBody: NewRegisteredUser): Promise<IUserDoc> => {
   if (await User.isEmailTaken(userBody.email)) {
+
     throw new ApiError('Email already taken', httpStatus.BAD_REQUEST);
   }
   return User.create(userBody);
@@ -39,7 +44,7 @@ export const loginWithGoogle = async (body: any): Promise<IUserDoc> => {
   const { access_token } = body;
 
   if (!access_token) {
-    throw new ApiError('Access token is required', httpStatus.BAD_REQUEST);
+    throw new ApiError('Access token is required', httpStatus.BAD_REQUEST, { access_token: "access_token is required" });
   }
 
   let userData;
@@ -137,8 +142,8 @@ export const queryUsers = async (filter: Record<string, any>, options: IOptions)
  * @returns {Promise<IUserDoc | null>}
  */
 export const getUserById = async (id: mongoose.Types.ObjectId): Promise<IUserDoc | null> => {
-const user = await User.findById(id);
-return user;
+  const user = await User.findById(id);
+  return user;
 };
 
 /**

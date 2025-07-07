@@ -15,10 +15,12 @@ export interface IUser {
   providers: string[];
   googleId?: string;
   stripeCustomerId?: string;
+  
 }
 
 export interface IUserDoc extends IUser, Document {
   isPasswordMatch(password: string): Promise<boolean>;
+  ownerId:mongoose.Schema.Types.ObjectId
 }
 
 export interface IUserModel extends Model<IUserDoc> {
@@ -39,7 +41,6 @@ export type UpdateUserBody = Partial<IUser>;
 
 export type NewRegisteredUser = Omit<IUser, 'role' | 'isEmailVerified' | 'stripeCustomerId'>;
 
-export type NewCreatedUser = Omit<IUser, 'isEmailVerified' | 'stripeCustomerId'>;
 
 export interface IUserWithTokens {
   user: IUserDoc;
@@ -48,9 +49,12 @@ export interface IUserWithTokens {
 
 export interface CreateNewUser extends IUser {
   permissions: string[];
-  createdBy?: string;
   adminOF?: string[];
+  subAdminRole: string;
+  createdBy?: mongoose.Schema.Types.ObjectId;
+  ownerId?:mongoose.Schema.Types.ObjectId;
 }
+export type NewCreatedUser = Omit<CreateNewUser, 'isEmailVerified' | 'stripeCustomerId'>;
 
 export interface IwithId extends IUserDoc {
 
