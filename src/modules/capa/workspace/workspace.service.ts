@@ -64,3 +64,14 @@ export const getCapaworkspaceById = async (workspaceId: string) => {
         .populate('moduleId', 'name')
         .populate('createdBy', 'name email');
 }
+
+
+export const updateCapaworkspace = async (workspaceId: string, data: Partial<CreateCapaworkspaceRequest>) => {
+
+
+    return await CapaworkspaceModel.findByIdAndUpdate(workspaceId, data, { new: true });
+}
+
+export const deleteCapaworkspace = async (workspaceId: string) => {
+    return await CapaworkspaceModel.findByIdAndUpdate(workspaceId, { isDeleted: true }, { new: true });
+}

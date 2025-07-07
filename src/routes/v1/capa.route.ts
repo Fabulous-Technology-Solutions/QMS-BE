@@ -17,6 +17,18 @@ router.get(
   auth('manageCapa'),
   workspaceController.getAllCapaworkspacesController
 );
+router.patch(
+  "/module/:workspaceId",
+  auth('manageCapa'),
+  validate(workspaceValidation.updateCapa),
+  workspaceController.updateCapaworkspaceController
+);
+
+router.delete(
+  "/module/:workspaceId",
+  auth('manageCapa'),
+  workspaceController.deleteCapaworkspaceController
+);
 router.get(
   "/module/:workspaceId",
   auth('manageCapa'),

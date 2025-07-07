@@ -10,6 +10,7 @@ export interface ICapaworkspace extends Document {
     description: string;
     createdAt: Date;
     updatedAt: Date;
+    isDeleted: boolean;
 }
 
 
