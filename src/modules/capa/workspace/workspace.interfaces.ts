@@ -35,4 +35,5 @@ export interface getworkspacesofuserRequest {
 export interface IqueryofGetworkspaces {
     moduleId: mongoose.Types.ObjectId;
     createdBy?: mongoose.Types.ObjectId;
+    isDeleted: boolean
 }

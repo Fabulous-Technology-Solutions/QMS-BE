@@ -13,8 +13,11 @@ export const getAllCapaworkspaces = async (body: getworkspacesofuserRequest) => 
     const limit = Limit || 10;
     const skip = (page - 1) * limit;
 
+    console.log("getAllCapaworkspaces called with moduleId:", moduleId, "Page:", page, "Limit:", limit, "user:", user);
+
     const query: IqueryofGetworkspaces = {
-        moduleId: new mongoose.Types.ObjectId(moduleId)
+        moduleId: new mongoose.Types.ObjectId(moduleId),
+        isDeleted: false
     };
 
     // If user is not admin, filter by their created workspaces
@@ -60,7 +63,7 @@ export const getAllCapaworkspaces = async (body: getworkspacesofuserRequest) => 
 };
 
 export const getCapaworkspaceById = async (workspaceId: string) => {
-    return await CapaworkspaceModel.findById(workspaceId)
+    return await CapaworkspaceModel.findOne({ _id: workspaceId ,isDeleted: false })
         .populate('moduleId', 'name')
         .populate('createdBy', 'name email');
 }
@@ -69,9 +72,9 @@ export const getCapaworkspaceById = async (workspaceId: string) => {
 export const updateCapaworkspace = async (workspaceId: string, data: Partial<CreateCapaworkspaceRequest>) => {
 
 
-    return await CapaworkspaceModel.findByIdAndUpdate(workspaceId, data, { new: true });
+    return await CapaworkspaceModel.findOneAndUpdate({ _id: workspaceId, isDeleted: false }, data, { new: true });
 }
 
 export const deleteCapaworkspace = async (workspaceId: string) => {
-    return await CapaworkspaceModel.findByIdAndUpdate(workspaceId, { isDeleted: true }, { new: true });
+    return await CapaworkspaceModel.findOneAndUpdate({ _id: workspaceId, isDeleted: false }, { isDeleted: true }, { new: true });
 }
