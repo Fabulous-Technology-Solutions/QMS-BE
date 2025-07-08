@@ -123,6 +123,19 @@ export const generateResetPasswordToken = async (email: string): Promise<string>
   return resetPasswordToken;
 };
 
+
+export const generateInviteToken = async (email: string): Promise<string> => {  
+  const user = await userService.getUserByEmail(email);
+  if (user) {
+    throw new ApiError('User already exists', httpStatus.BAD_REQUEST);
+  }
+  const expires = moment().add(config.jwt.resetPasswordExpirationMinutes, 'hours');
+  const inviteToken = generateToken(new mongoose.Types.ObjectId(), expires, tokenTypes.INVITE);
+  await saveToken(inviteToken, new mongoose.Types.ObjectId(), expires, tokenTypes.INVITE);
+  return inviteToken;
+}
+
+
 /**
  * Generate verify email token
  * @param {IUserDoc} user

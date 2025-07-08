@@ -41,20 +41,6 @@ export const getAllCapaworkspaces = async (body: getworkspacesofuserRequest) => 
                 preserveNullAndEmptyArrays: true
             }
         },
-        {
-            $lookup: {
-                from: 'users',
-                localField: 'createdBy',
-                foreignField: '_id',
-                as: 'createdByUser'
-            }
-        },
-        {
-            $unwind: {
-                path: '$createdByUser',
-                preserveNullAndEmptyArrays: true
-            }
-        },
         { $skip: skip },
         { $limit: limit }
     ]);

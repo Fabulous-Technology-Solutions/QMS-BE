@@ -30,7 +30,7 @@ const userSchema = new mongoose.Schema<IUserDoc, IUserModel>(
     providers: {
       type: [String],
       enum: ['google', 'local'],
-      default: ['local'],
+      default: [],
     },
     googleId: {
       type: String,

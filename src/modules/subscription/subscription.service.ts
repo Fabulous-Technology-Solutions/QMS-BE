@@ -244,26 +244,24 @@ export const getUserSubscriptionsandWorkspaces = async (userId: string): Promise
     },
     {
       $lookup: {
-        from: 'users',
-        localField: 'userId',
-        foreignField: '_id',
-        as: 'user',
-      },
-    },
-    {
-      $unwind: {
-        path: '$user',
-        preserveNullAndEmptyArrays: true,
-      },
-    },
-    {
-      $lookup: {
         from: 'capaworkspaces',
-        localField: '_id',
-        foreignField: 'moduleId',
-        as: 'workspaces',
-      },
+        let: { moduleId: '$_id' },
+        pipeline: [
+          {
+            $match: {
+              $expr: {
+                $and: [
+                  { $eq: ['$moduleId', '$$moduleId'] },
+                  { $eq: ['$isDeleted', false] }
+                ]
+              }
+            }
+          }
+        ],
+        as: 'workspaces'
+      }
     },
+
     {
       $project: {
         _id: 1,
@@ -484,7 +482,7 @@ async function getOrCreateStripeCustomer(userId: string): Promise<string> {
       name: `${user.name}`,
       metadata: {
         userId: user._id.toString(),
-       name: `${user.name}`
+        name: `${user.name}`
       },
       ...(user.contact && { phone: user.contact }), // Add phone if available
     });

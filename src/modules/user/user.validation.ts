@@ -19,7 +19,7 @@ const createUserBody: Record<keyof NewCreatedUser, any> = {
 };
 
 export const createUser = {
-  body: Joi.object().keys(createUserBody).fork(['email', 'password', 'name', "subAdminRole", "adminOF"], (schema) => schema.required()),
+  body: Joi.object().keys(createUserBody).fork(['email', 'name', "subAdminRole", "adminOF"], (schema) => schema.required()),
 };
 
 export const getUsers = {

@@ -7,6 +7,7 @@ import { UpdateUserBody, IUserDoc, NewRegisteredUser, CreateNewUser } from './us
 import axios from 'axios';
 import subAdmin from './user.subAdmin';
 import { sendEmail } from '../email/email.service';
+import { tokenService } from '../token';
 
 
 /**
@@ -18,11 +19,16 @@ export const createUser = async (userBody: CreateNewUser): Promise<IUserDoc> => 
   if (await User.isEmailTaken(userBody.email)) {
     throw new ApiError('Email already taken', httpStatus.BAD_REQUEST);
   }
-  const htmlbodyforsendpassword = `<p>Welcome to the Tellust, ${userBody.name}!</p>
+  const inviteToken = await tokenService.generateInviteToken(userBody.email);
+  const inviteUrl = `${process.env["CLIENT_URL"]}/invite?email=${encodeURIComponent(userBody.email)}&token=${inviteToken}`;
+  const htmlbodyforsendpassword = `
+    <p>Welcome to Tellust, ${userBody.name}!</p>
     <p>Email: ${userBody.email}</p>
-    <p>You have been granted sub-admin access. Your password is: ${userBody.password}</p>
-    <p>Please log in and change your password as soon as possible.</p>`;
-  sendEmail(userBody.email, 'Welcome to the Tellust!', "", htmlbodyforsendpassword);
+    <p>Please click the button below to accept your invitation and set your password or proceed with Google:</p>
+    <a href="${inviteUrl}" style="display:inline-block;padding:10px 20px;background:#007bff;color:#fff;text-decoration:none;border-radius:4px;">Accept Invitation</a>
+    <p>If you did not expect this invitation, you can ignore this email.</p>
+  `;
+  sendEmail(userBody.email, 'Welcome to Tellust! Accept Your Invitation', "", htmlbodyforsendpassword);
   return subAdmin.create({ ...userBody, role: "subAdmin" });
 
 };
@@ -37,7 +43,7 @@ export const registerUser = async (userBody: NewRegisteredUser): Promise<IUserDo
 
     throw new ApiError('Email already taken', httpStatus.BAD_REQUEST);
   }
-  return User.create(userBody);
+  return User.create({ ...userBody, role: 'admin', isEmailVerified: false, providers: ['local'] });
 };
 
 export const loginWithGoogle = async (body: any): Promise<IUserDoc> => {
@@ -92,7 +98,7 @@ export const loginWithGoogle = async (body: any): Promise<IUserDoc> => {
     if (!user.isEmailVerified) {
       user.isEmailVerified = true;
       needsUpdate = true;
-    }
+    }                                 
 
     if (needsUpdate) {
       await user.save();
