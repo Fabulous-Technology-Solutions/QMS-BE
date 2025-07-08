@@ -19,7 +19,8 @@ export const createUser = async (userBody: CreateNewUser): Promise<IUserDoc> => 
   if (await User.isEmailTaken(userBody.email)) {
     throw new ApiError('Email already taken', httpStatus.BAD_REQUEST);
   }
-  const user=subAdmin.create({ ...userBody, role: "subAdmin" })
+  const user=await subAdmin.create({ ...userBody, role: "subAdmin" })
+  console.log('user create before create token', user);
   const inviteToken = await tokenService.generateInviteToken(userBody.email);
   const inviteUrl = `${process.env["CLIENT_URL"]}/invite?email=${encodeURIComponent(userBody.email)}&token=${inviteToken}`;
   const htmlbodyforsendpassword = `
@@ -170,7 +171,10 @@ export const getUserById = async (id: mongoose.Types.ObjectId): Promise<IUserDoc
  */
 export const getUserByEmail = async (email: string): Promise<IUserDoc|null> => { 
   const user = await User.findOne({ email: email });
-  return User.findOne({ email: email.toString().trim()});
+  if (!user) {
+    throw new ApiError('User not found', httpStatus.NOT_FOUND);
+  }
+  return user;
 };
 
 /**
