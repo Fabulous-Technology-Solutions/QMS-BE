@@ -81,6 +81,8 @@ export const loginWithGoogle = async (body: any): Promise<IUserDoc> => {
     throw new ApiError('Invalid or expired Google access token', httpStatus.UNAUTHORIZED);
   }
 
+  console.log('userData', userData);
+
   const email = userData?.email;
   if (!email) {
     throw new ApiError('Google account did not return an email', httpStatus.BAD_REQUEST);
