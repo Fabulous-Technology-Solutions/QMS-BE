@@ -6,6 +6,7 @@ import tokenTypes from '../token/token.types';
 import { getUserByEmail, getUserById, googleprofiledata, updateUserById } from '../user/user.service';
 import { Iinvitation, IUserDoc, IUserWithTokens } from '../user/user.interfaces';
 import { generateAuthTokens, verifyToken } from '../token/token.service';
+import AppiError from '../errors/ApiError';
 
 /**
  * Login with username and password
@@ -87,7 +88,8 @@ export const AcceptInvitation=async(body:Iinvitation): Promise<IUserDoc> =>{
     await Token.deleteMany({ user: user.id, type: tokenTypes.INVITE });
     return user;
   } catch (error) {
-    throw new ApiError('Invitation acceptance failed', httpStatus.UNAUTHORIZED);
+    console.error('Error accepting invitation:', error);
+    throw new AppiError('Invitation acceptance failed', httpStatus.UNAUTHORIZED);
   }
 
 }

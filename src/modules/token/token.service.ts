@@ -65,11 +65,12 @@ export const saveToken = async (
  * @param {string} type
  * @returns {Promise<ITokenDoc>}
  */
-export const verifyToken = async (token: string, type: string): Promise<ITokenDoc> => {
+export const   verifyToken = async (token: string, type: string): Promise<ITokenDoc> => {
   const payload = jwt.verify(token, config.jwt.secret);
   if (typeof payload.sub !== 'string') {
     throw new ApiError('bad user', httpStatus.BAD_REQUEST);
   }
+  console.log('payload', payload);
   const tokenDoc = await Token.findOne({
     token,
     type,
@@ -126,12 +127,15 @@ export const generateResetPasswordToken = async (email: string): Promise<string>
 
 export const generateInviteToken = async (email: string): Promise<string> => {  
   const user = await userService.getUserByEmail(email);
-  if (user) {
-    throw new ApiError('User already exists', httpStatus.BAD_REQUEST);
+  if (!user) {
+    throw new ApiError('User not found', httpStatus.BAD_REQUEST);
   }
+  
+  // For invite tokens, we create a temporary ObjectId since the user doesn't exist yet
+  const userId = user._id;
   const expires = moment().add(config.jwt.resetPasswordExpirationMinutes, 'hours');
-  const inviteToken = generateToken(new mongoose.Types.ObjectId(), expires, tokenTypes.INVITE);
-  await saveToken(inviteToken, new mongoose.Types.ObjectId(), expires, tokenTypes.INVITE);
+  const inviteToken = generateToken(userId, expires, tokenTypes.INVITE);
+  await saveToken(inviteToken, userId, expires, tokenTypes.INVITE, false);
   return inviteToken;
 }
 
