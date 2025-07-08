@@ -52,7 +52,7 @@ export const resetPassword = catchAsync(async (req: Request, res: Response) => {
 
 export const sendVerificationEmail = catchAsync(async (req: Request, res: Response) => {
   const verifyEmailToken = await tokenService.generateVerifyEmailToken(req.user);
-  await emailService.sendVerificationEmail(req.user.email, verifyEmailToken, req.user.firstName );
+  await emailService.sendVerificationEmail(req.user.email, verifyEmailToken, req.user.name );
   res.status(httpStatus.OK).send({
     message: 'Verification email sent successfully'
   });

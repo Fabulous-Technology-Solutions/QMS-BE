@@ -9,19 +9,12 @@ import * as userService from './user.service';
 import { getUserSubscription } from '../subscription/subscription.service';
 
 export const createUser = catchAsync(async (req: Request, res: Response) => {
-  let ownerId: mongoose.Schema.Types.ObjectId;
-  
-  if (req.user.role === "admin") {
-    ownerId = req.user._id;
-  } else {
-    // For admin users, they might pass ownerId in the request body or use their own ID
-    ownerId = req["user"].ownerId
-  }
-  console.log(ownerId)
+
+
   const user = await userService.createUser({ 
     ...req.body, 
     createdBy: req.user._id, 
-    ownerId 
+
   });
   res.status(httpStatus.CREATED).send(user);
 });

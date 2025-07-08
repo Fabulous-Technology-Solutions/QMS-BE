@@ -5,8 +5,7 @@ import { AccessAndRefreshTokens } from '../token/token.interfaces';
 
 export interface IUser {
 
-  firstName: string;
-  lastName: string;
+  name: string;
   email: string;
   password: string;
   contact?: string;
@@ -15,12 +14,11 @@ export interface IUser {
   providers: string[];
   googleId?: string;
   stripeCustomerId?: string;
-  
+
 }
 
 export interface IUserDoc extends IUser, Document {
   isPasswordMatch(password: string): Promise<boolean>;
-  ownerId:mongoose.Schema.Types.ObjectId
 }
 
 export interface IUserModel extends Model<IUserDoc> {
@@ -32,6 +30,8 @@ export interface ISubAdmin extends IUser {
   adminOF: mongoose.Schema.Types.ObjectId[];
   permissions: string[];
 }
+
+
 
 export interface ISubAdminDoc extends ISubAdmin, Document {
   isPasswordMatch(password: string): Promise<boolean>;
@@ -48,11 +48,12 @@ export interface IUserWithTokens {
 }
 
 export interface CreateNewUser extends IUser {
-  permissions: string[];
-  adminOF?: string[];
+  adminOF?: [{
+    method: mongoose.Schema.Types.ObjectId;
+    workspacePermissions: mongoose.Schema.Types.ObjectId[];
+  }];
   subAdminRole: string;
   createdBy?: mongoose.Schema.Types.ObjectId;
-  ownerId?:mongoose.Schema.Types.ObjectId;
 }
 export type NewCreatedUser = Omit<CreateNewUser, 'isEmailVerified' | 'stripeCustomerId'>;
 

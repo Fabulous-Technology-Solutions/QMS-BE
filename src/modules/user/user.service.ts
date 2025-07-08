@@ -18,7 +18,7 @@ export const createUser = async (userBody: CreateNewUser): Promise<IUserDoc> => 
   if (await User.isEmailTaken(userBody.email)) {
     throw new ApiError('Email already taken', httpStatus.BAD_REQUEST);
   }
-  const htmlbodyforsendpassword = `<p>Welcome to the Tellust, ${userBody.firstName}!</p>
+  const htmlbodyforsendpassword = `<p>Welcome to the Tellust, ${userBody.name}!</p>
     <p>Email: ${userBody.email}</p>
     <p>You have been granted sub-admin access. Your password is: ${userBody.password}</p>
     <p>Please log in and change your password as soon as possible.</p>`;
@@ -104,8 +104,7 @@ export const loginWithGoogle = async (body: any): Promise<IUserDoc> => {
   // Create a new user
   user = await User.create({
     googleId: userData?.sub,
-    firstName: userData?.given_name || 'Unknown',
-    lastName: userData?.family_name || 'Unknown',
+    name: userData?.given_name || 'Unknown',
     role: 'admin',
     email,
     isEmailVerified: true,

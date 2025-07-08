@@ -10,8 +10,9 @@ import {
   IUpdateSubscriptionRequest,
   ISubscriptionWithDetails,
   IPaymentMethodRequest,
+  ImoduleswithWorkspaces,
 } from './subscription.interfaces';
-import Stripe from 'stripe'; 
+import Stripe from 'stripe';
 import mongoose from 'mongoose';
 
 
@@ -26,7 +27,7 @@ export const createSubscription = async (data: ICreateSubscriptionRequest): Prom
     // Validate plan exists
     const plan = await Plan.findById(planId);
     if (!plan) {
-      throw new ApiError('Plan not found',httpStatus.NOT_FOUND,);
+      throw new ApiError('Plan not found', httpStatus.NOT_FOUND,);
     }
 
     // Check if user already has an active subscription
@@ -45,7 +46,7 @@ export const createSubscription = async (data: ICreateSubscriptionRequest): Prom
     const stripeCustomerId = await getOrCreateStripeCustomer(userId);
 
     // Attach payment method to customer
-    await subscriptionUtils.attachPaymentMethod({                                               
+    await subscriptionUtils.attachPaymentMethod({
       paymentMethodId,
       customerId: stripeCustomerId,
     });
@@ -63,8 +64,8 @@ export const createSubscription = async (data: ICreateSubscriptionRequest): Prom
       invoice = stripeSubscription.latest_invoice as Stripe.Invoice;
     }
 
-          
-      const endTimestamp = invoice?.lines?.data?.[0]?.period?.end;
+
+    const endTimestamp = invoice?.lines?.data?.[0]?.period?.end;
     // Create local subscription record
     const subscription = await Subscription.create({
       userId,
@@ -198,12 +199,12 @@ export const getActiveSubscriptionwithPlan = async (userId: string): Promise<ISu
         category: '$plan.category',
         description: '$plan.description',
         features: '$plan.features',
-        userLimit:"$plan.userLimit",
-        workspaceLimit:"$plan.workspaceLimit",
+        userLimit: "$plan.userLimit",
+        workspaceLimit: "$plan.workspaceLimit",
         cloudStorage: "$plan.cloudStorage",
         certifications: "$plan.certifications",
-        pricing:"$plan.pricing",
-        subscription:{
+        pricing: "$plan.pricing",
+        subscription: {
           id: "$_id",
           status: "$status",
           billingCycle: "$billingCycle",
@@ -217,6 +218,74 @@ export const getActiveSubscriptionwithPlan = async (userId: string): Promise<ISu
   ]);
 
   return subscription as ISubscriptionWithDetails[];
+};
+
+export const getUserSubscriptionsandWorkspaces = async (userId: string): Promise<ImoduleswithWorkspaces[]> => {
+  const subscription = await Subscription.aggregate([
+    {
+      $match: {
+        userId: new mongoose.Types.ObjectId(userId),
+        status: { $in: ['active', 'trialing', 'past_due'] },
+      },
+    },
+    {
+      $lookup: {
+        from: 'plans',
+        localField: 'planId',
+        foreignField: '_id',
+        as: 'plan',
+      },
+    },
+    {
+      $unwind: {
+        path: '$plan',
+        preserveNullAndEmptyArrays: true,
+      },
+    },
+    {
+      $lookup: {
+        from: 'users',
+        localField: 'userId',
+        foreignField: '_id',
+        as: 'user',
+      },
+    },
+    {
+      $unwind: {
+        path: '$user',
+        preserveNullAndEmptyArrays: true,
+      },
+    },
+    {
+      $lookup: {
+        from: 'capaworkspaces',
+        localField: '_id',
+        foreignField: 'moduleId',
+        as: 'workspaces',
+      },
+    },
+    {
+      $project: {
+        _id: 1,
+        status: 1,
+        name: '$plan.name',
+        workspaces: {
+          $map: {
+            input: '$workspaces',
+            as: 'ws',
+            in: {
+              _id: '$$ws._id',
+              name: '$$ws.name',
+              createdAt: '$$ws.createdAt'
+            }
+          }
+        }
+
+      },
+    },
+  ]);
+
+  return subscription as ImoduleswithWorkspaces[];
 };
 
 /**
@@ -412,11 +481,10 @@ async function getOrCreateStripeCustomer(userId: string): Promise<string> {
     // Create a new Stripe customer using the utils
     const stripeCustomer = await subscriptionUtils.createCustomer({
       email: user.email,
-      name: `${user.firstName} ${user.lastName}`,
+      name: `${user.name}`,
       metadata: {
         userId: user._id.toString(),
-        firstName: user.firstName,
-        lastName: user.lastName,
+       name: `${user.name}`
       },
       ...(user.contact && { phone: user.contact }), // Add phone if available
     });

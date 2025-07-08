@@ -18,6 +18,12 @@ router
   )
   .get(auth('getSubscriptions'),subscriptionController.getActiveSubscription);
 
+  router.get(
+    '/names',
+    auth('getSubscriptions'),
+    subscriptionController.getmodulesNameAndWorkspaces
+  );
+
 router
   .route('/:subscriptionId')
   .patch(

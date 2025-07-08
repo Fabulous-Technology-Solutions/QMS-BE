@@ -45,6 +45,17 @@ export interface ISubscriptionWithDetails extends ISubscription {
   
 }
 
+export interface ImoduleswithWorkspaces {
+  _id: mongoose.Schema.Types.ObjectId;
+  status: string;
+  name: string;
+  workspaces: {
+    _id: mongoose.Schema.Types.ObjectId;
+    name: string;
+    createdAt: Date;
+  }[];
+}
+
 export interface IPaymentMethodRequest {
   customerId: string;
   paymentMethodId: string;

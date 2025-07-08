@@ -10,12 +10,7 @@ const { PhoneNumberUtil } = pk;
 const phoneUtil = PhoneNumberUtil.getInstance();
 const userSchema = new mongoose.Schema<IUserDoc, IUserModel>(
   {
-    firstName: {
-      type: String,
-      required: true,
-      trim: true,
-    },
-    lastName: {
+    name: {
       type: String,
       required: true,
       trim: true,

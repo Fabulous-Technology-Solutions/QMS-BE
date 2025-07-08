@@ -74,6 +74,24 @@ export const getActiveSubscription = catchAsync(async (req: Request, res: Respon
 });
 
 
+export const getmodulesNameAndWorkspaces = catchAsync(async (req: Request, res: Response): Promise<void> => {
+  const userId = req.user?.id;
+
+  if (!userId) {
+    res.status(httpStatus.UNAUTHORIZED).json({
+      success: false,
+      message: 'User not authenticated',
+    });
+    return;
+  }
+
+  const modules = await subscriptionService.getUserSubscriptionsandWorkspaces(userId);
+
+  res.status(httpStatus.OK).json({
+    success: true,
+    data: modules,
+  });
+});
 
 /**
  * Get subscription by ID
@@ -113,7 +131,7 @@ export const updateSubscription = catchAsync(async (req: Request, res: Response)
  */
 export const cancelSubscription = catchAsync(async (req: Request, res: Response): Promise<void> => {
   const { subscriptionId } = req.params;
-  
+
   if (!subscriptionId) {
     res.status(httpStatus.BAD_REQUEST).json({
       success: false,
