@@ -75,7 +75,7 @@ export const loginWithGoogle = async (body: any): Promise<IUserDoc> => {
 
   try {
     const response = await googleprofiledata(access_token);
-    userData = response.data;
+    userData = response;
   } catch (err: any) {
     console.error('Google token error:', err.response?.data || err.message);
     throw new ApiError('Invalid or expired Google access token', httpStatus.UNAUTHORIZED);
