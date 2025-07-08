@@ -64,3 +64,9 @@ export const verifyEmail = catchAsync(async (req: Request, res: Response) => {
     message: 'Email verified successfully'
   });
 });
+
+export const AcceptInvitation = catchAsync(async (req: Request, res: Response) => {
+  const user = await authService.AcceptInvitation(req.body);
+  const tokens = await tokenService.generateAuthTokens(user);
+  res.status(httpStatus.CREATED).send({ user, tokens });
+});

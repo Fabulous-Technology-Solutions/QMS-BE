@@ -47,6 +47,12 @@ export interface IUserWithTokens {
   tokens: AccessAndRefreshTokens;
 }
 
+export interface Iinvitation {
+  token: string;
+  password: string;
+  access_token: string;
+}
+
 export interface CreateNewUser extends IUser {
   adminOF?: [{
     method: mongoose.Schema.Types.ObjectId;
