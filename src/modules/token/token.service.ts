@@ -126,8 +126,8 @@ export const generateResetPasswordToken = async (email: string): Promise<string>
 
 
 export const generateInviteToken = async (email: string): Promise<string> => {
+  console.log(email,"email")
   const user = await userService.getUserByEmail(email) || {_id: new mongoose.Types.ObjectId()};
-
   const userId = user._id;
   const expires = moment().add(config.jwt.resetPasswordExpirationMinutes, 'hours');
   const inviteToken = generateToken(userId, expires, tokenTypes.INVITE);

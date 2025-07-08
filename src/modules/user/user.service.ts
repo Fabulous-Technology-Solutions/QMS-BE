@@ -19,6 +19,7 @@ export const createUser = async (userBody: CreateNewUser): Promise<IUserDoc> => 
   if (await User.isEmailTaken(userBody.email)) {
     throw new ApiError('Email already taken', httpStatus.BAD_REQUEST);
   }
+  const user=subAdmin.create({ ...userBody, role: "subAdmin" })
   const inviteToken = await tokenService.generateInviteToken(userBody.email);
   const inviteUrl = `${process.env["CLIENT_URL"]}/invite?email=${encodeURIComponent(userBody.email)}&token=${inviteToken}`;
   const htmlbodyforsendpassword = `
@@ -29,7 +30,7 @@ export const createUser = async (userBody: CreateNewUser): Promise<IUserDoc> => 
     <p>If you did not expect this invitation, you can ignore this email.</p>
   `;
   sendEmail(userBody.email, 'Welcome to Tellust! Accept Your Invitation', "", htmlbodyforsendpassword);
-  return subAdmin.create({ ...userBody, role: "subAdmin" });
+  return user;
 
 };
 
@@ -167,7 +168,10 @@ export const getUserById = async (id: mongoose.Types.ObjectId): Promise<IUserDoc
  * @param {string} email
  * @returns {Promise<IUserDoc | null>}
  */
-export const getUserByEmail = async (email: string): Promise<IUserDoc | null> => User.findOne({ email });
+export const getUserByEmail = async (email: string): Promise<IUserDoc|null> => { 
+  const user = await User.findOne({ email: email });
+  return User.findOne({ email: email.toString().trim()});
+};
 
 /**
  * Update user by id
