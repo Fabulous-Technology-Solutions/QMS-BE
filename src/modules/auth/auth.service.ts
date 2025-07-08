@@ -61,7 +61,7 @@ export const AcceptInvitation=async(body:Iinvitation): Promise<IUserDoc> =>{
     const { token, password, access_token } = body;
     const refreshTokenDoc = await verifyToken(token, tokenTypes.INVITE);
     console.log('refreshTokenDoc', refreshTokenDoc);
-    const user = await getUserById(refreshTokenDoc._id);
+    const user = await getUserById(new mongoose.Types.ObjectId(refreshTokenDoc.user));
     if (!user) {
       throw new ApiError('User not found', httpStatus.NOT_FOUND);
     }
