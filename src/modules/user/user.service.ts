@@ -46,6 +46,22 @@ export const registerUser = async (userBody: NewRegisteredUser): Promise<IUserDo
   return User.create({ ...userBody, role: 'admin', isEmailVerified: false, providers: ['local'] });
 };
 
+
+export const googleprofiledata= async(access_token: string)=>{
+  try {
+    const response = await axios.get('https://www.googleapis.com/oauth2/v3/userinfo', {
+      headers: {
+        Authorization: `Bearer ${access_token}`,
+      },
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching Google profile data:', error);
+    throw new ApiError('Failed to fetch Google profile data', httpStatus.UNAUTHORIZED);
+  }
+};
+
+
 export const loginWithGoogle = async (body: any): Promise<IUserDoc> => {
   const { access_token } = body;
 
@@ -56,12 +72,7 @@ export const loginWithGoogle = async (body: any): Promise<IUserDoc> => {
   let userData;
 
   try {
-    const response = await axios.get('https://www.googleapis.com/oauth2/v3/userinfo', {
-      headers: {
-        Authorization: `Bearer ${access_token}`,
-      },
-    });
-
+    const response = await googleprofiledata(access_token);
     userData = response.data;
   } catch (err: any) {
     console.error('Google token error:', err.response?.data || err.message);

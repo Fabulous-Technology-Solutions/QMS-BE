@@ -74,6 +74,8 @@ export const resetPassword = async (resetPasswordToken: any, newPassword: string
   }
 };
 
+
+
 /**
  * Verify email
  * @param {string} verifyEmailToken

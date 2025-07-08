@@ -9,7 +9,7 @@ const createUserBody: Record<keyof NewCreatedUser, any> = {
   role: Joi.string().optional().valid('subAdmin', 'admin'),
   contact: Joi.string().optional(),
   googleId: Joi.string().optional(),
-  providers: Joi.array().items(Joi.string().valid('google', 'local')).default(['local']),
+  providers: Joi.array().items(Joi.string().valid('google', 'local')),
   adminOF: Joi.array().items(Joi.object().keys({
     method: Joi.string().custom(objectId),
     workspacePermissions: Joi.array().items(Joi.string().custom(objectId))
