@@ -1,4 +1,4 @@
-import {  IUserDoc} from '@/modules/user/user.interfaces';
+import {  IUserDoc} from '../../../modules/user/user.interfaces';
 import mongoose, { Document } from 'mongoose';
 
 export interface ICapaworkspace extends Document {

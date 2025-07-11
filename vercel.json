@@ -1,40 +1,16 @@
 {
   "version": 2,
-  "functions": {
-    "src/index.ts": {
-      "maxDuration": 30
-    }
-  },
-  "routes": [
+  "builds": [
     {
-      "src": "/v1/(.*)",
-      "dest": "/src/index.ts"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/src/index.ts"
+      "src": "dist/index.js",
+      "use": "@vercel/node",
+      "config": { "includeFiles": ["dist/**"] }
     }
   ],
-  "env": {
-    "NODE_ENV": "production"
-  },
-  "headers": [
+  "routes": [
     {
-      "source": "/(.*)",
-      "headers": [
-        {
-          "key": "X-Content-Type-Options",
-          "value": "nosniff"
-        },
-        {
-          "key": "X-Frame-Options",
-          "value": "DENY"
-        },
-        {
-          "key": "X-XSS-Protection",
-          "value": "1; mode=block"
-        }
-      ]
+      "src": "/(.*)",
+      "dest": "dist/index.js"
     }
   ]
 }
