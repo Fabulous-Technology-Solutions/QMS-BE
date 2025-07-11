@@ -1,8 +1,8 @@
 # Dependencies
 node_modules
 
-# Source files (since we're using compiled dist)
-src
+# Build output (not needed since we're using TypeScript directly)
+dist
 
 # Environment files
 .env
@@ -53,8 +53,7 @@ LICENSE
 # PM2
 ecosystem.config.json
 
-# TypeScript
-tsconfig.json
+# TypeScript build info
 tsconfig.tsbuildinfo
 
 # Development scripts

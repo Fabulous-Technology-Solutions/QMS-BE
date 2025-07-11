@@ -1,31 +1,20 @@
 {
   "version": 2,
-  "buildCommand": "npm run build",
-  "builds": [
-    {
-      "src": "dist/index.js",
-      "use": "@vercel/node",
-      "config": { 
-        "includeFiles": ["dist/**"],
-        "excludeFiles": ["src/**", "*.ts", "tsconfig.json"]
-      }
-    }
-  ],
-  "routes": [
-    {
-      "src": "/v1/(.*)",
-      "dest": "dist/index.js"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "dist/index.js"
-    }
-  ],
   "functions": {
-    "dist/index.js": {
+    "src/index.ts": {
       "maxDuration": 30
     }
   },
+  "routes": [
+    {
+      "src": "/v1/(.*)",
+      "dest": "/src/index.ts"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/src/index.ts"
+    }
+  ],
   "env": {
     "NODE_ENV": "production"
   },
