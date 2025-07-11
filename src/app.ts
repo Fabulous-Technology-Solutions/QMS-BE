@@ -73,10 +73,21 @@ if (config.env === 'production') {
 // v1 api routes
 app.use('/v1', routes);
 
-
+// Health check routes for Vercel
+app.get("/", (_, res) => {
+  res.send({ 
+    status: "healthy", 
+    message: "QMS API is running",
+    timestamp: new Date().toISOString()
+  });
+});
 
 app.get("/api/health", (_, res) => {
-  res.send({ status: "healthy" });
+  res.send({ 
+    status: "healthy", 
+    message: "QMS API is running",
+    timestamp: new Date().toISOString()
+  });
 });
 // send back a 404 error for any unknown api request
 app.use((_req, _res, next) => {
