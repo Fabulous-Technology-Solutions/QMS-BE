@@ -1,10 +1,10 @@
 # Dependencies
 node_modules
 
-# Build output (not needed since we're using TypeScript directly)
+# Build output (not needed for TypeScript)
 dist
 
-# Environment files
+# Environment files (don't deploy local env)
 .env
 .env.local
 .env.development
