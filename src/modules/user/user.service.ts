@@ -19,7 +19,7 @@ export const createUser = async (userBody: CreateNewUser): Promise<IUserDoc> => 
   if (await User.isEmailTaken(userBody.email)) {
     throw new ApiError('Email already taken', httpStatus.BAD_REQUEST);
   }
-  const user=await subAdmin.create({ ...userBody, role: "subAdmin" })
+  const user = await subAdmin.create({ ...userBody, role: "subAdmin" })
   console.log('user create before create token', user);
   const inviteToken = await tokenService.generateInviteToken(userBody.email);
   const inviteUrl = `${process.env["CLIENT_URL"]}/invite?email=${encodeURIComponent(userBody.email)}&token=${inviteToken}`;
@@ -49,7 +49,7 @@ export const registerUser = async (userBody: NewRegisteredUser): Promise<IUserDo
 };
 
 
-export const googleprofiledata= async(access_token: string)=>{
+export const googleprofiledata = async (access_token: string) => {
   try {
     const response = await axios.get('https://www.googleapis.com/oauth2/v3/userinfo', {
       headers: {
@@ -113,7 +113,7 @@ export const loginWithGoogle = async (body: any): Promise<IUserDoc> => {
     if (!user.isEmailVerified) {
       user.isEmailVerified = true;
       needsUpdate = true;
-    }                                 
+    }
 
     if (needsUpdate) {
       await user.save();
@@ -166,12 +166,33 @@ export const getUserById = async (id: mongoose.Types.ObjectId): Promise<IUserDoc
   return user;
 };
 
+export const getALLUsers = async (data: { page: number; limit: number; role?: string; userId?: mongoose.Types.ObjectId }): Promise<IUserDoc[]> => {
+  const { page, limit, role = "subAdmin", userId } = data;
+  const matchStage: any = {};
+  
+  if (role) {
+    matchStage.role = role;
+  }
+  
+  // If userId is provided, it could be used for filtering by created user or ownership
+  if (userId) {
+    matchStage.createdBy = userId
+  }
+
+  const users = await User.aggregate([
+    { $match: matchStage },
+    { $skip: (page - 1) * limit },
+    { $limit: limit }
+  ]);
+  return users;
+};
+
 /**
  * Get user by email
  * @param {string} email
  * @returns {Promise<IUserDoc | null>}
  */
-export const getUserByEmail = async (email: string): Promise<IUserDoc|null> => { 
+export const getUserByEmail = async (email: string): Promise<IUserDoc | null> => {
   const user = await User.findOne({ email: email });
   if (!user) {
     throw new ApiError('User not found', httpStatus.NOT_FOUND);
@@ -190,8 +211,8 @@ export const updateUserById = async (
   updateBody: UpdateUserBody
 ): Promise<IUserDoc | null> => {
   const user = await getUserById(userId);
-  if (!user) {
-    throw new ApiError('User not found', httpStatus.NOT_FOUND);
+  if (!user) { throw new ApiError('User not found', httpStatus.
+   NOT_FOUND);
   }
   if (updateBody.email && (await User.isEmailTaken(updateBody.email, userId))) {
     throw new ApiError('Email already taken', httpStatus.BAD_REQUEST);

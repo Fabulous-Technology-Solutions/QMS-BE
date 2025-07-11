@@ -9,12 +9,19 @@ import * as userService from './user.service';
 import { getUserSubscription } from '../subscription/subscription.service';
 
 export const createUser = catchAsync(async (req: Request, res: Response) => {
-
+  let ownerId: mongoose.Types.ObjectId;
+  
+  if (req.user.role !== "admin") {
+    ownerId = req.user._id;
+  } else {
+    // For admin users, they might pass ownerId in the request body or use their own ID
+    ownerId = req.body.ownerId ? new mongoose.Types.ObjectId(req.body.ownerId) : req.user._id;
+  }
 
   const user = await userService.createUser({ 
     ...req.body, 
     createdBy: req.user._id, 
-
+    ownerId 
   });
   res.status(httpStatus.CREATED).send(user);
 });
@@ -24,6 +31,31 @@ export const getUsers = catchAsync(async (req: Request, res: Response) => {
   const options: IOptions = pick(req.query, ['sortBy', 'limit', 'page', 'projectBy']);
   const result = await userService.queryUsers(filter, options);
   res.send(result);
+});
+
+ export const getAllUsers = catchAsync(async (req: Request, res: Response) => {
+  const { page, limit, role, userId } = req.query;
+  
+  const queryParams: {
+    page: number;
+    limit: number;
+    role?: string;
+    userId?: mongoose.Types.ObjectId;
+  } = {
+    page: Number(page) || 1,
+    limit: Number(limit) || 10,
+  };
+  
+  if (role) {
+    queryParams.role = role as string;
+  }
+  
+  if (userId) {
+    queryParams.userId = new mongoose.Types.ObjectId(userId as string);
+  }
+  
+  const users = await userService.getALLUsers(queryParams);
+  res.send(users);
 });
 
 export const getUser = catchAsync(async (req: Request, res: Response) => {
