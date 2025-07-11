@@ -1,10 +1,11 @@
 # Dependencies
 node_modules
 
-# Build output
-dist
+# Source files (since we're using compiled dist)
+src
 
-# Development files
+# Environment files
+.env
 .env.local
 .env.development
 .env.test
@@ -53,4 +54,8 @@ LICENSE
 ecosystem.config.json
 
 # TypeScript
+tsconfig.json
 tsconfig.tsbuildinfo
+
+# Development scripts
+setup-vercel-env.sh
