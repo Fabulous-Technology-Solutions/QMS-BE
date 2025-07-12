@@ -2,6 +2,7 @@
   "compilerOptions": {
     "target": "es2020",
     "module": "commonjs",
+    "rootDir": "./src",
     "moduleResolution": "node",
     "allowSyntheticDefaultImports": true,
     "baseUrl": "./",
@@ -37,12 +38,11 @@
     "skipLibCheck": true
   },
   "include": [
-    "src/**/*",
-    "api/**/*"
+    "src/**/*"
   ],
   "exclude": [
     "node_modules",
     "dist",
-    "public"
+    "api"
   ]
 }

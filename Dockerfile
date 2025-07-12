@@ -41,4 +41,4 @@ COPY ecosystem.config.json ./
 EXPOSE 3000
 
 # Run the application
-CMD ["node", "dist/src/index.js"]
+CMD ["node", "./dist/index.js"]
