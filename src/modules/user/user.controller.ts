@@ -48,6 +48,7 @@ export const getUsers = catchAsync(async (req: Request, res: Response) => {
   } = {
     page: Number(page) || 1,
     limit: Number(limit) || 10,
+    search: search as string,
   };
   
   if (role) {
