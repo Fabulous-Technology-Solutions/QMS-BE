@@ -8,15 +8,14 @@ COPY package.json ./
 COPY yarn.lock ./
 COPY tsconfig.json ./
 
-# Copy source code and necessary config files
+# Copy source code
 COPY ./src ./src
-COPY ./packages ./packages
 
 # Install all dependencies (including dev dependencies for building)
 RUN yarn install --frozen-lockfile
 
 # Compile TypeScript
-RUN yarn compile
+RUN yarn build
 
 
 # === Production stage ===
