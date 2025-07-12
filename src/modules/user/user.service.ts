@@ -166,12 +166,18 @@ export const getUserById = async (id: mongoose.Types.ObjectId): Promise<IUserDoc
   return user;
 };
 
-export const getUsers = async (data: { page: number; limit: number; role?: string; userId?: mongoose.Types.ObjectId }): Promise<{ users: IUserDoc[]; total: number; page: number }> => {
-  const { page, limit, role = "subAdmin", userId } = data;
+export const getUsers = async (data: { page: number; limit: number; role?: string; userId?: mongoose.Types.ObjectId,search?:string }): Promise<{ users: IUserDoc[]; total: number; page: number }> => {
+  const { page, limit, role = "subAdmin", userId ,search} = data;
   const matchStage: any = { isDeleted: false };
 
   if (role) {
     matchStage.role = role;
+  }
+  if(search) {
+    matchStage.name = { $regex: search, $options: 'i' }; // Case-insensitive search
+    matchStage.email = { $regex: search, $options: 'i' }; // Case-insensitive search
+    matchStage.phone = { $regex: search, $options: 'i' }; // Case-insensitive search
+    matchStage.role = { $regex: search, $options: 'i' }; // Case-insensitive search
   }
 
   if (userId) {
