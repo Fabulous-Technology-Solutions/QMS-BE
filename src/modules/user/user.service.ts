@@ -166,7 +166,7 @@ export const getUserById = async (id: mongoose.Types.ObjectId): Promise<IUserDoc
   return user;
 };
 
-export const getUsers = async (data: { page: number; limit: number; role?: string; userId?: mongoose.Types.ObjectId }): Promise<IUserDoc[]> => {
+export const getUsers = async (data: { page: number; limit: number; role?: string; userId?: mongoose.Types.ObjectId }): Promise<{ users: IUserDoc[]; total: number; page: number }> => {
   const { page, limit, role = "subAdmin", userId } = data;
   const matchStage: any = { isDeleted: false };
 
@@ -174,11 +174,14 @@ export const getUsers = async (data: { page: number; limit: number; role?: strin
     matchStage.role = role;
   }
 
-  // If userId is provided, it could be used for filtering by created user or ownership
   if (userId) {
-    matchStage.createdBy = userId
+    matchStage.createdBy = userId;
   }
 
+  // Get total count
+  const total = await User.countDocuments(matchStage);
+
+  // Get paginated users with aggregation
   const users = await User.aggregate([
     { $match: matchStage },
     {
@@ -228,8 +231,7 @@ export const getUsers = async (data: { page: number; limit: number; role?: strin
     { $limit: limit }
   ]);
 
-  console.log('users means', users);
-  return users;
+  return { users, total, page };
 };
 
 /**

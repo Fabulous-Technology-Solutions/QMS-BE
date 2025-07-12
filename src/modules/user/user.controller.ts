@@ -21,7 +21,7 @@ export const createUser = catchAsync(async (req: Request, res: Response) => {
 
   console.log("Creating user with body:", req.body);
   const user = await userService.createUser({ 
-    
+
     ...req.body, 
     createdBy: req.user._id, 
     ownerId 
@@ -57,8 +57,8 @@ export const getUsers = catchAsync(async (req: Request, res: Response) => {
     queryParams.userId = new mongoose.Types.ObjectId(userId as string);
   }
   
-  const users = await userService.getUsers(queryParams);
-  res.send(users);
+  const data = await userService.getUsers(queryParams);
+  res.send(data);
 });
 
 export const getUser = catchAsync(async (req: Request, res: Response) => {

@@ -23,7 +23,7 @@ FROM node:18-alpine AS production
 
 WORKDIR /app
 ENV NODE_ENV=production
-
+    
 # Copy package files
 COPY package.json ./
 COPY yarn.lock ./
