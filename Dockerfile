@@ -11,7 +11,7 @@ COPY tsconfig.json ./
 # Copy source code
 COPY ./src ./src
 
-# Install all dependencies (including dev dependencies for building)
+# Install all dependencies (including dev dependencies for building) 
 RUN yarn install --frozen-lockfile
 
 # Compile TypeScript

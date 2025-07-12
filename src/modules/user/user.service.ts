@@ -162,7 +162,7 @@ export const queryUsers = async (filter: Record<string, any>, options: IOptions)
  * @returns {Promise<IUserDoc | null>}
  */
 export const getUserById = async (id: mongoose.Types.ObjectId): Promise<IUserDoc | null> => {
-  const user = await User.findOne({ _id: id , isDeleted: false });
+  const user = await User.findOne({ _id: id, isDeleted: false });
   return user;
 };
 
@@ -278,6 +278,7 @@ export const deleteUserById = async (userId: mongoose.Types.ObjectId): Promise<I
   if (!user) {
     throw new ApiError('User not found', httpStatus.NOT_FOUND);
   }
-  await user.findByIdAndUpdate(userId, { isDeleted: true });
+  user.isDeleted = true;
+  await user.save();
   return user;
 };
