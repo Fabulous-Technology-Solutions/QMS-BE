@@ -13,7 +13,6 @@
   "scripts": {
     "start": "pm2 start ecosystem.config.json --no-daemon",
     "start:build": "tsc --build && pm2 start ecosystem.config.json --no-daemon",
-    "build": "tsc --build --outDir public",
     "compile": "tsc --build",
     "compile:watch": "tsc --build --watch",
     "pre:dev": "cross-env NODE_ENV=development nodemon dist/index.js",
@@ -140,7 +139,6 @@
     "swagger-jsdoc": "^6.1.0",
     "swagger-ui-express": "^4.2.0",
     "validator": "^13.7.0",
-    "vercel": "^44.4.0",
     "winston": "^3.3.3",
     "xss-clean": "^0.1.1",
     "yarn": "^1.22.22"
