@@ -2,14 +2,18 @@ import Joi from 'joi';
 import { password } from '../validate/custom.validation';
 import { NewRegisteredUser } from '../user/user.interfaces';
 
-const registerBody: Record<keyof NewRegisteredUser, any > = {
+const registerBody: Record<keyof NewRegisteredUser, any> = {
   email: Joi.string().required().email(),
   password: Joi.string().required().custom(password),
   name: Joi.string().required(),
   contact: Joi.string().optional(),
   providers: Joi.array().items(Joi.string().valid('google', 'facebook')).optional()
     .default(['local']),
-    googleId: Joi.string().optional(),
+  googleId: Joi.string().optional(),
+  status: Joi.string().valid('active', 'inactive').default('active'),
+  profilePicture: Joi.string().optional(),
+  profilePictureKey: Joi.string().optional(),
+  isDeleted: Joi.boolean().default(false)
 };
 
 export const register = {

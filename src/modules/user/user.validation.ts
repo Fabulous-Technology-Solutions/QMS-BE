@@ -11,15 +11,19 @@ const createUserBody: Record<keyof NewCreatedUser, any> = {
   googleId: Joi.string().optional(),
   providers: Joi.array().items(Joi.string().valid('google', 'local')),
   adminOF: Joi.array().items(Joi.object().keys({
-    method: Joi.string().custom(objectId),
-    workspacePermissions: Joi.array().items(Joi.string().custom(objectId))
+    method: Joi.string(),
+    workspacePermissions: Joi.array().items(Joi.string())
   })).min(1).optional(),
   subAdminRole: Joi.string().valid('subAdmin', 'standardUser').optional(),
-  createdBy: Joi.string().custom(objectId).optional()
+  createdBy: Joi.string().custom(objectId).optional(),
+  status: Joi.string().valid('active', 'inactive').default('active'),
+  profilePicture: Joi.string().optional(),
+  profilePictureKey: Joi.string().optional(),
+  isDeleted: Joi.boolean().default(false),
 };
 
 export const createUser = {
-  body: Joi.object().keys(createUserBody).fork(['email', 'name', "subAdminRole", "adminOF"], (schema) => schema.required()),
+  body: Joi.object().keys(createUserBody).fork(['email', 'name', "subAdminRole", "adminOF", "profilePicture", "profilePictureKey"], (schema) => schema.required()),
 };
 
 export const getUsers = {
@@ -44,11 +48,7 @@ export const updateUser = {
     userId: Joi.required().custom(objectId),
   }),
   body: Joi.object()
-    .keys({
-      email: Joi.string().email(),
-      password: Joi.string().custom(password),
-      name: Joi.string(),
-    })
+    .keys(createUserBody)
     .min(1),
 };
 

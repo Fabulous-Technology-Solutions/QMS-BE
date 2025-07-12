@@ -14,11 +14,16 @@ export interface IUser {
   providers: string[];
   googleId?: string;
   stripeCustomerId?: string;
-
+  status?: string ;
+  profilePicture?: string;
+  profilePictureKey?: string;
+     isDeleted?: boolean;
+ 
 }
 
 export interface IUserDoc extends IUser, Document {
   isPasswordMatch(password: string): Promise<boolean>;
+  findByIdAndUpdate(id: mongoose.Types.ObjectId, update: Partial<IUser>, options?: mongoose.QueryOptions): Promise<IUserDoc | null>;
 }
 
 export interface IUserModel extends Model<IUserDoc> {
@@ -60,6 +65,7 @@ export interface CreateNewUser extends IUser {
   }];
   subAdminRole: string;
   createdBy?: mongoose.Schema.Types.ObjectId;
+
 }
 export type NewCreatedUser = Omit<CreateNewUser, 'isEmailVerified' | 'stripeCustomerId'>;
 

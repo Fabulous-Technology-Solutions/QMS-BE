@@ -15,6 +15,14 @@ const userSchema = new mongoose.Schema<IUserDoc, IUserModel>(
       required: true,
       trim: true,
     },
+    profilePicture: {
+      type: String,
+      trim: true,
+    },
+    profilePictureKey: {
+      type: String,
+      trim: true,   
+    },
     email: {
       type: String,
       required: true,
@@ -75,6 +83,15 @@ const userSchema = new mongoose.Schema<IUserDoc, IUserModel>(
       default: 'admin'
     },
     isEmailVerified: {
+      type: Boolean,
+      default: false,
+    },
+    status: {
+      type: String,
+      enum: ['active', 'inactive'],
+      default: 'active'
+    },
+    isDeleted: {
       type: Boolean,
       default: false,
     },

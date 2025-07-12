@@ -162,18 +162,18 @@ export const queryUsers = async (filter: Record<string, any>, options: IOptions)
  * @returns {Promise<IUserDoc | null>}
  */
 export const getUserById = async (id: mongoose.Types.ObjectId): Promise<IUserDoc | null> => {
-  const user = await User.findById(id);
+  const user = await User.findOne({ _id: id , isDeleted: false });
   return user;
 };
 
-export const getALLUsers = async (data: { page: number; limit: number; role?: string; userId?: mongoose.Types.ObjectId }): Promise<IUserDoc[]> => {
+export const getUsers = async (data: { page: number; limit: number; role?: string; userId?: mongoose.Types.ObjectId }): Promise<IUserDoc[]> => {
   const { page, limit, role = "subAdmin", userId } = data;
-  const matchStage: any = {};
-  
+  const matchStage: any = { isDeleted: false };
+
   if (role) {
     matchStage.role = role;
   }
-  
+
   // If userId is provided, it could be used for filtering by created user or ownership
   if (userId) {
     matchStage.createdBy = userId
@@ -181,9 +181,54 @@ export const getALLUsers = async (data: { page: number; limit: number; role?: st
 
   const users = await User.aggregate([
     { $match: matchStage },
+    {
+      $lookup: {
+        from: 'subscriptions',
+        let: {
+          methods: {
+            $map: {
+              input: '$adminOF',
+              as: 'a',
+              in: '$$a.method'
+            }
+          }
+        },
+        pipeline: [
+          {
+            $match: {
+              $expr: {
+                $in: ['$_id', '$$methods']
+              }
+            }
+          },
+          {
+            $lookup: {
+              from: 'plans',
+              localField: 'planId',
+              foreignField: '_id',
+              as: 'plan'
+            }
+          },
+          {
+            $unwind: {
+              path: '$plan',
+              preserveNullAndEmptyArrays: true
+            }
+          },
+          {
+            $project: {
+              name: "$plan.name",
+            }
+          }
+        ],
+        as: 'modules'
+      }
+    },
     { $skip: (page - 1) * limit },
     { $limit: limit }
   ]);
+
+  console.log('users means', users);
   return users;
 };
 
@@ -211,8 +256,9 @@ export const updateUserById = async (
   updateBody: UpdateUserBody
 ): Promise<IUserDoc | null> => {
   const user = await getUserById(userId);
-  if (!user) { throw new ApiError('User not found', httpStatus.
-   NOT_FOUND);
+  if (!user) {
+    throw new ApiError('User not found', httpStatus.
+      NOT_FOUND);
   }
   if (updateBody.email && (await User.isEmailTaken(updateBody.email, userId))) {
     throw new ApiError('Email already taken', httpStatus.BAD_REQUEST);
@@ -232,6 +278,6 @@ export const deleteUserById = async (userId: mongoose.Types.ObjectId): Promise<I
   if (!user) {
     throw new ApiError('User not found', httpStatus.NOT_FOUND);
   }
-  await user.deleteOne();
+  await user.findByIdAndUpdate(userId, { isDeleted: true });
   return user;
 };

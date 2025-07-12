@@ -17,8 +17,11 @@ export const createUser = catchAsync(async (req: Request, res: Response) => {
     // For admin users, they might pass ownerId in the request body or use their own ID
     ownerId = req.body.ownerId ? new mongoose.Types.ObjectId(req.body.ownerId) : req.user._id;
   }
+   
 
+  console.log("Creating user with body:", req.body);
   const user = await userService.createUser({ 
+    
     ...req.body, 
     createdBy: req.user._id, 
     ownerId 
@@ -54,7 +57,7 @@ export const getUsers = catchAsync(async (req: Request, res: Response) => {
     queryParams.userId = new mongoose.Types.ObjectId(userId as string);
   }
   
-  const users = await userService.getALLUsers(queryParams);
+  const users = await userService.getUsers(queryParams);
   res.send(users);
 });
 
