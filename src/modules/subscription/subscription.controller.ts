@@ -68,7 +68,6 @@ export const getCurrentSubscription = catchAsync(async (req: Request, res: Respo
 
 export const getActiveSubscription = catchAsync(async (req: Request, res: Response): Promise<void> => {
   const userId = getEffectiveUserId(req);
-
   if (!userId) {
     res.status(httpStatus.UNAUTHORIZED).json({
       success: false,
@@ -85,7 +84,7 @@ export const getActiveSubscription = catchAsync(async (req: Request, res: Respon
   });
 });
 
-export const getmodulesNameAndWorkspaces = catchAsync(async (req: Request, res: Response): Promise<void> => {
+export const  getmodulesNameAndWorkspaces = catchAsync(async (req: Request, res: Response): Promise<void> => {
   const userId = getEffectiveUserId(req);
 
   if (!userId) {

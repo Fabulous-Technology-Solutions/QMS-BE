@@ -37,7 +37,7 @@ export const getUsers = catchAsync(async (req: Request, res: Response) => {
 });
 
  export const getAllUsers = catchAsync(async (req: Request, res: Response) => {
-  const { page, limit, role, userId, search } = req.query;
+  const { page, limit, role, search } = req.query;
   
   const queryParams: {
     page: number;
@@ -55,8 +55,8 @@ export const getUsers = catchAsync(async (req: Request, res: Response) => {
     queryParams.role = role as string;
   }
   
-  if (userId) {
-    queryParams.userId = new mongoose.Types.ObjectId(userId as string);
+  if (req.user._id) {
+    queryParams.userId = req.user._id;
   }
   
   const data = await userService.getUsers(queryParams);

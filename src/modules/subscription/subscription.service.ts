@@ -252,7 +252,7 @@ export const getUserSubscriptionsandWorkspaces = async (userId: string): Promise
               $expr: {
                 $and: [
                   { $eq: ['$moduleId', '$$moduleId'] },
-                  { $eq: ['$isDeleted', false] }
+           
                 ]
               }
             }
@@ -267,17 +267,7 @@ export const getUserSubscriptionsandWorkspaces = async (userId: string): Promise
         _id: 1,
         status: 1,
         name: '$plan.name',
-        workspaces: {
-          $map: {
-            input: '$workspaces',
-            as: 'ws',
-            in: {
-              _id: '$$ws._id',
-              name: '$$ws.name',
-              createdAt: '$$ws.createdAt'
-            }
-          }
-        }
+        workspaces:"$workspaces",
 
       },
     },

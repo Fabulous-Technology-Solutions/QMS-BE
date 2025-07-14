@@ -194,6 +194,8 @@ export const getUsers = async (data: {
     ];
   }
 
+  console.log('matchStage', matchStage);
+
   const total = await User.countDocuments(matchStage);
 
   const users = await User.aggregate([

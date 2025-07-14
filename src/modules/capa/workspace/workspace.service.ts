@@ -38,6 +38,8 @@ export const createCapaworkspace = async (data: CreateCapaworkspaceRequest) => {
       }
     }
 
+    console.log('Query for getAllCapaworkspaces:', query);
+
     const results = await CapaworkspaceModel.aggregate([
       { $match: query },
       {
