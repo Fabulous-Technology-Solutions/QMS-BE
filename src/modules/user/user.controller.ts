@@ -7,6 +7,7 @@ import pick from '../utils/pick';
 import { IOptions } from '../paginate/paginate';
 import * as userService from './user.service';
 import { getUserSubscription } from '../subscription/subscription.service';
+import { subscriptionService } from '../subscription';
 
 export const createUser = catchAsync(async (req: Request, res: Response) => {
   let ownerId: mongoose.Types.ObjectId;
@@ -93,6 +94,16 @@ export const deleteUser = catchAsync(async (req: Request, res: Response) => {
 export const getMe = catchAsync(async (req: Request, res: Response) => {
   const userId = req.user._id; 
   const user = await userService.getme(userId);
-  const subscription = await getUserSubscription(userId);
+   let subscription;
+
+    if(req.user.role === 'subAdmin') {
+      const modules = req.user.adminOF || [];
+      const getModules = modules?.map((module: any) => module.method?.toString());
+        subscription=await subscriptionService.getSubAdminModules(getModules);
+    }else {
+      subscription = await getUserSubscription(userId);
+    }
+  
+  
   res.send({ user, subscription });
 });
