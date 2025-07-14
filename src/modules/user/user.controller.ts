@@ -7,8 +7,8 @@ import pick from '../utils/pick';
 import { IOptions } from '../paginate/paginate';
 import * as userService from './user.service';
 import { getUserSubscription } from '../subscription/subscription.service';
-import { subscriptionService } from '../subscription';
 
+import {getSubAdminModules } from "../subscription/subscription.service";
 export const createUser = catchAsync(async (req: Request, res: Response) => {
   let ownerId: mongoose.Types.ObjectId;
   
@@ -94,16 +94,15 @@ export const deleteUser = catchAsync(async (req: Request, res: Response) => {
 export const getMe = catchAsync(async (req: Request, res: Response) => {
   const userId = req.user._id; 
   const user = await userService.getme(userId);
-   let subscription;
+  let subscription;
+  if(user.role !== 'admin') {
+    const modules = req.user.adminOF || [];
+    const getModules = modules?.map((module: any) => module.method?.toString());
+    console.log('User role:', user.role, 'Modules:', getModules);
+    subscription = await getSubAdminModules(getModules);
+  }{
 
-    if(req.user.role === 'subAdmin') {
-      const modules = req.user.adminOF || [];
-      const getModules = modules?.map((module: any) => module.method?.toString());
-        subscription=await subscriptionService.getSubAdminModules(getModules);
-    }else {
-      subscription = await getUserSubscription(userId);
-    }
-  
-  
+    subscription = await getUserSubscription(userId);
+  }
   res.send({ user, subscription });
 });
