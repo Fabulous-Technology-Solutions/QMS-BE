@@ -3,12 +3,23 @@ import httpStatus from 'http-status';
 import { catchAsync } from '../utils';
 import * as subscriptionService from './subscription.service';
 
+
+/**
+ * Helper to get the effective user ID (handles subAdmin case)
+ */
+function getEffectiveUserId(req: Request): string | undefined {
+  if (req.user?.role === 'subAdmin') {
+    return req.user?.createdBy?.toString();
+  }
+  return req.user?.id;
+}
+
 /**
  * Create subscription
  */
 export const createSubscription = catchAsync(async (req: Request, res: Response): Promise<void> => {
   const { planId, priceId, paymentMethodId, billingCycle } = req.body;
-  const userId = req.user?.id; // Assuming user is attached to request via auth middleware
+  const userId = getEffectiveUserId(req);
 
   if (!userId) {
     res.status(httpStatus.UNAUTHORIZED).json({
@@ -37,7 +48,7 @@ export const createSubscription = catchAsync(async (req: Request, res: Response)
  * Get user's current subscription
  */
 export const getCurrentSubscription = catchAsync(async (req: Request, res: Response): Promise<void> => {
-  const userId = req.user?.id;
+  const userId = getEffectiveUserId(req);
 
   if (!userId) {
     res.status(httpStatus.UNAUTHORIZED).json({
@@ -54,8 +65,9 @@ export const getCurrentSubscription = catchAsync(async (req: Request, res: Respo
     data: subscription,
   });
 });
+
 export const getActiveSubscription = catchAsync(async (req: Request, res: Response): Promise<void> => {
-  const userId = req.user?.id;
+  const userId = getEffectiveUserId(req);
 
   if (!userId) {
     res.status(httpStatus.UNAUTHORIZED).json({
@@ -73,9 +85,8 @@ export const getActiveSubscription = catchAsync(async (req: Request, res: Respon
   });
 });
 
-
 export const getmodulesNameAndWorkspaces = catchAsync(async (req: Request, res: Response): Promise<void> => {
-  const userId = req.user?.id;
+  const userId = getEffectiveUserId(req);
 
   if (!userId) {
     res.status(httpStatus.UNAUTHORIZED).json({
@@ -92,10 +103,6 @@ export const getmodulesNameAndWorkspaces = catchAsync(async (req: Request, res: 
     data: modules,
   });
 });
-
-/**
- * Get subscription by ID
- */
 
 /**
  * Update subscription
@@ -149,10 +156,9 @@ export const cancelSubscription = catchAsync(async (req: Request, res: Response)
   });
 });
 
-
 export const updatePaymentMethod = catchAsync(async (req: Request, res: Response): Promise<void> => {
   const { paymentMethodId } = req.body;
-  const userId = req.user?.id;
+  const userId = getEffectiveUserId(req);
 
   if (!userId) {
     res.status(httpStatus.UNAUTHORIZED).json({
@@ -162,7 +168,6 @@ export const updatePaymentMethod = catchAsync(async (req: Request, res: Response
     return;
   }
 
-  // Get user's stripe customer ID (you'll need to implement this based on your user model)
   const customerId = await getUserStripeCustomerId(userId);
 
   await subscriptionService.updatePaymentMethod({
@@ -180,7 +185,7 @@ export const updatePaymentMethod = catchAsync(async (req: Request, res: Response
  * Get payment methods
  */
 export const getPaymentMethods = catchAsync(async (req: Request, res: Response): Promise<void> => {
-  const userId = req.user?.id;
+  const userId = getEffectiveUserId(req);
 
   if (!userId) {
     res.status(httpStatus.UNAUTHORIZED).json({
@@ -203,7 +208,7 @@ export const getPaymentMethods = catchAsync(async (req: Request, res: Response):
  * Create setup intent for adding payment method
  */
 export const createSetupIntent = catchAsync(async (req: Request, res: Response): Promise<void> => {
-  const userId = req.user?.id;
+  const userId = getEffectiveUserId(req);
 
   if (!userId) {
     res.status(httpStatus.UNAUTHORIZED).json({
@@ -227,7 +232,7 @@ export const createSetupIntent = catchAsync(async (req: Request, res: Response):
  */
 export const createCustomerPortalSession = catchAsync(async (req: Request, res: Response): Promise<void> => {
   const { returnUrl } = req.body;
-  const userId = req.user?.id;
+  const userId = getEffectiveUserId(req);
 
   if (!userId) {
     res.status(httpStatus.UNAUTHORIZED).json({

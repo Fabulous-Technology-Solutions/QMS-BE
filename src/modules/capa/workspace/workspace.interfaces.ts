@@ -28,6 +28,7 @@ export interface getworkspacesofuserRequest {
    Page: any;
    Limit: any;
    user:IUserDoc
+  
 }
 
 
@@ -35,5 +36,12 @@ export interface getworkspacesofuserRequest {
 export interface IqueryofGetworkspaces {
     moduleId: mongoose.Types.ObjectId;
     createdBy?: mongoose.Types.ObjectId;
-    isDeleted: boolean
+    isDeleted: boolean,
+     _id?: mongoose.Types.ObjectId | { $in: mongoose.Types.ObjectId[] };
+}
+
+export interface IMAP{
+     method: mongoose.Types.ObjectId;
+        workspacePermissions: mongoose.Types.ObjectId[];
+
 }

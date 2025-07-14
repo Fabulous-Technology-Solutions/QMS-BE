@@ -17,11 +17,14 @@ export interface IUser {
   status?: string ;
   profilePicture?: string;
   profilePictureKey?: string;
-     isDeleted?: boolean;
+  isDeleted?: boolean;
  
 }
 
 export interface IUserDoc extends IUser, Document {
+  createdBy?: mongoose.Schema.Types.ObjectId;
+  adminOF?: mongoose.Schema.Types.ObjectId[];
+  subAdminRole?: string;
   isPasswordMatch(password: string): Promise<boolean>;
   findByIdAndUpdate(id: mongoose.Types.ObjectId, update: Partial<IUser>, options?: mongoose.QueryOptions): Promise<IUserDoc | null>;
 }

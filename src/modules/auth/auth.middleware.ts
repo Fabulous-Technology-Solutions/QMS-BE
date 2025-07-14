@@ -6,9 +6,9 @@ import { roleRights } from '../../config/roles';
 import { IUserDoc } from '../user/user.interfaces';
 
 const verifyCallback =
-  (req: Request, resolve: any, reject: any, requiredRights: string[]) =>  
+  (req: Request, resolve: any, reject: any, requiredRights: string[]) =>
   async (err: Error, user: IUserDoc, info: string) => {
-    console.log('Authentication attempt:',req.headers.authorization);
+    console.log('Authentication attempt:', req.headers.authorization);
 
     if (err || info || !user) {
       return reject(new ApiError('Please authenticate', httpStatus.UNAUTHORIZED));
