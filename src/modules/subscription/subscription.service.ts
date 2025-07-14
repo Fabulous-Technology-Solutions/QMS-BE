@@ -154,6 +154,69 @@ export const getUserSubscription = async (userId: string): Promise<ISubscription
 
   return subscription as ISubscriptionWithDetails[];
 };
+
+
+
+export const getSubAdminModules = async (modules: string[]): Promise<ISubscriptionWithDetails[]> => {
+  const subscription = await Subscription.aggregate([
+    {
+      $match: {
+        _id: { $in: modules.map(id => new mongoose.Types.ObjectId(id)) },
+        status: { $in: ['active', 'trialing', 'past_due'] },
+      },
+    },
+    {
+      $lookup: {
+        from: 'plans',
+        localField: 'planId',
+        foreignField: '_id',
+        as: 'plan',
+      },
+    },
+    {
+      $unwind: {
+        path: '$plan',
+        preserveNullAndEmptyArrays: true,
+      },
+    },
+    {
+      $lookup: {
+        from: 'users',
+        localField: 'userId',
+        foreignField: '_id',
+        as: 'user',
+      },
+    },
+    {
+      $unwind: {
+        path: '$user',
+        preserveNullAndEmptyArrays: true,
+      },
+    },
+    {
+      $project: {
+        _id: 1,
+        userId: 1,
+        planId: 1,
+        status: 1,
+        billingCycle: 1,
+        currentPeriodStart: 1,
+        currentPeriodEnd: 1,
+        name: '$plan.name',
+        category: '$plan.category',
+        description: '$plan.description',
+        features: '$plan.features'
+      },
+    },
+  ]);
+
+  return subscription as ISubscriptionWithDetails[];
+};
+
+
+
+
+
 export const getActiveSubscriptionwithPlan = async (userId: string): Promise<ISubscriptionWithDetails[]> => {
   const subscription = await Subscription.aggregate([
     {

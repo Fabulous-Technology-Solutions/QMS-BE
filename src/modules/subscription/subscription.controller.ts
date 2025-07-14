@@ -67,7 +67,7 @@ export const getCurrentSubscription = catchAsync(async (req: Request, res: Respo
 });
 
 export const getActiveSubscription = catchAsync(async (req: Request, res: Response): Promise<void> => {
-  const userId = getEffectiveUserId(req);
+  const userId = req.user._id;
   if (!userId) {
     res.status(httpStatus.UNAUTHORIZED).json({
       success: false,
@@ -76,7 +76,17 @@ export const getActiveSubscription = catchAsync(async (req: Request, res: Respon
     return;
   }
 
-  const subscription = await subscriptionService.getActiveSubscriptionwithPlan(userId);
+  let subscription;
+
+  console.log('User role:', req.user.role);
+
+  if(req.user.role === 'subAdmin') {
+    const modules = req.user.adminOF || [];
+    const getModules = modules?.map((module: any) => module.method?.toString());
+      subscription=await subscriptionService.getSubAdminModules(getModules);
+  }else {
+    subscription = await subscriptionService.getActiveSubscriptionwithPlan(userId);
+  }
 
   res.status(httpStatus.OK).json({
     success: true,
