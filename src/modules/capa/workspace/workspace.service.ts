@@ -26,6 +26,8 @@ export const createCapaworkspace = async (data: CreateCapaworkspaceRequest) => {
       const adminData = (user.adminOF as IMAP[] | undefined)?.find((admin) => 
         admin.method.equals(moduleId)
       );
+      console.log('Admin data for user:', adminData);
+
       if (
         adminData?.workspacePermissions &&
         Array.isArray(adminData.workspacePermissions) &&

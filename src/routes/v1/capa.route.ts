@@ -24,7 +24,7 @@ router.patch(
   workspaceController.updateCapaworkspaceController
 );
 
-router.delete(
+router.delete( 
   "/module/:workspaceId",
   auth('manageCapa'),
   workspaceController.deleteCapaworkspaceController
