@@ -7,8 +7,8 @@ import AppiError from "../../errors/ApiError"
 
 
 export const createCapaworkspaceController = catchAsync(async (req: Request, res: Response) => {
-  const workspace = await workspaceService.createCapaworkspace({...req.body, createdBy: req.user._id});
-  
+  const workspace = await workspaceService.createCapaworkspace({...req.body, user: req.user});
+   
   return res.status(httpStatus.CREATED).send({
     success: true,
     data: workspace,

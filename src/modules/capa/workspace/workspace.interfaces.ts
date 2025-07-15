@@ -21,6 +21,11 @@ export interface CreateCapaworkspaceRequest {
     imageUrl: string;
     imagekey: string;
     description: string;    
+
+}
+export interface CreateCapaworkspaceServiceFunction extends CreateCapaworkspaceRequest {
+    user: IUserDoc;
+     
 }
 
 export interface getworkspacesofuserRequest {
