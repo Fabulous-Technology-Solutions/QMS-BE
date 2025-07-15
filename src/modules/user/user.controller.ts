@@ -95,12 +95,13 @@ export const getMe = catchAsync(async (req: Request, res: Response) => {
   const userId = req.user._id; 
   const user = await userService.getme(userId);
   let subscription;
+  console.log(user.role, 'User role');
   if(user.role !== 'admin') {
     const modules = req.user.adminOF || [];
     const getModules = modules?.map((module: any) => module.method?.toString());
     console.log('User role:', user.role, 'Modules:', getModules);
     subscription = await getSubAdminModules(getModules);
-  }{
+  }else{
 
     subscription = await getUserSubscription(userId);
   }
