@@ -33,6 +33,7 @@ export interface getworkspacesofuserRequest {
    Page: any;
    Limit: any;
    user:IUserDoc
+   search?: string;
   
 }
 
@@ -43,6 +44,7 @@ export interface IqueryofGetworkspaces {
     createdBy?: mongoose.Types.ObjectId;
     isDeleted: boolean,
      _id?: mongoose.Types.ObjectId | { $in: mongoose.Types.ObjectId[] };
+    name?: { $regex: string; $options: string }; // For search functionality
 }
 
 export interface IMAP{

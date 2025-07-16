@@ -25,24 +25,21 @@ export const createCapaworkspace = async (data: CreateCapaworkspaceServiceFuncti
 };
 
 export const getAllCapaworkspaces = async (body: getworkspacesofuserRequest) => {
-  const { moduleId, Page, Limit, user } = body;
+  const { moduleId, Page, Limit, user, search } = body;
   const page = Page || 1;
   const limit = Limit || 10;
   const skip = (page - 1) * limit;
-
-  console.log('getAllCapaworkspaces called with moduleId:', moduleId, 'Page:', page, 'Limit:', limit, 'user:', user);
 
   const query: IqueryofGetworkspaces = {
     moduleId: new mongoose.Types.ObjectId(moduleId),
     isDeleted: false,
   };
+  if (search) {
+    query.name = { $regex: search, $options: 'i' };
+  }
 
-  // If user is not admin, filter by their created workspaces
   if (user.role !== 'admin') {
-    // Ensure user.adminOF is an array of IMAP and IMAP has a 'method' property
     const adminData = (user.adminOF as IMAP[] | undefined)?.find((admin) => admin.method.equals(moduleId));
-    console.log('Admin data for user:', adminData);
-
     if (
       adminData?.workspacePermissions &&
       Array.isArray(adminData.workspacePermissions) &&
@@ -50,34 +47,34 @@ export const getAllCapaworkspaces = async (body: getworkspacesofuserRequest) => 
     ) {
       query._id = { $in: adminData?.workspacePermissions || [] };
     } else {
-      // If no permissions, return empty result
-      return [];
+      return { results: [], total: 0 };
     }
   }
 
-  console.log('Query for getAllCapaworkspaces:', query);
-
-  const results = await CapaworkspaceModel.aggregate([
-    { $match: query },
-    {
-      $lookup: {
-        from: 'modules',
-        localField: 'moduleId',
-        foreignField: '_id',
-        as: 'module',
+  const [results, totalCountArr] = await Promise.all([
+    CapaworkspaceModel.aggregate([
+      { $match: query },
+      {
+        $lookup: {
+          from: 'modules',
+          localField: 'moduleId',
+          foreignField: '_id',
+          as: 'module',
+        },
       },
-    },
-    {
-      $unwind: {
-        path: '$module',
-        preserveNullAndEmptyArrays: true,
+      {
+        $unwind: {
+          path: '$module',
+          preserveNullAndEmptyArrays: true,
+        },
       },
-    },
-    { $skip: skip },
-    { $limit: limit },
+      { $skip: skip },
+      { $limit: limit },
+    ]),
+    CapaworkspaceModel.countDocuments(query),
   ]);
 
-  return results;
+  return { results, total: totalCountArr, page };
 };
 
 export const getCapaworkspaceById = async (workspaceId: string) => {
