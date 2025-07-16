@@ -21,8 +21,8 @@ export const getAllCapaworkspacesController = catchAsync(async (req: Request, re
   const workspaces = await workspaceService.getAllCapaworkspaces({
     moduleId: req.params["moduleId"] as string,
     user: req.user,
-    Page: page,
-    Limit: limit,
+    Page: Number(page),
+    Limit: Number(limit),
     search: search as string
   });
   
