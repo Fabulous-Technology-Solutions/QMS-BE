@@ -1,4 +1,4 @@
-import AppiError from '@/modules/errors/ApiError';
+import AppiError from '../../../errors/ApiError';
 import { CreateRoleRequest } from './manageRole.interfaces';
 import RoleModal from './manageRole.modal';
 import httpStatus from 'http-status';

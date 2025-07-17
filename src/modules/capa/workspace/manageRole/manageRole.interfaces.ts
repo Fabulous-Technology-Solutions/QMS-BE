@@ -3,7 +3,7 @@ import mongoose, { Document } from 'mongoose';
 export interface IRoleModal extends Document {
     name: string;
     description: string;
-    permissions:  string[];  
+    permissions:  string;  
     workspace: mongoose.Schema.Types.ObjectId;
     isDeleted: boolean;
 }
@@ -12,6 +12,6 @@ export interface IRoleModal extends Document {
 export interface CreateRoleRequest {
     name: string;
     description: string;
-    permissions: string[];
+    permissions: string;
     workspace: string; 
 }
