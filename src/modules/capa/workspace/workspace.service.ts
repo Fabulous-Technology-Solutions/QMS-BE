@@ -9,9 +9,9 @@ export const createCapaworkspace = async (data: CreateCapaworkspaceServiceFuncti
     moduleId,
     name,
     imageUrl,
-    imagekey,
+    imagekey,     
     description,
-    createdBy: user._id,
+    createdBy: user._id,  
   });
   if (user.role !== 'admin') {
     (user.adminOF as IMAP[] | undefined)?.forEach((admin: IMAP) => {
