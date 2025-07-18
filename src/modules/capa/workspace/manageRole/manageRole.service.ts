@@ -1,7 +1,7 @@
 import  User  from '../../../user/user.model';
 import AppiError from '../../../errors/ApiError';
 import CapaworkspaceModel from '../workspace.modal';
-import { CreateRoleRequest } from './manageRole.interfaces';
+import { CreateRoleRequest, getParams, getrolesQuery } from './manageRole.interfaces';
 import RoleModal from './manageRole.modal';
 import httpStatus from 'http-status';
 import mongoose from 'mongoose';
@@ -37,12 +37,23 @@ export const getRoleById = async (id: string) => {
   const role = await RoleModal.findOne({ _id: id, isDeleted: false }).populate('workspace');
   if (!role) {
     throw new AppiError('Role not found', httpStatus.NOT_FOUND);
-  }
+  } 
   return role;
 };
 
-export const getworkspaceRoles = async (workspaceId: string) => {
-  return await RoleModal.find({ workspace: workspaceId, isDeleted: false })
+export const  getworkspaceRoles = async (data: getParams) => {
+  const { workspace, search, page, limit } = data;
+  const query: getrolesQuery = { workspace: workspace, isDeleted: false, };
+  if (search) {
+    query.name = { $regex: search, $options: 'i' };
+  }
+  const roles = await RoleModal.find(query).skip((page - 1) * limit).limit(limit);
+  const total = await RoleModal.countDocuments(query);
+  return {
+    total,
+    roles,
+    page,
+  };
 };
 
 export const checkAdminBelongsToWorkspace = async (

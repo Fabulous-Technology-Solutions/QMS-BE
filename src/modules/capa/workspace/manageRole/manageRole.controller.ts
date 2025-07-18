@@ -39,7 +39,7 @@ export const getRoleByIdController = catchAsync(async (req: Request, res: Respon
 });
 
 export const getWorkspaceRolesController = catchAsync(async (req: Request, res: Response) => {
-  const roles = await roleService.getworkspaceRoles(req.params["workspaceId"] as string);
+  const roles = await roleService.getworkspaceRoles({ workspace: req.params["workspaceId"] as string, search: req.query["search"] as string, page: Number(req.query["page"]) || 1, limit: Number(req.query["limit"]) || 10 });
   return res.status(httpStatus.OK).send({
     success: true,
     data: roles,

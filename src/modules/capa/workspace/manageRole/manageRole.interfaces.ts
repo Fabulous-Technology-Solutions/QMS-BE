@@ -15,3 +15,21 @@ export interface CreateRoleRequest {
     permissions: string;
     workspace: string; 
 }
+
+
+export interface getrolesQuery {
+    workspace: string;
+    search?: string;
+
+    isDeleted?: boolean;
+    name?: { $regex: string; $options: string };
+}
+
+export interface getParams {
+    workspace: string;
+    search?: string;
+    page: number;
+    limit: number;
+    isDeleted?: boolean;
+    name?: { $regex: string; $options: string };
+}
