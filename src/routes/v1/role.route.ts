@@ -13,6 +13,7 @@ router.post(
   validate(RoleValidation.createRole),
   RoleController.createRoleController
 ); 
+router.get('/workspace/:workspaceId', auth('manageRole'),  checkCreateRole, RoleController.getWorkspaceRolesController);
 
 router.get('/:workspaceId/:roleId', auth('manageRole'), checkCreateRole,RoleController.getRoleByIdController);
 
@@ -20,6 +21,5 @@ router.patch('/:workspaceId/:roleId', auth('manageRole'), checkCreateRole, valid
 
 router.delete('/:workspaceId/:roleId', auth('manageRole'), checkCreateRole,RoleController.deleteRoleController);
 
-router.get('/workspace/:workspaceId', auth('manageRole'),  checkCreateRole, RoleController.getWorkspaceRolesController);
 export default router;
  

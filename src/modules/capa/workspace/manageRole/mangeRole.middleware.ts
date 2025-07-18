@@ -6,7 +6,7 @@ import { checkAdminBelongsToWorkspace, checkWorkSubadminBelongsToWorkspace } fro
 const checkCreateRole= catchAsync(async (req:Request, _:Response, next:NextFunction) => {
     
     const { user } = req;
-    console.log("Checking create role permissions.......................",user);
+    console.log("Checking create role permissions.......................",req.params['workspaceId']);
     if(user.role==="admin"){
         await checkAdminBelongsToWorkspace(user._id, req.params['workspaceId'] || req.body.workspace);
     }else if(user.role==="subadmin"){
