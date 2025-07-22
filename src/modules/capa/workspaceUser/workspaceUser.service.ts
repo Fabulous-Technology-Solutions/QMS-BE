@@ -8,7 +8,7 @@ import * as tokenService from '../../token/token.service';
 import { sendEmail } from '../../email/email.service';
 
 import mongoose  from 'mongoose';
-import { deleteMedia } from '@/modules/upload/upload.middleware';
+import { deleteMedia } from '../../upload/upload.middleware';
 
 export const createWorkspaceUser = async (data: CreateWorkspaceUserRequest) => {
   if (await User.isEmailTaken(data.email)) {
@@ -50,7 +50,7 @@ export const updateWorkspaceUser = async (id: string, data: Partial<CreateWorksp
   }
 
 
-  
+
   // If profile picture is being updated, delete the old one if needed
   if (data.profilePicture && data.profilePictureKey && user.profilePictureKey && user.profilePictureKey !== data.profilePictureKey) {
     deleteMedia(user.profilePictureKey);
@@ -123,3 +123,12 @@ export const getWorkspaceUsers = async (
 
   return { users, total , page, limit };
 };
+
+
+export const getSingleWorkspaceUser = async (userId: string) => {
+  const user = await workspaceUser.findOne({ _id: userId, isDeleted: false }).populate('roleId', 'name');
+  if (!user) {
+    throw new ApiError('User not found', httpStatus.NOT_FOUND);
+  }
+  return user;
+}

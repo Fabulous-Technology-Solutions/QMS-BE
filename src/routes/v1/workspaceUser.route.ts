@@ -14,6 +14,7 @@ router.route('/:workspaceId').get(auth('manageWorkspaceUsers'), checkCreateRole,
 router
   .route('/:workspaceId/:userId')
   .patch(auth('manageWorkspaceUsers'), checkCreateRole, workspaceUserController.updateWorkspaceUserController)
+  .get(auth('manageWorkspaceUsers'), checkCreateRole, workspaceUserController.getSingleWorkspaceUserController)
   .delete(auth('manageWorkspaceUsers'), checkCreateRole, workspaceUserController.deleteWorkspaceUserController);
 
 

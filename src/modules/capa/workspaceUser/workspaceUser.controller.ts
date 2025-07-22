@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import catchAsync from "../../utils/catchAsync";
 
-import { deleteWorkspaceUser, createWorkspaceUser, getWorkspaceUsers, updateWorkspaceUser } from "./workspaceUser.service"
+import { deleteWorkspaceUser, createWorkspaceUser, getWorkspaceUsers, updateWorkspaceUser, getSingleWorkspaceUser } from "./workspaceUser.service"
 
 
 const createWorkspaceUserController = catchAsync(async (req: Request, res: Response) => {
@@ -40,9 +40,19 @@ const getWorkspaceUsersController = catchAsync(async (req: Request, res: Respons
     });
 });
 
+const getSingleWorkspaceUserController = catchAsync(async (req: Request, res: Response) => {
+    const user = await getSingleWorkspaceUser(req.params["userId"] as string);
+    res.status(200).json({
+        success: true,
+        message: 'Workspace user retrieved successfully',
+        data: user,        
+    });
+});
+
 export {
     createWorkspaceUserController,
     updateWorkspaceUserController,
     deleteWorkspaceUserController,
-    getWorkspaceUsersController
+    getWorkspaceUsersController,
+    getSingleWorkspaceUserController
 };
