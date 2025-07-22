@@ -4,7 +4,7 @@ import mongoose from 'mongoose';
 
 const userSchema = new mongoose.Schema<IWorkspaceUserDoc>(
   {
-    workspaceId: {
+    workspace: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Capaworkspace',
       required: true,

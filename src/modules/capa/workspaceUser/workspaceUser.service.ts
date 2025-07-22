@@ -4,8 +4,8 @@ import { CreateWorkspaceUserRequest } from "./workspaceUser.interfaces";
 import User from "../../user/user.model";
 import  ApiError  from "../../errors/ApiError";
 import httpStatus from "http-status";
-import { tokenService } from "@/modules/token";
-import { sendEmail } from "@/modules/email/email.service";
+import * as  tokenService  from "../../token/token.service";
+import { sendEmail } from "../../email/email.service";
 
 
 export const createWorkspaceUser = async (data: CreateWorkspaceUserRequest) => {
@@ -23,7 +23,7 @@ export const createWorkspaceUser = async (data: CreateWorkspaceUserRequest) => {
     `;
   sendEmail(data.email, 'Welcome to Tellust! Accept Your Invitation', "", htmlbodyforsendpassword)
   const user = new workspaceUser({
-    workspaceId: data.workspace,
+    workspace: data.workspace,
     roleId: data.roleId,
     name: data.name,
     email: data.email,

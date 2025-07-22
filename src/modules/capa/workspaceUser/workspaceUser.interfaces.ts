@@ -2,7 +2,7 @@ import { IUser } from '@/modules/user/user.interfaces';
 import mongoose from 'mongoose';
 
 export interface IUserWithWorkspace extends IUser {
-  workspaceId: mongoose.Schema.Types.ObjectId;
+  workspace: mongoose.Schema.Types.ObjectId;
   roleId: mongoose.Schema.Types.ObjectId;
 }
 

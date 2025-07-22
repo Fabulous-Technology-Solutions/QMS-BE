@@ -2,7 +2,7 @@ import {CreateWorkspaceUserRequest} from "./workspaceUser.interfaces";
 import Joi from 'joi';
 
 const createbody: Record<keyof CreateWorkspaceUserRequest, any> = {
-  workspaceId: Joi.string().messages({
+  workspace: Joi.string().messages({
     'string.empty': 'Workspace ID is required',
   }), 
   roleId: Joi.string().messages({
@@ -25,7 +25,7 @@ const createbody: Record<keyof CreateWorkspaceUserRequest, any> = {
 };                                  
 
 export const createWorkspaceUser = {
-  body: Joi.object().keys(createbody).fork(['workspaceId', 'userId', 'roleId', 'name', 'email', 'status'], (schema) => schema.required()),
+  body: Joi.object().keys(createbody).fork(['workspace', 'roleId', 'name', 'email', 'status'], (schema) => schema.required()),
 };
 export const updateWorkspaceUser= {
   params: Joi.object().keys(createbody).min(1)
