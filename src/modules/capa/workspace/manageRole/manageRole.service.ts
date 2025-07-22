@@ -56,6 +56,14 @@ export const  getworkspaceRoles = async (data: getParams) => {
   };
 };
 
+export const getworkspacerolenames = async (workspaceId: string) => {
+  const roles = await RoleModal.find({ workspace: workspaceId, isDeleted: false }).select('name');
+  if (!roles || roles.length === 0) {
+    throw new AppiError('No roles found for this workspace', httpStatus.NOT_FOUND);
+  }
+  return roles;
+};
+
 export const checkAdminBelongsToWorkspace = async (
   userId: mongoose.Types.ObjectId,
   workspaceId: mongoose.Types.ObjectId

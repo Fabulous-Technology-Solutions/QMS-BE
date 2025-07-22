@@ -37,12 +37,20 @@ export const getRoleByIdController = catchAsync(async (req: Request, res: Respon
     data: role,
   });
 });
-9
+
 export const getWorkspaceRolesController = catchAsync(async (req: Request, res: Response) => {
   console.log("Fetching roles for workspace:", req.params["workspaceId"]);
   const roles = await roleService.getworkspaceRoles({ workspace: req.params["workspaceId"] as string, search: req.query["search"] as string, page: Number(req.query["page"]) || 1, limit: Number(req.query["limit"]) || 10 });
   return res.status(httpStatus.OK).send({
     success: true,
     data: roles,
+  });
+});   
+export const getWorkspaceRoleNamesController = catchAsync(async (req: Request, res: Response) => {
+  console.log("Fetching role names for workspace:", req.params["workspaceId"]);
+  const roleNames = await roleService.getworkspacerolenames(req.params["workspaceId"] as string);
+  return res.status(httpStatus.OK).send({
+    success: true,
+    data: roleNames,
   });
 });   

@@ -14,6 +14,8 @@ router.post(
   RoleController.createRoleController
 ); 
 router.get('/workspace/:workspaceId', auth('manageRole'),  checkCreateRole, RoleController.getWorkspaceRolesController);
+router.get('/workspace/:workspaceId/names', auth('manageRole'),  checkCreateRole, RoleController.getWorkspaceRoleNamesController);
+
 
 router.get('/:workspaceId/:roleId', auth('manageRole'), checkCreateRole,RoleController.getRoleByIdController);
 
@@ -22,4 +24,4 @@ router.patch('/:workspaceId/:roleId', auth('manageRole'), checkCreateRole, valid
 router.delete('/:workspaceId/:roleId', auth('manageRole'), checkCreateRole,RoleController.deleteRoleController);
 
 export default router;
- 
+       
