@@ -8,6 +8,7 @@ import * as tokenService from '../../token/token.service';
 import { sendEmail } from '../../email/email.service';
 
 import mongoose  from 'mongoose';
+import { deleteMedia } from '@/modules/upload/upload.middleware';
 
 export const createWorkspaceUser = async (data: CreateWorkspaceUserRequest) => {
   if (await User.isEmailTaken(data.email)) {
@@ -37,11 +38,27 @@ export const createWorkspaceUser = async (data: CreateWorkspaceUserRequest) => {
 };
 
 export const updateWorkspaceUser = async (id: string, data: Partial<CreateWorkspaceUserRequest>) => {
-  const user = await workspaceUser.findOneAndUpdate({ _id: id, isDeleted: false }, { $set: data }, { new: true });
+  // Find and update the user in a single request, returning the old document
+  const user = await workspaceUser.findOneAndUpdate(
+    { _id: id, isDeleted: false },
+    { $set: data },
+    { new: false } // return the old document before update
+  );
+
   if (!user) {
-    throw new Error('User not found');
+    throw new ApiError('User not found', httpStatus.NOT_FOUND);
   }
-  return user.save();
+
+
+  
+  // If profile picture is being updated, delete the old one if needed
+  if (data.profilePicture && data.profilePictureKey && user.profilePictureKey && user.profilePictureKey !== data.profilePictureKey) {
+    deleteMedia(user.profilePictureKey);
+  }
+
+  // Now get the updated user
+  const updatedUser = await workspaceUser.findById(id);
+  return updatedUser?.save();
 };
 
 export const deleteWorkspaceUser = async (id: string) => {

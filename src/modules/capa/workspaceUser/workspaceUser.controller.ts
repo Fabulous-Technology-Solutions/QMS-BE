@@ -15,7 +15,7 @@ const createWorkspaceUserController = catchAsync(async (req: Request, res: Respo
 })
 
 const updateWorkspaceUserController = catchAsync(async (req: Request, res: Response) => {
-    const user = await updateWorkspaceUser(req.params["id"] as string, req.body);
+    const user = await updateWorkspaceUser(req.params["userId"] as string, req.body);
     res.status(200).json({
         success: true,
         message: 'Workspace user updated successfully',
@@ -24,7 +24,7 @@ const updateWorkspaceUserController = catchAsync(async (req: Request, res: Respo
 })
 
 const deleteWorkspaceUserController = catchAsync(async (req: Request, res: Response) => {
-    const user = await deleteWorkspaceUser(req.params["id"] as string);
+    const user = await deleteWorkspaceUser(req.params["userId"] as string);
     res.status(200).json({
         success: true,
         message: 'Workspace user deleted successfully',

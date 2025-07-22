@@ -22,6 +22,9 @@ const createbody: Record<keyof CreateWorkspaceUserRequest, any> = {
   profilePicture: Joi.string().uri().optional().messages({
     'string.uri': 'Profile picture must be a valid URI',
   }),
+  profilePictureKey: Joi.string().optional().messages({
+    'string.empty': 'Profile picture key is required',
+  }),
 };                                  
 
 export const createWorkspaceUser = {

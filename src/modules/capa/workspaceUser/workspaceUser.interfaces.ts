@@ -15,6 +15,7 @@ export interface CreateWorkspaceUserRequest {
   email: string;
   status: string;
   profilePicture?: string;
+  profilePictureKey?: string;
 }
 
 export interface IUpdateWorkspaceUserRequest extends CreateWorkspaceUserRequest {
