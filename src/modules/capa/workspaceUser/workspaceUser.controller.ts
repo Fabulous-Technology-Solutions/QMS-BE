@@ -32,7 +32,7 @@ const deleteWorkspaceUserController = catchAsync(async (req: Request, res: Respo
     });
 });
 const getWorkspaceUsersController = catchAsync(async (req: Request, res: Response) => {
-    const users = await getWorkspaceUsers(req.params["workspaceId"] as string);
+    const users = await getWorkspaceUsers(req.params["workspaceId"] as string, Number(req.query["page"]) || 1, Number(req.query["limit"]) || 10, req.query["search"] as string);
     res.status(200).json({
         success: true,
         message: 'Workspace users retrieved successfully',

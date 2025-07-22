@@ -8,10 +8,13 @@ import checkCreateRole from '../../modules/capa/workspace/manageRole/mangeRole.m
 const router: Router = express.Router();
 router
   .route('/')
-  .post(auth('manageWorkspaceUsers'), validate(workspaceUserValidation.createWorkspaceUser), checkCreateRole,workspaceUserController.createWorkspaceUserController)
-  
+  .post(auth('manageWorkspaceUsers'), validate(workspaceUserValidation.createWorkspaceUser), checkCreateRole, workspaceUserController.createWorkspaceUserController)
 
-router.route('/:workspaceId').get(auth('manageWorkspaceUsers'), workspaceUserController.getWorkspaceUsersController);
+router.route('/:workspaceId').get(auth('manageWorkspaceUsers'), checkCreateRole, workspaceUserController.getWorkspaceUsersController);
+router
+  .route('/:workspaceId/:userId')
+  .patch(auth('manageWorkspaceUsers'), checkCreateRole, workspaceUserController.updateWorkspaceUserController)
+  .delete(auth('manageWorkspaceUsers'), checkCreateRole, workspaceUserController.deleteWorkspaceUserController);
 
 
 export default router;
