@@ -9,7 +9,7 @@ export interface IUserWithWorkspace extends IUser {
 export interface IWorkspaceUserDoc extends IUserWithWorkspace, mongoose.Document {}
 
 export interface CreateWorkspaceUserRequest {
-  workspaceId: string;
+  workspace: string;
   roleId: string;
   name: string;
   email: string;
