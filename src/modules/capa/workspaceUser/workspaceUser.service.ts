@@ -19,6 +19,7 @@ export const createWorkspaceUser = async (data: CreateWorkspaceUserRequest) => {
     roleId: data.roleId,
     name: data.name,
     email: data.email,
+    role:"workspaceUser",
     status: data.status,
     profilePicture: data.profilePicture,
   });

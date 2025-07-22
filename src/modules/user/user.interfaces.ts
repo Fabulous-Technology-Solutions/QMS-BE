@@ -25,6 +25,7 @@ export interface IUserDoc extends IUser, Document {
   createdBy?: mongoose.Schema.Types.ObjectId;
   adminOF?: mongoose.Schema.Types.ObjectId[];
   subAdminRole?: string;
+  roleId?: mongoose.Schema.Types.ObjectId;
   isPasswordMatch(password: string): Promise<boolean>;
   findByIdAndUpdate(id: mongoose.Types.ObjectId, update: Partial<IUser>, options?: mongoose.QueryOptions): Promise<IUserDoc | null>;
 }

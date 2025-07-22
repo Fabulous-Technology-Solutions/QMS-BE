@@ -1,7 +1,70 @@
 const allRoles = {
-  admin: ['getUsers', 'manageCapa', "buySubscription","getSubscriptions","manageUsers","manageRole","manageWorkspaceUsers"],
-  subAdmin: ["getSubscriptions","manageCapa","manageRole","manageWorkspaceUsers"]
+  admin: [
+    'getUsers',
+    'manageCapa',
+    'buySubscription',
+    'getSubscriptions',
+    'manageUsers',
+    // 'ManageWorkspaceRolespermissions',
+    'updateRole',
+    'getSingleRole',
+    `createRole`,
+    'deleteRole',
+    'getWorkspaceRoleNames',
+    // "manageWorkspaceUserPermissions"
+    'getWorkspaceUsers',
+    'createWorkspaceUser',
+    'updateWorkspaceUser',
+    'deleteWorkspaceUser',
+    'getSingleWorkspaceUser',
+  ],
+  subAdmin: {
+    subAdmin: [
+      'getSubscriptions',
+      'manageCapa',
+      // manageRoles
+      'updateRole',
+      'getSingleRole',
+      `createRole`,
+      'deleteRole',
+      'getWorkspaceRoleNames',
+      // 'manageWorkspaceUserPermissions'
+      'getWorkspaceUsers',
+      'createWorkspaceUser',
+      'updateWorkspaceUser',
+      'deleteWorkspaceUser',
+      'getSingleWorkspaceUser',
+    ],
+    standardUser: ['getSubscriptions', 'manageCapa'],
+  },
+
+  workspaceUser: {
+    view: [],
+    edit: [],
+    w_admin: [
+      'manageRole',
+      'getWorkspaceUsers',
+      'createWorkspaceUser',
+      'updateWorkspaceUser',
+      'deleteWorkspaceUser',
+      'getSingleWorkspaceUser',
+    ],
+  },
 };
 
 export const roles: string[] = Object.keys(allRoles);
-export const roleRights: Map<string, string[]> = new Map(Object.entries(allRoles));
+
+// Normalize allRoles so that each role maps to a string[]
+const normalizedRoleRights: [string, string[]][] = [];
+
+for (const [role, rights] of Object.entries(allRoles)) {
+  if (Array.isArray(rights)) {
+    normalizedRoleRights.push([role, rights]);
+  } else if (typeof rights === 'object' && rights !== null) {
+    for (const [subRole, subRights] of Object.entries(rights)) {
+      normalizedRoleRights.push([subRole, subRights]);
+    }
+  }
+}
+
+export const roleRights: Map<string, string[]> = new Map(normalizedRoleRights);

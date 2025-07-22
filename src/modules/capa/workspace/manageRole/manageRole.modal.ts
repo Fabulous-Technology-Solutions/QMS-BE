@@ -3,7 +3,7 @@ import { IRoleModal } from "./manageRole.interfaces";
 const RoleSchema = new mongoose.Schema<IRoleModal>({
     name: { type: String, required: true },
     description: { type: String, required: true },
-    permissions: { type: String, enum: ['view', 'edit', 'admin'] },
+    permissions: { type: String, enum: ['view', 'edit', 'w_admin'] },
     workspace: { type: mongoose.Schema.Types.ObjectId, ref: 'Capaworkspace', required: true },
     isDeleted: { type: Boolean, default: false }
 }, {

@@ -13,15 +13,15 @@ router.post(
   validate(RoleValidation.createRole),
   RoleController.createRoleController
 ); 
-router.get('/workspace/:workspaceId', auth('manageRole'),  checkCreateRole, RoleController.getWorkspaceRolesController);
-router.get('/workspace/:workspaceId/names', auth('manageRole'),  checkCreateRole, RoleController.getWorkspaceRoleNamesController);
+router.get('/workspace/:workspaceId', auth('createRole'),  checkCreateRole, RoleController.getWorkspaceRolesController);
+router.get('/workspace/:workspaceId/names', auth('getWorkspaceRoleNames'),  checkCreateRole, RoleController.getWorkspaceRoleNamesController);
 
 
-router.get('/:workspaceId/:roleId', auth('manageRole'), checkCreateRole,RoleController.getRoleByIdController);
+router.get('/:workspaceId/:roleId', auth('getSingleRole'), checkCreateRole,RoleController.getRoleByIdController);
 
-router.patch('/:workspaceId/:roleId', auth('manageRole'), checkCreateRole, validate(RoleValidation.updateRole), RoleController.updateRoleController);
+router.patch('/:workspaceId/:roleId', auth('updateRole'), checkCreateRole, validate(RoleValidation.updateRole), RoleController.updateRoleController);
 
-router.delete('/:workspaceId/:roleId', auth('manageRole'), checkCreateRole,RoleController.deleteRoleController);
+router.delete('/:workspaceId/:roleId', auth('deleteRole'), checkCreateRole,RoleController.deleteRoleController);
 
 export default router;
        

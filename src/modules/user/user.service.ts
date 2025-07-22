@@ -138,11 +138,20 @@ export const loginWithGoogle = async (body: any): Promise<IUserDoc> => {
 
 
 export const getme = async (userId: mongoose.Types.ObjectId) => {
-  const user = await getUserById(userId);
-  if (!user) {
+  const users = await User.aggregate([
+    { $match: { _id: userId, isDeleted: false } },
+    { $lookup: {
+        from: 'capaworkspaces',
+        localField: 'workspace',
+        foreignField: '_id',
+        as: 'workspace'
+      } },
+    { $unwind: { path: '$workspace', preserveNullAndEmptyArrays: true } },
+  ]);
+  if (!users || users.length === 0) {
     throw new ApiError('User not found', httpStatus.NOT_FOUND);
   }
-  return user;
+  return users[0];
 };
 
 /**
