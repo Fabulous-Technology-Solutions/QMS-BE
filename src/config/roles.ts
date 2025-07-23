@@ -24,6 +24,9 @@ const allRoles = {
     'getSingleGroup',
     'updateGroup',
     'deleteGroup',
+    "removeGroupMember",
+    "addGroupMember",
+    'getGroupMembers',
   ],
   subAdmin: {
     subAdmin: [

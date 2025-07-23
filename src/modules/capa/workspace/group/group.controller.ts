@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import httpStatus from 'http-status';
-import { CreateGroup, getGroupById, updateGroup, deleteGroup, getGroupsByWorkspace, getGroupsNames } from './group.service';
+import { CreateGroup, getGroupById, updateGroup, deleteGroup, getGroupsByWorkspace, getGroupsNames, addMemberToGroup, removeMemberFromGroup, getGroupUsers } from './group.service';
 import catchAsync from '../../../utils/catchAsync';
 
 export const createGroupController = catchAsync(async (req: Request, res: Response) => {
@@ -69,5 +69,61 @@ export const getGroupNamesController = catchAsync(async (req: Request, res: Resp
     success: true,
     data: groupNames,
     message: 'Group names retrieved successfully',
+  });
+});
+
+export const addMemberToGroupController = catchAsync(async (req: Request, res: Response) => {
+  const groupId = req.params['groupId'] || '';
+  const memberId = req.body.memberId; // Assuming memberId is passed in the request body
+
+  if (!memberId) {
+    return res.status(httpStatus.BAD_REQUEST).json({
+      success: false,
+      message: 'Member ID is required',
+    });
+  }
+
+  const updatedGroup = await addMemberToGroup(groupId, memberId);
+
+ return res.status(httpStatus.OK).json({
+    success: true,
+    data: updatedGroup,
+    message: 'Member added to group successfully',
+  });
+}); 
+
+
+export const removeMemberFromGroupController = catchAsync(async (req: Request, res: Response) => {
+  const groupId = req.params['groupId'] || '';
+  const memberId = req.body.memberId; // Assuming memberId is passed in the request body
+
+  if (!memberId) {
+    return res.status(httpStatus.BAD_REQUEST).json({
+      success: false,
+      message: 'Member ID is required',
+    });
+  }
+
+  const updatedGroup = await removeMemberFromGroup(groupId, memberId);
+
+  return res.status(httpStatus.OK).json({
+    success: true,
+    data: updatedGroup,
+    message: 'Member removed from group successfully',
+  });
+});
+
+
+export const getGroupMembersController = catchAsync(async (req: Request, res: Response) => { 
+  const groupId = req.params['groupId'] || '';
+  const search = req.query["search"] as string || '';
+  const page = req.query["page"] ? Number(req.query["page"]) : 1;
+  const limit = req.query["limit"] ? Number(req.query["limit"]) : 10;
+  const members = await getGroupUsers(groupId, search, page, limit);
+
+  res.status(httpStatus.OK).json({
+    success: true,
+    data: members,
+    message: 'Group members retrieved successfully',
   });
 });
