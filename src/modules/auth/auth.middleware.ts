@@ -30,6 +30,7 @@ const verifyCallback =
         const workspaceUserRole = await getRoleById(user['roleId']?.toString() || '');
         userRights = roleRights.get(workspaceUserRole?.permissions) || [];
       }
+      console.log('User rights:', userRights);
 
       if (!userRights)
         return reject(new ApiError('you do not have permission to perform this action', httpStatus.FORBIDDEN));

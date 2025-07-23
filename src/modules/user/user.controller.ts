@@ -89,7 +89,7 @@ export const deleteUser = catchAsync(async (req: Request, res: Response) => {
 });
 
 
-
+  
 
 export const getMe = catchAsync(async (req: Request, res: Response) => {
   const userId = req.user._id; 
