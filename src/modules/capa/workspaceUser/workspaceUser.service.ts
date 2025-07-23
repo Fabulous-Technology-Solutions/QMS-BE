@@ -7,7 +7,7 @@ import httpStatus from 'http-status';
 import * as tokenService from '../../token/token.service';
 import { sendEmail } from '../../email/email.service';
 
-import mongoose  from 'mongoose';
+import mongoose from 'mongoose';
 import { deleteMedia } from '../../upload/upload.middleware';
 
 export const createWorkspaceUser = async (data: CreateWorkspaceUserRequest) => {
@@ -19,7 +19,7 @@ export const createWorkspaceUser = async (data: CreateWorkspaceUserRequest) => {
     roleId: data.roleId,
     name: data.name,
     email: data.email,
-    role:"workspaceUser",
+    role: 'workspaceUser',
     status: data.status,
     profilePicture: data.profilePicture,
   });
@@ -40,20 +40,27 @@ export const createWorkspaceUser = async (data: CreateWorkspaceUserRequest) => {
 
 export const updateWorkspaceUser = async (id: string, data: Partial<CreateWorkspaceUserRequest>) => {
   // Find and update the user in a single request, returning the old document
+
+  console.log('Updating workspace user with data:', data);
+
   const user = await workspaceUser.findOneAndUpdate(
     { _id: id, isDeleted: false },
     { $set: data },
     { new: false } // return the old document before update
   );
+  console.log(' user with data:', user);
 
   if (!user) {
     throw new ApiError('User not found', httpStatus.NOT_FOUND);
   }
 
-
-
   // If profile picture is being updated, delete the old one if needed
-  if (data.profilePicture && data.profilePictureKey && user.profilePictureKey && user.profilePictureKey !== data.profilePictureKey) {
+  if (
+    data.profilePicture &&
+    data.profilePictureKey &&
+    user.profilePictureKey &&
+    user.profilePictureKey !== data.profilePictureKey
+  ) {
     deleteMedia(user.profilePictureKey);
   }
 
@@ -70,20 +77,12 @@ export const deleteWorkspaceUser = async (id: string) => {
   return user.save();
 };
 
-export const getWorkspaceUsers = async (
-  workspaceId: string,
-  page: number,
-  limit: number,
-  search: string
-) => {
+export const getWorkspaceUsers = async (workspaceId: string, page: number, limit: number, search: string) => {
   const match: any = { workspace: new mongoose.Types.ObjectId(workspaceId), isDeleted: false };
 
   if (search && search.trim()) {
     const regex = new RegExp(search.trim(), 'i');
-    match.$or = [
-      { name: regex },
-      { email: regex },
-    ];
+    match.$or = [{ name: regex }, { email: regex }];
   }
 
   const users = await workspaceUser.aggregate([
@@ -122,9 +121,8 @@ export const getWorkspaceUsers = async (
 
   const total = await workspaceUser.countDocuments(match);
 
-  return { users, total , page, limit };
+  return { users, total, page, limit };
 };
-
 
 export const getSingleWorkspaceUser = async (userId: string) => {
   const user = await workspaceUser.findOne({ _id: userId, isDeleted: false }).populate('roleId', 'name');
@@ -132,4 +130,4 @@ export const getSingleWorkspaceUser = async (userId: string) => {
     throw new ApiError('User not found', httpStatus.NOT_FOUND);
   }
   return user;
-}
+};

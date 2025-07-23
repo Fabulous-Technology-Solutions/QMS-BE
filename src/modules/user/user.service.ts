@@ -143,10 +143,41 @@ export const getme = async (userId: mongoose.Types.ObjectId) => {
     { $lookup: {
         from: 'capaworkspaces',
         localField: 'workspace',
-        foreignField: '_id',
+        foreignField: '_id', 
         as: 'workspace'
       } },
     { $unwind: { path: '$workspace', preserveNullAndEmptyArrays: true } },
+    { $lookup: {
+        from: 'roles',
+        localField: 'roleId',
+        foreignField: '_id',
+        as: 'roleDetails'
+      } },
+    { $unwind: { path: '$roleDetails', preserveNullAndEmptyArrays: true } },{
+      $project: {
+        _id: 1,
+        name: 1,
+        email: 1,
+        phone: 1,
+        permissions: '$roleDetails.permissions',
+        workspace: {
+          _id: '$workspace._id',
+          name: '$workspace.name',
+          description: '$workspace.description',
+          moduleId: '$workspace.moduleId',
+          createdAt: '$workspace.createdAt',
+          updatedAt: '$workspace.updatedAt',
+          isDeleted: '$workspace.isDeleted',
+          imageUrl: '$workspace.imageUrl',
+          
+        },
+        profilePicture: 1,
+        isEmailVerified: 1,
+        status: 1,
+        createdAt: 1,
+        updatedAt: 1
+      } 
+    }
   ]);
   if (!users || users.length === 0) {
     throw new ApiError('User not found', httpStatus.NOT_FOUND);
