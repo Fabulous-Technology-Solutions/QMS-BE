@@ -8,7 +8,7 @@ const router: Router = express.Router();
 
 router.post(
   '/',
-  auth('manageRole'),
+  auth('createRole'),
   checkCreateRole,
   validate(RoleValidation.createRole),
   RoleController.createRoleController

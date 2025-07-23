@@ -8,7 +8,7 @@ const allRoles = {
     // 'ManageWorkspaceRolespermissions',
     'updateRole',
     'getSingleRole',
-    `createRole`,
+    'createRole',
     'deleteRole',
     'getWorkspaceRoleNames',
     // "manageWorkspaceUserPermissions"
@@ -42,7 +42,15 @@ const allRoles = {
     view: [],
     edit: [],
     w_admin: [
-      'manageRole',
+
+      // permissions for workspace admin for role
+      'updateRole',
+      'getSingleRole',
+      `createRole`,
+      'deleteRole',
+      'getWorkspaceRoleNames',
+
+      // permissions for workspace admin for role
       'getWorkspaceUsers',
       'createWorkspaceUser',
       'updateWorkspaceUser',
