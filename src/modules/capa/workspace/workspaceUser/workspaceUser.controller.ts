@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import catchAsync from "../../utils/catchAsync";
+import catchAsync from "../../../utils/catchAsync";
 
 import { deleteWorkspaceUser, createWorkspaceUser, getWorkspaceUsers, updateWorkspaceUser, getSingleWorkspaceUser } from "./workspaceUser.service"
 

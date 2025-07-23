@@ -174,8 +174,13 @@ export const getme = async (userId: mongoose.Types.ObjectId) => {
         profilePicture: 1,
         isEmailVerified: 1,
         status: 1,
+        role: 1,
+        createdBy: 1,
+        providers: 1,
+        adminOF: 1,
         createdAt: 1,
-        updatedAt: 1
+        updatedAt: 1,
+        subAdminRole: 1,
       } 
     }
   ]);

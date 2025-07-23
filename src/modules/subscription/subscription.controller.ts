@@ -3,7 +3,6 @@ import httpStatus from 'http-status';
 import { catchAsync } from '../utils';
 import * as subscriptionService from './subscription.service';
 
-
 /**
  * Helper to get the effective user ID (handles subAdmin case)
  */
@@ -19,6 +18,15 @@ function getEffectiveUserId(req: Request): string | undefined {
  */
 export const createSubscription = catchAsync(async (req: Request, res: Response): Promise<void> => {
   const { planId, priceId, paymentMethodId, billingCycle } = req.body;
+
+  if (req.user.role !== 'admin') {
+    res.status(httpStatus.FORBIDDEN).json({
+      success: false,
+      message: 'Only admin can create subscriptions',
+    });
+    return;
+  }
+
   const userId = getEffectiveUserId(req);
 
   if (!userId) {
@@ -80,11 +88,11 @@ export const getActiveSubscription = catchAsync(async (req: Request, res: Respon
 
   console.log('User role:', req.user.role);
 
-  if(req.user.role === 'subAdmin') {
+  if (req.user.role === 'subAdmin') {
     const modules = req.user.adminOF || [];
     const getModules = modules?.map((module: any) => module.method?.toString());
-      subscription=await subscriptionService.getSubAdminModules(getModules);
-  }else {
+    subscription = await subscriptionService.getSubAdminModules(getModules);
+  } else {
     subscription = await subscriptionService.getActiveSubscriptionwithPlan(userId);
   }
 
@@ -94,7 +102,7 @@ export const getActiveSubscription = catchAsync(async (req: Request, res: Respon
   });
 });
 
-export const  getmodulesNameAndWorkspaces = catchAsync(async (req: Request, res: Response): Promise<void> => {
+export const getmodulesNameAndWorkspaces = catchAsync(async (req: Request, res: Response): Promise<void> => {
   const userId = getEffectiveUserId(req);
 
   if (!userId) {
