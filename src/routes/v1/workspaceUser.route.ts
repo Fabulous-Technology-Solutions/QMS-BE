@@ -12,6 +12,9 @@ router
 
 router.route('/:workspaceId').get(auth('getWorkspaceUsers'), checkCreateRole, workspaceUserController.getWorkspaceUsersController);
 router
+  .route('/:workspaceId/names')
+  .get(auth('getWorkspaceUsers'), checkCreateRole, workspaceUserController.getworkspacegroupsNamesController);
+router
   .route('/:workspaceId/:userId')
   .patch(auth('updateWorkspaceUser'), checkCreateRole, workspaceUserController.updateWorkspaceUserController)
   .get(auth('getSingleWorkspaceUser'), checkCreateRole, workspaceUserController.getSingleWorkspaceUserController)

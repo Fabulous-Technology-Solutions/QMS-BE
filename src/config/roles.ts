@@ -17,6 +17,13 @@ const allRoles = {
     'updateWorkspaceUser',
     'deleteWorkspaceUser',
     'getSingleWorkspaceUser',
+    // 'manageGroups',
+    'createGroup',
+    'getWorkspaceGroups',
+    'getWorkspaceGroupNames',
+    'getSingleGroup',
+    'updateGroup',
+    'deleteGroup',
   ],
   subAdmin: {
     subAdmin: [
@@ -34,6 +41,13 @@ const allRoles = {
       'updateWorkspaceUser',
       'deleteWorkspaceUser',
       'getSingleWorkspaceUser',
+      // 'manageGroups',
+      'createGroup',
+      'getWorkspaceGroups',
+      'getWorkspaceGroupNames',
+      'getSingleGroup',
+      'updateGroup',
+      'deleteGroup',
     ],
     standardUser: ['getSubscriptions', 'manageCapa'],
   },
@@ -42,7 +56,6 @@ const allRoles = {
     view: [],
     edit: [],
     w_admin: [
-
       // permissions for workspace admin for role
       'updateRole',
       'getSingleRole',
@@ -56,6 +69,13 @@ const allRoles = {
       'updateWorkspaceUser',
       'deleteWorkspaceUser',
       'getSingleWorkspaceUser',
+      // 'manageGroups',
+      'createGroup',
+      'getWorkspaceGroups',
+      'getWorkspaceGroupNames',
+      'getSingleGroup',
+      'updateGroup',
+      'deleteGroup',
     ],
   },
 };

@@ -7,6 +7,7 @@ import uploadRoute from "./upload.route";
 import planRoute from '../../modules/plans/plans.route';
 import roleRoute from './role.route';
 import workspaceUser from "./workspaceUser.route"
+import groupRoute from './group.route';
 import { subscriptionRoutes, webhookRouter } from '../../modules/subscription';
 import config from '../../config/config';
 
@@ -45,6 +46,10 @@ const defaultIRoute: IRoute[] = [
   {
     path: '/roles',
     route: roleRoute,
+  },
+  {
+    path: '/groups',
+    route: groupRoute,
   },
   {
     path: '/workspace-users',

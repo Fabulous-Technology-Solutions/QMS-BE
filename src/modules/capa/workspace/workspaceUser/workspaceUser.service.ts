@@ -69,6 +69,12 @@ export const updateWorkspaceUser = async (id: string, data: Partial<CreateWorksp
   return updatedUser?.save();
 };
 
+export const getworkspaceusersnames = async (workspaceId: string) => {
+  const users = await workspaceUser.find({ workspace: workspaceId, isDeleted: false }).
+    select('name profilePicture')
+  return users;
+};
+
 export const deleteWorkspaceUser = async (id: string) => {
   const user = await workspaceUser.findByIdAndUpdate(id, { isDeleted: true }, { new: true });
   if (!user) {
