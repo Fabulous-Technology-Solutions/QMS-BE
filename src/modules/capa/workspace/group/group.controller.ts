@@ -12,6 +12,7 @@ import {
   getGroupUsers,
 } from './group.service';
 import catchAsync from '../../../utils/catchAsync';
+import mongoose from 'mongoose';
 
 export const createGroupController = catchAsync(async (req: Request, res: Response) => {
   const group = await CreateGroup({ ...req.body, createdBy: req.user._id });
@@ -100,7 +101,7 @@ export const addMemberToGroupController = catchAsync(async (req: Request, res: R
 
 export const removeMemberFromGroupController = catchAsync(async (req: Request, res: Response) => {
   const groupId = req.params['groupId'] || '';
-  const memberId = req.body.memberId; // Assuming memberId is passed in the request body
+  const memberId = req.params['memberId'] || ''; // Assuming memberId is passed in the request params
 
   if (!memberId) {
     return res.status(httpStatus.BAD_REQUEST).json({
@@ -109,7 +110,7 @@ export const removeMemberFromGroupController = catchAsync(async (req: Request, r
     });
   }
 
-  const updatedGroup = await removeMemberFromGroup(groupId, memberId);
+  const updatedGroup = await removeMemberFromGroup(groupId, new mongoose.Schema.Types.ObjectId(memberId));
 
   return res.status(httpStatus.OK).json({
     success: true,
