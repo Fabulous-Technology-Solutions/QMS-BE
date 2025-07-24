@@ -11,6 +11,7 @@ export interface LibraryModal extends Document {
   status: string;
   members: ObjectId[];
   managers: ObjectId[];
+  priority: string;
 }
 
 export interface CreateLibraryRequest {
@@ -23,6 +24,7 @@ export interface CreateLibraryRequest {
   status: string;
   members?: string[];
   managers?: string[];
+  priority?: string;
 }
 
 export interface GetLibrariesQuery {

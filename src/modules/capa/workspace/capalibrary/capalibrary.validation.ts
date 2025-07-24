@@ -44,13 +44,16 @@ const libraryBody: Record<keyof CreateLibraryRequest, any> = {
   managers: Joi.array().items(Joi.string()).optional().messages({
     "array.base": `"managers" should be an array of 'text'`,
   }),
+  priority: Joi.string().valid("low", "medium", "high").messages({
+    "string.base": `"priority" should be a type of 'text'`,
+    "any.required": `"priority" is a required field`
+  }),
 };
 
-export const libraryValidationSchema = Joi.object(libraryBody).fork(
-  ["name", "description", "startDate", "dueDate", "workspace", "status"],
-  (schema) => schema.required()
-);
+export const libraryValidationSchema = { body: Joi.object().keys(libraryBody).fork(['name', 'description', 'startDate', 'dueDate', 'workspace', 'priority'], (schema) => schema.required()) };
 
-export const updateLibraryValidationSchema = Joi.object(libraryBody).min(1).messages({
-  "object.min": "At least one field must be provided for update"
-});
+export const updateLibraryValidationSchema = {
+  body: Joi.object().keys(libraryBody).min(1).messages({
+    "object.min": "At least one field must be provided for update"
+  })
+};

@@ -12,6 +12,7 @@ const LibrarySchema = new mongoose.Schema<LibraryModal>({
   status: { type: String, enum: ["pending", "completed", "in-progress"], default: "pending" },
   members: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
   managers: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
+  priority: { type: String, enum: ["low", "medium", "high"], default: "medium" },
 },{
     timestamps: true,
     versionKey: false

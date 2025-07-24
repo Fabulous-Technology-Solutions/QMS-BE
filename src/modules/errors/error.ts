@@ -40,7 +40,7 @@ const handleJWTExpiredError = () =>
   });
 
 // Global error handler
-const sendError = (err: any, error: any, _: Request, res: Response, next?: NextFunction) => {
+const sendError = (err: any, error: any, _: Request, res: Response, _next?: NextFunction) => {
   const response: any = {
     status: 'fail',
     message: err.message || error.message || 'An error occurred'
@@ -50,9 +50,7 @@ const sendError = (err: any, error: any, _: Request, res: Response, next?: NextF
   if (err.fieldErrors || error.fieldErrors) {
     response.errors = err.fieldErrors || error.fieldErrors;
   }
-  if(next){
-   
-  }
+
 
   return res.status(err.statusCode || 400).json(response);
   

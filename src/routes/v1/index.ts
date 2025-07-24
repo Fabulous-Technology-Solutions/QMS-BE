@@ -8,6 +8,7 @@ import planRoute from '../../modules/plans/plans.route';
 import roleRoute from './role.route';
 import workspaceUser from "./workspaceUser.route"
 import groupRoute from './group.route';
+import libraryroute from './library.route';
 import { subscriptionRoutes, webhookRouter } from '../../modules/subscription';
 import config from '../../config/config';
 
@@ -54,6 +55,10 @@ const defaultIRoute: IRoute[] = [
   {
     path: '/workspace-users',
     route: workspaceUser,
+  },
+  {
+    path: '/libraries',
+    route: libraryroute,
   },
 ];
 

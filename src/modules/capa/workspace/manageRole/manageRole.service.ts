@@ -98,6 +98,16 @@ export const checkWorkSubadminBelongsToWorkspace = async (
   userId: mongoose.Types.ObjectId,
   workspaceId: mongoose.Types.ObjectId
 ) => {
+
+
+const findworkspace = await CapaworkspaceModel.findOne({
+  _id: workspaceId,
+  isDeleted: false
+});
+if (!findworkspace) {
+    throw new AppiError('Workspace not found', httpStatus.NOT_FOUND);
+  }
+
 const user = await User.findOne({
   _id: userId,
   adminOf: {

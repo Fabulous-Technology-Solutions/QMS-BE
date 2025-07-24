@@ -24,7 +24,7 @@ export const updateLibraryById = catchAsync(async (req: Request, res: Response) 
 })
 
 
-export const getLibrary = catchAsync(async (req: Request, res: Response) => {
+export const   getLibrary = catchAsync(async (req: Request, res: Response) => {
   const library = await getLibraryById(req.params["libraryId"] as string);
 
   res.status(200).json({

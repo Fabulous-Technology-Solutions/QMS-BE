@@ -14,47 +14,47 @@ router.post(
   libraryController.createLibrary
 );
 router.get(
-  '/workspace/:workspaceId',
+  '/workspace/:libraryId',
   auth('getWorkspaceLibraries'),
   checkCreateRole,
   libraryController.getLibraries
 );
 router.get(
-  '/workspace/:workspaceId/names',
+  '/workspace/:libraryId/names',
   auth('getWorkspaceLibraryNames'),
   checkCreateRole,
   libraryController.getLibraryNamesController
 );
 
 router.get(
-  '/:workspaceId/:groupId/members',
-  auth('getGroupMembers'),
+  '/:workspaceId/:libraryId/members',
+  auth('getLibraryMembers'),
   checkCreateRole,
   libraryController.getLibraryMembersController
 );
-// router.post(
-//   '/:workspaceId/:groupId/members',
-//   auth('addGroupMember'),
-//   checkCreateRole,
-//   groupcontroller.addMemberToGroupController
-// );
-// router.delete(
-//   '/:workspaceId/:groupId/members',
-//   auth('removeGroupMember'),
-//   checkCreateRole,
-//   groupcontroller.removeMemberFromGroupController
-// );
+router.post(
+  '/:workspaceId/:libraryId/members',
+  auth('addLibraryMember'),
+  checkCreateRole,
+  libraryController.addMemberToLibraryController
+);
+router.delete(
+  '/:workspaceId/:libraryId/:memberId',
+  auth('removeLibraryMember'),
+  checkCreateRole,
+  libraryController.removeMemberFromLibraryController
+);
 
-// router.get('/:workspaceId/:groupId', auth('getSingleGroup'), checkCreateRole, groupcontroller.getGroupController);
+router.get('/:workspaceId/:libraryId', auth('getSingleLibrary'), checkCreateRole, libraryController.getLibrary);
 
-// router.patch(
-//   '/:workspaceId/:groupId',
-//   auth('updateGroup'),
-//   checkCreateRole,
-//   validate(libraryValidationSchema.updateLibraryValidationSchema),
-//   groupcontroller.updateGroupController
-// );
+router.patch(
+  '/:workspaceId/:libraryId',
+  auth('updateLibrary'),
+  checkCreateRole,
+  validate(libraryValidationSchema.updateLibraryValidationSchema),
+  libraryController.updateLibraryById
+);
 
-// router.delete('/:workspaceId/:groupId', auth('deleteGroup'), checkCreateRole, groupcontroller.deleteGroupController);
+router.delete('/:workspaceId/:libraryId', auth('deleteLibrary'), checkCreateRole, libraryController.deleteLibraryById);
 
-// export default router;
+export default router;

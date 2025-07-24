@@ -4,7 +4,7 @@ class AppiError extends Error {
   isOperational: boolean;
   fieldErrors: any;
 
-  constructor(message: string, statusCode: number, fieldErrors: any = null) {
+  constructor(message: string, statusCode: number, fieldErrors: Object = {}) {
     super(message);
     this.statusCode = statusCode;
     this.status = `${statusCode}`.startsWith('4') ? 'fail' : 'error';
@@ -12,6 +12,6 @@ class AppiError extends Error {
     this.fieldErrors = fieldErrors; // Store field-specific errors
     console.log('this', this);
     // Error.captureStackTrace(this, this.constructor);
-  }
+  }   
 }
 export default AppiError;

@@ -10,9 +10,8 @@ export const CreateLibrary = async (body: CreateLibraryRequest) => {
 };
 
 export const getLibraryById = async (libraryId: string) => {
-  const data = await LibraryModel.findById(libraryId)
-    .populate('members', 'name email profilePicture')
-    .populate('managers', 'name email profilePicture');
+  const data = await LibraryModel.findOne({ _id: libraryId, isDeleted: false })
+
   if (!data) {
     throw new Error('Library not found');
   }
@@ -45,13 +44,16 @@ export const getLibrariesByWorkspace = async (workspaceId: string, page: number,
 };
 
 export const updateLibrary = async (libraryId: string, updateData: Partial<CreateLibraryRequest>) => {
-  return await LibraryModel.findByIdAndUpdate(libraryId, updateData, { new: true })
+  const library = await LibraryModel.findOneAndUpdate({ _id: libraryId, isDeleted: false }, updateData, { new: true })
     .populate('members', 'name email profilePicture')
     .populate('managers', 'name email profilePicture');
+  if (!library) {
+    throw new Error('Library not found');
+  }
 };
 
 export const deleteLibrary = async (libraryId: string) => {
-  const library = await LibraryModel.findByIdAndUpdate(libraryId, { isDeleted: true }, { new: true });
+  const library = await LibraryModel.findOneAndUpdate({ _id: libraryId, isDeleted: false }, { isDeleted: true }, { new: true });
   if (!library) {
     throw new Error('Library not found');
   }
@@ -87,8 +89,10 @@ export const removeMemberFromLibrary = async (libraryId: string, memberId: strin
   if (!library) {
     throw new Error('Library not found');
   }
+  console.log(library,"good");
+  console.log(library.members,"members");
   // check if the member is in the library
-  if (!library.members.includes(new mongoose.Schema.Types.ObjectId(memberId))) {
+  if (!library.members.some((member: ObjectId) => member.toString() === memberId.toString())) {
     throw new Error('Member is not in the library');
   }
 
@@ -96,30 +100,26 @@ export const removeMemberFromLibrary = async (libraryId: string, memberId: strin
   return await library.save();
 };
 
-
 export const getLibraryMembers = async (
   libraryId: string,
-  page: number = 1,
-  limit: number = 10,
-  search: string = ''
+  page = 1,
+  limit = 10,
+  search = ''
 ) => {
-  let objectId: mongoose.Types.ObjectId;
+  let objectId;
   try {
     objectId = new mongoose.Types.ObjectId(libraryId);
   } catch (err) {
     throw new Error('Invalid libraryId');
   }
-  const matchStage: any = {
+  const matchStage = {
     _id: objectId,
-    isDeleted: false,
+    // isDeleted: false,
   };
 
-  const memberMatch: any = { };
+  const memberMatch: { name: Record<string, string | RegExp> } = { name: {} };
   if (search) {
-    memberMatch.$or = [
-      { name: { $regex: search, $options: 'i' } },
-      { email: { $regex: search, $options: 'i' } },
-    ];
+    memberMatch["name"] = { $regex: search, $options: 'i' };
   }
 
   const pipeline = [
@@ -131,8 +131,8 @@ export const getLibraryMembers = async (
         foreignField: '_id',
         as: 'members',
         pipeline: [
-          { $match: memberMatch },
-          { $project: { name: 1, email: 1, profilePicture: 1 } },
+          ...(search ? [{ $match: memberMatch }] : []),
+          { $project: { name: 1, email: 1, profilePicture: 1, role: 1, status: 1 } },
         ],
       },
     },
@@ -143,21 +143,16 @@ export const getLibraryMembers = async (
         foreignField: '_id',
         as: 'managers',
         pipeline: [
-          { $project: { name: 1, email: 1, profilePicture: 1 } },
+          { $project: { name: 1, email: 1, profilePicture: 1, role: 1, status: 1 } },
         ],
       },
     },
     { $unwind: '$members' },
-    {
-      $limit: limit,
-      $skip: (page - 1) * limit,
-    }
+    { $skip: (page - 1) * limit },
+    { $limit: limit },
   ];
 
-
   const result = await LibraryModel.aggregate(pipeline);
-
- 
 
   // Optionally, get total count for pagination
   const countPipeline = [
@@ -169,7 +164,7 @@ export const getLibraryMembers = async (
         foreignField: '_id',
         as: 'members',
         pipeline: [
-          { $match: memberMatch },
+          ...(search ? [{ $match: memberMatch }] : []),
         ],
       },
     },

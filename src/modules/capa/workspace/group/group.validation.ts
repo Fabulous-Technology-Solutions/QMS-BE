@@ -31,8 +31,8 @@ const groupBody: Record<keyof CreateGroupRequest, any> = {
     })
 };
 
-export const groupValidationSchema = Joi.object(groupBody).fork(['name', 'description', 'workspace',"members","status"], (schema) => schema.required());
+export const groupValidationSchema = Joi.object().keys(groupBody).fork(['name', 'description', 'workspace',"members","status"], (schema) => schema.required());
 
-export const updateGroupValidationSchema = Joi.object(groupBody).min(1).messages({
+export const updateGroupValidationSchema = Joi.object().keys(groupBody).min(1).messages({
   'object.min': 'At least one field must be provided for update'
 })
