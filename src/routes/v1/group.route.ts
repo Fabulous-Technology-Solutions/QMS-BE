@@ -18,7 +18,7 @@ router.get('/workspace/:workspaceId/names', auth('getWorkspaceGroupNames'), chec
 
 router.get('/:workspaceId/:groupId/members', auth('getGroupMembers'), checkCreateRole, groupcontroller.getGroupMembersController);
 router.post('/:workspaceId/:groupId/members', auth('addGroupMember'), checkCreateRole, groupcontroller.addMemberToGroupController);
-router.delete('/:workspaceId/:groupId/members', auth('removeGroupMember'), checkCreateRole, groupcontroller.removeMemberFromGroupController);
+router.delete('/:workspaceId/:groupId/:memberId', auth('removeGroupMember'), checkCreateRole, groupcontroller.removeMemberFromGroupController);
 
 
 router.get('/:workspaceId/:groupId', auth('getSingleGroup'), checkCreateRole, groupcontroller.getGroupController);
