@@ -1,6 +1,16 @@
 import { Request, Response } from 'express';
 import httpStatus from 'http-status';
-import { CreateGroup, getGroupById, updateGroup, deleteGroup, getGroupsByWorkspace, getGroupsNames, addMemberToGroup, removeMemberFromGroup, getGroupUsers } from './group.service';
+import {
+  CreateGroup,
+  getGroupById,
+  updateGroup,
+  deleteGroup,
+  getGroupsByWorkspace,
+  getGroupsNames,
+  addMemberToGroup,
+  removeMemberFromGroup,
+  getGroupUsers,
+} from './group.service';
 import catchAsync from '../../../utils/catchAsync';
 
 export const createGroupController = catchAsync(async (req: Request, res: Response) => {
@@ -46,7 +56,7 @@ export const deleteGroupController = catchAsync(async (req: Request, res: Respon
 export const getWorkspaceGroupsController = catchAsync(async (req: Request, res: Response) => {
   const { search, page = 1, limit = 10 } = req.query;
   const body = {
-    workspace: req.params["workspaceId"] as string,
+    workspace: req.params['workspaceId'] as string,
     search: search as string,
     page: Number(page),
     limit: Number(limit),
@@ -54,11 +64,7 @@ export const getWorkspaceGroupsController = catchAsync(async (req: Request, res:
 
   const groups = await getGroupsByWorkspace(body);
 
-  res.status(httpStatus.OK).json({
-    success: true,
-    data: groups,
-    message: 'Groups retrieved successfully',
-  });
+  res.status(httpStatus.OK).json(groups);
 });
 
 export const getGroupNamesController = catchAsync(async (req: Request, res: Response) => {
@@ -85,13 +91,12 @@ export const addMemberToGroupController = catchAsync(async (req: Request, res: R
 
   const updatedGroup = await addMemberToGroup(groupId, memberId);
 
- return res.status(httpStatus.OK).json({
+  return res.status(httpStatus.OK).json({
     success: true,
     data: updatedGroup,
     message: 'Member added to group successfully',
   });
-}); 
-
+});
 
 export const removeMemberFromGroupController = catchAsync(async (req: Request, res: Response) => {
   const groupId = req.params['groupId'] || '';
@@ -113,17 +118,11 @@ export const removeMemberFromGroupController = catchAsync(async (req: Request, r
   });
 });
 
-
-export const getGroupMembersController = catchAsync(async (req: Request, res: Response) => { 
+export const getGroupMembersController = catchAsync(async (req: Request, res: Response) => {
   const groupId = req.params['groupId'] || '';
-  const search = req.query["search"] as string || '';
-  const page = req.query["page"] ? Number(req.query["page"]) : 1;
-  const limit = req.query["limit"] ? Number(req.query["limit"]) : 10;
+  const search = (req.query['search'] as string) || '';
+  const page = req.query['page'] ? Number(req.query['page']) : 1;
+  const limit = req.query['limit'] ? Number(req.query['limit']) : 10;
   const members = await getGroupUsers(groupId, search, page, limit);
-
-  res.status(httpStatus.OK).json({
-    success: true,
-    data: members,
-    message: 'Group members retrieved successfully',
-  });
+  res.status(httpStatus.OK).json(members);
 });
