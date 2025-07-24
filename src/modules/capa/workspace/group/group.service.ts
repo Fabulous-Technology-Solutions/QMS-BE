@@ -1,4 +1,4 @@
-import { ObjectId } from 'mongoose';
+import mongoose, { ObjectId } from 'mongoose';
 import { CreateGroupRequest, GetGroupsParams, GetGroupsQuery } from './group.interfaces';
 import GroupModel from './group.modal';
 import User from '../../../user/user.model';
@@ -65,21 +65,32 @@ export const addMemberToGroup = async (groupId: string, memberId: ObjectId) => {
   );
 };
 
-export const removeMemberFromGroup = async (groupId: string, memberId: ObjectId) => {
-  // Ensure the group exists before removing a member
+export const removeMemberFromGroup = async (groupId: string, memberId: string) => {
   const group = await getGroupById(groupId);
   if (!group) {
     throw new Error('Group not found');
   }
-  // check if the member is in the group
-  if (!group.members.includes(memberId)) {
+
+  console.log('Group members:', group.members);
+  console.log('Member ID to remove:', new mongoose.Types.ObjectId(memberId));  
+
+  const memberObjectId = new mongoose.Types.ObjectId(memberId);
+  console.log('Members in groups:', group.members);
+
+  // Compare ObjectIds as strings
+  const memberExists = group.members.some((m: any) =>
+    m["_id"].toString() === memberObjectId.toString()
+  );
+
+  if (!memberExists) {
     throw new Error('Member is not in the group');
   }
 
-  return await GroupModel.findByIdAndUpdate(groupId, { $pull: { members: memberId } }, { new: true }).populate(
-    'members',
-    'name email profilePicture'
-  );
+  return await GroupModel.findByIdAndUpdate(
+    groupId,
+    { $pull: { members: memberObjectId } },
+    { new: true }
+  ).populate('members', 'name email profilePicture');
 };
 
 export const getGroupUsers = async (groupId: string, search: string = '', page: number = 1, limit: number = 10) => {

@@ -12,7 +12,7 @@ import {
   getGroupUsers,
 } from './group.service';
 import catchAsync from '../../../utils/catchAsync';
-import mongoose from 'mongoose';
+
 
 export const createGroupController = catchAsync(async (req: Request, res: Response) => {
   const group = await CreateGroup({ ...req.body, createdBy: req.user._id });
@@ -106,11 +106,11 @@ export const removeMemberFromGroupController = catchAsync(async (req: Request, r
   if (!memberId) {
     return res.status(httpStatus.BAD_REQUEST).json({
       success: false,
-      message: 'Member ID is required',
+      message: 'Member ID is required',   
     });
   }
 
-  const updatedGroup = await removeMemberFromGroup(groupId, new mongoose.Schema.Types.ObjectId(memberId));
+  const updatedGroup = await removeMemberFromGroup(groupId, memberId as string);
 
   return res.status(httpStatus.OK).json({
     success: true,
