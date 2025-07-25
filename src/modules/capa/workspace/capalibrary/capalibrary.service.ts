@@ -89,9 +89,6 @@ export const removeMemberFromLibrary = async (libraryId: string, memberId: strin
   if (!library) {
     throw new Error('Library not found');
   }
-  console.log(library,"good");
-  console.log(library.members,"members");
-  // check if the member is in the library
   if (!library.members.some((member: ObjectId) => member.toString() === memberId.toString())) {
     throw new Error('Member is not in the library');
   }
@@ -158,7 +155,7 @@ export const getLibraryMembers = async (
   const countPipeline = [
     { $match: matchStage },
     {
-      $lookup: {
+      $lookup: {  
         from: 'users',
         localField: 'members',
         foreignField: '_id',

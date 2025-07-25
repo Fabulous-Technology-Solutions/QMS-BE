@@ -78,6 +78,7 @@ const allRoles = {
     standardUser: [
       'getSubscriptions',
       'manageCapa',
+      "getWorkspaceUsers",
       // 'manageLibrary',
       'deleteLibrary',
       'updateLibrary',
@@ -92,7 +93,9 @@ const allRoles = {
   },
 
   workspaceUser: {
-    view: ["getLibraryMembers", "getWorkspaceLibraryNames", "getWorkspaceLibraries","getSingleLibrary"],
+    view: ["getLibraryMembers", "getWorkspaceLibraryNames", "getWorkspaceLibraries","getSingleLibrary"
+      ,"getWorkspaceUsers"
+    ],
     edit: [
       // 'manageLibrary',
       'deleteLibrary',
@@ -104,7 +107,8 @@ const allRoles = {
       'getWorkspaceLibraries',
       'createLibrary',
       'updateLibraryById',
-      "getSingleLibrary"
+      "getSingleLibrary",
+      "getWorkspaceUsers"
     ],
     w_admin: [
       // permissions for workspace admin for role
