@@ -114,7 +114,7 @@ const user = await User.findOne({
     $elemMatch: {
       workspacePermissions: workspaceId
     }
-  },
+  }, 
   isDeleted: false
 });
 

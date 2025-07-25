@@ -46,7 +46,6 @@ router.delete(
 );
 
 router.get('/:workspaceId/:libraryId', auth('getSingleLibrary'), checkCreateRole, libraryController.getLibrary);
-
 router.patch(
   '/:workspaceId/:libraryId',
   auth('updateLibrary'),
@@ -54,7 +53,6 @@ router.patch(
   validate(libraryValidationSchema.updateLibraryValidationSchema),
   libraryController.updateLibraryById
 );
-
 router.delete('/:workspaceId/:libraryId', auth('deleteLibrary'), checkCreateRole, libraryController.deleteLibraryById);
 
 export default router;

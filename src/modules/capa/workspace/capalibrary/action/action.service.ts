@@ -75,47 +75,76 @@ export const getLibraryMembersByAction = async (
   return { members, totalCount, page, limit };
 };
 
-export const getActionsByLibrary = async (libraryId: string) => {
-  const actions = await Action.aggregate([
-    { $match: { library: new mongoose.Types.ObjectId(libraryId), isDeleted: false } },
-    {
-      $lookup: {
-        from: 'libraries',
-        localField: 'library',
-        foreignField: '_id',
-        as: 'library',
-      },
-    },
-    { $unwind: '$library' },
-    {
-      $lookup: {
-        from: 'users',
-        localField: 'createdBy',
-        foreignField: '_id',
-        as: 'createdBy',
-      },
-    },
-    { $unwind: { path: '$createdBy', preserveNullAndEmptyArrays: true } },
-    {
-      $lookup: {
-        from: 'users',
-        localField: 'assignedTo',
-        foreignField: '_id',
-        as: 'assignedTo',
-      },
-    },
-    {
-      $project: {
-        _id: 1,
-        name: 1,
-        description: 1,
-        createdBy: { name: 1, email: 1, profilePicture: 1 },
-        assignedTo: [{ name: 1, email: 1, profilePicture: 1 }],
-        library: { name: 1, description: 1 },
-      },
-    },
-  ]);
-  return actions;
+export const getActionsByLibrary = async (
+    libraryId: string,
+    page: number = 1,
+    limit: number = 10,
+    search: string = ''
+) => {
+    const matchStage: any = { library: new mongoose.Types.ObjectId(libraryId), isDeleted: false };
+
+    const searchStages = search
+        ? [
+                {
+                    $match: {
+                        $or: [
+                            { name: { $regex: search, $options: 'i' } },
+                            { description: { $regex: search, $options: 'i' } },
+                        ],
+                    },
+                },
+            ]
+        : [];
+
+    const result = await Action.aggregate([
+        { $match: matchStage },
+        ...searchStages,
+        {
+            $lookup: {
+                from: 'libraries',
+                localField: 'library',
+                foreignField: '_id',
+                as: 'library',
+            },
+        },
+        { $unwind: '$library' },
+        {
+            $lookup: {
+                from: 'users',
+                localField: 'createdBy',
+                foreignField: '_id',
+                as: 'createdBy',
+            },
+        },
+        { $unwind: { path: '$createdBy', preserveNullAndEmptyArrays: true } },
+        {
+            $lookup: {
+                from: 'users',
+                localField: 'assignedTo',
+                foreignField: '_id',
+                as: 'assignedTo',
+            },
+        },
+        {
+            $project: {
+                _id: 1,
+                name: 1,
+                description: 1,
+                createdBy: { name: 1, email: 1, profilePicture: 1 },
+                assignedTo: { name: 1, email: 1, profilePicture: 1 },
+                library: { name: 1, description: 1 },
+            },
+        },
+        {
+            $facet: {
+                data: [{ $skip: (page - 1) * limit }, { $limit: limit }],
+                totalCount: [{ $count: 'count' }],
+            },
+        },
+    ]);
+    const actions = result[0]?.data || [];
+    const totalCount = result[0]?.totalCount[0]?.count || 0;
+    return { actions, totalCount, page, limit };
 };
 
 export const deleteAction = async (actionId: string) => {

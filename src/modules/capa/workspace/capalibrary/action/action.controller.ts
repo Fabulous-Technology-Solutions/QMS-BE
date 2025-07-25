@@ -33,15 +33,26 @@ export const updateActionController = catchAsync(async (req: Request, res: Respo
 });
 
 export const getLibraryMembersByActionController = catchAsync(async (req: Request, res: Response) => {
-  const { actionId } = req.params;
+  const { library } = req.params;
   const { search = '', page = 1, limit = 10 } = req.query;
 
-  const members = await actionService.getLibraryMembersByAction(actionId, search as string, Number(page), Number(limit));
-  
+  const members = await actionService.getLibraryMembersByAction(library, search as string, Number(page), Number(limit));
+
   res.status(200).json({
     success: true,
     message: 'Library members retrieved successfully',
     data: members,
+  });
+});
+export const getActionsByLibraryController = catchAsync(async (req: Request, res: Response) => {
+  const { libraryId } = req.params;
+
+  const actions = await actionService.getActionsByLibrary(libraryId as string, Number(req.query["page"]) || 1, Number(req.query["limit"]) || 10, req.query["search"] as string);
+
+  res.status(200).json({
+    success: true,
+    message: 'Actions retrieved successfully',
+    data: actions,
   });
 });
 export const deleteActionController = catchAsync(async (req: Request, res: Response) => {
