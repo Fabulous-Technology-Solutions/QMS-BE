@@ -14,7 +14,7 @@ router.post(
   libraryController.createLibrary
 );
 router.get(
-  '/workspace/:libraryId',
+  '/workspace/:workspaceId',
   auth('getWorkspaceLibraries'),
   checkCreateRole,
   libraryController.getLibraries
