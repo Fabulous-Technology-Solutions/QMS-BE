@@ -85,15 +85,15 @@ export const getActionsByLibrary = async (
 
     const searchStages = search
         ? [
-                {
-                    $match: {
-                        $or: [
-                            { name: { $regex: search, $options: 'i' } },
-                            { description: { $regex: search, $options: 'i' } },
-                        ],
-                    },
-                },
-            ]
+              {
+                  $match: {
+                      $or: [
+                          { name: { $regex: search, $options: 'i' } },
+                          { description: { $regex: search, $options: 'i' } },
+                      ],
+                  },
+              },
+          ]
         : [];
 
     const result = await Action.aggregate([
@@ -144,13 +144,112 @@ export const getActionsByLibrary = async (
             $facet: {
                 data: [{ $skip: (page - 1) * limit }, { $limit: limit }],
                 totalCount: [{ $count: 'count' }],
+                stats: [
+                    {
+                        $group: {
+                            _id: '$status',
+                            count: { $sum: 1 },
+                        },
+                    },
+                    {
+                        $group: {
+                            _id: null,
+                            counts: { $push: { status: '$_id', count: '$count' } },
+                            total: { $sum: '$count' },
+                        },
+                    },
+                    {
+                        $addFields: {
+                            counts: {
+                                $map: {
+                                    input: ['pending', 'in-progress', 'completed', 'on-hold'],
+                                    as: 'status',
+                                    in: {
+                                        status: '$$status',
+                                        count: {
+                                            $let: {
+                                                vars: {
+                                                    found: {
+                                                        $arrayElemAt: [
+                                                            {
+                                                                $filter: {
+                                                                    input: '$counts',
+                                                                    as: 'c',
+                                                                    cond: { $eq: ['$$c.status', '$$status'] },
+                                                                },
+                                                            },
+                                                            0,
+                                                        ],
+                                                    },
+                                                },
+                                                in: { $ifNull: ['$$found.count', 0] },
+                                            },
+                                        },
+                                    },
+                                },
+                            },
+                        },
+                    },
+                    {
+                        $addFields: {
+                            completed: {
+                                $arrayElemAt: [
+                                    {
+                                        $filter: {
+                                            input: '$counts',
+                                            as: 'c',
+                                            cond: { $eq: ['$$c.status', 'completed'] },
+                                        },
+                                    },
+                                    0,
+                                ],
+                            },
+                        },
+                    },
+                    {
+                        $addFields: {
+                            percentageCompleted: {
+                                $cond: [
+                                    { $eq: ['$total', 0] },
+                                    0,
+                                    {
+                                        $multiply: [
+                                            {
+                                                $divide: [
+                                                    { $ifNull: ['$completed.count', 0] },
+                                                    '$total',
+                                                ],
+                                            },
+                                            100,
+                                        ],
+                                    },
+                                ],
+                            },
+                        },
+                    },
+                ],
             },
         },
     ]);
+
     const actions = result[0]?.data || [];
     const totalCount = result[0]?.totalCount[0]?.count || 0;
-    return { actions, totalCount, page, limit };
+
+    // Ensure stats object exists
+    const stats = result[0]?.stats[0] || {
+        counts: [
+            { status: 'pending', count: 0 },
+            { status: 'in-progress', count: 0 },
+            { status: 'completed', count: 0 },
+            { status: 'on-hold', count: 0 },
+        ],
+        total: 0,
+        percentageCompleted: 0,
+    };
+
+    return { actions, totalCount, stats, page, limit };
 };
+
 
 export const deleteAction = async (actionId: string) => {
   const action = await Action.findOneAndUpdate({ _id: actionId, isDeleted: false }, { isDeleted: true }, { new: true });
