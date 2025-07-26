@@ -88,10 +88,10 @@ export const getLibraryMembersController = catchAsync(async (req: Request, res: 
 
 export const addMemberToLibraryController = catchAsync(async (req: Request, res: Response) => {
   const { libraryId } = req.params;
-  const { memberId } = req.body;
+  const { members } = req.body;
 
 
-  const updatedLibrary = await addMemberToLibrary(libraryId || "", memberId);
+  const updatedLibrary = await addMemberToLibrary(libraryId || "", members);
 
   res.status(200).json({
     success: true,

@@ -38,7 +38,14 @@ const allRoles = {
     'getWorkspaceLibraries',
     'createLibrary',
     'updateLibraryById',
-    "getSingleLibrary"
+    'getSingleLibrary',
+
+    // Actions
+    'deleteAction',
+    'updateAction',
+    'getSingleAction',
+    'getActions',
+    'createAction',
   ],
   subAdmin: {
     subAdmin: [
@@ -73,12 +80,19 @@ const allRoles = {
       'getWorkspaceLibraries',
       'createLibrary',
       'updateLibraryById',
-      "getSingleLibrary"
+      'getSingleLibrary',
+
+      // Actions
+      'deleteAction',
+      'updateAction',
+      'getSingleAction',
+      'getActions',
+      'createAction',
     ],
     standardUser: [
       'getSubscriptions',
       'manageCapa',
-      "getWorkspaceUsers",
+      'getWorkspaceUsers',
       // 'manageLibrary',
       'deleteLibrary',
       'updateLibrary',
@@ -89,12 +103,25 @@ const allRoles = {
       'getWorkspaceLibraries',
       'createLibrary',
       'updateLibraryById',
+      // Actions
+      'deleteAction',
+      'updateAction',
+      'getSingleAction',
+      'getActions',
+      'createAction',
     ],
   },
 
   workspaceUser: {
-    view: ["getLibraryMembers", "getWorkspaceLibraryNames", "getWorkspaceLibraries","getSingleLibrary"
-      ,"getWorkspaceUsers"
+    view: [
+      'getLibraryMembers',
+      'getWorkspaceLibraryNames',
+      'getWorkspaceLibraries',
+      'getSingleLibrary',
+      'getWorkspaceUsers',
+      // Actions
+      'getSingleAction',
+      'getActions',
     ],
     edit: [
       // 'manageLibrary',
@@ -107,8 +134,13 @@ const allRoles = {
       'getWorkspaceLibraries',
       'createLibrary',
       'updateLibraryById',
-      "getSingleLibrary",
-      "getWorkspaceUsers"
+      'getSingleLibrary',
+      'getWorkspaceUsers',
+      // Actions
+      'deleteAction',
+      'updateAction',
+      'getSingleAction',
+      'getActions',
     ],
     w_admin: [
       // permissions for workspace admin for role
@@ -141,7 +173,14 @@ const allRoles = {
       'getWorkspaceLibraries',
       'createLibrary',
       'updateLibraryById',
-      "getSingleLibrary"
+      'getSingleLibrary',
+
+      // Actions
+      'deleteAction',
+      'updateAction',
+      'getSingleAction',
+      'getActions',
+      'createAction',
     ],
   },
 };

@@ -2,18 +2,23 @@ import express, { Router } from 'express';
 import {  ActionController, ActionValidation } from '../../modules/capa/workspace/capalibrary/action';
 import { validate } from '../../modules/validate';
 import { auth } from '../../modules/auth';
-import checkCreateRole from './../../modules/capa/workspace/manageRole/mangeRole.middleware';
+import {checkValidation} from '../../modules/capa/workspace/capalibrary/';
 
 const router: Router = express.Router();
 
 router.post(
   '/',
   auth('createAction'),
-  checkCreateRole,
+  checkValidation,
   validate(ActionValidation.createAction),
   ActionController.createActionController
 );
-router.get('/workspaces/:workspaceId/libraries/:library', auth('getWorkspaceGroups'), checkCreateRole, ActionController.getActionsByLibraryController);
+router.get('/libraries/:libraryId', auth('getActions'), checkValidation, ActionController.getActionsByLibraryController);
+router.get('/libraries/:libraryId/action/:actionId', auth('getSingleAction'), checkValidation, ActionController.getActionByIdController);
+router.patch('/libraries/:libraryId/action/:actionId', auth('updateAction'), checkValidation, ActionController.updateActionController);
+router.delete('/libraries/:libraryId/action/:actionId', auth('deleteAction'), checkValidation, ActionController.deleteActionController);
+
+
 
 
 // router.get('/:workspaceId/:groupId/members', auth('getGroupMembers'), checkCreateRole, ActionController.getGroupMembersController);

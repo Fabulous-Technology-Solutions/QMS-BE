@@ -9,6 +9,7 @@ import roleRoute from './role.route';
 import workspaceUser from "./workspaceUser.route"
 import groupRoute from './group.route';
 import libraryroute from './library.route';
+import actionroute from './action.route';
 import { subscriptionRoutes, webhookRouter } from '../../modules/subscription';
 import config from '../../config/config';
 
@@ -59,6 +60,10 @@ const defaultIRoute: IRoute[] = [
   {
     path: '/libraries',
     route: libraryroute,
+  },
+  {
+    path: '/actions',
+    route: actionroute,
   },
 ];
 

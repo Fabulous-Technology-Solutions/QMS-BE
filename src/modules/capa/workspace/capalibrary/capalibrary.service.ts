@@ -1,6 +1,8 @@
 import mongoose, { ObjectId } from 'mongoose';
-import { CreateLibraryRequest,  GetLibrariesQuery } from './capalibrary.interfaces';
+import { CreateLibraryRequest, GetLibrariesQuery } from './capalibrary.interfaces';
 import { LibraryModel } from './capalibrary.modal';
+import subAdmin from './../../../user/user.subAdmin';
+import { IUserDoc } from '@/modules/user/user.interfaces';
 
 export const CreateLibrary = async (body: CreateLibraryRequest) => {
   const library = new LibraryModel(body);
@@ -68,30 +70,31 @@ export const getLibrariesNames = async (workspaceId: string) => {
   return await LibraryModel.find({ workspace: workspaceId, isDeleted: false }, 'name');
 };
 
-export const addMemberToLibrary = async (libraryId: string, memberId: ObjectId) => {
-  // Ensure the library exists before adding a member
+export const addMemberToLibrary = async (libraryId: string, members: ObjectId[]) => {
   const library = await getLibraryById(libraryId);
   if (!library) {
     throw new Error('Library not found');
   }
-  // check if the member is already in the library
-  if (
-    library.members.some(
-      (member: any) =>
-        (member && member._id && member._id.toString() === memberId.toString()) 
-    )
-  ) {
-    throw new Error('Member is already in the library');
+
+  const existingMemberIds = library.members.map((m: any) => m.toString());
+  const managerIds = library.managers.map((m: any) => m.toString());
+
+  for (const memberId of members) {
+    const idStr = memberId.toString();
+
+    // Skip if already a member
+    if (existingMemberIds.includes(idStr)) {
+      continue; // just skip instead of throwing
+    }
+
+    // Skip if a manager
+    if (managerIds.includes(idStr)) {
+      continue;
+    }
+
+    library.members.push(memberId);
   }
 
-  if (library.managers.some(
-      (member: any) =>
-        (member && member._id && member._id.toString() === memberId.toString()) 
-    )) {
-    throw new Error('Member is a manager of the library, cannot add as a member');
-  }
-
-  library.members.push(memberId);
   return await library.save();
 };
 
@@ -103,8 +106,7 @@ export const removeMemberFromLibrary = async (libraryId: string, memberId: strin
   }
   if (
     !library.members.some(
-      (member: Record<string, any>) =>
-        member && member['_id'] && member['_id'].toString() === memberId.toString()
+      (member: Record<string, any>) => member && member['_id'] && member['_id'].toString() === memberId.toString()
     )
   ) {
     throw new Error('Member is not in the library');
@@ -187,4 +189,123 @@ export const getLibraryMembers = async (libraryId: string, page = 1, limit = 10,
     success: true,
     message: 'Library member(s) retrieved successfully',
   };
+};
+
+export const checkAdminBelongsTtoLibrary = async (libraryId: string, userId: ObjectId) => {
+  const library = await LibraryModel.aggregate([
+    { $match: { _id: new mongoose.Types.ObjectId(libraryId), isDeleted: false } },
+    {
+      $lookup: {
+        from: 'capaworkspaces',
+        localField: 'workspace',
+        foreignField: '_id',
+        as: 'workspace',
+      },
+    },
+    { $unwind: '$workspace' },
+    {
+      $lookup: {
+        from: 'subscriptions',
+        localField: 'workspace.moduleId',
+        foreignField: '_id',
+        as: 'module',
+      },
+    },
+    { $unwind: '$module' },
+    {
+      $match: {
+        'module.userId': userId,
+      },
+    },
+  ]);
+  if (!library || library.length === 0) {
+    throw new Error('Library not found');
+  }
+
+  return true;
+};
+export const checkSubAdminBelongsToLibrary = async (libraryId: string, userId: ObjectId) => {
+  const library = await subAdmin.aggregate([
+    { $match: { _id: userId, isDeleted: false } },
+    {
+      $lookup: {
+        from: 'capaworkspaces',
+        let: { workspaceIds: '$adminOF.workspacePermissions' },
+        pipeline: [
+          {
+            $match: {
+              $expr: {
+                $in: [
+                  '$_id',
+                  {
+                    $reduce: {
+                      input: '$$workspaceIds',
+                      initialValue: [],
+                      in: { $concatArrays: ['$$value', '$$this'] },
+                    },
+                  },
+                ],
+              },
+            },
+          },
+          {
+            $project: {
+              name: 1,
+              description: 1,
+            },
+          },
+        ],
+        as: 'workspace',
+      },
+    },
+    { $unwind: '$workspace' },
+    {
+      $lookup: {
+        from: 'libraries',
+        localField: 'workspace._id',
+        foreignField: 'workspace',
+        as: 'libraries',
+      },
+    },
+    { $unwind: '$libraries' },
+    {
+      $match: {
+        'libraries._id': new mongoose.Types.ObjectId(libraryId),
+        'libraries.isDeleted': false,
+      },
+    },
+  ]);
+  if (!library || library.length === 0) {
+    throw new Error('Library not found');
+  }
+  return true;
+};
+
+export const checkUserBelongsToLibrary = async (libraryId: string, user: IUserDoc) => {
+  const result = await LibraryModel.aggregate([
+    {
+      $match: {
+        _id: new mongoose.Types.ObjectId(libraryId),
+        isDeleted: false,
+      },
+    },
+    {
+      $lookup: {
+        from: 'capaworkspaces',
+        localField: 'workspace',
+        foreignField: '_id',
+        as: 'workspace',
+      },
+    },
+    { $unwind: '$workspace' },
+    {
+      $match: {
+        'workspace._id': user.workspace,
+      },
+    },
+  ]);
+  if (!result || result.length === 0) {
+    throw new Error('User does not belong to this library');
+  }
+  return true;
 };

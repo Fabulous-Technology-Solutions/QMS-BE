@@ -3,7 +3,7 @@ import { validate } from '../../modules/validate';
 import { auth } from '../../modules/auth';
 
 import { workspaceUserController, workspaceUserValidation } from '../../modules/capa/workspace/workspaceUser';
-import checkCreateRole from '../../modules/capa/workspace/manageRole/mangeRole.middleware';
+import checkCreateRole from '../../modules/capa/workspace/mangeRole.middleware';
 
 const router: Router = express.Router();
 router

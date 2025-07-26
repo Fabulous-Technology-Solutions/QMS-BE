@@ -2,7 +2,7 @@ import express, { Router } from 'express';
 import { libraryController, libraryValidationSchema } from '../../modules/capa/workspace/capalibrary';
 import { validate } from '../../modules/validate';
 import { auth } from '../../modules/auth';
-import checkCreateRole from './../../modules/capa/workspace/manageRole/mangeRole.middleware';
+import checkCreateRole from '../../modules/capa/workspace/mangeRole.middleware';
 
 const router: Router = express.Router();
 
@@ -37,7 +37,7 @@ router.post(
   auth('addLibraryMember'),
   checkCreateRole,
   libraryController.addMemberToLibraryController
-);
+); 
 router.delete(
   '/:workspaceId/:libraryId/:memberId',
   auth('removeLibraryMember'),

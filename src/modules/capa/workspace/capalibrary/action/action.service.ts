@@ -130,6 +130,11 @@ export const getActionsByLibrary = async (
                 _id: 1,
                 name: 1,
                 description: 1,
+                priority: 1,
+                type: 1,
+                status: 1,
+                startDate: 1,
+                endDate: 1,
                 createdBy: { name: 1, email: 1, profilePicture: 1 },
                 assignedTo: { name: 1, email: 1, profilePicture: 1 },
                 library: { name: 1, description: 1 },
@@ -154,3 +159,4 @@ export const deleteAction = async (actionId: string) => {
   }
   return action;
 };
+
