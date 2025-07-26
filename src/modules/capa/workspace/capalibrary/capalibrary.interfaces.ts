@@ -32,3 +32,11 @@ export interface GetLibrariesQuery {
   isDeleted?: boolean;
   $or?: [{ name: { $regex: string; $options: string } }, { description: { $regex: string; $options: string } }];
 }
+
+
+export interface forIncludes {
+  _id: ObjectId;
+  name: string;
+  email: string;
+  profilePicture: string;
+}

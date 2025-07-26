@@ -20,7 +20,7 @@ router.get(
   libraryController.getLibraries
 );
 router.get(
-  '/workspace/:libraryId/names',
+  '/workspace/:libraryId/names', 
   auth('getWorkspaceLibraryNames'),
   checkCreateRole,
   libraryController.getLibraryNamesController
