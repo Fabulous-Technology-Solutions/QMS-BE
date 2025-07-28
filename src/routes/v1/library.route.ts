@@ -54,5 +54,6 @@ router.patch(
   libraryController.updateLibraryById
 );
 router.delete('/:workspaceId/:libraryId', auth('deleteLibrary'), checkCreateRole, libraryController.deleteLibraryById);
+router.patch('/:workspaceId/:libraryId/form5W2H', auth('update5W2H'), checkCreateRole, libraryController.updateForm5W2HController);
 
 export default router;

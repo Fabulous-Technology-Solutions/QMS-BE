@@ -6,7 +6,7 @@ export interface AttachmentModal extends Document {
     fileKey: string;
     fileType: string;
     size: number;
-    workspace: mongoose.Types.ObjectId;
+    library: mongoose.Types.ObjectId;
     isDeleted?: boolean;
 }
 
@@ -16,11 +16,11 @@ export interface CreateAttachmentRequest {
     fileKey: string;
     fileType: string;
     size: number;
-    workspace: string;
+    library: string;
 }
 
 export interface GetattachmentQuery {
-    workspace?: string;
+    library?: string;
     isDeleted?: boolean;
     name?: {
         $regex?: string;

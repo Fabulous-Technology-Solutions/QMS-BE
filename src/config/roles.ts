@@ -39,6 +39,7 @@ const allRoles = {
     'createLibrary',
     'updateLibraryById',
     'getSingleLibrary',
+    "update5W2H",
 
     // Actions
     'deleteAction',
@@ -97,6 +98,8 @@ const allRoles = {
       'createLibrary',
       'updateLibraryById',
       'getSingleLibrary',
+      "update5W2H",
+
 
       // Actions
       'deleteAction',
@@ -119,6 +122,8 @@ const allRoles = {
       'getWorkspaceLibraries',
       'createLibrary',
       'updateLibraryById',
+      "update5W2H",
+
       // Actions
       'deleteAction',
       'updateAction',
@@ -158,6 +163,8 @@ const allRoles = {
       'updateLibraryById',
       'getSingleLibrary',
       'getWorkspaceUsers',
+      "update5W2H",
+
       // Actions
       'deleteAction',
       'updateAction',
@@ -201,6 +208,8 @@ const allRoles = {
       'createLibrary',
       'updateLibraryById',
       'getSingleLibrary',
+      "update5W2H",
+
 
       // Actions
       'deleteAction',

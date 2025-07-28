@@ -18,7 +18,7 @@ const AttachmentSchema = new mongoose.Schema<AttachmentModal>({
         enum: ["image/jpeg", "image/png", "application/pdf"],
         required: true,
     },
-    workspace: {
+    library: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Capaworkspace',
         required: true,

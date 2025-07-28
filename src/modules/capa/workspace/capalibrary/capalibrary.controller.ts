@@ -1,6 +1,6 @@
 import catchAsync from './../../../utils/catchAsync';
 import { Request, Response } from 'express';
-import { CreateLibrary,getLibraryById,getLibrariesByWorkspace,updateLibrary,deleteLibrary,getLibrariesNames,removeMemberFromLibrary, getLibraryMembers, addMemberToLibrary } from './capalibrary.service';
+import { CreateLibrary,getLibraryById,getLibrariesByWorkspace,updateLibrary,deleteLibrary,getLibrariesNames,removeMemberFromLibrary, getLibraryMembers, addMemberToLibrary ,updateForm5W2H} from './capalibrary.service';
 
 
 
@@ -99,5 +99,25 @@ export const addMemberToLibraryController = catchAsync(async (req: Request, res:
     success: true,
     data: updatedLibrary,
     message: 'Member added to library successfully',
+  });
+});
+
+export const updateForm5W2HController = catchAsync(async (req: Request, res: Response) => {
+  const { libraryId } = req.params;
+  const { form5W2H } = req.body;
+
+  if (!form5W2H) {
+    return res.status(400).json({
+      success: false,
+      message: 'Form5W2H data is required',
+    });
+  }
+
+  const updatedLibrary = await updateForm5W2H(libraryId || "", form5W2H);
+
+ return res.status(200).json({
+    success: true,
+    data: updatedLibrary,
+    message: 'Form5W2H updated successfully',
   });
 });

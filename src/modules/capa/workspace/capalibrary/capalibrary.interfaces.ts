@@ -12,7 +12,29 @@ export interface LibraryModal extends Document {
   members: ObjectId[];
   managers: ObjectId[];
   priority: string;
+  Form5W2H: {
+    containment: boolean;
+    what: string;
+    why: string;
+    when: string;
+    where: string;
+    who: string;
+    how: string;
+  };
+
 }
+
+export interface UpdateForm5W2HRequest {
+  containment?: boolean;
+  what?: string;
+  why?: string;
+  when?: string;
+  where?: string;
+  who?: string;
+  how?: string;
+}
+
+
 
 export interface CreateLibraryRequest {
   name: string;

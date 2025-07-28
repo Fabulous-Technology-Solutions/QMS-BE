@@ -1,5 +1,5 @@
 import mongoose, { ObjectId } from 'mongoose';
-import { CreateLibraryRequest, GetLibrariesQuery } from './capalibrary.interfaces';
+import { CreateLibraryRequest, GetLibrariesQuery,UpdateForm5W2HRequest } from './capalibrary.interfaces';
 import { LibraryModel } from './capalibrary.modal';
 import subAdmin from './../../../user/user.subAdmin';
 import { IUserDoc } from '@/modules/user/user.interfaces';
@@ -316,4 +316,17 @@ export const checkUserBelongsToLibrary = async (libraryId: string, user: IUserDo
     throw new Error('User does not belong to this library');
   }
   return true;
+};
+
+
+export const updateForm5W2H = async (libraryId: string, formData: UpdateForm5W2HRequest) => {
+  const library = await LibraryModel.findOneAndUpdate(
+    { _id: libraryId, isDeleted: false },
+    { Form5W2H: formData },
+    { new: true }
+  );
+  if (!library) {
+    throw new Error('Library not found');
+  }
+  return library;
 };

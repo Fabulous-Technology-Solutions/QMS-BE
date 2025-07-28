@@ -13,7 +13,7 @@ import actionroute from './action.route';
 import attachmentroute from './attachment.route';
 import { subscriptionRoutes, webhookRouter } from '../../modules/subscription';
 import config from '../../config/config';
-
+import causeroute from "./causes.route" 
 const router = express.Router();
 
 interface IRoute {
@@ -69,6 +69,10 @@ const defaultIRoute: IRoute[] = [
   {
     path: '/actions',
     route: actionroute,
+  },
+  {
+    path: '/causes',
+    route: causeroute,
   },
 ];
 

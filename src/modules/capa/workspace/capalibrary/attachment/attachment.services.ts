@@ -47,8 +47,8 @@ export const getAttachmentById = async (attachmentId?: string) => {
     return attachment;
 };
 
-export const getAttachmentsByWorkspace = async (workspaceId: string, page: number, limit: number, search: string) => {
-    const query: GetattachmentQuery = { workspace: workspaceId, isDeleted: false };
+export const getAttachmentsByLibrary = async (libraryId: string, page: number, limit: number, search: string) => {
+    const query: GetattachmentQuery = { library: libraryId, isDeleted: false };
 
     if (search) {
         query.name = { $regex: search, $options: 'i' };

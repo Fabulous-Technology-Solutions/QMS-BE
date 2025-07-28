@@ -23,8 +23,8 @@ export const getAttachmentById = catchAsync(async (req: Request, res: Response) 
     res.status(200).json(attachment);
 });
 export const getAttachmentsByWorkspace = catchAsync(async (req: Request, res: Response) => {
-    const { workspaceId } = req.params;
+    const { libraryId } = req.params;
     const { page = 1, limit = 10, search = '' } = req.query as any;
-    const attachments = await AttachmentService.getAttachmentsByWorkspace(workspaceId || "", Number(page || 1), Number(limit || 10), search);
+    const attachments = await AttachmentService.getAttachmentsByLibrary(libraryId || "", Number(page || 1), Number(limit || 10), search);
     res.status(200).json(attachments);
 });
