@@ -62,6 +62,7 @@ export const getWorkspaceGroupsController = catchAsync(async (req: Request, res:
     page: Number(page),
     limit: Number(limit),
   };
+  console.log('Fetching groups for workspace:', body);
 
   const groups = await getGroupsByWorkspace(body);
 

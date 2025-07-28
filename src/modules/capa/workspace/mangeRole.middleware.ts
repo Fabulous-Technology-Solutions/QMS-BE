@@ -10,6 +10,7 @@ const checkCreateRole = catchAsync(async (req: Request, _: Response, next: NextF
   console.log('Checking create role permissions.......................', req.params['workspaceId']);
   if (user.role === 'admin') {
     await checkAdminBelongsToWorkspace(user._id, req.params['workspaceId'] || req.body.workspace);
+    console.log('Admin has permission to create role in workspace:', req.params['workspaceId']);
   } else if (user.role === 'subadmin') {
     await checkWorkSubadminBelongsToWorkspace(user._id, req.params['workspaceId'] || req.body.workspace);
   } else if (user.role === 'workspaceUser') {
@@ -26,6 +27,7 @@ const checkCreateRole = catchAsync(async (req: Request, _: Response, next: NextF
   } else {
     throw new Error('Unauthorized role for creating a role');
   }
+  console.log('Role creation permissions checked successfully for user:', user?._id);
   next();
 });
 

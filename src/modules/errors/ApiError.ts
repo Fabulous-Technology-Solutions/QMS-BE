@@ -11,7 +11,7 @@ class AppiError extends Error {
     this.isOperational = true;
     this.fieldErrors = fieldErrors; // Store field-specific errors
     console.log('this', this);
-    // Error.captureStackTrace(this, this.constructor);
+    Error.captureStackTrace(this, this.constructor);
   }   
 }
 export default AppiError;

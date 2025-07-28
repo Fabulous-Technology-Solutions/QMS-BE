@@ -9,7 +9,7 @@ const router: Router = express.Router();
 router.post(
   '/',
   auth('createGroup'),
-  checkCreateRole,
+  checkCreateRole,                                                                            
   validate(groupvalidation.groupValidationSchema),
   groupcontroller.createGroupController
 );

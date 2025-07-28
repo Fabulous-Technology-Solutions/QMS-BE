@@ -36,17 +36,19 @@ export const   getLibrary = catchAsync(async (req: Request, res: Response) => {
 
 
 export const getLibraries = catchAsync(async (req: Request, res: Response) => {
+  console.log('Fetching libraries for workspace:', req.params['workspaceId']);
   const { workspaceId } = req.params;
   const { page = 1, limit = 10, search = '' } = req.query;
 
   const libraries = await getLibrariesByWorkspace(workspaceId || "", Number(page), Number(limit), search as string);
+  console.log('Libraries retrieved:', libraries);
 
   res.status(200).json(libraries);
 })
 
 export const deleteLibraryById = catchAsync(async (req: Request, res: Response) => {
   const library = await deleteLibrary(req.params["libraryId"] as string);
-  res.status(200).json({
+  return res.status(201).json({
     success: true,
     message: 'Library deleted successfully',
     data: library,

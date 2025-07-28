@@ -22,6 +22,7 @@ export const getLibraryById = async (libraryId: string) => {
 
 export const getLibrariesByWorkspace = async (workspaceId: string, page: number, limit: number, search: string) => {
   const query: GetLibrariesQuery = { workspace: workspaceId, isDeleted: false };
+  console.log('Querying libraries with:', query, 'Page:', page, 'Limit:', limit, 'Search:', search);
 
   if (search) {
     query.$or = [{ name: { $regex: search, $options: 'i' } }, { description: { $regex: search, $options: 'i' } }];
@@ -34,7 +35,7 @@ export const getLibrariesByWorkspace = async (workspaceId: string, page: number,
     .populate('managers', 'name email profilePicture');
 
   const total = await LibraryModel.countDocuments(query);
-
+  console.log('Total libraries found:', total);
   return {
     data,
     total,
@@ -71,31 +72,36 @@ export const getLibrariesNames = async (workspaceId: string) => {
 };
 
 export const addMemberToLibrary = async (libraryId: string, members: ObjectId[]) => {
-  const library = await getLibraryById(libraryId);
-  if (!library) {
-    throw new Error('Library not found');
-  }
-
-  const existingMemberIds = library.members.map((m: any) => m.toString());
-  const managerIds = library.managers.map((m: any) => m.toString());
-
-  for (const memberId of members) {
-    const idStr = memberId.toString();
-
-    // Skip if already a member
-    if (existingMemberIds.includes(idStr)) {
-      continue; // just skip instead of throwing
+  try {
+    const library = await getLibraryById(libraryId);
+    if (!library) {
+      throw new Error('Library not found');
     }
 
-    // Skip if a manager
-    if (managerIds.includes(idStr)) {
-      continue;
+    const existingMemberIds = library.members.map((m: any) => m.toString());
+    const managerIds = library.managers.map((m: any) => m.toString());
+
+    for (const memberId of members) {
+      const idStr = memberId.toString();
+
+      // Skip if already a member
+      if (existingMemberIds.includes(idStr)) {
+        continue; // just skip instead of throwing
+      }
+
+      // Skip if a manager
+      if (managerIds.includes(idStr)) {
+        continue;
+      }
+
+      library.members.push(memberId);
     }
 
-    library.members.push(memberId);
+    return await library.save();
+  } catch (error) {
+    console.error('Error adding members to library:', error);
+    throw new Error('Failed to add members to library');
   }
-
-  return await library.save();
 };
 
 export const removeMemberFromLibrary = async (libraryId: string, memberId: string) => {
@@ -112,7 +118,9 @@ export const removeMemberFromLibrary = async (libraryId: string, memberId: strin
     throw new Error('Member is not in the library');
   }
 
-  library.members = library.members.filter((member) => member.toString() !== memberId.toString());
+  library.members = library.members.filter((member:any) => member["_id"].toString() !== memberId.toString());
+
+  console.log('Member removed from library:', memberId, library);
   return await library.save();
 };
 

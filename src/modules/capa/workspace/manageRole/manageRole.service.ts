@@ -88,7 +88,7 @@ export const checkAdminBelongsToWorkspace = async (
     },
   ]);
   console.log("User found in workspace:", user);
-  if (!user || user.length === 0) {
+  if (!user || user?.length === 0) {
     throw new AppiError('User does not belong to the workspace', httpStatus.FORBIDDEN);
   }
   return user;
