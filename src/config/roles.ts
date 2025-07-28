@@ -46,9 +46,25 @@ const allRoles = {
     'getSingleAction',
     'getActions',
     'createAction',
+
+    /// Attachments
+    'deleteAttachment',
+    'updateAttachment',
+    'getAttachmentById',
+    'getAttachmentsByWorkspace',
+    'createAttachment',
+
+
   ],
   subAdmin: {
     subAdmin: [
+      /// Attachments
+      'deleteAttachment',
+      'updateAttachment',
+      'getAttachmentById',
+      'getAttachmentsByWorkspace',
+      'createAttachment',
+
       'getSubscriptions',
       'manageCapa',
       // manageRoles
@@ -109,6 +125,12 @@ const allRoles = {
       'getSingleAction',
       'getActions',
       'createAction',
+      /// Attachments
+      'deleteAttachment',
+      'updateAttachment',
+      'getAttachmentById',
+      'getAttachmentsByWorkspace',
+      'createAttachment'
     ],
   },
 
@@ -141,6 +163,11 @@ const allRoles = {
       'updateAction',
       'getSingleAction',
       'getActions',
+      // Attachments
+      'deleteAttachment',
+      'updateAttachment',
+      'getAttachmentById',
+      'getAttachmentsByWorkspace'
     ],
     w_admin: [
       // permissions for workspace admin for role
@@ -181,6 +208,12 @@ const allRoles = {
       'getSingleAction',
       'getActions',
       'createAction',
+      /// Attachments
+      'deleteAttachment',
+      'updateAttachment',
+      'getAttachmentById',
+      'getAttachmentsByWorkspace',
+      'createAttachment'
     ],
   },
 };
