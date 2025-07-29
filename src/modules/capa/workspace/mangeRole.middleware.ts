@@ -12,6 +12,7 @@ const checkCreateRole = catchAsync(async (req: Request, _: Response, next: NextF
   } else if (user.role === 'subadmin') {
     await checkWorkSubadminBelongsToWorkspace(user._id, req.params['workspaceId'] || req.body.workspace);
   } else if (user.role === 'workspaceUser') {
+    console.log(req.params['workspaceId'],"well....................");
     if ((req.params['workspaceId'] || req.body.workspace) !== user['workspace']?.toString()) {
       throw new Error('Unauthorized role for performing this action');
     }

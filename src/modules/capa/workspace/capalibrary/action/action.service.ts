@@ -259,3 +259,42 @@ export const deleteAction = async (actionId: string) => {
   return action;
 };
 
+
+export const getActionsByAssignedTo = async (
+    userId: string,
+    page: number = 1,
+    limit: number = 10,
+    search: string = ''
+) => {
+    const userObjectId = new mongoose.Types.ObjectId(userId);
+
+    const searchFilter = search
+        ? {
+                $or: [
+                    { name: { $regex: search, $options: 'i' } },
+                    { description: { $regex: search, $options: 'i' } },
+                ],
+            }
+        : {};
+
+    const filter = {
+        assignedTo: { $in: [userObjectId] },
+        isDeleted: false,
+        ...searchFilter,
+    };
+
+    const actions = await Action.find(filter)
+        .skip((page - 1) * limit)
+        .limit(limit)
+        .populate('createdBy', 'name email profilePicture')
+        .populate('library', 'name description');
+
+    const total = await Action.countDocuments(filter);
+
+    return {
+        data: actions,
+        total,
+        page,
+        limit,
+    };
+};

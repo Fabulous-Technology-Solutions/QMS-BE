@@ -127,9 +127,5 @@ export const getLibrariesForUser = catchAsync(async (req: Request, res: Response
   const { page = 1, limit = 10, search = '' } = req.query;
 
   const libraries = await getLibrariesByManager(userId || "", Number(page), Number(limit), search as string);
-  res.status(200).json({
-    success: true,
-    data: libraries,
-    message: 'Libraries retrieved successfully',
-  });
+  res.status(200).json(libraries);
 });

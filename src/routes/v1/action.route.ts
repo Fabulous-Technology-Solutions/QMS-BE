@@ -13,6 +13,7 @@ router.post(
   validate(ActionValidation.createAction),
   ActionController.createActionController
 );
+router.get("/tasks", auth("getTasks"), ActionController.getTasksByUserController);
 router.get('/libraries/:libraryId', auth('getActions'), checkValidation, ActionController.getActionsByLibraryController);
 router.get('/libraries/:libraryId/action/:actionId', auth('getSingleAction'), checkValidation, ActionController.getActionByIdController);
 router.patch('/libraries/:libraryId/action/:actionId', auth('updateAction'), checkValidation, ActionController.updateActionController);

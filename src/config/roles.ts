@@ -48,6 +48,7 @@ const allRoles = {
     'getSingleAction',
     'getActions',
     'createAction',
+    "getTasks",
 
     // Attachments
     'deleteAttachment',
@@ -115,6 +116,7 @@ const allRoles = {
       'getSingleAction',
       'getActions',
       'createAction',
+      "getTasks",
 
       //Causes
       "createCauses",
@@ -139,6 +141,7 @@ const allRoles = {
       'createLibrary',
       'updateLibraryById',
       "update5W2H",
+      "getUserLibraries",
 
       // Actions
       'deleteAction',
@@ -146,6 +149,7 @@ const allRoles = {
       'getSingleAction',
       'getActions',
       'createAction',
+      "getTasks", 
       /// Attachments
       'deleteAttachment',
       'updateAttachment',
@@ -177,12 +181,14 @@ const allRoles = {
       'getSingleLibrary',
       'getWorkspaceUsers',
       "update5W2H",
+      "getUserLibraries",
 
       // Actions
       'deleteAction',
       'updateAction',
       'getSingleAction',
       'getActions',
+      "getTasks",
       // Attachments
       'deleteAttachment',
       'updateAttachment',
@@ -210,12 +216,14 @@ const allRoles = {
       'getSingleLibrary',
       'getWorkspaceUsers',
       "update5W2H",
+      "getUserLibraries",
 
       // Actions
       'deleteAction',
       'updateAction',
       'getSingleAction',
       'getActions',
+      "getTasks",
       // Attachments
       'deleteAttachment',
       'updateAttachment',
@@ -228,6 +236,7 @@ const allRoles = {
       "getCause",
       "updateCause",
       "getCausesNames"
+
     ],
     w_admin: [
       // permissions for workspace admin for role
@@ -264,6 +273,7 @@ const allRoles = {
       'updateLibraryById',
       'getSingleLibrary',
       "update5W2H",
+      "getUserLibraries",
 
       // Actions
       'deleteAction',
@@ -271,6 +281,7 @@ const allRoles = {
       'getSingleAction',
       'getActions',
       'createAction',
+      "getTasks",
 
       // Attachments
       'deleteAttachment',
