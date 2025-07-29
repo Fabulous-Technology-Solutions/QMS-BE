@@ -38,11 +38,15 @@ const createActionBody: Record<keyof CreateActionRequest, any> = {
   docfileKey: Joi.string().messages({
     'string.base': 'DocfileKey must be a string',
   }),
+  cause: Joi.string().pattern(/^[0-9a-fA-F]{24}$/).messages({
+    'string.base': 'Cause ID must be a string',
+    'string.pattern.base': 'Cause ID must be a valid ObjectId',
+  }),
 
 };
 
 export const createAction = {
-  body: Joi.object().keys(createActionBody).fork(['name', 'description', 'library', 'startDate', 'endDate', 'type', 'priority'], (schema) => schema.required()),
+  body: Joi.object().keys(createActionBody).fork(['name', 'description', 'library', 'startDate', 'endDate', 'type', 'priority',"cause"], (schema) => schema.required()),
 };
 
 export const updateAction = {

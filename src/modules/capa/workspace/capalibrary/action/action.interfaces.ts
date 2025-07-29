@@ -14,6 +14,7 @@ export interface ActionModel extends Document {
   library: mongoose.Types.ObjectId;
   docfile?: string;
   docfileKey?: string;
+  cause?: mongoose.Types.ObjectId; // Reference to Causes
 }
 
 export interface CreateActionRequest {
@@ -29,4 +30,5 @@ export interface CreateActionRequest {
   library: string;
   docfile?: string;
   docfileKey?: string;
+  cause?: string; // Reference to Causes
 }
