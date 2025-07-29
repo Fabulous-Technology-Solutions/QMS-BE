@@ -1,5 +1,5 @@
 import mongoose, { ObjectId } from 'mongoose';
-import { CreateLibraryRequest, GetLibrariesQuery,UpdateForm5W2HRequest } from './capalibrary.interfaces';
+import { CreateLibraryRequest, GetLibrariesQuery,GetLibrariesQueryforUser,UpdateForm5W2HRequest } from './capalibrary.interfaces';
 import { LibraryModel } from './capalibrary.modal';
 import subAdmin from './../../../user/user.subAdmin';
 import { IUserDoc } from '@/modules/user/user.interfaces';
@@ -329,4 +329,65 @@ export const updateForm5W2H = async (libraryId: string, formData: UpdateForm5W2H
     throw new Error('Library not found');
   }
   return library;
+};
+
+export const getLibrariesByManager = async (managerId: string, page: number, limit: number, search: string) => {
+  const matchStage: GetLibrariesQueryforUser = {
+    managers: { $in: [new mongoose.Types.ObjectId(managerId)] },
+    isDeleted: false,
+  };
+
+  if (search) {
+    matchStage.$or = [
+      { name: { $regex: search, $options: 'i' } },
+      { description: { $regex: search, $options: 'i' } },
+    ];
+  }
+
+  const pipeline = [
+    { $match: matchStage },
+    {
+      $lookup: {
+        from: 'users',
+        localField: 'members',
+        foreignField: '_id',
+        as: 'members',
+        pipeline: [
+          { $project: { name: 1, email: 1, profilePicture: 1 } },
+        ],
+      },
+    },
+    {
+      $lookup: {
+        from: 'users',
+        localField: 'managers',
+        foreignField: '_id',
+        as: 'managers',
+        pipeline: [
+          { $project: { name: 1, email: 1, profilePicture: 1 } },
+        ],
+      },
+    },
+    { $skip: (page - 1) * limit },
+    { $limit: limit },
+  ];
+
+  const data = await LibraryModel.aggregate(pipeline);
+
+  // Get total count for pagination
+  const countPipeline = [
+    { $match: matchStage },
+    { $count: 'total' },
+  ];
+  const countResult = await LibraryModel.aggregate(countPipeline);
+  const total = countResult[0]?.total || 0;
+
+  return {
+    data,
+    total,
+    page,
+    limit,
+    success: true,
+    message: 'Libraries retrieved successfully',
+  };
 };

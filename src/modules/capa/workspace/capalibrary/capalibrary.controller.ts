@@ -1,6 +1,6 @@
 import catchAsync from './../../../utils/catchAsync';
 import { Request, Response } from 'express';
-import { CreateLibrary,getLibraryById,getLibrariesByWorkspace,updateLibrary,deleteLibrary,getLibrariesNames,removeMemberFromLibrary, getLibraryMembers, addMemberToLibrary ,updateForm5W2H} from './capalibrary.service';
+import { CreateLibrary,getLibraryById,getLibrariesByWorkspace,updateLibrary,deleteLibrary,getLibrariesNames,removeMemberFromLibrary, getLibraryMembers, addMemberToLibrary ,updateForm5W2H, getLibrariesByManager} from './capalibrary.service';
 
 
 
@@ -119,5 +119,17 @@ export const updateForm5W2HController = catchAsync(async (req: Request, res: Res
     success: true,
     data: updatedLibrary,
     message: 'Form5W2H updated successfully',
+  });
+});
+
+export const getLibrariesForUser = catchAsync(async (req: Request, res: Response) => {
+  const userId = req.user._id as string;
+  const { page = 1, limit = 10, search = '' } = req.query;
+
+  const libraries = await getLibrariesByManager(userId || "", Number(page), Number(limit), search as string);
+  res.status(200).json({
+    success: true,
+    data: libraries,
+    message: 'Libraries retrieved successfully',
   });
 });

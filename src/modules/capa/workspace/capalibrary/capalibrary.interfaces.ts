@@ -1,4 +1,4 @@
-import { Document, ObjectId } from 'mongoose';
+import mongoose, { Document, ObjectId } from 'mongoose';
 
 export interface LibraryModal extends Document {
   name: string;
@@ -61,4 +61,13 @@ export interface forIncludes {
   name: string;
   email: string;
   profilePicture: string;
+}
+
+export interface GetLibrariesQueryforUser {
+  managers: {
+    $in: mongoose.Types.ObjectId[]
+  },
+  isDeleted?: boolean;
+  $or?: [{ name: { $regex: string; $options: string } },
+    { description: { $regex: string; $options: string } }];
 }

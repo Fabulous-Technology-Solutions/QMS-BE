@@ -40,6 +40,7 @@ const allRoles = {
     'updateLibraryById',
     'getSingleLibrary',
     "update5W2H",
+    "getUserLibraries",
 
     // Actions
     'deleteAction',
@@ -62,9 +63,6 @@ const allRoles = {
     "getCause",
     "updateCause",
     "getCausesNames"
-
-
-
   ],
   subAdmin: {
     subAdmin: [
@@ -108,6 +106,7 @@ const allRoles = {
       'updateLibraryById',
       'getSingleLibrary',
       "update5W2H",
+      "getUserLibraries",
 
 
       // Actions
@@ -165,17 +164,36 @@ const allRoles = {
 
   workspaceUser: {
     view: [
+      // 'manageLibrary',
+      'deleteLibrary',
+      'updateLibrary',
+      'removeLibraryMember',
+      'addLibraryMember',
       'getLibraryMembers',
       'getWorkspaceLibraryNames',
       'getWorkspaceLibraries',
+      'createLibrary',
+      'updateLibraryById',
       'getSingleLibrary',
       'getWorkspaceUsers',
+      "update5W2H",
+
       // Actions
+      'deleteAction',
+      'updateAction',
       'getSingleAction',
       'getActions',
+      // Attachments
+      'deleteAttachment',
+      'updateAttachment',
+      'getAttachmentById',
+      'getAttachmentsByWorkspace',
+
       //Causes
       "getCauses",
+      "deleteCause",
       "getCause",
+      "updateCause",
       "getCausesNames"
     ],
     edit: [
@@ -203,7 +221,7 @@ const allRoles = {
       'updateAttachment',
       'getAttachmentById',
       'getAttachmentsByWorkspace',
-      
+
       //Causes
       "getCauses",
       "deleteCause",
