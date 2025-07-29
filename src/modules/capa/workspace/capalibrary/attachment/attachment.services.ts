@@ -16,9 +16,10 @@ export const updateAttachment = async (attachmentId: string, updateData: Partial
     if (!attachment) {
         throw new Error('Attachment not found');
     }
-    if (attachment.fileKey) {
+    if (updateData.fileKey) {
         await deleteMedia(attachment.fileKey);
     }
+    Object.assign(attachment, updateData);
     return attachment;
 };
 

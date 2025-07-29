@@ -10,11 +10,14 @@ router
 router
     .route('/libraries/:libraryId/cause/:causeId')
     .get(auth('getCause'), checkValidation, causeController.getCauseById)
-    .put(auth('updateCause'), checkValidation, validate(causeValidation.updateCausesSchema), causeController.updateCause)
+    .patch(auth('updateCause'), checkValidation, validate(causeValidation.updateCausesSchema), causeController.updateCause)
     .delete(auth('deleteCause'), checkValidation, causeController.deleteCause);
 
 router
     .route('/libraries/:libraryId/causes')
     .get(auth('getCauses'), checkValidation, causeController.getCausesByLibrary)
-    
+router
+    .route('/libraries/:libraryId/causes/names')
+    .get(auth('getCausesNames'), checkValidation, causeController.getCausesNamesByLibrary);
+
 export default router;

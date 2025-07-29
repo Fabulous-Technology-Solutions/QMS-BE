@@ -63,3 +63,11 @@ export const getCausesByLibrary = async (libraryId: string, page: number, limit:
         message: 'Causes retrieved successfully',
     };
 };
+
+export const getNamesByLibrary = async (libraryId: string) => {
+    const causes = await Causes.find({ library: libraryId, isDeleted: false }, 'name');
+    if (!causes) {
+        throw new Error('Causes not found');
+    }
+    return causes;
+}

@@ -28,3 +28,8 @@ export const getCausesByLibrary = catchAsync(async (req: Request, res: Response)
     res.status(200).json(causes);
 });
 
+export const getCausesNamesByLibrary = catchAsync(async (req: Request, res: Response) => {
+    const { libraryId } = req.params;
+    const causes = await causeService.getNamesByLibrary(libraryId as string);
+    res.status(200).json(causes);
+});

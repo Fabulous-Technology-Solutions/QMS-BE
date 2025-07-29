@@ -4,8 +4,6 @@ import { NextFunction, Request } from 'express';
 import { checkSubAdminBelongsToLibrary,checkAdminBelongsTtoLibrary, checkUserBelongsToLibrary } from './capalibrary.service';
 const checkValidation = catchAsync(async (req: Request, _: Response, next: NextFunction) => {
 
-
-  console.log('Checking action permissions.......................', req.params['libraryId'],"and", req.body.library);
   const { user } = req;
   if (user.role === 'admin') {
     await checkAdminBelongsTtoLibrary(req.params['libraryId'] || req.body.library,user._id,);

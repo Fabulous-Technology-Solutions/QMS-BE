@@ -48,12 +48,21 @@ const allRoles = {
     'getActions',
     'createAction',
 
-    /// Attachments
+    // Attachments
     'deleteAttachment',
     'updateAttachment',
     'getAttachmentById',
     'getAttachmentsByWorkspace',
     'createAttachment',
+
+    //Causes
+    "createCauses",
+    "getCauses",
+    "deleteCause",
+    "getCause",
+    "updateCause",
+    "getCausesNames"
+
 
 
   ],
@@ -107,6 +116,14 @@ const allRoles = {
       'getSingleAction',
       'getActions',
       'createAction',
+
+      //Causes
+      "createCauses",
+      "getCauses",
+      "deleteCause",
+      "getCause",
+      "updateCause",
+      "getCausesNames"
     ],
     standardUser: [
       'getSubscriptions',
@@ -135,7 +152,14 @@ const allRoles = {
       'updateAttachment',
       'getAttachmentById',
       'getAttachmentsByWorkspace',
-      'createAttachment'
+      'createAttachment',
+      //Causes
+      "createCauses",
+      "getCauses",
+      "deleteCause",
+      "getCause",
+      "updateCause",
+      "getCausesNames"
     ],
   },
 
@@ -149,6 +173,10 @@ const allRoles = {
       // Actions
       'getSingleAction',
       'getActions',
+      //Causes
+      "getCauses",
+      "getCause",
+      "getCausesNames"
     ],
     edit: [
       // 'manageLibrary',
@@ -174,7 +202,14 @@ const allRoles = {
       'deleteAttachment',
       'updateAttachment',
       'getAttachmentById',
-      'getAttachmentsByWorkspace'
+      'getAttachmentsByWorkspace',
+      
+      //Causes
+      "getCauses",
+      "deleteCause",
+      "getCause",
+      "updateCause",
+      "getCausesNames"
     ],
     w_admin: [
       // permissions for workspace admin for role
@@ -190,6 +225,7 @@ const allRoles = {
       'updateWorkspaceUser',
       'deleteWorkspaceUser',
       'getSingleWorkspaceUser',
+
       // 'manageGroups',
       'createGroup',
       'getWorkspaceGroups',
@@ -197,6 +233,7 @@ const allRoles = {
       'getSingleGroup',
       'updateGroup',
       'deleteGroup',
+
       // 'manageLibrary',
       'deleteLibrary',
       'updateLibrary',
@@ -210,19 +247,27 @@ const allRoles = {
       'getSingleLibrary',
       "update5W2H",
 
-
       // Actions
       'deleteAction',
       'updateAction',
       'getSingleAction',
       'getActions',
       'createAction',
-      /// Attachments
+
+      // Attachments
       'deleteAttachment',
       'updateAttachment',
       'getAttachmentById',
       'getAttachmentsByWorkspace',
-      'createAttachment'
+      'createAttachment',
+
+      //Causes
+      "createCauses",
+      "getCauses",
+      "deleteCause",
+      "getCause",
+      "updateCause",
+      "getCausesNames"
     ],
   },
 };
