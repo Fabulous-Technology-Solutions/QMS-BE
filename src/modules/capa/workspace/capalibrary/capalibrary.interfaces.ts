@@ -50,7 +50,7 @@ export interface CreateLibraryRequest {
 }
 
 export interface GetLibrariesQuery {
-  workspace: string;
+  workspace: mongoose.Types.ObjectId;
   isDeleted?: boolean;
   $or?: [{ name: { $regex: string; $options: string } }, { description: { $regex: string; $options: string } }];
 }
@@ -71,3 +71,21 @@ export interface GetLibrariesQueryforUser {
   $or?: [{ name: { $regex: string; $options: string } },
     { description: { $regex: string; $options: string } }];
 }
+
+export interface AdminBelongtoLibrary {
+  _id: mongoose.Types.ObjectId,
+  isDeleted: false,
+  managers?: {
+    $in: ObjectId[]
+  }
+}
+
+export interface SubAdminBelongtoLibrary {
+
+  'libraries._id': mongoose.Types.ObjectId;
+  'libraries.isDeleted': boolean;
+  'libraries.managers'?: {
+    $in: mongoose.Types.ObjectId[];
+  };
+}
+

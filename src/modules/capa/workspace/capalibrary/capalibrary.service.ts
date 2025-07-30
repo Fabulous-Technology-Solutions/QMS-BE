@@ -1,5 +1,5 @@
 import mongoose, { ObjectId } from 'mongoose';
-import { CreateLibraryRequest, GetLibrariesQuery,GetLibrariesQueryforUser,UpdateForm5W2HRequest } from './capalibrary.interfaces';
+import { AdminBelongtoLibrary, CreateLibraryRequest, GetLibrariesQuery, GetLibrariesQueryforUser, SubAdminBelongtoLibrary, UpdateForm5W2HRequest } from './capalibrary.interfaces';
 import { LibraryModel } from './capalibrary.modal';
 import subAdmin from './../../../user/user.subAdmin';
 import { IUserDoc } from '@/modules/user/user.interfaces';
@@ -21,21 +21,61 @@ export const getLibraryById = async (libraryId: string) => {
 };
 
 export const getLibrariesByWorkspace = async (workspaceId: string, page: number, limit: number, search: string) => {
-  const query: GetLibrariesQuery = { workspace: workspaceId, isDeleted: false };
-  console.log('Querying libraries with:', query, 'Page:', page, 'Limit:', limit, 'Search:', search);
+  const matchStage: GetLibrariesQuery = { workspace: new mongoose.Types.ObjectId(workspaceId), isDeleted: false };
 
   if (search) {
-    query.$or = [{ name: { $regex: search, $options: 'i' } }, { description: { $regex: search, $options: 'i' } }];
+    matchStage.$or = [
+      { name: { $regex: search, $options: 'i' } },
+      { description: { $regex: search, $options: 'i' } },
+    ];
   }
 
-  const data = await LibraryModel.find(query)
-    .skip((page - 1) * limit)
-    .limit(limit)
-    .populate('members', 'name email profilePicture')
-    .populate('managers', 'name email profilePicture');
+  const pipeline = [
+    { $match: matchStage },
+    {
+      $lookup: {
+        from: 'actions',
+        localField: '_id',
+        foreignField: 'library',
+        as: 'tasks',
+      },
+    },
+    {
+      $lookup: {
+        from: 'users',
+        localField: 'members',
+        foreignField: '_id',
+        as: 'members',
+        pipeline: [
+          { $project: { name: 1, email: 1, profilePicture: 1 } },
+        ],
+      },
+    },
+    {
+      $lookup: {
+        from: 'users',
+        localField: 'managers',
+        foreignField: '_id',
+        as: 'managers',
+        pipeline: [
+          { $project: { name: 1, email: 1, profilePicture: 1 } },
+        ],
+      },
+    },
+    { $skip: (page - 1) * limit },
+    { $limit: limit },
+  ];
 
-  const total = await LibraryModel.countDocuments(query);
-  console.log('Total libraries found:', total);
+  const data = await LibraryModel.aggregate(pipeline);
+
+  // Get total count for pagination
+  const countPipeline = [
+    { $match: matchStage },
+    { $count: 'total' },
+  ];
+  const countResult = await LibraryModel.aggregate(countPipeline);
+  const total = countResult[0]?.total || 0;
+
   return {
     data,
     total,
@@ -118,7 +158,7 @@ export const removeMemberFromLibrary = async (libraryId: string, memberId: strin
     throw new Error('Member is not in the library');
   }
 
-  library.members = library.members.filter((member:any) => member["_id"].toString() !== memberId.toString());
+  library.members = library.members.filter((member: any) => member["_id"].toString() !== memberId.toString());
 
   console.log('Member removed from library:', memberId, library);
   return await library.save();
@@ -199,9 +239,18 @@ export const getLibraryMembers = async (libraryId: string, page = 1, limit = 10,
   };
 };
 
-export const checkAdminBelongsTtoLibrary = async (libraryId: string, userId: ObjectId) => {
+export const checkAdminBelongsTtoLibrary = async (libraryId: string, userId: ObjectId, dataType?: string) => {
+
+  const Querydata: AdminBelongtoLibrary = {
+    _id: new mongoose.Types.ObjectId(libraryId),
+    isDeleted: false,
+  };
+  if (dataType === 'mydocuments') {
+    Querydata['managers'] = { $in: [userId] };
+  }
+
   const library = await LibraryModel.aggregate([
-    { $match: { _id: new mongoose.Types.ObjectId(libraryId), isDeleted: false } },
+    { $match: Querydata },
     {
       $lookup: {
         from: 'capaworkspaces',
@@ -232,7 +281,18 @@ export const checkAdminBelongsTtoLibrary = async (libraryId: string, userId: Obj
 
   return true;
 };
-export const checkSubAdminBelongsToLibrary = async (libraryId: string, userId: ObjectId) => {
+export const checkSubAdminBelongsToLibrary = async (libraryId: string, userId: mongoose.Types.ObjectId, dataType?: string) => {
+  const Querydata: SubAdminBelongtoLibrary = {
+    "libraries._id": new mongoose.Types.ObjectId(libraryId),
+    "libraries.isDeleted": false,
+
+  };
+
+  if (dataType === "mydocuments") {
+    Querydata["libraries.managers"] = { $in: [userId] }
+  }
+
+
   const library = await subAdmin.aggregate([
     { $match: { _id: userId, isDeleted: false } },
     {
@@ -277,11 +337,8 @@ export const checkSubAdminBelongsToLibrary = async (libraryId: string, userId: O
     },
     { $unwind: '$libraries' },
     {
-      $match: {
-        'libraries._id': new mongoose.Types.ObjectId(libraryId),
-        'libraries.isDeleted': false,
-      },
-    },
+      $match: Querydata
+    }
   ]);
   if (!library || library.length === 0) {
     throw new Error('Library not found');
@@ -289,13 +346,21 @@ export const checkSubAdminBelongsToLibrary = async (libraryId: string, userId: O
   return true;
 };
 
-export const checkUserBelongsToLibrary = async (libraryId: string, user: IUserDoc) => {
+export const checkUserBelongsToLibrary = async (libraryId: string, user: IUserDoc, dataType: string) => {
+  const Querydata: any = {
+
+    _id: new mongoose.Types.ObjectId(libraryId),
+    isDeleted: false,
+
+  }
+
+  if (dataType === "mydocuments") {
+    Querydata["manager"] = { $in: [user?._id] }
+  }
+
   const result = await LibraryModel.aggregate([
     {
-      $match: {
-        _id: new mongoose.Types.ObjectId(libraryId),
-        isDeleted: false,
-      },
+      $match: Querydata
     },
     {
       $lookup: {
@@ -348,6 +413,25 @@ export const getLibrariesByManager = async (managerId: string, page: number, lim
     { $match: matchStage },
     {
       $lookup: {
+        from: 'actions',
+        localField: '_id',
+        foreignField: 'library',
+        as: 'tasks',
+      },
+    },
+    {
+      $project: {
+        name: 1,
+        description: 1,
+        workspace: { name: 1, _id: 1 },
+        members: 1,
+        managers: 1,
+        Form5W2H: 1,
+        tasks: 1
+      },
+    },
+    {
+      $lookup: {
         from: 'users',
         localField: 'members',
         foreignField: '_id',
@@ -357,6 +441,7 @@ export const getLibrariesByManager = async (managerId: string, page: number, lim
         ],
       },
     },
+
     {
       $lookup: {
         from: 'users',

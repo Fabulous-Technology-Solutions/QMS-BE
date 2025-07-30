@@ -1,5 +1,5 @@
 import express, { Router } from 'express';
-import { libraryController, libraryValidationSchema } from '../../modules/capa/workspace/capalibrary';
+import { checkValidation, libraryController, libraryValidationSchema } from '../../modules/capa/workspace/capalibrary';
 import { validate } from '../../modules/validate';
 import { auth } from '../../modules/auth';
 import checkCreateRole from '../../modules/capa/workspace/mangeRole.middleware';
@@ -29,32 +29,32 @@ router.get(
 router.get(
   '/:workspaceId/:libraryId/members',
   auth('getLibraryMembers'),
-  checkCreateRole,
+  checkValidation,
   libraryController.getLibraryMembersController
 );
 router.post(
   '/:workspaceId/:libraryId/members',
   auth('addLibraryMember'),
-  checkCreateRole,
+  checkValidation,
   libraryController.addMemberToLibraryController
 ); 
 router.delete(
   '/:workspaceId/:libraryId/:memberId',
   auth('removeLibraryMember'),
-  checkCreateRole,
+  checkValidation,
   libraryController.removeMemberFromLibraryController
 );
 
-router.get('/:workspaceId/:libraryId', auth('getSingleLibrary'), checkCreateRole, libraryController.getLibrary);
+router.get('/:workspaceId/:libraryId', auth('getSingleLibrary'), checkValidation, libraryController.getLibrary);
 router.patch(
   '/:workspaceId/:libraryId',
   auth('updateLibrary'),
-  checkCreateRole,
+  checkValidation,
   validate(libraryValidationSchema.updateLibraryValidationSchema),
   libraryController.updateLibraryById
 );
-router.delete('/:workspaceId/:libraryId', auth('deleteLibrary'), checkCreateRole, libraryController.deleteLibraryById);
-router.patch('/:workspaceId/:libraryId/form5W2H', auth('update5W2H'), checkCreateRole, libraryController.updateForm5W2HController);
+router.delete('/:workspaceId/:libraryId', auth('deleteLibrary'), checkValidation, libraryController.deleteLibraryById);
+router.patch('/:workspaceId/:libraryId/form5W2H', auth('update5W2H'), checkValidation, libraryController.updateForm5W2HController);
 router.get(
   '/workspace/:workspaceId/libraries/User',
   auth('getUserLibraries'),

@@ -287,7 +287,8 @@ export const getActionsByAssignedTo = async (
         .skip((page - 1) * limit)
         .limit(limit)
         .populate('createdBy', 'name email profilePicture')
-        .populate('library', 'name description');
+        .populate('library', 'name description')
+        .populate('assignedTo', 'name email profilePicture');
 
     const total = await Action.countDocuments(filter);
 
