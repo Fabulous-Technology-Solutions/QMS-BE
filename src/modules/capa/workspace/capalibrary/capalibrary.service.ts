@@ -420,17 +420,6 @@ export const getLibrariesByManager = async (managerId: string, page: number, lim
       },
     },
     {
-      $project: {
-        name: 1,
-        description: 1,
-        workspace: { name: 1, _id: 1 },
-        members: 1,
-        managers: 1,
-        Form5W2H: 1,
-        tasks: 1
-      },
-    },
-    {
       $lookup: {
         from: 'users',
         localField: 'members',
