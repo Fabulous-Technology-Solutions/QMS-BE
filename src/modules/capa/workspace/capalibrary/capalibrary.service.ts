@@ -42,6 +42,13 @@ export const getLibrariesByWorkspace = async (workspaceId: string, page: number,
         localField: '_id',
         foreignField: 'library',
         as: 'tasks',
+        pipeline: [{ $lookup: {
+          from: 'users',
+          localField: 'assignedTo',
+          foreignField: '_id',
+          as: 'assignedTo',
+          pipeline: [{ $project: { name: 1, email: 1, profilePicture: 1 } }],
+        } } ],
       },
     },
     {

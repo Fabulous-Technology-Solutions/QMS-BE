@@ -14,6 +14,7 @@ import attachmentroute from './attachment.route';
 import { subscriptionRoutes, webhookRouter } from '../../modules/subscription';
 import config from '../../config/config';
 import causeroute from "./causes.route" 
+import checklistroute from './checklist.route';
 const router = express.Router();
 
 interface IRoute {
@@ -73,6 +74,10 @@ const defaultIRoute: IRoute[] = [
   {
     path: '/causes',
     route: causeroute,
+  },
+  {
+    path: '/checklist',
+    route: checklistroute,
   },
 ];
 

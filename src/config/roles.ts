@@ -63,7 +63,16 @@ const allRoles = {
     "deleteCause",
     "getCause",
     "updateCause",
-    "getCausesNames"
+    "getCausesNames",
+
+    // Checklist
+    "createChecklist",
+    "getChecklists",
+    "deleteChecklist",
+    "getChecklist",
+    "updateChecklist",
+    "getChecklistNames"
+
   ],
   subAdmin: {
     subAdmin: [
@@ -125,6 +134,15 @@ const allRoles = {
       "getCause",
       "updateCause",
       "getCausesNames"
+      ,
+
+    // Checklist
+    "createChecklist",
+    "getChecklists",
+    "deleteChecklist",
+    "getChecklist",
+    "updateChecklist",
+    "getChecklistNames"
     ],
     standardUser: [
       'getSubscriptions',
@@ -163,6 +181,8 @@ const allRoles = {
       "getCause",
       "updateCause",
       "getCausesNames"
+
+  
     ],
   },
 
@@ -296,7 +316,14 @@ const allRoles = {
       "deleteCause",
       "getCause",
       "updateCause",
-      "getCausesNames"
+      "getCausesNames",
+      // Checklist
+      "createChecklist",
+      "getChecklists",
+      "deleteChecklist",
+      "getChecklist",
+      "updateChecklist",
+      "getChecklistNames"
     ],
   },
 };
