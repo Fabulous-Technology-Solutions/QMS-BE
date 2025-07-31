@@ -81,7 +81,12 @@ const allRoles = {
     'updateChecklistItem',
     'getChecklistItemNames',
 
-    // Checklist History                                                                      
+    // Checklist History
+    'createChecklistHistory',
+    'getChecklistHistory',
+    'updateChecklistHistory',
+    'deleteChecklistHistory',
+    'getChecklistHistoryNames',
   ],
   subAdmin: {
     subAdmin: [
@@ -156,6 +161,13 @@ const allRoles = {
       'getChecklistItem',
       'updateChecklistItem',
       'getChecklistItemNames',
+
+      // Checklist History
+      'createChecklistHistory',
+      'getChecklistHistory',
+      'updateChecklistHistory',
+      'deleteChecklistHistory',
+      'getChecklistHistoryNames',
     ],
     standardUser: [
       'getSubscriptions',
@@ -203,6 +215,13 @@ const allRoles = {
       'getChecklistItem',
       'updateChecklistItem',
       'getChecklistItemNames',
+
+      // Checklist History
+      'createChecklistHistory',
+      'getChecklistHistory',
+      'updateChecklistHistory',
+      'deleteChecklistHistory',
+      'getChecklistHistoryNames',
     ],
   },
 
@@ -241,6 +260,13 @@ const allRoles = {
       'getCause',
       'updateCause',
       'getCausesNames',
+
+      // Checklist History
+      'createChecklistHistory',
+      'getChecklistHistory',
+      'updateChecklistHistory',
+      'deleteChecklistHistory',
+      'getChecklistHistoryNames',
     ],
     edit: [
       // 'manageLibrary',
@@ -277,6 +303,13 @@ const allRoles = {
       'updateCause',
       'getCausesNames',
       'getChecklistNames',
+
+      // Checklist History
+      'createChecklistHistory',
+      'getChecklistHistory',
+      'updateChecklistHistory',
+      'deleteChecklistHistory',
+      'getChecklistHistoryNames',
     ],
     w_admin: [
       // permissions for workspace admin for role
@@ -351,6 +384,13 @@ const allRoles = {
       'getChecklistItem',
       'updateChecklistItem',
       'getChecklistItemNames',
+
+      // Checklist History
+      'createChecklistHistory',
+      'getChecklistHistory',
+      'updateChecklistHistory',
+      'deleteChecklistHistory',
+      'getChecklistHistoryNames',
     ],
   },
 };

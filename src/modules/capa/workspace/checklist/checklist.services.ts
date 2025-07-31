@@ -32,14 +32,14 @@ const deleteCheckList = async (checklistId: string) => {
   return checklist;
 };
 
-const getCheckListByWorkspaceId = async (workspaceId: string, search: string = '', page: number, limit: number) => {
+const getCheckListByWorkspaceId = async (workspaceId: string, search: string , page: number, limit: number) => {
   const match: any = {
     workspace: new mongoose.Types.ObjectId(workspaceId),
     isDelete: false,
   };
 
   if (search) {
-    match.$or = [{ name: { $regex: search, $options: 'i' } }, { description: { $regex: search, $options: 'g' } }];
+    match.$or = [{ name: { $regex: search, $options: 'i' } }, { description: { $regex: search, $options: 'i' } }];
   }
 console.log("limit", limit);
   console.log("page", page);
