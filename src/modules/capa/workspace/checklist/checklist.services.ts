@@ -1,3 +1,4 @@
+import mongoose from 'mongoose';
 import { CreateChecklistRequest } from './checklist.interface';
 import Checklist from './checklist.modal';
 
@@ -31,16 +32,17 @@ const deleteCheckList = async (checklistId: string) => {
   return checklist;
 };
 
-const getCheckListByWorkspaceId = async (workspaceId: string, search: string = '', page: number = 1, limit: number = 10) => {
+const getCheckListByWorkspaceId = async (workspaceId: string, search: string = '', page: number, limit: number) => {
   const match: any = {
-    workspace: workspaceId,
+    workspace: new mongoose.Types.ObjectId(workspaceId),
     isDelete: false,
   };
 
   if (search) {
     match.$or = [{ name: { $regex: search, $options: 'i' } }, { description: { $regex: search, $options: 'g' } }];
   }
-
+console.log("limit", limit);
+  console.log("page", page);
   const results = await Checklist.aggregate([
     { $match: match },
     {
@@ -51,7 +53,7 @@ const getCheckListByWorkspaceId = async (workspaceId: string, search: string = '
         as: 'workspace',
       },
     },
-    { $unwind: { path: '$workspace' } },
+    { $unwind: { path: '$workspace' ,preserveNullAndEmptyArrays: true} },
     {
       $project: {
         name: 1,

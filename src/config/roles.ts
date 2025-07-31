@@ -81,7 +81,7 @@ const allRoles = {
     'updateChecklistItem',
     'getChecklistItemNames',
 
-    // Checklist History
+    // Checklist History                                                                      
   ],
   subAdmin: {
     subAdmin: [
