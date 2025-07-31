@@ -42,10 +42,20 @@ export const deleteChecklist = catchAsync(async (req: Request, res: Response) =>
   });
 });
 export const getChecklistsByWorkspaceId = catchAsync(async (req: Request, res: Response) => {
-  const checklists = await checklistService.getCheckListByWorkspaceId(req.params['workspaceId'] as string);
+  const checklists = await checklistService.getCheckListByWorkspaceId(req.params['workspaceId'] as string, req.query['search'] as string, Number(req.query["page"]), Number(req.query["limit"]));
   res.status(200).json({
     success: true,
     message: 'Checklists retrieved successfully',
     data: checklists,
+  });
+});
+
+
+export const getChecklistNames = catchAsync(async (req: Request, res: Response) => {
+  const checklistNames = await checklistService.getCheckListNamesByWorkspaceId(req.params['workspaceId'] as string);
+  res.status(200).json({
+    success: true,
+    message: 'Checklist names retrieved successfully',
+    data: checklistNames,
   });
 });

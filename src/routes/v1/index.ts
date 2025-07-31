@@ -11,6 +11,7 @@ import groupRoute from './group.route';
 import libraryroute from './library.route';
 import actionroute from './action.route';
 import attachmentroute from './attachment.route';
+import CheckListItemRoute from './checklistItem.route';
 import { subscriptionRoutes, webhookRouter } from '../../modules/subscription';
 import config from '../../config/config';
 import causeroute from "./causes.route" 
@@ -78,6 +79,10 @@ const defaultIRoute: IRoute[] = [
   {
     path: '/checklist',
     route: checklistroute,
+  },
+  {
+    path: '/checklistItem',
+    route: CheckListItemRoute,
   },
 ];
 

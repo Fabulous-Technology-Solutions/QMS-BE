@@ -39,8 +39,8 @@ const allRoles = {
     'createLibrary',
     'updateLibraryById',
     'getSingleLibrary',
-    "update5W2H",
-    "getUserLibraries",
+    'update5W2H',
+    'getUserLibraries',
 
     // Actions
     'deleteAction',
@@ -48,7 +48,7 @@ const allRoles = {
     'getSingleAction',
     'getActions',
     'createAction',
-    "getTasks",
+    'getTasks',
 
     // Attachments
     'deleteAttachment',
@@ -58,21 +58,28 @@ const allRoles = {
     'createAttachment',
 
     //Causes
-    "createCauses",
-    "getCauses",
-    "deleteCause",
-    "getCause",
-    "updateCause",
-    "getCausesNames",
+    'createCauses',
+    'getCauses',
+    'deleteCause',
+    'getCause',
+    'updateCause',
+    'getCausesNames',
 
     // Checklist
-    "createChecklist",
-    "getChecklists",
-    "deleteChecklist",
-    "getChecklist",
-    "updateChecklist",
-    "getChecklistNames"
+    'createChecklist',
+    'getChecklists',
+    'deleteChecklist',
+    'getChecklist',
+    'updateChecklist',
+    'getChecklistNames',
 
+    // Checklist Item
+    'createChecklistItem',
+    'getChecklistItems',
+    'deleteChecklistItem',
+    'getChecklistItem',
+    'updateChecklistItem',
+    'getChecklistItemNames',
   ],
   subAdmin: {
     subAdmin: [
@@ -115,9 +122,8 @@ const allRoles = {
       'createLibrary',
       'updateLibraryById',
       'getSingleLibrary',
-      "update5W2H",
-      "getUserLibraries",
-
+      'update5W2H',
+      'getUserLibraries',
 
       // Actions
       'deleteAction',
@@ -125,24 +131,29 @@ const allRoles = {
       'getSingleAction',
       'getActions',
       'createAction',
-      "getTasks",
+      'getTasks',
 
       //Causes
-      "createCauses",
-      "getCauses",
-      "deleteCause",
-      "getCause",
-      "updateCause",
-      "getCausesNames"
-      ,
-
-    // Checklist
-    "createChecklist",
-    "getChecklists",
-    "deleteChecklist",
-    "getChecklist",
-    "updateChecklist",
-    "getChecklistNames"
+      'createCauses',
+      'getCauses',
+      'deleteCause',
+      'getCause',
+      'updateCause',
+      'getCausesNames',
+      // Checklist
+      'createChecklist',
+      'getChecklists',
+      'deleteChecklist',
+      'getChecklist',
+      'updateChecklist',
+      'getChecklistNames',
+      // Checklist Item
+      'createChecklistItem',
+      'getChecklistItems',
+      'deleteChecklistItem',
+      'getChecklistItem',
+      'updateChecklistItem',
+      'getChecklistItemNames',
     ],
     standardUser: [
       'getSubscriptions',
@@ -158,8 +169,8 @@ const allRoles = {
       'getWorkspaceLibraries',
       'createLibrary',
       'updateLibraryById',
-      "update5W2H",
-      "getUserLibraries",
+      'update5W2H',
+      'getUserLibraries',
 
       // Actions
       'deleteAction',
@@ -167,7 +178,7 @@ const allRoles = {
       'getSingleAction',
       'getActions',
       'createAction',
-      "getTasks", 
+      'getTasks',
       /// Attachments
       'deleteAttachment',
       'updateAttachment',
@@ -175,14 +186,21 @@ const allRoles = {
       'getAttachmentsByWorkspace',
       'createAttachment',
       //Causes
-      "createCauses",
-      "getCauses",
-      "deleteCause",
-      "getCause",
-      "updateCause",
-      "getCausesNames"
+      'createCauses',
+      'getCauses',
+      'deleteCause',
+      'getCause',
+      'updateCause',
+      'getCausesNames',
+      'getChecklistNames',
 
-  
+      // Checklist Item
+      'createChecklistItem',
+      'getChecklistItems',
+      'deleteChecklistItem',
+      'getChecklistItem',
+      'updateChecklistItem',
+      'getChecklistItemNames',
     ],
   },
 
@@ -200,15 +218,15 @@ const allRoles = {
       'updateLibraryById',
       'getSingleLibrary',
       'getWorkspaceUsers',
-      "update5W2H",
-      "getUserLibraries",
+      'update5W2H',
+      'getUserLibraries',
 
       // Actions
       'deleteAction',
       'updateAction',
       'getSingleAction',
       'getActions',
-      "getTasks",
+      'getTasks',
       // Attachments
       'deleteAttachment',
       'updateAttachment',
@@ -216,11 +234,11 @@ const allRoles = {
       'getAttachmentsByWorkspace',
 
       //Causes
-      "getCauses",
-      "deleteCause",
-      "getCause",
-      "updateCause",
-      "getCausesNames"
+      'getCauses',
+      'deleteCause',
+      'getCause',
+      'updateCause',
+      'getCausesNames',
     ],
     edit: [
       // 'manageLibrary',
@@ -235,15 +253,15 @@ const allRoles = {
       'updateLibraryById',
       'getSingleLibrary',
       'getWorkspaceUsers',
-      "update5W2H",
-      "getUserLibraries",
+      'update5W2H',
+      'getUserLibraries',
 
       // Actions
       'deleteAction',
       'updateAction',
       'getSingleAction',
       'getActions',
-      "getTasks",
+      'getTasks',
       // Attachments
       'deleteAttachment',
       'updateAttachment',
@@ -251,12 +269,12 @@ const allRoles = {
       'getAttachmentsByWorkspace',
 
       //Causes
-      "getCauses",
-      "deleteCause",
-      "getCause",
-      "updateCause",
-      "getCausesNames"
-
+      'getCauses',
+      'deleteCause',
+      'getCause',
+      'updateCause',
+      'getCausesNames',
+      'getChecklistNames',
     ],
     w_admin: [
       // permissions for workspace admin for role
@@ -292,8 +310,8 @@ const allRoles = {
       'createLibrary',
       'updateLibraryById',
       'getSingleLibrary',
-      "update5W2H",
-      "getUserLibraries",
+      'update5W2H',
+      'getUserLibraries',
 
       // Actions
       'deleteAction',
@@ -301,7 +319,7 @@ const allRoles = {
       'getSingleAction',
       'getActions',
       'createAction',
-      "getTasks",
+      'getTasks',
 
       // Attachments
       'deleteAttachment',
@@ -311,19 +329,26 @@ const allRoles = {
       'createAttachment',
 
       //Causes
-      "createCauses",
-      "getCauses",
-      "deleteCause",
-      "getCause",
-      "updateCause",
-      "getCausesNames",
+      'createCauses',
+      'getCauses',
+      'deleteCause',
+      'getCause',
+      'updateCause',
+      'getCausesNames',
       // Checklist
-      "createChecklist",
-      "getChecklists",
-      "deleteChecklist",
-      "getChecklist",
-      "updateChecklist",
-      "getChecklistNames"
+      'createChecklist',
+      'getChecklists',
+      'deleteChecklist',
+      'getChecklist',
+      'updateChecklist',
+      'getChecklistNames',
+      // Checklist Item
+      'createChecklistItem',
+      'getChecklistItems',
+      'deleteChecklistItem',
+      'getChecklistItem',
+      'updateChecklistItem',
+      'getChecklistItemNames',
     ],
   },
 };

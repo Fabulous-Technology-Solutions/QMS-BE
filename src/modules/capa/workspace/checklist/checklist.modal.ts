@@ -11,3 +11,4 @@ const checklistSchema = new mongoose.Schema<ChecklistModal>({
 const Checklist = mongoose.model<ChecklistModal>("Checklist", checklistSchema);
 
 export default Checklist;
+        

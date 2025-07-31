@@ -6,7 +6,7 @@ const checkValidation = catchAsync(async (req: Request, _: Response, next: NextF
   const { user } = req;
   if (user.role === 'admin') {
     await checkAdminBelongsTtoLibrary(req.params['libraryId'] || req.body.library,user._id,req.headers["datatype"] as string);
-  } else if (user.role === 'subadmin') {
+  } else if (user.role === 'subadmin') {  
     await checkSubAdminBelongsToLibrary(req.params['libraryId'] || req.body.library,user._id,req.headers["datatype"] as string);
   } else if (user.role === 'workspaceUser') {
      await checkUserBelongsToLibrary(req.params['libraryId'] || req.body.library, user, req.headers["datatype"] as string);

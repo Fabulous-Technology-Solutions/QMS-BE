@@ -1,0 +1,98 @@
+{
+  "info": {
+    "name": "Checklist Item API",
+    "description": "Postman collection for Checklist Item endpoints",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Create Checklist Item",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Authorization", "value": "Bearer {{token}}" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"question\": \"Is this a test item?\",\n  \"checklist\": \"{{checklistId}}\",\n  \"workspace\": \"{{workspaceId}}\",\n  \"evidence\": \"http://example.com/image.jpg\",\n  \"evidenceKey\": \"image.jpg\",\n  \"comment\": \"Looks good\"\n}",
+          "options": { "raw": { "language": "json" } }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/checklistItem",
+          "host": ["{{baseUrl}}"],
+          "path": ["checklistItem"]
+        }
+      }
+    },
+    {
+      "name": "Get Checklist Item by ID",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token}}" }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/checklistItem/workspace/{{workspaceId}}/items/{{itemId}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["checklistItem", "workspace", "{{workspaceId}}", "items", "{{itemId}}"]
+        }
+      }
+    },
+    {
+      "name": "Update Checklist Item",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Authorization", "value": "Bearer {{token}}" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"comment\": \"Updated comment\"\n}",
+          "options": { "raw": { "language": "json" } }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/checklistItem/workspace/{{workspaceId}}/items/{{itemId}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["checklistItem", "workspace", "{{workspaceId}}", "items", "{{itemId}}"]
+        }
+      }
+    },
+    {
+      "name": "Delete Checklist Item",
+      "request": {
+        "method": "DELETE",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token}}" }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/checklistItem/workspace/{{workspaceId}}/items/{{itemId}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["checklistItem", "workspace", "{{workspaceId}}", "items", "{{itemId}}"]
+        }
+      }
+    },
+    {
+      "name": "Get Items by Checklist",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token}}" }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/checklistItem/workspace/{{workspaceId}}/checklist/{{checklistId}}/items",
+          "host": ["{{baseUrl}}"],
+          "path": ["checklistItem", "workspace", "{{workspaceId}}", "checklist", "{{checklistId}}", "items"]
+        }
+      }
+    }
+  ],
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:3000/v1" },
+    { "key": "token", "value": "<your_jwt_token>" },
+    { "key": "workspaceId", "value": "<workspace_id>" },
+    { "key": "checklistId", "value": "<checklist_id>" },
+    { "key": "itemId", "value": "<item_id>" }
+  ]
+}
