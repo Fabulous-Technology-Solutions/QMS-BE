@@ -16,6 +16,7 @@ import { subscriptionRoutes, webhookRouter } from '../../modules/subscription';
 import config from '../../config/config';
 import causeroute from "./causes.route" 
 import checklistroute from './checklist.route';
+import checklisthistoryRoute from './checklisthistory.route';
 const router = express.Router();
 
 interface IRoute {
@@ -83,6 +84,10 @@ const defaultIRoute: IRoute[] = [
   {
     path: '/checklistItem',
     route: CheckListItemRoute,
+  },
+  {
+    path: '/checklisthistory',
+    route: checklisthistoryRoute,
   },
 ];
 

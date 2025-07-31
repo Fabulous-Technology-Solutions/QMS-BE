@@ -80,6 +80,8 @@ const allRoles = {
     'getChecklistItem',
     'updateChecklistItem',
     'getChecklistItemNames',
+
+    // Checklist History
   ],
   subAdmin: {
     subAdmin: [

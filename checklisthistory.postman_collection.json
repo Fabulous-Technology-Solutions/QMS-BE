@@ -1,0 +1,105 @@
+{
+  "info": {
+    "name": "Checklist History API",
+    "description": "Postman collection for Checklist History endpoints",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Create Checklist History",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Authorization", "value": "Bearer {{token}}" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"checklistId\": \"{{checklistId}}\",\n  \"library\": \"{{libraryId}}\",\n  \"comment\": \"Reviewed checklist results\",\n  \"list\": [\n    {\n      \"item\": \"{{itemId}}\",\n      \"yes\": true,\n      \"no\": false,\n      \"partial\": false\n    }\n  ]\n}",
+          "options": { "raw": { "language": "json" } }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/checklisthistory",
+          "host": ["{{baseUrl}}"],
+          "path": ["checklisthistory"]
+        }
+      }
+    },
+    {
+      "name": "Get Checklist History by ID",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token}}" }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/checklisthistory/{{historyId}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["checklisthistory", "{{historyId}}"]
+        }
+      }
+    },
+    {
+      "name": "Get Histories by Library",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token}}" }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/checklisthistory/library/{{libraryId}}?page={{page}}&limit={{limit}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["checklisthistory", "library", "{{libraryId}}"],
+          "query": [
+            { "key": "page", "value": "{{page}}" },
+            { "key": "limit", "value": "{{limit}}" }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Update Checklist History",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Authorization", "value": "Bearer {{token}}" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"comment\": \"Updated comment text\"\n}",
+          "options": { "raw": { "language": "json" } }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/checklisthistory/{{historyId}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["checklisthistory", "{{historyId}}"]
+        }
+      }
+    },
+    {
+      "name": "Delete Checklist History",
+      "request": {
+        "method": "DELETE",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token}}" }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/checklisthistory/{{historyId}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["checklisthistory", "{{historyId}}"]
+        }
+      }
+    }
+  ],
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:3000/v1" },
+    { "key": "token", "value": "<your_jwt_token>" },
+    { "key": "checklistId", "value": "<checklist_id>" },
+    { "key": "libraryId", "value": "<library_id>" },
+    { "key": "itemId", "value": "<item_id>" },
+    { "key": "historyId", "value": "<history_id>" },
+    { "key": "page", "value": "1" },
+    { "key": "limit", "value": "10" }
+  ]
+}
