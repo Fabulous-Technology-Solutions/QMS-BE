@@ -17,7 +17,7 @@ const checkCreateRole = catchAsync(async (req: Request, _: Response, next: NextF
       throw new Error('Unauthorized role for performing this action');
     }
     const findworkspace = await CapaworkspaceModel.findOne({
-      _id: req.params['workspaceId'] || req.body.workspace,
+      _id: req.params['workspaceId'] || req.body.workspace,               
       isDeleted: false,
     });
     if (!findworkspace) {

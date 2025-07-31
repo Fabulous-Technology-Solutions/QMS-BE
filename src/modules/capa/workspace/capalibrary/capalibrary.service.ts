@@ -1,5 +1,12 @@
 import mongoose, { ObjectId } from 'mongoose';
-import { AdminBelongtoLibrary, CreateLibraryRequest, GetLibrariesQuery, GetLibrariesQueryforUser, SubAdminBelongtoLibrary, UpdateForm5W2HRequest } from './capalibrary.interfaces';
+import {
+  AdminBelongtoLibrary,
+  CreateLibraryRequest,
+  GetLibrariesQuery,
+  GetLibrariesQueryforUser,
+  SubAdminBelongtoLibrary,
+  UpdateForm5W2HRequest,
+} from './capalibrary.interfaces';
 import { LibraryModel } from './capalibrary.modal';
 import subAdmin from './../../../user/user.subAdmin';
 import { IUserDoc } from '@/modules/user/user.interfaces';
@@ -24,10 +31,7 @@ export const getLibrariesByWorkspace = async (workspaceId: string, page: number,
   const matchStage: GetLibrariesQuery = { workspace: new mongoose.Types.ObjectId(workspaceId), isDeleted: false };
 
   if (search) {
-    matchStage.$or = [
-      { name: { $regex: search, $options: 'i' } },
-      { description: { $regex: search, $options: 'i' } },
-    ];
+    matchStage.$or = [{ name: { $regex: search, $options: 'i' } }, { description: { $regex: search, $options: 'i' } }];
   }
 
   const pipeline = [
@@ -46,9 +50,7 @@ export const getLibrariesByWorkspace = async (workspaceId: string, page: number,
         localField: 'members',
         foreignField: '_id',
         as: 'members',
-        pipeline: [
-          { $project: { name: 1, email: 1, profilePicture: 1 } },
-        ],
+        pipeline: [{ $project: { name: 1, email: 1, profilePicture: 1 } }],
       },
     },
     {
@@ -57,9 +59,7 @@ export const getLibrariesByWorkspace = async (workspaceId: string, page: number,
         localField: 'managers',
         foreignField: '_id',
         as: 'managers',
-        pipeline: [
-          { $project: { name: 1, email: 1, profilePicture: 1 } },
-        ],
+        pipeline: [{ $project: { name: 1, email: 1, profilePicture: 1 } }],
       },
     },
     { $skip: (page - 1) * limit },
@@ -69,10 +69,7 @@ export const getLibrariesByWorkspace = async (workspaceId: string, page: number,
   const data = await LibraryModel.aggregate(pipeline);
 
   // Get total count for pagination
-  const countPipeline = [
-    { $match: matchStage },
-    { $count: 'total' },
-  ];
+  const countPipeline = [{ $match: matchStage }, { $count: 'total' }];
   const countResult = await LibraryModel.aggregate(countPipeline);
   const total = countResult[0]?.total || 0;
 
@@ -158,7 +155,7 @@ export const removeMemberFromLibrary = async (libraryId: string, memberId: strin
     throw new Error('Member is not in the library');
   }
 
-  library.members = library.members.filter((member: any) => member["_id"].toString() !== memberId.toString());
+  library.members = library.members.filter((member: any) => member['_id'].toString() !== memberId.toString());
 
   console.log('Member removed from library:', memberId, library);
   return await library.save();
@@ -240,7 +237,6 @@ export const getLibraryMembers = async (libraryId: string, page = 1, limit = 10,
 };
 
 export const checkAdminBelongsTtoLibrary = async (libraryId: string, userId: ObjectId, dataType?: string) => {
-
   const Querydata: AdminBelongtoLibrary = {
     _id: new mongoose.Types.ObjectId(libraryId),
     isDeleted: false,
@@ -281,17 +277,19 @@ export const checkAdminBelongsTtoLibrary = async (libraryId: string, userId: Obj
 
   return true;
 };
-export const checkSubAdminBelongsToLibrary = async (libraryId: string, userId: mongoose.Types.ObjectId, dataType?: string) => {
+export const checkSubAdminBelongsToLibrary = async (
+  libraryId: string,
+  userId: mongoose.Types.ObjectId,
+  dataType?: string
+) => {
   const Querydata: SubAdminBelongtoLibrary = {
-    "libraries._id": new mongoose.Types.ObjectId(libraryId),
-    "libraries.isDeleted": false,
-
+    'libraries._id': new mongoose.Types.ObjectId(libraryId),
+    'libraries.isDeleted': false,
   };
 
-  if (dataType === "mydocuments") {
-    Querydata["libraries.managers"] = { $in: [userId] }
+  if (dataType === 'mydocuments') {
+    Querydata['libraries.managers'] = { $in: [userId] };
   }
-
 
   const library = await subAdmin.aggregate([
     { $match: { _id: userId, isDeleted: false } },
@@ -337,8 +335,8 @@ export const checkSubAdminBelongsToLibrary = async (libraryId: string, userId: m
     },
     { $unwind: '$libraries' },
     {
-      $match: Querydata
-    }
+      $match: Querydata,
+    },
   ]);
   if (!library || library.length === 0) {
     throw new Error('Library not found');
@@ -348,19 +346,17 @@ export const checkSubAdminBelongsToLibrary = async (libraryId: string, userId: m
 
 export const checkUserBelongsToLibrary = async (libraryId: string, user: IUserDoc, dataType: string) => {
   const Querydata: any = {
-
     _id: new mongoose.Types.ObjectId(libraryId),
     isDeleted: false,
+  };
 
-  }
-
-  if (dataType === "mydocuments") {
-    Querydata["manager"] = { $in: [user?._id] }
+  if (dataType === 'mydocuments') {
+    Querydata['manager'] = { $in: [user?._id] };
   }
 
   const result = await LibraryModel.aggregate([
     {
-      $match: Querydata
+      $match: Querydata,
     },
     {
       $lookup: {
@@ -383,7 +379,6 @@ export const checkUserBelongsToLibrary = async (libraryId: string, user: IUserDo
   return true;
 };
 
-
 export const updateForm5W2H = async (libraryId: string, formData: UpdateForm5W2HRequest) => {
   const library = await LibraryModel.findOneAndUpdate(
     { _id: libraryId, isDeleted: false },
@@ -403,10 +398,7 @@ export const getLibrariesByManager = async (managerId: string, page: number, lim
   };
 
   if (search) {
-    matchStage.$or = [
-      { name: { $regex: search, $options: 'i' } },
-      { description: { $regex: search, $options: 'i' } },
-    ];
+    matchStage.$or = [{ name: { $regex: search, $options: 'i' } }, { description: { $regex: search, $options: 'i' } }];
   }
 
   const pipeline = [
@@ -417,6 +409,17 @@ export const getLibrariesByManager = async (managerId: string, page: number, lim
         localField: '_id',
         foreignField: 'library',
         as: 'tasks',
+        pipeline: [
+          {
+            $lookup: {
+              from: 'users',
+              localField: 'assignedTo',
+              foreignField: '_id',
+              as: 'assignedTo',
+              pipeline: [{ $project: { name: 1, email: 1, profilePicture: 1 } }],
+            },
+          },
+        ],
       },
     },
     {
@@ -425,9 +428,7 @@ export const getLibrariesByManager = async (managerId: string, page: number, lim
         localField: 'members',
         foreignField: '_id',
         as: 'members',
-        pipeline: [
-          { $project: { name: 1, email: 1, profilePicture: 1 } },
-        ],
+        pipeline: [{ $project: { name: 1, email: 1, profilePicture: 1 } }],
       },
     },
 
@@ -437,9 +438,7 @@ export const getLibrariesByManager = async (managerId: string, page: number, lim
         localField: 'managers',
         foreignField: '_id',
         as: 'managers',
-        pipeline: [
-          { $project: { name: 1, email: 1, profilePicture: 1 } },
-        ],
+        pipeline: [{ $project: { name: 1, email: 1, profilePicture: 1 } }],
       },
     },
     { $skip: (page - 1) * limit },
@@ -449,10 +448,7 @@ export const getLibrariesByManager = async (managerId: string, page: number, lim
   const data = await LibraryModel.aggregate(pipeline);
 
   // Get total count for pagination
-  const countPipeline = [
-    { $match: matchStage },
-    { $count: 'total' },
-  ];
+  const countPipeline = [{ $match: matchStage }, { $count: 'total' }];
   const countResult = await LibraryModel.aggregate(countPipeline);
   const total = countResult[0]?.total || 0;
 

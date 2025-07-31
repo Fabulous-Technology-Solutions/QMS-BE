@@ -10,7 +10,7 @@ router.post(
   '/',
   auth('createRole'),
   checkCreateRole,
-  validate(RoleValidation.createRole),
+  validate(RoleValidation.createRole),                                                                                    
   RoleController.createRoleController
 ); 
 router.get('/workspace/:workspaceId', auth('createRole'),  checkCreateRole, RoleController.getWorkspaceRolesController);
