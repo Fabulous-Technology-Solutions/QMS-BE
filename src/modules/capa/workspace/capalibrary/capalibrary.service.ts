@@ -27,7 +27,13 @@ export const getLibraryById = async (libraryId: string) => {
   return data;
 };
 
-export const getLibrariesByWorkspace = async (workspaceId: string, page: number, limit: number, search: string, isDeleted: boolean) => {
+export const getLibrariesByWorkspace = async (
+  workspaceId: string,
+  page: number,
+  limit: number,
+  search: string,
+  isDeleted: boolean
+) => {
   const matchStage: GetLibrariesQuery = { workspace: new mongoose.Types.ObjectId(workspaceId), isDeleted };
   console.log('Match stage:', matchStage);
 
@@ -59,6 +65,16 @@ export const getLibrariesByWorkspace = async (workspaceId: string, page: number,
     {
       $lookup: {
         from: 'users',
+        localField: 'deletedBy',
+        foreignField: '_id',
+        as: 'deletedBy',
+        pipeline: [{ $project: { name: 1, email: 1, profilePicture: 1 } }],
+      },
+    },
+    { $unwind: { path: '$deletedBy', preserveNullAndEmptyArrays: true } },
+    {
+      $lookup: {
+        from: 'users',
         localField: 'members',
         foreignField: '_id',
         as: 'members',
@@ -73,26 +89,6 @@ export const getLibrariesByWorkspace = async (workspaceId: string, page: number,
         as: 'managers',
         pipeline: [{ $project: { name: 1, email: 1, profilePicture: 1 } }],
       },
-    },
-    {
-      $lookup: {
-        from: 'users',
-        localField: 'deletedBy',
-        foreignField: '_id',
-        as: 'deletedBy',
-        pipeline: [{ $project: { name: 1, email: 1, profilePicture: 1 } }],
-      },
-    },
-    { $unwind: { path: '$deletedBy', preserveNullAndEmptyArrays: true } },
-    {
-      $lookup: {
-        from: 'modules',
-        localField: 'workspace.moduleId',
-        foreignField: '_id',
-        as: 'module',
-      },
-    },
-    { $unwind: '$module'
     },
     { $skip: (page - 1) * limit },
     { $limit: limit },
@@ -131,8 +127,7 @@ export const getLibrariesfilterData = async (workspaceId: string, page: number, 
   }
 
   const pipeline = [
-    { $match: { ...matchStage, 
-      updatedAt: { $lte: cutoffDate } } },
+    { $match: { ...matchStage, updatedAt: { $lte: cutoffDate } } },
     {
       $lookup: {
         from: 'actions',
@@ -177,7 +172,7 @@ export const getLibrariesfilterData = async (workspaceId: string, page: number, 
   const data = await LibraryModel.aggregate(pipeline);
 
   // Get total count for pagination
-  const countPipeline = [ { $match: { ...matchStage, updatedAt: { $lte: cutoffDate } } }, { $count: 'total' }];
+  const countPipeline = [{ $match: { ...matchStage, updatedAt: { $lte: cutoffDate } } }, { $count: 'total' }];
   const countResult = await LibraryModel.aggregate(countPipeline);
   const total = countResult[0]?.total || 0;
 
@@ -379,7 +374,7 @@ export const checkAdminBelongsTtoLibrary = async (libraryId: string, userId: Obj
       },
     },
   ]);
-  console.log('Admin belongs to library:', library,Querydata);
+  console.log('Admin belongs to library:', library, Querydata);
   if (!library || library.length === 0) {
     throw new Error('Library not found');
   }
@@ -571,19 +566,18 @@ export const getLibrariesByManager = async (managerId: string, page: number, lim
   };
 };
 
-
 export const restoreLibrary = async (libraryId: string) => {
   console.log('Restoring library with ID:', libraryId);
   const library = await LibraryModel.findOneAndUpdate(
     { _id: libraryId, isDeleted: true },
-    { isDeleted: false , deletedBy: null, deletedAt: null },
+    { isDeleted: false, deletedBy: null, deletedAt: null },
     { new: true }
   );
   if (!library) {
     throw new Error('Library not found');
   }
   return library;
-}
+};
 
 export const deletePermanent = async (libraryId: string) => {
   console.log('Permanently deleting library with ID:', libraryId);
