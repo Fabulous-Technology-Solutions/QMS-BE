@@ -74,6 +74,26 @@ export const getLibrariesByWorkspace = async (workspaceId: string, page: number,
         pipeline: [{ $project: { name: 1, email: 1, profilePicture: 1 } }],
       },
     },
+    {
+      $lookup: {
+        from: 'users',
+        localField: 'deletedBy',
+        foreignField: '_id',
+        as: 'deletedBy',
+        pipeline: [{ $project: { name: 1, email: 1, profilePicture: 1 } }],
+      },
+    },
+    { $unwind: '$deletedBy', preserveNullAndEmptyArrays: true },
+    {
+      $lookup: {
+        from: 'modules',
+        localField: 'workspace.moduleId',
+        foreignField: '_id',
+        as: 'module',
+      },
+    },
+    { $unwind: '$module'
+    },
     { $skip: (page - 1) * limit },
     { $limit: limit },
   ];
@@ -556,7 +576,7 @@ export const restoreLibrary = async (libraryId: string) => {
   console.log('Restoring library with ID:', libraryId);
   const library = await LibraryModel.findOneAndUpdate(
     { _id: libraryId, isDeleted: true },
-    { isDeleted: false },
+    { isDeleted: false , deletedBy: null, deletedAt: null },
     { new: true }
   );
   if (!library) {
