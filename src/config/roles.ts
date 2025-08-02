@@ -41,6 +41,8 @@ const allRoles = {
     'getSingleLibrary',
     'update5W2H',
     'getUserLibraries',
+    'restoreLibrary',
+    "deletePermanentLibrary",
 
     // Actions
     'deleteAction',
@@ -132,6 +134,8 @@ const allRoles = {
       'getSingleLibrary',
       'update5W2H',
       'getUserLibraries',
+      'restoreLibrary',
+      "deletePermanentLibrary",
 
       // Actions
       'deleteAction',
@@ -352,6 +356,8 @@ const allRoles = {
       'getSingleLibrary',
       'update5W2H',
       'getUserLibraries',
+      'restoreLibrary',
+      "deletePermanentLibrary",
 
       // Actions
       'deleteAction',

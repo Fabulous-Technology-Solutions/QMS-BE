@@ -10,7 +10,7 @@ const verifyCallback =
   (req: Request, resolve: any, reject: any, requiredRights: string[]) =>
     async (err: Error, user: IUserDoc, info: string) => {
       console.log('Authentication attempt:', req.headers.authorization);
-      if (req.headers["datatype"] && req.headers["datatype"] === "mydocuments") {
+      if (req.headers["datatype"] && (req.headers["datatype"] === "mydocuments" || req.headers["datatype"] === "mytasks")) {
         resolve();
         return;
       }

@@ -5,6 +5,9 @@ import { NextFunction, Request, Response } from "express";
 import catchAsync from "../../utils/catchAsync";
 import AppiError from "../../errors/ApiError"
 
+import { getActionsByWorkspace } from "./capalibrary/action/action.service";
+import { getLibrariesfilterData } from "./capalibrary/capalibrary.service";
+
 
 export const createCapaworkspaceController = catchAsync(async (req: Request, res: Response) => {
   const workspace = await workspaceService.createCapaworkspace({...req.body, user: req.user});
@@ -67,4 +70,40 @@ export const deleteCapaworkspaceController = catchAsync(async (req: Request, res
     success: true,
     message: "Workspace deleted successfully",
   });
+});
+
+
+export const getCapaworkspaceAnalyticsController = catchAsync(async (req: Request, res: Response) => {
+  const analytics = await workspaceService.dashboardAnalytics(req.params["workspaceId"] as string);
+  return res.status(httpStatus.OK).send({
+    success: true,
+    data: analytics,
+  });
+});
+export const AttentionController = catchAsync(async (req: Request, res: Response) => {
+  const { page = 1, limit = 10, search = '', filterData } = req.query;
+
+  if (!filterData) {
+    throw new AppiError('Filter data is required', httpStatus.BAD_REQUEST);
+  }
+  console.log('Filter data:', filterData);
+  if (filterData === 'action') {
+    const actions = await getActionsByWorkspace(
+      req.params['workspaceId'] as string,
+      Number(page),
+      Number(limit),
+      search as string
+    );
+    res.status(200).json(actions);
+  } else if (filterData === 'library') {
+    const libraries = await getLibrariesfilterData(
+      req.params['workspaceId'] as string,
+      Number(page),
+      Number(limit),
+      search as string
+    );
+    res.status(200).json(libraries);
+  } else {
+    throw new AppiError('Invalid filter data', httpStatus.BAD_REQUEST);
+  }
 });

@@ -1,6 +1,14 @@
 import mongoose from 'mongoose';
-import { CreateCapaworkspaceRequest, CreateCapaworkspaceServiceFunction, getworkspacesofuserRequest, IMAP, IqueryofGetworkspaces } from './workspace.interfaces';
+import {
+  CreateCapaworkspaceRequest,
+  CreateCapaworkspaceServiceFunction,
+  getworkspacesofuserRequest,
+  IMAP,
+  IqueryofGetworkspaces,
+} from './workspace.interfaces';
 import CapaworkspaceModel from './workspace.modal';
+import { LibraryModel } from './capalibrary/capalibrary.modal';
+import Action from './capalibrary/action/action.modal';
 
 export const createCapaworkspace = async (data: CreateCapaworkspaceServiceFunction) => {
   const { moduleId, name, imageUrl, imagekey, description, user } = data;
@@ -9,9 +17,9 @@ export const createCapaworkspace = async (data: CreateCapaworkspaceServiceFuncti
     moduleId,
     name,
     imageUrl,
-    imagekey,     
+    imagekey,
     description,
-    createdBy: user._id,  
+    createdBy: user._id,
   });
   if (user.role !== 'admin') {
     (user.adminOF as IMAP[] | undefined)?.forEach((admin: IMAP) => {
@@ -94,3 +102,71 @@ export const deleteCapaworkspace = async (workspaceId: string) => {
     { new: true }
   );
 };
+
+export const dashboardAnalytics = async (workspaceId: string) => {
+  const result = await LibraryModel.aggregate([   
+    {
+      $match: {
+        workspace: new mongoose.Types.ObjectId(workspaceId),
+        isDeleted: false,
+        status: { $in: ['pending', 'completed', 'in-progress'] },
+      },
+    },
+    {
+      $group: {
+        _id: '$status',
+        count: { $sum: 1 },
+      },
+    },
+  ]);
+
+
+
+  // First, get all library IDs for the workspace
+  const libraries = await LibraryModel.find({
+    workspace: new mongoose.Types.ObjectId(workspaceId),
+    isDeleted: false,
+  }).select('_id');
+
+  const libraryIds = libraries.map((lib) => lib._id);
+
+  // Now, aggregate actions by libraryId
+  const actionresult = await Action.aggregate([
+    {
+      $match: {
+        library: { $in: libraryIds },
+        isDeleted: false,
+        status: { $in: ['pending', 'completed', 'in-progress', 'on-hold'] },
+      },
+    },
+    {
+      $group: {
+        _id: '$status',
+        count: { $sum: 1 },
+      },
+    },
+  ]);
+
+  const actionAnalytics = { pending: 0, complete: 0, inProgress: 0, onHold: 0, total: 0 };
+  actionresult.forEach((item) => {
+    if (item._id === 'pending') actionAnalytics.pending = item.count;
+    if (item._id === 'completed') actionAnalytics.complete = item.count;
+    if (item._id === 'in-progress') actionAnalytics.inProgress = item.count;
+    if (item._id === 'on-hold') actionAnalytics.onHold = item.count;
+    actionAnalytics.total += item.count;
+  });
+
+  const analytics = { pending: 0, complete: 0, inProgress: 0, total: 0 };
+  result.forEach((item) => {
+    if (item._id === 'pending') analytics.pending = item.count;
+    if (item._id === 'complete') analytics.complete = item.count;
+    if (item._id === 'in-progress') analytics.inProgress = item.count;
+    analytics.total += item.count;
+  });
+
+  return {
+    libraryAnalytics: analytics,
+    actionAnalytics: actionAnalytics,
+  };
+};
+

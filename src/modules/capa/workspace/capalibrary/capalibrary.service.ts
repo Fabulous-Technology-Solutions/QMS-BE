@@ -27,8 +27,9 @@ export const getLibraryById = async (libraryId: string) => {
   return data;
 };
 
-export const getLibrariesByWorkspace = async (workspaceId: string, page: number, limit: number, search: string) => {
-  const matchStage: GetLibrariesQuery = { workspace: new mongoose.Types.ObjectId(workspaceId), isDeleted: false };
+export const getLibrariesByWorkspace = async (workspaceId: string, page: number, limit: number, search: string, isDeleted: boolean) => {
+  const matchStage: GetLibrariesQuery = { workspace: new mongoose.Types.ObjectId(workspaceId), isDeleted };
+  console.log('Match stage:', matchStage);
 
   if (search) {
     matchStage.$or = [{ name: { $regex: search, $options: 'i' } }, { description: { $regex: search, $options: 'i' } }];
@@ -42,13 +43,17 @@ export const getLibrariesByWorkspace = async (workspaceId: string, page: number,
         localField: '_id',
         foreignField: 'library',
         as: 'tasks',
-        pipeline: [{ $lookup: {
-          from: 'users',
-          localField: 'assignedTo',
-          foreignField: '_id',
-          as: 'assignedTo',
-          pipeline: [{ $project: { name: 1, email: 1, profilePicture: 1 } }],
-        } } ],
+        pipeline: [
+          {
+            $lookup: {
+              from: 'users',
+              localField: 'assignedTo',
+              foreignField: '_id',
+              as: 'assignedTo',
+              pipeline: [{ $project: { name: 1, email: 1, profilePicture: 1 } }],
+            },
+          },
+        ],
       },
     },
     {
@@ -90,6 +95,82 @@ export const getLibrariesByWorkspace = async (workspaceId: string, page: number,
   };
 };
 
+export const getLibrariesfilterData = async (workspaceId: string, page: number, limit: number, search: string) => {
+  const matchStage: GetLibrariesQuery = {
+    workspace: new mongoose.Types.ObjectId(workspaceId),
+    isDeleted: false,
+    status: 'pending',
+  };
+
+  const days = 30;
+  const cutoffDate = new Date();
+  cutoffDate.setDate(cutoffDate.getDate() - days);
+
+  if (search) {
+    matchStage.$or = [{ name: { $regex: search, $options: 'i' } }, { description: { $regex: search, $options: 'i' } }];
+  }
+
+  const pipeline = [
+    { $match: { ...matchStage, 
+      updatedAt: { $lte: cutoffDate } } },
+    {
+      $lookup: {
+        from: 'actions',
+        localField: '_id',
+        foreignField: 'library',
+        as: 'tasks',
+        pipeline: [
+          {
+            $lookup: {
+              from: 'users',
+              localField: 'assignedTo',
+              foreignField: '_id',
+              as: 'assignedTo',
+              pipeline: [{ $project: { name: 1, email: 1, profilePicture: 1 } }],
+            },
+          },
+        ],
+      },
+    },
+    {
+      $lookup: {
+        from: 'users',
+        localField: 'members',
+        foreignField: '_id',
+        as: 'members',
+        pipeline: [{ $project: { name: 1, email: 1, profilePicture: 1 } }],
+      },
+    },
+    {
+      $lookup: {
+        from: 'users',
+        localField: 'managers',
+        foreignField: '_id',
+        as: 'managers',
+        pipeline: [{ $project: { name: 1, email: 1, profilePicture: 1 } }],
+      },
+    },
+    { $skip: (page - 1) * limit },
+    { $limit: limit },
+  ];
+
+  const data = await LibraryModel.aggregate(pipeline);
+
+  // Get total count for pagination
+  const countPipeline = [ { $match: { ...matchStage, updatedAt: { $lte: cutoffDate } } }, { $count: 'total' }];
+  const countResult = await LibraryModel.aggregate(countPipeline);
+  const total = countResult[0]?.total || 0;
+
+  return {
+    data,
+    total,
+    page,
+    limit,
+    success: true,
+    message: 'Libraries retrieved successfully',
+  };
+};
+
 export const updateLibrary = async (libraryId: string, updateData: Partial<CreateLibraryRequest>) => {
   const library = await LibraryModel.findOneAndUpdate({ _id: libraryId, isDeleted: false }, updateData, { new: true })
     .populate('members', 'name email profilePicture')
@@ -99,10 +180,10 @@ export const updateLibrary = async (libraryId: string, updateData: Partial<Creat
   }
 };
 
-export const deleteLibrary = async (libraryId: string) => {
+export const deleteLibrary = async (libraryId: string, userId: string) => {
   const library = await LibraryModel.findOneAndUpdate(
     { _id: libraryId, isDeleted: false },
-    { isDeleted: true },
+    { isDeleted: true, deletedBy: userId, deletedAt: new Date() },
     { new: true }
   );
   if (!library) {
@@ -278,6 +359,7 @@ export const checkAdminBelongsTtoLibrary = async (libraryId: string, userId: Obj
       },
     },
   ]);
+  console.log('Admin belongs to library:', library,Querydata);
   if (!library || library.length === 0) {
     throw new Error('Library not found');
   }
@@ -467,4 +549,27 @@ export const getLibrariesByManager = async (managerId: string, page: number, lim
     success: true,
     message: 'Libraries retrieved successfully',
   };
+};
+
+
+export const restoreLibrary = async (libraryId: string) => {
+  console.log('Restoring library with ID:', libraryId);
+  const library = await LibraryModel.findOneAndUpdate(
+    { _id: libraryId, isDeleted: true },
+    { isDeleted: false },
+    { new: true }
+  );
+  if (!library) {
+    throw new Error('Library not found');
+  }
+  return library;
+}
+
+export const deletePermanent = async (libraryId: string) => {
+  console.log('Permanently deleting library with ID:', libraryId);
+  const library = await LibraryModel.findOneAndDelete({ _id: libraryId });
+  if (!library) {
+    throw new Error('Library not found');
+  }
+  return library;
 };

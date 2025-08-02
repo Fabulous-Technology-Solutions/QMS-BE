@@ -1,11 +1,23 @@
 import catchAsync from './../../../utils/catchAsync';
 import { Request, Response } from 'express';
-import { CreateLibrary,getLibraryById,getLibrariesByWorkspace,updateLibrary,deleteLibrary,getLibrariesNames,removeMemberFromLibrary, getLibraryMembers, addMemberToLibrary ,updateForm5W2H, getLibrariesByManager} from './capalibrary.service';
-
-
+import {
+  CreateLibrary,
+  getLibraryById,
+  getLibrariesByWorkspace,
+  updateLibrary,
+  deleteLibrary,
+  getLibrariesNames,
+  removeMemberFromLibrary,
+  getLibraryMembers,
+  addMemberToLibrary,
+  updateForm5W2H,
+  getLibrariesByManager,
+  restoreLibrary,
+  deletePermanent,
+} from './capalibrary.service';
 
 export const createLibrary = catchAsync(async (req: Request, res: Response) => {
-  const library = await CreateLibrary({...req.body,createdBy: req.user._id});
+  const library = await CreateLibrary({ ...req.body, createdBy: req.user._id });
   res.status(201).json({
     success: true,
     message: 'Library created successfully',
@@ -13,19 +25,17 @@ export const createLibrary = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
-
 export const updateLibraryById = catchAsync(async (req: Request, res: Response) => {
-  const library = await updateLibrary(req.params["libraryId"] as string, req.body);
+  const library = await updateLibrary(req.params['libraryId'] as string, req.body);
   res.status(200).json({
     success: true,
     message: 'Library updated successfully',
     data: library,
   });
-})
+});
 
-
-export const   getLibrary = catchAsync(async (req: Request, res: Response) => {
-  const library = await getLibraryById(req.params["libraryId"] as string);
+export const getLibrary = catchAsync(async (req: Request, res: Response) => {
+  const library = await getLibraryById(req.params['libraryId'] as string);
 
   res.status(200).json({
     success: true,
@@ -34,20 +44,19 @@ export const   getLibrary = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
-
 export const getLibraries = catchAsync(async (req: Request, res: Response) => {
   console.log('Fetching libraries for workspace:', req.params['workspaceId']);
   const { workspaceId } = req.params;
-  const { page = 1, limit = 10, search = '' } = req.query;
+  const { page = 1, limit = 10, search = '', isDeleted = false } = req.query;
 
-  const libraries = await getLibrariesByWorkspace(workspaceId || "", Number(page), Number(limit), search as string);
+  const libraries = await getLibrariesByWorkspace(workspaceId || '', Number(page), Number(limit), search as string, Boolean(isDeleted) as boolean);
   console.log('Libraries retrieved:', libraries);
 
   res.status(200).json(libraries);
-})
+});
 
 export const deleteLibraryById = catchAsync(async (req: Request, res: Response) => {
-  const library = await deleteLibrary(req.params["libraryId"] as string);
+  const library = await deleteLibrary(req.params['libraryId'] as string, req.user._id);
   return res.status(201).json({
     success: true,
     message: 'Library deleted successfully',
@@ -67,7 +76,7 @@ export const getLibraryNamesController = catchAsync(async (req: Request, res: Re
 
 export const removeMemberFromLibraryController = catchAsync(async (req: Request, res: Response) => {
   const { libraryId, memberId } = req.params;
-  const updatedLibrary = await removeMemberFromLibrary(libraryId || "", memberId || "");
+  const updatedLibrary = await removeMemberFromLibrary(libraryId || '', memberId || '');
   res.status(200).json({
     success: true,
     data: updatedLibrary,
@@ -79,7 +88,7 @@ export const getLibraryMembersController = catchAsync(async (req: Request, res: 
   const { libraryId } = req.params;
   const { page = 1, limit = 10, search = '' } = req.query;
 
-  const members = await getLibraryMembers(libraryId || "", Number(page), Number(limit),search as string );
+  const members = await getLibraryMembers(libraryId || '', Number(page), Number(limit), search as string);
 
   res.status(200).json({
     success: true,
@@ -92,8 +101,7 @@ export const addMemberToLibraryController = catchAsync(async (req: Request, res:
   const { libraryId } = req.params;
   const { members } = req.body;
 
-
-  const updatedLibrary = await addMemberToLibrary(libraryId || "", members);
+  const updatedLibrary = await addMemberToLibrary(libraryId || '', members);
 
   res.status(200).json({
     success: true,
@@ -113,9 +121,9 @@ export const updateForm5W2HController = catchAsync(async (req: Request, res: Res
     });
   }
 
-  const updatedLibrary = await updateForm5W2H(libraryId || "", form5W2H);
+  const updatedLibrary = await updateForm5W2H(libraryId || '', form5W2H);
 
- return res.status(200).json({
+  return res.status(200).json({
     success: true,
     data: updatedLibrary,
     message: 'Form5W2H updated successfully',
@@ -126,6 +134,26 @@ export const getLibrariesForUser = catchAsync(async (req: Request, res: Response
   const userId = req.user._id as string;
   const { page = 1, limit = 10, search = '' } = req.query;
 
-  const libraries = await getLibrariesByManager(userId || "", Number(page), Number(limit), search as string);
+  const libraries = await getLibrariesByManager(userId || '', Number(page), Number(limit), search as string);
   res.status(200).json(libraries);
+});
+
+export const RestoreLibrary = catchAsync(async (req: Request, res: Response) => {
+  const { libraryId } = req.params;
+  const restoredLibrary = await restoreLibrary(libraryId || '');
+  res.status(200).json({
+    success: true,
+    data: restoredLibrary,
+    message: 'Library restored successfully',
+  });
+});
+
+export const deletePermanentLibrary = catchAsync(async (req: Request, res: Response) => {
+  const { libraryId } = req.params;
+  const deletedLibrary = await deletePermanent(libraryId || '');
+  res.status(200).json({
+    success: true,
+    data: deletedLibrary,
+    message: 'Library permanently deleted successfully',
+  });
 });

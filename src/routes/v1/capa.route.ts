@@ -34,6 +34,17 @@ router.get(
   auth('manageCapa'),
   workspaceController.getCapaworkspaceByIdController
 );
+router.get(
+  "/module/:workspaceId/analytics",                                                   
+  auth('manageCapa'),
+  workspaceController.getCapaworkspaceAnalyticsController
+);
+router.get(
+  "/module/:workspaceId/attention",
+  auth('manageCapa'),
+  workspaceController.AttentionController
+);
+
 
 
 export default router;

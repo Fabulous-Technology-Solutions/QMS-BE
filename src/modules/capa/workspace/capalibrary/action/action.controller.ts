@@ -15,7 +15,8 @@ export const createActionController = catchAsync(async (req: Request, res: Respo
 });
 
 export const getActionByIdController = catchAsync(async (req: Request, res: Response) => {
-  const action = await actionService.getActionById(req.params["actionId"] || '');
+
+  const action = await actionService.getActionById(req.params["actionId"] || '',req.headers["datatype"] === "mytasks" ? req.user._id : undefined);
   res.status(200).json({
     success: true,
     message: 'Action retrieved successfully',
@@ -24,7 +25,7 @@ export const getActionByIdController = catchAsync(async (req: Request, res: Resp
 });
 
 export const updateActionController = catchAsync(async (req: Request, res: Response) => {
-  const action = await actionService.updateAction(req.params["actionId"] || '', req.body);
+  const action = await actionService.updateAction(req.params["actionId"] || '', req.body,req.headers["datatype"] === "mytasks" ? req.user._id : undefined);
   res.status(200).json({
     success: true,
     message: 'Action updated successfully',
@@ -56,7 +57,7 @@ export const getActionsByLibraryController = catchAsync(async (req: Request, res
   });
 });
 export const deleteActionController = catchAsync(async (req: Request, res: Response) => {
-  const action = await actionService.deleteAction(req.params["actionId"] || '');
+  const action = await actionService.deleteAction(req.params["actionId"] || '',req.headers["datatype"] === "mytasks" ? req.user._id : undefined);
   res.status(200).json({
     success: true,
     message: 'Action deleted successfully',
@@ -70,11 +71,12 @@ export const getTasksByUserController = catchAsync(async (req: Request, res: Res
 
   const tasks = await actionService.getActionsByAssignedTo(userId, Number(page), Number(limit), search as string);
   
-  res.status(200).json({
+  res.status(200).json({                                                                   
     success: true,
     message: 'Tasks retrieved successfully',
     data: tasks,
   });
 }
 );
+
 

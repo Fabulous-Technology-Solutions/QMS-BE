@@ -14,6 +14,6 @@ const ChecklistHistorySchema = new mongoose.Schema({
   }]
 }, { timestamps: true });
 
-const ChecklistHistory = mongoose.model<ChecklistHistoryModal>('ChecklistHistory', ChecklistHistorySchema);
+const  ChecklistHistory = mongoose.model<ChecklistHistoryModal>('ChecklistHistory', ChecklistHistorySchema);
 
 export default ChecklistHistory;

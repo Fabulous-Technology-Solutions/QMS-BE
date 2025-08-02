@@ -32,3 +32,10 @@ export interface CreateActionRequest {
   docfileKey?: string;
   cause?: string; // Reference to Causes
 }
+
+
+export interface ActionMatchQuery {
+  _id: mongoose.Types.ObjectId | string;
+  isDeleted: boolean;
+  assignedTo?: { $in: mongoose.Types.ObjectId[] };
+}

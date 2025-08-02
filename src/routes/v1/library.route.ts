@@ -13,14 +13,9 @@ router.post(
   validate(libraryValidationSchema.libraryValidationSchema),
   libraryController.createLibrary
 );
+router.get('/workspace/:workspaceId', auth('getWorkspaceLibraries'), checkCreateRole, libraryController.getLibraries);
 router.get(
-  '/workspace/:workspaceId',
-  auth('getWorkspaceLibraries'),
-  checkCreateRole,
-  libraryController.getLibraries
-);
-router.get(
-  '/workspace/:libraryId/names', 
+  '/workspace/:libraryId/names',
   auth('getWorkspaceLibraryNames'),
   checkCreateRole,
   libraryController.getLibraryNamesController
@@ -37,7 +32,7 @@ router.post(
   auth('addLibraryMember'),
   checkValidation,
   libraryController.addMemberToLibraryController
-); 
+);
 router.delete(
   '/:workspaceId/:libraryId/:memberId',
   auth('removeLibraryMember'),
@@ -46,6 +41,8 @@ router.delete(
 );
 
 router.get('/:workspaceId/:libraryId', auth('getSingleLibrary'), checkValidation, libraryController.getLibrary);
+router.patch('/:libraryId/restore', auth('restoreLibrary'), libraryController.RestoreLibrary);
+router.delete('/:libraryId', auth('deletePermanentLibrary'), libraryController.deletePermanentLibrary);
 router.patch(
   '/:workspaceId/:libraryId',
   auth('updateLibrary'),
@@ -54,7 +51,12 @@ router.patch(
   libraryController.updateLibraryById
 );
 router.delete('/:workspaceId/:libraryId', auth('deleteLibrary'), checkValidation, libraryController.deleteLibraryById);
-router.patch('/:workspaceId/:libraryId/form5W2H', auth('update5W2H'), checkValidation, libraryController.updateForm5W2HController);
+router.patch(
+  '/:workspaceId/:libraryId/form5W2H',
+  auth('update5W2H'),
+  checkValidation,
+  libraryController.updateForm5W2HController
+);
 router.get(
   '/workspace/:workspaceId/libraries/User',
   auth('getUserLibraries'),

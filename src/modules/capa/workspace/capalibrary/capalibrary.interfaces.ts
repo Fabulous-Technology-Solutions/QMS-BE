@@ -8,6 +8,8 @@ export interface LibraryModal extends Document {
   workspace: ObjectId;
   createdBy: ObjectId;
   isDeleted: boolean;
+  deletedBy?: ObjectId;
+  deletedAt?: Date;
   status: string;
   members: ObjectId[];
   managers: ObjectId[];
@@ -52,6 +54,7 @@ export interface CreateLibraryRequest {
 export interface GetLibrariesQuery {
   workspace: mongoose.Types.ObjectId;
   isDeleted?: boolean;
+  status?: string;
   $or?: [{ name: { $regex: string; $options: string } }, { description: { $regex: string; $options: string } }];
 }
 
