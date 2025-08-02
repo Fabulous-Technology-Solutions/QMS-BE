@@ -83,7 +83,7 @@ export const getLibrariesByWorkspace = async (workspaceId: string, page: number,
         pipeline: [{ $project: { name: 1, email: 1, profilePicture: 1 } }],
       },
     },
-    { $unwind: '$deletedBy', preserveNullAndEmptyArrays: true },
+    { $unwind: { path: '$deletedBy', preserveNullAndEmptyArrays: true } },
     {
       $lookup: {
         from: 'modules',
