@@ -9,3 +9,8 @@ export interface ActivityModel extends Document {
   action: string;
   message?: string;
 }
+
+export interface GetLogsByIdOptions {
+  page?: number;
+  limit?: number;
+}

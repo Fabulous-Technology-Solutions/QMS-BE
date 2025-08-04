@@ -4,11 +4,12 @@ import { auth } from '../../modules/auth';
 
 import { workspaceUserController, workspaceUserValidation } from '../../modules/capa/workspace/workspaceUser';
 import checkCreateRole from '../../modules/capa/workspace/mangeRole.middleware';
+import { activityLoggerMiddleware } from '../../modules/activitylogs/activitylogs.middleware';
 
 const router: Router = express.Router();
 router
   .route('/')
-  .post(auth('createWorkspaceUser'), validate(workspaceUserValidation.createWorkspaceUser), checkCreateRole, workspaceUserController.createWorkspaceUserController)
+  .post(auth('createWorkspaceUser'), validate(workspaceUserValidation.createWorkspaceUser), checkCreateRole, activityLoggerMiddleware, workspaceUserController.createWorkspaceUserController)
 
 router.route('/:workspaceId').get(auth('getWorkspaceUsers'), checkCreateRole, workspaceUserController.getWorkspaceUsersController);
 router
@@ -16,9 +17,9 @@ router
   .get(auth('getWorkspaceUsers'), checkCreateRole, workspaceUserController.getworkspacegroupsNamesController);
 router
   .route('/:workspaceId/:userId')
-  .patch(auth('updateWorkspaceUser'), checkCreateRole, workspaceUserController.updateWorkspaceUserController)
+  .patch(auth('updateWorkspaceUser'), checkCreateRole, activityLoggerMiddleware, workspaceUserController.updateWorkspaceUserController)
   .get(auth('getSingleWorkspaceUser'), checkCreateRole, workspaceUserController.getSingleWorkspaceUserController)
-  .delete(auth('deleteWorkspaceUser'), checkCreateRole, workspaceUserController.deleteWorkspaceUserController);
+  .delete(auth('deleteWorkspaceUser'), checkCreateRole,activityLoggerMiddleware, workspaceUserController.deleteWorkspaceUserController);
 
 
 export default router;

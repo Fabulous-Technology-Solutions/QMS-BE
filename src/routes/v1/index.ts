@@ -17,6 +17,7 @@ import config from '../../config/config';
 import causeroute from "./causes.route" 
 import checklistroute from './checklist.route';
 import checklisthistoryRoute from './checklisthistory.route';
+import logsRoutes from './logs.route';
 const router = express.Router();
 
 interface IRoute {
@@ -88,6 +89,10 @@ const defaultIRoute: IRoute[] = [
   {
     path: '/checklisthistory',
     route: checklisthistoryRoute,
+  },
+  {
+    path: '/logs',
+    route: logsRoutes,
   },
 ];
 

@@ -13,6 +13,11 @@ import {
 
 const createWorkspaceUserController = catchAsync(async (req: Request, res: Response) => {
   const user = await createWorkspaceUser(req.body);
+  res.locals["message"] = "create workspace user";
+  res.locals["documentId"] = user._id;
+  res.locals["collectionName"] = "WorkspaceUser";
+  res.locals['logof'] = req.body.workspace || req.params['workspaceId'] || null; 
+  res.locals["changes"] = user;
   res.status(201).json({
     success: true,
     message: 'Workspace user created successfully',
@@ -22,6 +27,11 @@ const createWorkspaceUserController = catchAsync(async (req: Request, res: Respo
 
 const updateWorkspaceUserController = catchAsync(async (req: Request, res: Response) => {
   const user = await updateWorkspaceUser(req.params['userId'] as string, req.body);
+  res.locals["message"] = "update workspace user";
+  res.locals["documentId"] = user._id || "";
+  res.locals["collectionName"] = "WorkspaceUser";
+  res.locals['logof'] = req.body.workspace || req.params['workspaceId'] || null; 
+  res.locals["changes"] = user;
   res.status(200).json({
     success: true,
     message: 'Workspace user updated successfully',
@@ -31,6 +41,12 @@ const updateWorkspaceUserController = catchAsync(async (req: Request, res: Respo
 
 const deleteWorkspaceUserController = catchAsync(async (req: Request, res: Response) => {
   const user = await deleteWorkspaceUser(req.params['userId'] as string);
+  res.locals["message"] = "delete workspace user";
+  res.locals["documentId"] = user._id || "";
+  res.locals["collectionName"] = "WorkspaceUser";
+  res.locals["changes"] = { isDeleted: true };
+  res.locals['logof'] = req.body.workspace || req.params['workspaceId'] || null; 
+  // If the user is not found, it will throw an error
   res.status(200).json({
     success: true,
     message: 'Workspace user deleted successfully',

@@ -90,6 +90,7 @@ const allRoles = {
     'updateChecklistHistory',
     'deleteChecklistHistory',
     'getChecklistHistoryNames',
+    "getlogs"
   ],
   subAdmin: {
     subAdmin: [
@@ -174,6 +175,7 @@ const allRoles = {
       'updateChecklistHistory',
       'deleteChecklistHistory',
       'getChecklistHistoryNames',
+      "getlogs"
     ],
     standardUser: [
       'getSubscriptions',
@@ -229,6 +231,7 @@ const allRoles = {
       'getChecklistHistories',
       'deleteChecklistHistory',
       'getChecklistHistoryNames',
+      "getlogs"
     ],
   },
 
@@ -275,6 +278,7 @@ const allRoles = {
       'getChecklistHistories',
       'deleteChecklistHistory',
       'getChecklistHistoryNames',
+      "getlogs"
     ],
     edit: [
       // 'manageLibrary',
@@ -319,6 +323,7 @@ const allRoles = {
       'getChecklistHistories',
       'deleteChecklistHistory',
       'getChecklistHistoryNames',
+      "getlogs"
     ],
     w_admin: [
       // permissions for workspace admin for role
@@ -403,6 +408,7 @@ const allRoles = {
       'getChecklistHistories',
       'deleteChecklistHistory',
       'getChecklistHistoryNames',
+      "getlogs"
     ],
   },
 };

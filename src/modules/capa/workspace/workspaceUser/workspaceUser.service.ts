@@ -66,6 +66,9 @@ export const updateWorkspaceUser = async (id: string, data: Partial<CreateWorksp
 
   // Now get the updated user
   const updatedUser = await workspaceUser.findById(id);
+  if (!updatedUser) {
+    throw new ApiError('User not found after update', httpStatus.NOT_FOUND);
+  }
   return updatedUser?.save();
 };
 

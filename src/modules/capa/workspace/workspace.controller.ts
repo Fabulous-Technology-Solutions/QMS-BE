@@ -11,7 +11,11 @@ import { getLibrariesfilterData } from "./capalibrary/capalibrary.service";
 
 export const createCapaworkspaceController = catchAsync(async (req: Request, res: Response) => {
   const workspace = await workspaceService.createCapaworkspace({...req.body, user: req.user});
-   
+  res.locals["message"] = "create workspace";
+  res.locals["documentId"] = workspace._id || "";
+  res.locals["collectionName"] = "Workspace";
+  res.locals["changes"] = workspace;
+  res.locals['logof'] = req.body.moduleId || null;
   return res.status(httpStatus.CREATED).send({
     success: true,
     data: workspace,
@@ -53,6 +57,11 @@ export const updateCapaworkspaceController = catchAsync(async (req: Request, res
   if (!workspace) {
     return next(new AppiError("Workspace not found", httpStatus.NOT_FOUND));
   }
+  res.locals["message"] = "update workspace";
+  res.locals["documentId"] = workspace._id || "";
+  res.locals["collectionName"] = "Workspace";
+  res.locals["changes"] = workspace;
+  res.locals['logof'] = workspace.moduleId || null;
   
   return res.status(httpStatus.OK).send({
     success: true,
@@ -65,6 +74,11 @@ export const deleteCapaworkspaceController = catchAsync(async (req: Request, res
   if (!workspace) {
     return next(new AppiError("Workspace not found", httpStatus.NOT_FOUND));
   }
+  res.locals["message"] = "delete workspace";
+  res.locals["documentId"] = workspace._id || "";
+  res.locals["collectionName"] = "Workspace";
+  res.locals["changes"] = { isDeleted: true };
+  res.locals['logof'] = workspace.moduleId || null;
   
   return res.status(httpStatus.OK).send({
     success: true,

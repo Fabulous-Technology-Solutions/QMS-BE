@@ -46,7 +46,7 @@ router.delete(
 
 router.get('/:workspaceId/:libraryId', auth('getSingleLibrary'), checkValidation, libraryController.getLibrary);
 router.patch('/:workspaceId/:libraryId/restore', auth('restoreLibrary'), activityLoggerMiddleware, libraryController.RestoreLibrary);
-router.delete('/:workspaceId/:libraryId', auth('deletePermanentLibrary'), activityLoggerMiddleware, libraryController.deletePermanentLibrary);
+router.delete('/:workspaceId/:libraryId/delete', auth('deletePermanentLibrary'), activityLoggerMiddleware, libraryController.deletePermanentLibrary);
 router.patch(
   '/:workspaceId/:libraryId',
   auth('updateLibrary'),
