@@ -193,6 +193,7 @@ export const updateLibrary = async (libraryId: string, updateData: Partial<Creat
   if (!library) {
     throw new Error('Library not found');
   }
+  return library;
 };
 
 export const deleteLibrary = async (libraryId: string, userId: string) => {

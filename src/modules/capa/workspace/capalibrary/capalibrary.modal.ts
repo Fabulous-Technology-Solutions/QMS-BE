@@ -45,7 +45,7 @@ LibrarySchema.pre('findOneAndDelete', async function (next) {
   const attachments = await AttachmentModal.find({ library: libraryId });
   actions.forEach(async (action) => {
     if (action.docfileKey) {
-      await deleteMedia(action.docfileKey);
+      await deleteMedia(action.docfileKey);             
     }
   });
   attachments.forEach(async (attachment) => {
@@ -53,7 +53,7 @@ LibrarySchema.pre('findOneAndDelete', async function (next) {
       await deleteMedia(attachment.fileKey);
     }
   });
-
+  // Delete related documents in other collections    
   await Action.deleteMany({ library: libraryId });
   await Causes.deleteMany({ library: libraryId });
   await ChecklistHistory.deleteMany({ library: libraryId });
@@ -61,5 +61,4 @@ LibrarySchema.pre('findOneAndDelete', async function (next) {
 
   next();
 });
-
 export const LibraryModel = mongoose.model<LibraryModal>('Library', LibrarySchema);

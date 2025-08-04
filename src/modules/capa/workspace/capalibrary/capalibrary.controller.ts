@@ -18,6 +18,9 @@ import {
 
 export const createLibrary = catchAsync(async (req: Request, res: Response) => {
   const library = await CreateLibrary({ ...req.body, createdBy: req.user._id });
+  res.locals["message"] = "create library"
+  res.locals["documentId"] = library._id;
+  res.locals["collectionName"] = "Library";
   res.status(201).json({
     success: true,
     message: 'Library created successfully',
@@ -27,6 +30,9 @@ export const createLibrary = catchAsync(async (req: Request, res: Response) => {
 
 export const updateLibraryById = catchAsync(async (req: Request, res: Response) => {
   const library = await updateLibrary(req.params['libraryId'] as string, req.body);
+  res.locals["message"] = "update library"
+  res.locals["documentId"] = library._id;
+  res.locals["collectionName"] = "Library";
   res.status(200).json({
     success: true,
     message: 'Library updated successfully',
@@ -57,6 +63,10 @@ export const getLibraries = catchAsync(async (req: Request, res: Response) => {
 
 export const deleteLibraryById = catchAsync(async (req: Request, res: Response) => {
   const library = await deleteLibrary(req.params['libraryId'] as string, req.user._id);
+  res.locals["message"] = "delete library"
+  res.locals["documentId"] = library._id;
+  res.locals["collectionName"] = "Library";
+  res.locals["changes"] = { isDeleted: true };
   return res.status(201).json({
     success: true,
     message: 'Library deleted successfully',
@@ -76,6 +86,9 @@ export const getLibraryNamesController = catchAsync(async (req: Request, res: Re
 
 export const removeMemberFromLibraryController = catchAsync(async (req: Request, res: Response) => {
   const { libraryId, memberId } = req.params;
+  res.locals["message"] = "remove member from library"
+  res.locals["documentId"] = libraryId;
+  res.locals["collectionName"] = "Library";
   const updatedLibrary = await removeMemberFromLibrary(libraryId || '', memberId || '');
   res.status(200).json({
     success: true,
@@ -102,6 +115,10 @@ export const addMemberToLibraryController = catchAsync(async (req: Request, res:
   const { members } = req.body;
 
   const updatedLibrary = await addMemberToLibrary(libraryId || '', members);
+  res.locals["message"] = "add member to library"
+  res.locals["documentId"] = libraryId;
+  res.locals["collectionName"] = "Library";
+  res.locals["changes"] = { members: updatedLibrary.members };
 
   res.status(200).json({
     success: true,
@@ -122,6 +139,10 @@ export const updateForm5W2HController = catchAsync(async (req: Request, res: Res
   }
 
   const updatedLibrary = await updateForm5W2H(libraryId || '', form5W2H);
+  res.locals["message"] = "update Form5W2H"
+  res.locals["documentId"] = libraryId;
+  res.locals["collectionName"] = "Library";
+  res.locals["changes"] = { Form5W2H: updatedLibrary.Form5W2H };
 
   return res.status(200).json({
     success: true,
@@ -141,6 +162,10 @@ export const getLibrariesForUser = catchAsync(async (req: Request, res: Response
 export const RestoreLibrary = catchAsync(async (req: Request, res: Response) => {
   const { libraryId } = req.params;
   const restoredLibrary = await restoreLibrary(libraryId || '');
+  res.locals["message"] = "restore library"
+  res.locals["documentId"] = restoredLibrary._id;
+  res.locals["collectionName"] = "Library";
+  res.locals["changes"] = { isDeleted: false };
   res.status(200).json({
     success: true,
     data: restoredLibrary,
@@ -151,6 +176,10 @@ export const RestoreLibrary = catchAsync(async (req: Request, res: Response) => 
 export const deletePermanentLibrary = catchAsync(async (req: Request, res: Response) => {
   const { libraryId } = req.params;
   const deletedLibrary = await deletePermanent(libraryId || '');
+  res.locals["message"] = "delete permanent library"
+  res.locals["documentId"] = libraryId;
+  res.locals["collectionName"] = "Library";
+  res.locals["changes"] = { isDeleted: true };
   res.status(200).json({
     success: true,
     data: deletedLibrary,
