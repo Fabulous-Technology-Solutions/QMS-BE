@@ -30,7 +30,7 @@ export async function activityLoggerMiddleware(
             });
 
             // Only log if collectionName and documentId are available
-            if (collectionName && documentId) {
+            if (collectionName) {
                 await ActivityLog.create({
                     action,
                     collectionName,

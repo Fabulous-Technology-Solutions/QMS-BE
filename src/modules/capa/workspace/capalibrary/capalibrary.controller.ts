@@ -166,13 +166,9 @@ export const getLibrariesForUser = catchAsync(async (req: Request, res: Response
 });
 
 export const RestoreLibrary = catchAsync(async (req: Request, res: Response) => {
-  const { libraryId } = req.params;
-  const restoredLibrary = await restoreLibrary(libraryId || '');
-  res.locals["message"] = "restore library"
-  res.locals["documentId"] = restoredLibrary._id;
-  res.locals["collectionName"] = "Library";
-  res.locals["changes"] = { isDeleted: false };
-  res.locals['logof'] = req.body.workspace || req.params['workspaceId'] || null; 
+  const { libraries } = req.body;
+  const restoredLibrary = await restoreLibrary(libraries || [] ,req.params["workspaceId"] as string,req.user._id);
+
   res.status(200).json({
     success: true,
     data: restoredLibrary,
@@ -181,13 +177,8 @@ export const RestoreLibrary = catchAsync(async (req: Request, res: Response) => 
 });
 
 export const deletePermanentLibrary = catchAsync(async (req: Request, res: Response) => {
-  const { libraryId } = req.params;
-  const deletedLibrary = await deletePermanent(libraryId || '');
-  res.locals["message"] = "delete permanent library"
-  res.locals["documentId"] = libraryId;
-  res.locals["collectionName"] = "Library";
-  res.locals["changes"] = { isDeleted: true };
-  res.locals['logof'] = req.body.workspace || req.params['workspaceId'] || null; 
+  const { libraries } = req.body;
+  const deletedLibrary = await deletePermanent(libraries || [],req.params["workspaceId"] as string,req.user._id);
   res.status(200).json({
     success: true,
     data: deletedLibrary,

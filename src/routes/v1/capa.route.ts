@@ -3,6 +3,7 @@ import {workspaceController, workspaceValidation} from "../../modules/capa/works
 import { validate } from "../../modules/validate";
 import { auth } from "../../modules/auth";
 import checkCreateRole from "../../modules/capa/workspace/mangeRole.middleware";
+import { activityLoggerMiddleware } from "../../modules/activitylogs/activitylogs.middleware";
 
 const router: Router = express.Router();
 
@@ -10,12 +11,14 @@ router.post(
   "/",
   auth('manageCapa'),
   validate(workspaceValidation.createCapa),
+  activityLoggerMiddleware,
   workspaceController.createCapaworkspaceController
 );
 
 router.get(
   "/:moduleId",
   auth('manageCapa'),
+
   workspaceController.getAllCapaworkspacesController
 );
 router.patch(
@@ -23,6 +26,7 @@ router.patch(
   auth('manageCapa'),
   checkCreateRole,
   validate(workspaceValidation.updateCapa),
+  activityLoggerMiddleware,
   workspaceController.updateCapaworkspaceController
 );
 
@@ -30,6 +34,7 @@ router.delete(
   "/module/:workspaceId",
   auth('manageCapa'),
   checkCreateRole,
+  activityLoggerMiddleware,
   workspaceController.deleteCapaworkspaceController
 );
 router.get(

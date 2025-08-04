@@ -22,7 +22,8 @@ router.get(
   checkCreateRole,
   libraryController.getLibraryNamesController
 );
-
+router.patch('/:workspaceId/libraries/restore', auth('restoreLibrary'), libraryController.RestoreLibrary);
+router.delete('/:workspaceId/libraries/delete', auth('deletePermanentLibrary'),  libraryController.deletePermanentLibrary);
 router.get(
   '/:workspaceId/:libraryId/members',
   auth('getLibraryMembers'),
@@ -45,8 +46,7 @@ router.delete(
 );
 
 router.get('/:workspaceId/:libraryId', auth('getSingleLibrary'), checkValidation, libraryController.getLibrary);
-router.patch('/:workspaceId/:libraryId/restore', auth('restoreLibrary'), activityLoggerMiddleware, libraryController.RestoreLibrary);
-router.delete('/:workspaceId/:libraryId/delete', auth('deletePermanentLibrary'), activityLoggerMiddleware, libraryController.deletePermanentLibrary);
+
 router.patch(
   '/:workspaceId/:libraryId',
   auth('updateLibrary'),

@@ -10,6 +10,7 @@ import {
 import { LibraryModel } from './capalibrary.modal';
 import subAdmin from './../../../user/user.subAdmin';
 import { IUserDoc } from '@/modules/user/user.interfaces';
+import ActivityLog from '../../../../modules/activitylogs/activitylogs.modal';
 
 export const CreateLibrary = async (body: CreateLibraryRequest) => {
   const library = new LibraryModel(body);
@@ -567,24 +568,45 @@ export const getLibrariesByManager = async (managerId: string, page: number, lim
   };
 };
 
-export const restoreLibrary = async (libraryId: string) => {
-  console.log('Restoring library with ID:', libraryId);
-  const library = await LibraryModel.findOneAndUpdate(
-    { _id: libraryId, isDeleted: true },
-    { isDeleted: false, deletedBy: null, deletedAt: null },
-    { new: true }
+export const restoreLibrary = async (libraryIds: string[], workspaceId: string,userId: string) => {
+ console.log('Permanently deleting libraries with IDs:', libraryIds);
+  const result = await LibraryModel.updateMany({ _id: { $in: libraryIds } }, { isDeleted: false });
+  if (result.modifiedCount === 0) {
+    throw new Error('No libraries were restored');
+  }
+  await Promise.all(
+    libraryIds.map((id) =>
+      ActivityLog.create({
+        action: 'restore',
+        collectionName: 'Library',
+        documentId: id,
+        changes: { isDeleted: false },
+        performedBy: userId, // You can set this to the user ID if available
+        logof: workspaceId, // Set this if you have a workspace or context to log against
+        message: 'Library restored',
+      })
+    )
   );
-  if (!library) {
-    throw new Error('Library not found');
-  }
-  return library;
+  return result;
 };
-
-export const deletePermanent = async (libraryId: string) => {
-  console.log('Permanently deleting library with ID:', libraryId);
-  const library = await LibraryModel.findOneAndDelete({ _id: libraryId });
-  if (!library) {
-    throw new Error('Library not found');
+export const deletePermanent = async (libraryIds: string[], workspaceId: string, userId: string) => {
+  console.log('Permanently deleting libraries with IDs:', libraryIds);
+  const result = await LibraryModel.deleteMany({ _id: { $in: libraryIds } });
+  if (result.deletedCount === 0) {
+    throw new Error('No libraries were deleted');
   }
-  return library;
+  await Promise.all(
+    libraryIds.map((id) =>
+      ActivityLog.create({
+        action: 'delete',
+        collectionName: 'Library',
+        documentId: id,
+        changes: { isDeleted: true },
+        performedBy: userId, // You can set this to the user ID if available
+        logof: workspaceId, // Set this if you have a workspace or context to log against
+        message: 'Library permanently deleted',
+      })
+    )
+  );
+  return result;
 };

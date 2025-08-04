@@ -22,8 +22,6 @@ export const createUser = catchAsync(async (req: Request, res: Response) => {
 
   console.log("Creating user with body:", req.body);
   const user = await userService.createUser({ 
-
-
     ...req.body, 
     createdBy: req.user._id, 
     ownerId 
