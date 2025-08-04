@@ -6,11 +6,11 @@ const ActivityLogSchema = new mongoose.Schema<ActivityModel>(
   {
     changes: { type: Object, required: true },
     performedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-    documentId: { type: mongoose.Schema.Types.ObjectId, required: true },
+    documentId: { type: mongoose.Schema.Types.ObjectId, required: true ,refPath: 'collectionName'},
     collectionName: { type: String, required: true },
+    logof: { type: mongoose.Schema.Types.ObjectId},
     message: { type: String, default: null },
     action: { type: String, enum: ['post', 'put', 'delete', 'get', 'patch'], required: true },
-    workspace:{ type: mongoose.Schema.Types.ObjectId, ref: 'Workspace' },
   },
   {
     timestamps: true,

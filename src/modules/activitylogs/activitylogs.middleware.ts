@@ -13,7 +13,7 @@ export async function activityLoggerMiddleware(
             // console.log("Activity logging middleware triggered", req.body, req.user, res);
             // You can customize how to get these values from req/res
             const performedBy = req.user?._id ||  null;
-            const workspace = req.body.workspace || req.params['workspaceId'] || null;
+            const logof = res.locals['logof'] || null;
             const message = res.locals["message"] || req.body.message || null;
             const action = res.locals["action"] || req.method.toLowerCase();
             const collectionName = res.locals["collectionName"] || null;
@@ -22,7 +22,7 @@ export async function activityLoggerMiddleware(
             console.log("Activity logging details:", {
                 action,
                 performedBy,
-                workspace,
+                logof,
                 message,
                 collectionName,
                 documentId,
@@ -37,7 +37,7 @@ export async function activityLoggerMiddleware(
                     documentId,
                     performedBy,
                     changes,
-                    workspace,
+                    logof,
                     message,
                 });
             }

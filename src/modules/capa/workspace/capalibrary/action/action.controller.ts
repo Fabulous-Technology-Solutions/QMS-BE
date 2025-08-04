@@ -7,6 +7,11 @@ export const createActionController = catchAsync(async (req: Request, res: Respo
     ...req.body,
     createdBy: req.user._id
   });
+  res.locals["message"] = "create action"
+  res.locals["documentId"] = action._id;
+  res.locals["collectionName"] = "Action";  
+  res.locals['logof'] = req.body.library || req.params['libraryId'] || null;
+  res.locals["changes"] = action;
   res.status(201).json({
     success: true,
     message: 'Action created successfully',
@@ -26,6 +31,11 @@ export const getActionByIdController = catchAsync(async (req: Request, res: Resp
 
 export const updateActionController = catchAsync(async (req: Request, res: Response) => {
   const action = await actionService.updateAction(req.params["actionId"] || '', req.body,req.headers["datatype"] === "mytasks" ? req.user._id : undefined);
+  res.locals["message"] = "update action"
+  res.locals["documentId"] = action._id;
+  res.locals["collectionName"] = "Action";
+  res.locals['logof'] = req.body.library || req.params['libraryId'] || null; 
+  res.locals["changes"] = action
   res.status(200).json({
     success: true,
     message: 'Action updated successfully',
@@ -58,6 +68,11 @@ export const getActionsByLibraryController = catchAsync(async (req: Request, res
 });
 export const deleteActionController = catchAsync(async (req: Request, res: Response) => {
   const action = await actionService.deleteAction(req.params["actionId"] || '',req.headers["datatype"] === "mytasks" ? req.user._id : undefined);
+  res.locals["message"] = "delete action"
+  res.locals["documentId"] = action._id;
+  res.locals["collectionName"] = "Action";
+  res.locals["changes"] = { isDeleted: true };
+  res.locals['logof'] = req.body.library || req.params['libraryId'] ||  
   res.status(200).json({
     success: true,
     message: 'Action deleted successfully',
@@ -70,6 +85,7 @@ export const getTasksByUserController = catchAsync(async (req: Request, res: Res
   const { page = 1, limit = 10, search = '' } = req.query;
 
   const tasks = await actionService.getActionsByAssignedTo(userId, Number(page), Number(limit), search as string);
+  
   
   res.status(200).json({                                                                   
     success: true,

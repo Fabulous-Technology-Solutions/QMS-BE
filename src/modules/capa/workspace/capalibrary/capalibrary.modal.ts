@@ -9,7 +9,7 @@ import { deleteMedia } from '../../../upload/upload.middleware';
 const LibrarySchema = new mongoose.Schema<LibraryModal>(
   {
     name: { type: String, required: true },
-    description: { type: String, required: true },
+    description: { type: String, required: true },  
     startDate: { type: Date, required: true },
     dueDate: { type: Date, required: true },
     workspace: { type: mongoose.Schema.Types.ObjectId, ref: 'Workspace', required: true },
