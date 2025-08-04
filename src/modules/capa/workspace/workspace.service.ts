@@ -159,7 +159,7 @@ export const dashboardAnalytics = async (workspaceId: string) => {
   const analytics = { pending: 0, complete: 0, inProgress: 0, total: 0 };
   result.forEach((item) => {
     if (item._id === 'pending') analytics.pending = item.count;
-    if (item._id === 'complete') analytics.complete = item.count;
+    if (item._id === 'completed') analytics.complete = item.count;
     if (item._id === 'in-progress') analytics.inProgress = item.count;
     analytics.total += item.count;
   });
