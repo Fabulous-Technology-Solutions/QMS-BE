@@ -16,7 +16,7 @@ const getlogsByid = async (
   const skip = (page - 1) * limit;
 
   const logs = await ActivityLog.find({ logof: id })
-    .populate('performedBy', 'name email').select('-__v -changes')
+    .populate('performedBy', 'name email profilePicture role').select('-__v -changes')
     .sort({ createdAt: -1 })
     .skip(skip)
     .limit(limit);
