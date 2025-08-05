@@ -148,7 +148,7 @@ export const getActionsByLibrary = async (libraryId: string, page: number = 1, l
         cause: { name: 1, description: 1, _id: 1 },
         createdBy: { name: 1, email: 1, profilePicture: 1, _id: 1 },
         assignedTo: { name: 1, email: 1, profilePicture: 1, _id: 1 },
-        library: { name: 1, description: 1 },
+        library: { name: 1, description: 1 ,_id: 1},
       },
     },
     {
