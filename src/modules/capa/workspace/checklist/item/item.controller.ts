@@ -37,7 +37,7 @@ export const createChecklistItem = catchAsync(async (req: Request, res: Response
 
 export const updateChecklistItem = catchAsync(async (req: Request, res: Response) => {
   const updateItemsArray = req.body.checklistItems;
-  const { error } = UpdateItemsArraySchema.validate(updateItemsArray);
+  const { error } = UpdateItemsArraySchema.validate(updateItemsArray, { abortEarly: false ,allowUnknown: true});
 
   if (error) {
     const errorFields = JoiError(error);

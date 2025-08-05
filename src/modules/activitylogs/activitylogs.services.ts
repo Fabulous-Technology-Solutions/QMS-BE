@@ -1,8 +1,5 @@
 import { GetLogsByIdOptions } from "./activitylogs.interfaces";
 import ActivityLog from "./activitylogs.modal";
-
-
-
 const getlogsByid = async (
   id: string,
   options: GetLogsByIdOptions = {}
