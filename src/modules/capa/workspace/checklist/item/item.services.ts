@@ -28,8 +28,8 @@ const updateCheckListItem = async (itemId: string, data: Partial<CreateCheckList
     if (!checkListItem) {
         throw new Error('Checklist item not found');
     }
-    if (data.evidenceKey!== checkListItem.evidenceKey) {
-      await deleteMedia(checkListItem.evidenceKey);
+    if (data?.evidenceKey!== checkListItem?.evidenceKey) {
+      await deleteMedia(checkListItem?.evidenceKey);
     }
     return checkListItem;
 };
