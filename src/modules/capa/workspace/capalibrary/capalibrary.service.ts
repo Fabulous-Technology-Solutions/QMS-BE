@@ -36,8 +36,6 @@ export const getLibrariesByWorkspace = async (
   isDeleted: boolean
 ) => {
   const matchStage: GetLibrariesQuery = { workspace: new mongoose.Types.ObjectId(workspaceId), isDeleted };
-  console.log('Match stage:', matchStage);
-
   if (search) {
     matchStage.$or = [{ name: { $regex: search, $options: 'i' } }, { description: { $regex: search, $options: 'i' } }];
   }

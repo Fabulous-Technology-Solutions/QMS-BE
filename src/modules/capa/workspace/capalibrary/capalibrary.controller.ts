@@ -53,13 +53,9 @@ export const getLibrary = catchAsync(async (req: Request, res: Response) => {
 });
 
 export const getLibraries = catchAsync(async (req: Request, res: Response) => {
-  console.log('Fetching libraries for workspace:', req.params['workspaceId']);
   const { workspaceId } = req.params;
   const { page = 1, limit = 10, search = '', isDeleted = false } = req.query;
-
   const libraries = await getLibrariesByWorkspace(workspaceId || '', Number(page), Number(limit), search as string, Boolean(isDeleted) as boolean);
-  console.log('Libraries retrieved:', libraries);
-
   res.status(200).json(libraries);
 });
 
@@ -149,7 +145,6 @@ export const updateForm5W2HController = catchAsync(async (req: Request, res: Res
   res.locals["collectionName"] = "Library";
   res.locals["changes"] = { Form5W2H: updatedLibrary.Form5W2H };
   res.locals['logof'] = req.body.workspace || req.params['workspaceId'] || null; 
-
   return res.status(200).json({
     success: true,
     data: updatedLibrary,
@@ -160,7 +155,6 @@ export const updateForm5W2HController = catchAsync(async (req: Request, res: Res
 export const getLibrariesForUser = catchAsync(async (req: Request, res: Response) => {
   const userId = req.user._id as string;
   const { page = 1, limit = 10, search = '' } = req.query;
-
   const libraries = await getLibrariesByManager(userId || '', Number(page), Number(limit), search as string);
   res.status(200).json(libraries);
 });
@@ -168,7 +162,6 @@ export const getLibrariesForUser = catchAsync(async (req: Request, res: Response
 export const RestoreLibrary = catchAsync(async (req: Request, res: Response) => {
   const { libraries } = req.body;
   const restoredLibrary = await restoreLibrary(libraries || [] ,req.params["workspaceId"] as string,req.user._id);
-
   res.status(200).json({
     success: true,
     data: restoredLibrary,

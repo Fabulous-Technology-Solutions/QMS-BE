@@ -87,7 +87,7 @@ export const checkAdminBelongsToWorkspace = async (
       $match: { 'subscription.userId': new mongoose.Types.ObjectId(userId) },
     },
   ]);
-  console.log("User found in workspace:", user);
+  
   if (!user || user?.length === 0) {
     throw new AppiError('User does not belong to the workspace', httpStatus.FORBIDDEN);
   }
