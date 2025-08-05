@@ -127,6 +127,15 @@ export const getActionsByLibrary = async (libraryId: string, page: number = 1, l
       },
     },
     {
+      $lookup: {
+        from: 'causes',
+        localField: 'cause',
+        foreignField: '_id',
+        as: 'cause',
+      },
+    },
+    { $unwind: { path: '$cause', preserveNullAndEmptyArrays: true } },
+    {
       $project: {
         _id: 1,
         name: 1,
@@ -136,6 +145,7 @@ export const getActionsByLibrary = async (libraryId: string, page: number = 1, l
         status: 1,
         startDate: 1,
         endDate: 1,
+        cause: { name: 1, description: 1, _id: 1 },
         createdBy: { name: 1, email: 1, profilePicture: 1 },
         assignedTo: { name: 1, email: 1, profilePicture: 1 },
         library: { name: 1, description: 1 },

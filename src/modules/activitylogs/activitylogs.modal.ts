@@ -1,16 +1,15 @@
-import {ActivityModel} from "./activitylogs.interfaces";
+import { ActivityModel } from './activitylogs.interfaces';
 import mongoose from 'mongoose';
-
 
 const ActivityLogSchema = new mongoose.Schema<ActivityModel>(
   {
     changes: { type: Object, required: true },
     performedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-    documentId: { type: mongoose.Schema.Types.ObjectId, required: true ,refPath: 'collectionName'},
+    documentId: { type: mongoose.Schema.Types.ObjectId, required: true, refPath: 'collectionName' },
     collectionName: { type: String, required: true },
-    logof: { type: mongoose.Schema.Types.ObjectId},
+    logof: { type: mongoose.Schema.Types.ObjectId },
     message: { type: String, default: null },
-    action: { type: String, enum: ['post', 'put', 'delete', 'get', 'patch'], required: true },
+    action: { type: String, enum: ['post', 'put', 'delete', 'get', 'patch', 'restore'], required: true },
   },
   {
     timestamps: true,
