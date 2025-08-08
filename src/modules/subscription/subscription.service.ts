@@ -315,7 +315,7 @@ export const getUserSubscriptionsandWorkspaces = async (userId: string): Promise
               $expr: {
                 $and: [
                   { $eq: ['$moduleId', '$$moduleId'] },
-           
+                  { $eq: ['$isDeleted', false] },
                 ]
               }
             }
