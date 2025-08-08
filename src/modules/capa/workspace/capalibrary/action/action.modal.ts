@@ -14,7 +14,7 @@ const actionSchema = new mongoose.Schema<ActionModel>({
     status: { type: String, enum: ['pending', 'in-progress', 'completed', 'on-hold'], default: 'pending' },
     docfile: { type: String, required: false },
     docfileKey: { type: String, required: false },
-    cause: { type: mongoose.Schema.Types.ObjectId, ref: 'Causes', required: false },
+    cause: { type: mongoose.Schema.Types.ObjectId, ref: 'Causes'},
     isDeleted: { type: Boolean, default: false },
 }, { timestamps: true });
 

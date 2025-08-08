@@ -21,8 +21,7 @@ const LibrarySchema = new mongoose.Schema<LibraryModal>(
     status: { type: String, enum: ['pending', 'completed', 'in-progress'], default: 'pending' },
     members: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
     managers: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
-    priority: { type: String, enum: ['low', 'medium', 'high'], default: 'medium' },
-    
+    priority: { type: String, enum: ['low', 'medium', 'high'], default: 'medium' }, 
     Form5W2H: {
       containment: {
         type: Boolean,
@@ -40,7 +39,7 @@ const LibrarySchema = new mongoose.Schema<LibraryModal>(
       when: { type: String, default: null },
       where: { type: String, default: null },
       who: { type: String, default: null },
-      how: { type: String, default: null },
+      how: { type: String, default: null }
     },
   },
   {
