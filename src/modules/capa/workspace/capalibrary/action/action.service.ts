@@ -329,7 +329,7 @@ export const getActionsByAssignedTo = async (
         as: 'library',
       },
     },
-    { $unwind: { path: '$library', preserveNullAndEmptyArrays: true } },
+    { $unwind: { path: '$library' } },
     {
       $lookup: {
         from: 'users',
