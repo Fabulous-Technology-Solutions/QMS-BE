@@ -49,7 +49,7 @@ router.get(
 );
 router.get(
   "/module/:workspaceId/attention",
-  auth('manageCapa'),
+  auth('needAttention'),
   workspaceController.AttentionController
 );
 

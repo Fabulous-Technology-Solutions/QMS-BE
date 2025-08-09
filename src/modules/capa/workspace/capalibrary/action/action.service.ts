@@ -270,29 +270,99 @@ export const deleteAction = async (actionId: string, userId: string | undefined)
   return action;
 };
 
-export const getActionsByAssignedTo = async (userId: string, page: number = 1, limit: number = 10, search: string = '') => {
+export const getActionsByAssignedTo = async (
+  userId: string,
+  page: number = 1,
+  limit: number = 10,
+  search: string = ''
+) => {
   const userObjectId = new mongoose.Types.ObjectId(userId);
 
-  const searchFilter = search
-    ? {
-        $or: [{ name: { $regex: search, $options: 'i' } }, { description: { $regex: search, $options: 'i' } }],
-      }
-    : {};
-
-  const filter = {
+  const matchStage = {
     assignedTo: { $in: [userObjectId] },
     isDeleted: false,
-    ...searchFilter,
   };
 
-  const actions = await Action.find(filter)
-    .skip((page - 1) * limit)
-    .limit(limit)
-    .populate('createdBy', 'name email profilePicture')
-    .populate('library', 'name description')
-    .populate('assignedTo', 'name email profilePicture');
+  const searchStages = search
+    ? [
+        {
+          $match: {
+            $or: [
+              { name: { $regex: search, $options: 'i' } },
+              { description: { $regex: search, $options: 'i' } },
+            ],
+          },
+        },
+      ]
+    : [];
 
-  const total = await Action.countDocuments(filter);
+  const result = await Action.aggregate([
+    { $match: matchStage },
+    ...searchStages,
+    {
+      $lookup: {
+        from: 'users',
+        localField: 'createdBy',
+        foreignField: '_id',
+        as: 'createdBy',
+      },
+    },
+    { $unwind: { path: '$createdBy', preserveNullAndEmptyArrays: true } },
+    {
+      $lookup: {
+        from: 'libraries',
+        let: {
+          libraryId: '$library',
+        },
+        pipeline: [
+          {
+            $match: {
+              $expr: {
+                $and: [
+                  { $eq: ['$_id', '$$libraryId'] },
+                  { $eq: ['$isDeleted', false] }
+                ]
+              },
+            },
+          },
+        ],
+        as: 'library',
+      },
+    },
+    { $unwind: { path: '$library', preserveNullAndEmptyArrays: true } },
+    {
+      $lookup: {
+        from: 'users',
+        localField: 'assignedTo',
+        foreignField: '_id',
+        as: 'assignedTo',
+      },
+    },
+    {
+      $project: {
+        _id: 1,
+        name: 1,
+        description: 1,
+        priority: 1,
+        type: 1,
+        status: 1,
+        startDate: 1,
+        endDate: 1,
+        createdBy: { name: 1, email: 1, profilePicture: 1, _id: 1 },
+        assignedTo: { name: 1, email: 1, profilePicture: 1, _id: 1 },
+        library: { name: 1, description: 1, _id: 1 },
+      },
+    },
+    {
+      $facet: {
+        data: [{ $skip: (page - 1) * limit }, { $limit: limit }],
+        totalCount: [{ $count: 'count' }],
+      },
+    },
+  ]);
+
+  const actions = result[0]?.data || [];
+  const total = result[0]?.totalCount[0]?.count || 0;
 
   return {
     data: actions,

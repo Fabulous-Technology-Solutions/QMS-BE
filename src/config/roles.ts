@@ -42,7 +42,7 @@ const allRoles = {
     'update5W2H',
     'getUserLibraries',
     'restoreLibrary',
-    "deletePermanentLibrary",
+    'deletePermanentLibrary',
 
     // Actions
     'deleteAction',
@@ -90,7 +90,10 @@ const allRoles = {
     'updateChecklistHistory',
     'deleteChecklistHistory',
     'getChecklistHistoryNames',
-    "getlogs"
+    'getlogs',
+
+    //Other
+    'needAttention',
   ],
   subAdmin: {
     subAdmin: [
@@ -136,7 +139,7 @@ const allRoles = {
       'update5W2H',
       'getUserLibraries',
       'restoreLibrary',
-      "deletePermanentLibrary",
+      'deletePermanentLibrary',
 
       // Actions
       'deleteAction',
@@ -175,7 +178,9 @@ const allRoles = {
       'updateChecklistHistory',
       'deleteChecklistHistory',
       'getChecklistHistoryNames',
-      "getlogs"
+      'getlogs',
+      //Other
+      'needAttention',
     ],
     standardUser: [
       'getSubscriptions',
@@ -231,7 +236,7 @@ const allRoles = {
       'getChecklistHistories',
       'deleteChecklistHistory',
       'getChecklistHistoryNames',
-      "getlogs"
+      'getlogs',
     ],
   },
 
@@ -278,7 +283,7 @@ const allRoles = {
       'getChecklistHistories',
       'deleteChecklistHistory',
       'getChecklistHistoryNames',
-      "getlogs"
+      'getlogs',
     ],
     edit: [
       // 'manageLibrary',
@@ -323,7 +328,7 @@ const allRoles = {
       'getChecklistHistories',
       'deleteChecklistHistory',
       'getChecklistHistoryNames',
-      "getlogs"
+      'getlogs',
     ],
     w_admin: [
       // permissions for workspace admin for role
@@ -362,7 +367,7 @@ const allRoles = {
       'update5W2H',
       'getUserLibraries',
       'restoreLibrary',
-      "deletePermanentLibrary",
+      'deletePermanentLibrary',
 
       // Actions
       'deleteAction',
@@ -408,7 +413,9 @@ const allRoles = {
       'getChecklistHistories',
       'deleteChecklistHistory',
       'getChecklistHistoryNames',
-      "getlogs"
+      'getlogs',
+          //Other
+    'needAttention'
     ],
   },
 };
