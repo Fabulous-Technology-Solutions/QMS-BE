@@ -243,51 +243,36 @@ const allRoles = {
   workspaceUser: {
     view: [
       // 'manageLibrary',
-      'deleteLibrary',
-      'updateLibrary',
-      'removeLibraryMember',
-      'addLibraryMember',
       'getLibraryMembers',
       'getWorkspaceLibraryNames',
       'getWorkspaceLibraries',
-      'createLibrary',
-      'updateLibraryById',
       'getSingleLibrary',
       'getWorkspaceUsers',
-      'update5W2H',
       'getUserLibraries',
 
       // Actions
-      'deleteAction',
-      'updateAction',
+
       'getSingleAction',
       'getActions',
       'getTasks',
       // Attachments
-      'deleteAttachment',
-      'updateAttachment',
       'getAttachmentById',
       'getAttachmentsByWorkspace',
 
       //Causes
       'getCauses',
-      'deleteCause',
+      
       'getCause',
-      'updateCause',
       'getCausesNames',
 
       // Checklist History
-      'createChecklistHistory',
       'getChecklistHistory',
-      'updateChecklistHistory',
       'getChecklistHistories',
-      'deleteChecklistHistory',
       'getChecklistHistoryNames',
       'getlogs',
     ],
     edit: [
       // 'manageLibrary',
-      'deleteLibrary',
       'updateLibrary',
       'removeLibraryMember',
       'addLibraryMember',
@@ -302,13 +287,11 @@ const allRoles = {
       'getUserLibraries',
 
       // Actions
-      'deleteAction',
       'updateAction',
       'getSingleAction',
       'getActions',
       'getTasks',
       // Attachments
-      'deleteAttachment',
       'updateAttachment',
       'getAttachmentById',
       'getAttachmentsByWorkspace',
@@ -326,7 +309,6 @@ const allRoles = {
       'getChecklistHistory',
       'updateChecklistHistory',
       'getChecklistHistories',
-      'deleteChecklistHistory',
       'getChecklistHistoryNames',
       'getlogs',
     ],
