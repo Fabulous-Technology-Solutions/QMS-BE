@@ -1,4 +1,4 @@
-import { deleteMedia } from "../../../../upload/upload.middleware";
+
 import {CreateCheckListItemRequest} from "./item.interface"
 
 import CheckListItem from './item.modal';
@@ -28,9 +28,7 @@ const updateCheckListItem = async (itemId: string, data: Partial<CreateCheckList
     if (!checkListItem) {
         throw new Error('Checklist item not found');
     }
-    if (data?.evidenceKey!== checkListItem?.evidenceKey) {
-      await deleteMedia(checkListItem?.evidenceKey);
-    }
+
     return checkListItem;
 };
 const deleteCheckListItem = async (itemId: string) => {

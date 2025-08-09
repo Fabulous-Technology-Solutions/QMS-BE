@@ -72,7 +72,7 @@ export const deleteActionController = catchAsync(async (req: Request, res: Respo
   res.locals["documentId"] = action._id;
   res.locals["collectionName"] = "Action";
   res.locals["changes"] = { isDeleted: true };
-  res.locals['logof'] = req.body.library || req.params['libraryId'] ||  
+  res.locals['logof'] =  req.params['libraryId'];
   res.status(200).json({
     success: true,
     message: 'Action deleted successfully',

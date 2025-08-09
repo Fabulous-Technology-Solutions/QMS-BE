@@ -1,6 +1,7 @@
 import mongoose from 'mongoose';
 import { createChecklistHistory as ICreateChecklistHistory, ChecklistHistoryModal } from './checklisthistory.interfaces';
 import ChecklistHistory from './checklisthistory.modal';
+import { deleteMedia } from '../../../../upload/upload.middleware';
 
 export const createChecklistHistory = async (
   data: ICreateChecklistHistory
@@ -15,6 +16,9 @@ export const createChecklistHistory = async (
       yes: item.yes,
       no: item.no,
       partial: item.partial,
+      comment:item.comment,
+      evidenceKey:item.evidenceKey,
+      evidence:item.evidence
     })),
   });
   return await newHistory.save();
@@ -53,6 +57,28 @@ export const updateChecklistHistory = async (
   id: string,
   data: Partial<ICreateChecklistHistory>
 ): Promise<ChecklistHistoryModal> => {
+  // 1. Fetch the existing document
+  const oldHistory = await ChecklistHistory.findById(id);
+  if (!oldHistory) {
+    throw new Error('Checklist history not found');
+  }
+
+  // 2. Track files to delete
+  const filesToDelete: string[] = [];
+
+  // 3. Compare list items
+  if (data.list && oldHistory.list) {
+    data.list.forEach((newItem) => {
+      const oldItem = oldHistory.list.find(
+        (item) => item.item.toString() === newItem.item
+      );
+      if (oldItem && oldItem.evidenceKey && oldItem.evidenceKey !== newItem.evidenceKey) {
+        filesToDelete.push(oldItem.evidenceKey);
+      }
+    });
+  }
+
+  // 4. Prepare update object
   const updateData: any = {};
   if (data.comment) updateData.comment = data.comment;
   if (data.list) {
@@ -61,14 +87,23 @@ export const updateChecklistHistory = async (
       yes: item.yes,
       no: item.no,
       partial: item.partial,
+      comment: item.comment,
+      evidenceKey: item.evidenceKey,
+      evidence: item.evidence
     }));
   }
-  const history = await ChecklistHistory.findByIdAndUpdate(id, updateData, { new: true });
-  if (!history) {
-    throw new Error('Checklist history not found');
+
+  // 5. Update document
+  const updatedHistory = await ChecklistHistory.findByIdAndUpdate(id, updateData, { new: true });
+
+  // 6. Delete old files
+  for (const fileKey of filesToDelete) {
+    await deleteMedia(fileKey);
   }
-  return history;
+
+  return updatedHistory!;
 };
+
 export const deleteChecklistHistory = async (id: string): Promise<void> => {
   const history = await ChecklistHistory.findByIdAndDelete(id);
   if (!history) {

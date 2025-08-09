@@ -4,16 +4,14 @@ import Joi from 'joi';
 const checklistitemBody: Record<keyof CreateCheckListItemRequest, Joi.Schema> = {
   question: Joi.string().min(2).max(100),
   checklist: Joi.string().length(24),
-  evidence: Joi.string().uri(),
-  evidenceKey: Joi.string(),
-  comment: Joi.string().min(2).max(100),
+
 };
 
 export const CreateItem = Joi.object()
   .keys({
     ...checklistitemBody,
   })
-  .fork(['checklist', 'question', 'comment'], (schema) =>
+  .fork(['checklist', 'question'], (schema) =>
     schema.required().messages({
       'any.required': 'This field is required',
     })

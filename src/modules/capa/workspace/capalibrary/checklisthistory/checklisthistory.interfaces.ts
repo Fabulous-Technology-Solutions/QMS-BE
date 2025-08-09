@@ -11,6 +11,9 @@ export interface ChecklistHistoryModal extends Document {
       yes: boolean;
       no: boolean;
       partial: boolean;
+      comment:string;
+      evidenceKey:string;
+      evidence:string;
     }
   ];
 }
@@ -26,6 +29,9 @@ export interface createChecklistHistory {
       yes: boolean;
       no: boolean;
       partial: boolean;
+      comment:string;
+      evidenceKey:string;
+      evidence:string;
     }
   ];
 }
