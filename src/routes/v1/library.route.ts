@@ -55,7 +55,7 @@ router.patch(
   activityLoggerMiddleware,
   libraryController.updateLibraryById
 );
-router.delete('/:workspaceId/:libraryId', auth('deleteLibrary'), checkValidation, libraryController.deleteLibraryById);
+router.delete('/:workspaceId/:libraryId', auth('deleteLibrary'), checkValidation, activityLoggerMiddleware, libraryController.deleteLibraryById);
 router.patch(
   '/:workspaceId/:libraryId/form5W2H',  
   auth('update5W2H'),
