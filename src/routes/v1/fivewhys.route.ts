@@ -10,7 +10,7 @@ router
     .post(auth('createFiveWhys'), checkValidation, validate(FiveWhyValidation.CreateFiveWhysRequestSchema), activityLoggerMiddleware, FiveWhysController.createFiveWhys);
 
 router
-    .route('/libraries/:libraryId/fivewhys/:id')
+    .route('/libraries/:libraryId/fivewhys/:fivewhysid')
     .get(auth('getFiveWhys'), checkValidation, FiveWhysController.getFiveWhys)
     .patch(auth('updateFiveWhys'), checkValidation, validate(FiveWhyValidation.UpdateFiveWhysRequestSchema), activityLoggerMiddleware, FiveWhysController.updateFiveWhys)
     .delete(auth('deleteFiveWhys'), checkValidation, activityLoggerMiddleware, FiveWhysController.deleteFiveWhys);

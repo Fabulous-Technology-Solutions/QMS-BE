@@ -13,12 +13,12 @@ export const createFiveWhys = catchAsync(async (req: Request, res: Response) => 
 });
 
 export const getFiveWhys = catchAsync(async (req: Request, res: Response) => {
-  const fiveWhys = await FiveWhyService.getFiveWhys(req.params["_id"]||"");
+  const fiveWhys = await FiveWhyService.getFiveWhys(req.params["fivewhysid"]||"");
   res.status(200).json(fiveWhys);
 });
 
 export const updateFiveWhys = catchAsync(async (req: Request, res: Response) => {
-  const fiveWhys = await FiveWhyService.updateFiveWhys(req.params["_id"]||"", req.body);
+  const fiveWhys = await FiveWhyService.updateFiveWhys(req.params["fivewhysid"]||"", req.body);
   res.locals["message"] = "Five Whys updated";
   res.locals["documentId"] = fiveWhys?._id;
   res.locals["collectionName"] = "FiveWhys";
@@ -28,9 +28,9 @@ export const updateFiveWhys = catchAsync(async (req: Request, res: Response) => 
 });
 
 export const deleteFiveWhys = catchAsync(async (req: Request, res: Response) => {
-  await FiveWhyService.deleteFiveWhys(req.params["_id"]||"");
+  await FiveWhyService.deleteFiveWhys(req.params["fivewhysid"]||"");
   res.locals["message"] = "Five Whys deleted";
-  res.locals["documentId"] = req.params["_id"];
+  res.locals["documentId"] = req.params["fivewhysid"];
   res.locals["collectionName"] = "FiveWhys";
   res.locals['logof'] = req.body.library || req.params['libraryId'] || null; 
   res.status(204).send();
