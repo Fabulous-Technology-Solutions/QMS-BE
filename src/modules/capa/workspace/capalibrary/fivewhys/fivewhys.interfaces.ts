@@ -11,7 +11,8 @@ export interface FiveWhysModal extends mongoose.Document {
 }
 
 export interface CreateFiveWhysRequest {
-  library: mongoose.Schema.Types.ObjectId;
+  library: string;
+  createdBy: mongoose.Schema.Types.ObjectId;
   problem: string;
   list: {
     question: string;

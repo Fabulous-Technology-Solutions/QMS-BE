@@ -4,6 +4,11 @@ import Joi from "joi";
 const FiveWhyBody:Record<keyof CreateFiveWhysRequest, Joi.Schema> = {
   library: Joi.string().length(24),
   problem: Joi.string().max(500),
+  createdBy: Joi.string().length(24).required().messages({
+    "string.base": `"createdBy" should be a type of 'text'`,
+    "string.empty": `"createdBy" cannot be an empty field`,
+    "string.length": `"createdBy" must be exactly 24 characters long`
+  }),
   list: Joi.array().items(
     Joi.object({
       question: Joi.string().max(200).required().messages({
@@ -20,3 +25,5 @@ const FiveWhyBody:Record<keyof CreateFiveWhysRequest, Joi.Schema> = {
 };
 
 export const CreateFiveWhysRequestSchema = Joi.object().keys(FiveWhyBody).fork(['library', 'problem', 'list'], (schema) => schema.required())
+
+export const UpdateFiveWhysRequestSchema = Joi.object().keys(FiveWhyBody).min(1)

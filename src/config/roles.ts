@@ -91,7 +91,12 @@ const allRoles = {
     'deleteChecklistHistory',
     'getChecklistHistoryNames',
     'getlogs',
-
+    // Five Whys
+    'getFiveWhysByLibrary',
+    'deleteFiveWhys',
+    'updateFiveWhys',
+    'createFiveWhys',
+    'getFiveWhys',
     //Other
     'needAttention',
   ],
@@ -179,6 +184,12 @@ const allRoles = {
       'deleteChecklistHistory',
       'getChecklistHistoryNames',
       'getlogs',
+      // Five Whys
+      'getFiveWhysByLibrary',
+      'deleteFiveWhys',
+      'updateFiveWhys',
+      'createFiveWhys',
+      'getFiveWhys',
       //Other
       'needAttention',
     ],
@@ -237,6 +248,12 @@ const allRoles = {
       'deleteChecklistHistory',
       'getChecklistHistoryNames',
       'getlogs',
+      // Five Whys
+      'getFiveWhysByLibrary',
+      'deleteFiveWhys',
+      'updateFiveWhys',
+      'createFiveWhys',
+      'getFiveWhys',
     ],
   },
 
@@ -261,7 +278,7 @@ const allRoles = {
 
       //Causes
       'getCauses',
-      
+
       'getCause',
       'getCausesNames',
 
@@ -270,6 +287,9 @@ const allRoles = {
       'getChecklistHistories',
       'getChecklistHistoryNames',
       'getlogs',
+      // Five Whys
+      'getFiveWhysByLibrary',
+      'getFiveWhys',
     ],
     edit: [
       // 'manageLibrary',
@@ -311,6 +331,11 @@ const allRoles = {
       'getChecklistHistories',
       'getChecklistHistoryNames',
       'getlogs',
+      // Five Whys
+      'getFiveWhysByLibrary',
+      'deleteFiveWhys',
+      'updateFiveWhys',
+      'getFiveWhys',
     ],
     w_admin: [
       // permissions for workspace admin for role
@@ -396,8 +421,14 @@ const allRoles = {
       'deleteChecklistHistory',
       'getChecklistHistoryNames',
       'getlogs',
-          //Other
-    'needAttention'
+      // Five Whys
+      'getFiveWhysByLibrary',
+      'deleteFiveWhys',
+      'updateFiveWhys',
+      'createFiveWhys',
+      'getFiveWhys',
+      //Other
+      'needAttention',
     ],
   },
 };

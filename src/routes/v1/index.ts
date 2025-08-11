@@ -18,6 +18,7 @@ import causeroute from "./causes.route"
 import checklistroute from './checklist.route';
 import checklisthistoryRoute from './checklisthistory.route';
 import logsRoutes from './logs.route';
+import FiveWhyRoutes from "./fivewhys.route"
 const router = express.Router();
 
 interface IRoute {
@@ -77,6 +78,10 @@ const defaultIRoute: IRoute[] = [
   {
     path: '/causes',
     route: causeroute,
+  },
+  {
+    path: '/five-whys',
+    route: FiveWhyRoutes,
   },
   {
     path: '/checklist',

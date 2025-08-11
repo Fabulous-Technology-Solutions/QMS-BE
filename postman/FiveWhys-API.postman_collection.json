@@ -1,0 +1,183 @@
+{
+	"info": {
+		"_postman_id": "fivewhys-api-collection",
+		"name": "Five Whys API",
+		"description": "Collection for testing Five Whys CAPA Library endpoints",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Create Five Whys",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "Authorization",
+						"value": "Bearer {{token}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"title\": \"Sample Five Whys Analysis\",\n  \"description\": \"Root cause analysis for quality issue\",\n  \"libraryId\": \"{{libraryId}}\",\n  \"why1\": \"Why did the defect occur?\",\n  \"answer1\": \"Because the process was not followed correctly\",\n  \"why2\": \"Why was the process not followed correctly?\",\n  \"answer2\": \"Because the operator was not properly trained\",\n  \"why3\": \"Why was the operator not properly trained?\",\n  \"answer3\": \"Because the training program was incomplete\",\n  \"why4\": \"Why was the training program incomplete?\",\n  \"answer4\": \"Because requirements were not clearly defined\",\n  \"why5\": \"Why were requirements not clearly defined?\",\n  \"answer5\": \"Because stakeholder communication was poor\"\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/v1/fivewhys",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"v1",
+						"fivewhys"
+					]
+				}
+			}
+		},
+		{
+			"name": "Get Five Whys by ID",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{token}}"
+					}
+				],
+				"url": {
+					"raw": "{{baseUrl}}/v1/fivewhys/libraries/{{libraryId}}/fivewhys/{{fiveWhysId}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"v1",
+						"fivewhys",
+						"libraries",
+						"{{libraryId}}",
+						"fivewhys",
+						"{{fiveWhysId}}"
+					]
+				}
+			}
+		},
+		{
+			"name": "Update Five Whys",
+			"request": {
+				"method": "PATCH",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "Authorization",
+						"value": "Bearer {{token}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"title\": \"Updated Five Whys Analysis\",\n  \"description\": \"Updated root cause analysis\",\n  \"why1\": \"Updated: Why did the defect occur?\",\n  \"answer1\": \"Updated: Because the process was not followed correctly\"\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/v1/fivewhys/libraries/{{libraryId}}/fivewhys/{{fiveWhysId}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"v1",
+						"fivewhys",
+						"libraries",
+						"{{libraryId}}",
+						"fivewhys",
+						"{{fiveWhysId}}"
+					]
+				}
+			}
+		},
+		{
+			"name": "Delete Five Whys",
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{token}}"
+					}
+				],
+				"url": {
+					"raw": "{{baseUrl}}/v1/fivewhys/libraries/{{libraryId}}/fivewhys/{{fiveWhysId}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"v1",
+						"fivewhys",
+						"libraries",
+						"{{libraryId}}",
+						"fivewhys",
+						"{{fiveWhysId}}"
+					]
+				}
+			}
+		},
+		{
+			"name": "Get Five Whys by Library",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{token}}"
+					}
+				],
+				"url": {
+					"raw": "{{baseUrl}}/v1/fivewhys/libraries/{{libraryId}}/fivewhys?page=1&limit=10",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"v1",
+						"fivewhys",
+						"libraries",
+						"{{libraryId}}",
+						"fivewhys"
+					],
+					"query": [
+						{
+							"key": "page",
+							"value": "1"
+						},
+						{
+							"key": "limit",
+							"value": "10"
+						}
+					]
+				}
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:3000",
+			"type": "string"
+		},
+		{
+			"key": "token",
+			"value": "your-auth-token-here",
+			"type": "string"
+		},
+		{
+			"key": "libraryId",
+			"value": "sample-library-id",
+			"type": "string"
+		},
+		{
+			"key": "fiveWhysId",
+			"value": "sample-fivewhys-id",
+			"type": "string"
+		}
+	]
+}
