@@ -453,10 +453,13 @@ export const checkUserBelongsToLibrary = async (libraryId: string, user: IUserDo
     _id: new mongoose.Types.ObjectId(libraryId),
     isDeleted: false,
   };
+  console.log('Query data for user library check:', libraryId, 'User ID:', user?._id);
 
   if (dataType === 'mydocuments') {
-    Querydata['manager'] = { $in: [user?._id] };
+    Querydata['managers'] = { $in: [user?._id] };
   }
+
+  console.log('Query data for user library check:', Querydata, 'User ID:', dataType);
 
   const result = await LibraryModel.aggregate([
     {
