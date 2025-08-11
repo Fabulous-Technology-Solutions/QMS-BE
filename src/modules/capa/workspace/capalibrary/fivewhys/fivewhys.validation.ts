@@ -4,7 +4,7 @@ import Joi from "joi";
 const FiveWhyBody:Record<keyof CreateFiveWhysRequest, Joi.Schema> = {
   library: Joi.string().length(24),
   problem: Joi.string().max(500),
-  createdBy: Joi.string().length(24).required().messages({
+  createdBy: Joi.string().length(24).messages({
     "string.base": `"createdBy" should be a type of 'text'`,
     "string.empty": `"createdBy" cannot be an empty field`,
     "string.length": `"createdBy" must be exactly 24 characters long`
