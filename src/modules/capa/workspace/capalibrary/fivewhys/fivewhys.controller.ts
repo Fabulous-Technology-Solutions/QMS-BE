@@ -3,7 +3,7 @@ import catchAsync  from '../../../../utils/catchAsync';
 import { Request, Response } from 'express';
 
 export const createFiveWhys = catchAsync(async (req: Request, res: Response) => {
-  const fiveWhys = await FiveWhyService.createFiveWhys({ ...req.body, libraryId: req.params["libraryId"] });
+  const fiveWhys = await FiveWhyService.createFiveWhys({ ...req.body, createdBy: req.user._id });
   res.locals["message"] = "Five Whys created";
   res.locals["documentId"] = fiveWhys._id;
   res.locals["collectionName"] = "FiveWhys";
