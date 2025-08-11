@@ -6,7 +6,6 @@ const FiveWhysSchema = new mongoose.Schema<FiveWhysModal>({
   problem: { type: String, required: true, maxlength: 500 },
   createdBy:{
     type:mongoose.Schema.Types.ObjectId,
-    required: true,
     ref: "User"
   },
   list: [
