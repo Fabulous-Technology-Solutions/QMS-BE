@@ -44,7 +44,7 @@ const deleteCheckListItem = async (itemId: string) => {
     return checkListItem;
 };
 const getCheckListItemsByChecklistId = async (checklistId: string) => {
-    const checkListItems = await CheckListItem.find({ checklist: checklistId, isDelete: false })
+    const checkListItems = await CheckListItem.find({ checklist: checklistId, isDeleted: false })
         .populate('checklist', 'name description');
     return checkListItems;
 };
