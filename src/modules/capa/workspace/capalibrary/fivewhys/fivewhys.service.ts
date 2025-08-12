@@ -49,7 +49,7 @@ const getFiveWhysByLibrary = async (
   ]);
 
   const total = await FiveWhysModel.countDocuments(matchQuery);
-  return { total, fiveWhys, page };
+  return { total, data:fiveWhys, page, limit, success: true };
 };
 
 export {
