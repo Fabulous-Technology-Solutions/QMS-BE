@@ -17,16 +17,29 @@ const updateFiveWhys = async (id: string, data: Partial<CreateFiveWhysRequest>) 
 const deleteFiveWhys = async (id: string) => {
   return await FiveWhysModel.findByIdAndDelete(id);
 };
-
-const getFiveWhysByLibrary = async (libraryId: string, page: number = 1, limit: number = 10) => {
+const getFiveWhysByLibrary = async (
+  libraryId: string, 
+  page: number = 1, 
+  limit: number = 10,
+  search?: string
+) => {
   const skip = (page - 1) * limit;
-  return await FiveWhysModel.aggregate([
-    { $match: { library: libraryId } },
+  const matchQuery: any = { library: libraryId };
+  
+  if (search) {
+    matchQuery.$or = [
+      { title: { $regex: search, $options: 'i' } },
+      { description: { $regex: search, $options: 'i' } }
+    ];
+  }
+
+  const fiveWhys = await FiveWhysModel.aggregate([
+    { $match: matchQuery },
     { $skip: skip },
     { $limit: limit },
     {
       $lookup: {
-        from: 'users', // replace with your actual users collection name
+        from: 'users',
         localField: 'createdBy',
         foreignField: '_id',
         as: 'createdBy',
@@ -34,6 +47,9 @@ const getFiveWhysByLibrary = async (libraryId: string, page: number = 1, limit: 
     },
     { $unwind: { path: '$createdBy', preserveNullAndEmptyArrays: true } },
   ]);
+
+  const total = await FiveWhysModel.countDocuments(matchQuery);
+  return { total, fiveWhys, page };
 };
 
 export {

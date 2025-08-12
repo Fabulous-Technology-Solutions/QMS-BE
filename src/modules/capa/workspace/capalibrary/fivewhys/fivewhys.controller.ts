@@ -37,6 +37,6 @@ export const deleteFiveWhys = catchAsync(async (req: Request, res: Response) => 
 });
 
 export const getFiveWhysByLibrary = catchAsync(async (req: Request, res: Response) => {
-  const fiveWhys = await FiveWhyService.getFiveWhysByLibrary(req.params["libraryId"] || "", Number(req.query["page"]), Number(req.query["limit"]));
+  const fiveWhys = await FiveWhyService.getFiveWhysByLibrary(req.params["libraryId"] || "", Number(req.query["page"]), Number(req.query["limit"]), req.query["search"] as string);
   res.status(200).json(fiveWhys);
 });
