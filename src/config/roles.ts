@@ -97,6 +97,11 @@ const allRoles = {
     'updateFiveWhys',
     'createFiveWhys',
     'getFiveWhys',
+    //Ishikawa
+    'getIshikawaByLibrary',
+    "getIshikawa",
+    "deleteIshikawa",
+    "createIshikawa",
     //Other
     'needAttention',
   ],
@@ -190,6 +195,11 @@ const allRoles = {
       'updateFiveWhys',
       'createFiveWhys',
       'getFiveWhys',
+      //Ishikawa
+      'getIshikawaByLibrary',
+      "getIshikawa",
+      "deleteIshikawa",
+      "createIshikawa",
       //Other
       'needAttention',
     ],
@@ -254,6 +264,11 @@ const allRoles = {
       'updateFiveWhys',
       'createFiveWhys',
       'getFiveWhys',
+      //Ishikawa
+      'getIshikawaByLibrary',
+      "getIshikawa",
+      "deleteIshikawa",
+      "createIshikawa",
     ],
   },
 
@@ -290,6 +305,9 @@ const allRoles = {
       // Five Whys
       'getFiveWhysByLibrary',
       'getFiveWhys',
+      //Ishikawa
+      'getIshikawaByLibrary',
+      "getIshikawa",
     ],
     edit: [
       // 'manageLibrary',
@@ -336,6 +354,9 @@ const allRoles = {
       'deleteFiveWhys',
       'updateFiveWhys',
       'getFiveWhys',
+      //Ishikawa
+      'getIshikawaByLibrary',
+      "getIshikawa"
     ],
     w_admin: [
       // permissions for workspace admin for role
@@ -427,6 +448,11 @@ const allRoles = {
       'updateFiveWhys',
       'createFiveWhys',
       'getFiveWhys',
+      //Ishikawa
+      'getIshikawaByLibrary',
+      "getIshikawa",
+      "deleteIshikawa",
+      "createIshikawa",
       //Other
       'needAttention',
     ],
