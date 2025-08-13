@@ -11,6 +11,9 @@ import { LibraryModel } from './capalibrary.modal';
 import subAdmin from './../../../user/user.subAdmin';
 import { IUserDoc } from '@/modules/user/user.interfaces';
 import ActivityLog from '../../../../modules/activitylogs/activitylogs.modal';
+import puppeteer from "puppeteer";
+import fs from "fs";
+import path from "path";
 
 export const CreateLibrary = async (body: CreateLibraryRequest) => {
   const library = new LibraryModel(body);
@@ -569,8 +572,8 @@ export const getLibrariesByManager = async (managerId: string, page: number, lim
   };
 };
 
-export const restoreLibrary = async (libraryIds: string[], workspaceId: string,userId: string) => {
- console.log('Permanently deleting libraries with IDs:', libraryIds);
+export const restoreLibrary = async (libraryIds: string[], workspaceId: string, userId: string) => {
+  console.log('Permanently deleting libraries with IDs:', libraryIds);
   const result = await LibraryModel.updateMany({ _id: { $in: libraryIds } }, { isDeleted: false });
   if (result.modifiedCount === 0) {
     throw new Error('No libraries were restored');
@@ -611,3 +614,37 @@ export const deletePermanent = async (libraryIds: string[], workspaceId: string,
   );
   return result;
 };
+
+
+export const generateReport = async () => {
+
+  // 1. Launch headless browser
+  const browser = await puppeteer.launch();
+
+  // 2. Open a new page
+  const page = await browser.newPage();
+
+  // 3. Read your HTML file
+  const filePath = path.join(__dirname, "index.html"); // change file name if needed
+  const htmlContent = fs.readFileSync(filePath, "utf8");
+
+  // 4. Set the HTML as the page content
+  await page.setContent(htmlContent, { waitUntil: "networkidle0" });
+
+  // 5. Generate PDF
+  const response = await page.pdf({
+    path: "output.pdf", // output file
+    format: "A4",
+    printBackground: true,
+    margin: { top: "20mm", bottom: "20mm" },
+  });
+
+  console.log("✅ PDF created: output.pdf", response);
+
+  // 6. Close browser
+  await browser.close();
+
+  return response;
+
+
+}

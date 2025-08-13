@@ -14,6 +14,7 @@ import {
   getLibrariesByManager,
   restoreLibrary,
   deletePermanent,
+  generateReport,
 } from './capalibrary.service';
 
 export const createLibrary = catchAsync(async (req: Request, res: Response) => {
@@ -176,5 +177,14 @@ export const deletePermanentLibrary = catchAsync(async (req: Request, res: Respo
     success: true,
     data: deletedLibrary,
     message: 'Library permanently deleted successfully',
+  });
+}); 
+
+export const generateReportController = catchAsync(async (_: Request, res: Response) => {
+  const report = await generateReport();
+  res.status(200).json({
+    success: true,
+    data: report,
+    message: 'Report generated successfully',
   });
 });

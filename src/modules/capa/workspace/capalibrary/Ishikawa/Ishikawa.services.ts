@@ -1,5 +1,6 @@
 import Ishikawa from "./Ishikawa.modal";
 import {createIshikawaRequest} from "./Ishikawa.interfaces"
+import mongoose from "mongoose";
 
 const createIshikawa = async (data: createIshikawaRequest) => {
     const newIshikawa = new Ishikawa(data);
@@ -12,8 +13,8 @@ const getIshikawaById = async (id: string) => {
 
 const getIshikawaByLibraryId = async (libraryId: string, page: number = 1, limit: number = 10, search?: string) => {
     const skip = (page - 1) * limit;
-    
-    const matchStage: any = { library: libraryId };
+
+    const matchStage: any = { library: new mongoose.Types.ObjectId(libraryId) };
     if (search) {
         matchStage.$or = [
             { title: { $regex: search, $options: 'i' } },
