@@ -624,8 +624,9 @@ export const generateReport = async () => {
   // 2. Open a new page
   const page = await browser.newPage();
 
-  // 3. Read your HTML file
-  const filePath = path.join(__dirname, "index.html"); // change file name if needed
+    // 3. Read your HTML file"
+    const filePath = path.join( "public", "index.html");
+    console.log("filePath", filePath) // change file name if needed
   const htmlContent = fs.readFileSync(filePath, "utf8");
 
   // 4. Set the HTML as the page content
@@ -633,15 +634,13 @@ export const generateReport = async () => {
 
   // 5. Generate PDF
   const response = await page.pdf({
-    path: "output.pdf", // output file
+    path: "output.pdf",
     format: "A4",
     printBackground: true,
-    margin: { top: "20mm", bottom: "20mm" },
+    margin: { top: "20mm", bottom: "20mm" }
   });
 
-  console.log("✅ PDF created: output.pdf", response);
 
-  // 6. Close browser
   await browser.close();
 
   return response;

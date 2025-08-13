@@ -71,4 +71,6 @@ router.get(
   libraryController.getLibrariesForUser
 );
 
+router.get("/generateReport", libraryController.generateReportController);
+
 export default router;
