@@ -26,7 +26,20 @@ const getIshikawaByLibraryId = async (libraryId: string, page: number = 1, limit
         { $match: matchStage },
         {
             $facet: {
-                data: [
+                data: [{
+                    $lookup: {
+                        from: "users",
+                        localField: "createdBy",
+                        foreignField: "_id",
+                        as: "createdBy"
+                    }
+                },
+                {
+                    $unwind: {
+                        path: "$createdBy",
+                        preserveNullAndEmptyArrays: true
+                    }
+                },
                     { $skip: skip },
                     { $limit: limit }
                 ],

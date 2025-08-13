@@ -11,6 +11,8 @@ const IshikawaSchema = new mongoose.Schema<ICreateIshikawa>({
             cause: [{ type: String, required: true }]
         }]
     }]
+},{
+    timestamps: true
 });
 
 const IshikawaModel = mongoose.model<ICreateIshikawa>("Ishikawa", IshikawaSchema);
