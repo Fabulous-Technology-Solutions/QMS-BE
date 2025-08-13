@@ -3,7 +3,7 @@ import Joi from "joi";
 
 const IshikawaBody:Record<keyof createIshikawaRequest,Joi.Schema> = {
     library: Joi.string().required(),
-    createdBy: Joi.string().required(),
+    createdBy: Joi.string(),
     problems: Joi.array().items(Joi.object({
         problem: Joi.string().required(),
         category: Joi.array().items(Joi.object({

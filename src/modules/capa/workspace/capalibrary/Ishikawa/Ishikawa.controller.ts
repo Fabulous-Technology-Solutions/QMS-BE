@@ -3,7 +3,7 @@ import { catchAsync } from "../../../../utils"
 import { Request, Response } from "express";
 
 const createIshikawa = catchAsync(async (req: Request, res: Response) => {
-    const newIshikawa = await IshikawaService.createIshikawa(req.body);
+    const newIshikawa = await IshikawaService.createIshikawa({...req.body, createdBy: req.user.id});
     res.locals["message"] = "create Ishikawa";
     res.locals["documentId"] = newIshikawa._id || "";
     res.locals["collectionName"] = "Ishikawa";
