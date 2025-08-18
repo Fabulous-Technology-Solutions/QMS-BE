@@ -21,3 +21,24 @@ export interface IUploadChunk {
     uploadId: string;
     file: Express.Multer.File;
 }
+
+export interface ISingleFileUpload {
+    fileName: string;
+    fileContent: string; // base64 encoded string
+    contentType: string;
+    isBase64?: boolean;
+}
+
+export interface IFilePathUpload {
+    filePath: string;
+    fileName: string;
+    contentType: string;
+}
+
+export interface IUploadResponse {
+    Location: string;
+    Key: string;
+    ETag: string;
+    message: string;
+    success: boolean;
+}

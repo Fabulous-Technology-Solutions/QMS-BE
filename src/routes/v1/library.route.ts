@@ -15,6 +15,7 @@ router.post(
   activityLoggerMiddleware,
   libraryController.createLibrary
 );
+router.get("/generateReport/:libraryId", libraryController.generateReportController);
 router.get('/workspace/:workspaceId', auth('getWorkspaceLibraries'), checkCreateRole, libraryController.getLibraries);
 router.get(
   '/workspace/:libraryId/names',
@@ -67,10 +68,9 @@ router.get(
   '/workspace/:workspaceId/libraries/User',
   auth('getUserLibraries'),
   checkCreateRole,
-  activityLoggerMiddleware,
   libraryController.getLibrariesForUser
 );
 
-router.get("/generateReport", libraryController.generateReportController);
+router.get("/generateReport/:libraryId", libraryController.generateReportController);
 
 export default router;

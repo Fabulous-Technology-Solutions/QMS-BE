@@ -6,7 +6,8 @@ import {
   CompleteMultipartUploadCommand,
   GetObjectCommand,
   ListPartsCommand,
-  DeleteObjectCommand
+  DeleteObjectCommand,
+  PutObjectCommand
 } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 
@@ -156,11 +157,87 @@ const deleteMedia = async (key: string): Promise<any> => {
   }
 };
 
+/**
+ * Simple file upload without multipart (for smaller files)
+ * Supports base64 encoded data or Buffer
+ */
+// {
+//   fileName: "report.pdf",
+//   fileContent: "JVBERi0xLjQKJeLjz9MKNCAwIG9iago8PC9UeXBlL0NhdGFsb2...", // Base64 PDF content
+//   contentType: "application/pdf",
+//   isBase64: true
+// }
+
+const uploadSingleFile = async (
+  fileName: string, 
+  fileContent: string | Buffer, 
+  contentType: string,
+  isBase64: boolean = false
+): Promise<{ Location: string; Key: string; ETag: string }> => {
+  try {
+    let fileBuffer: Buffer;
+    
+    if (isBase64 && typeof fileContent === 'string') {
+      // Remove data:image/jpeg;base64, prefix if present
+      const base64Data = fileContent.replace(/^data:[^;]+;base64,/, '');
+      fileBuffer = Buffer.from(base64Data, 'base64');
+    } else if (Buffer.isBuffer(fileContent)) {
+      fileBuffer = fileContent;
+    } else {
+      throw new Error('Invalid file content type. Must be base64 string or Buffer.');
+    }
+
+    const command = new PutObjectCommand({
+      Bucket: bucketName,
+      Key: fileName,
+      Body: fileBuffer,
+      ContentType: contentType,
+      ACL: 'public-read'
+    });
+
+    const response = await s3Client.send(command);
+    
+    // Construct the file URL
+    const fileUrl = `https://${bucketName}.s3.${envVars.REGION}.amazonaws.com/${fileName}`;
+    
+    return {
+      Location: fileUrl,
+      Key: fileName,
+      ETag: response.ETag || ''
+    };
+  } catch (error) {
+    console.error('Error uploading single file:', error);
+    throw error;
+  }
+};
+
+/**
+ * Upload file from local file system path
+ */
+const uploadFileFromPath = async (
+  filePath: string,
+  fileName: string,
+  contentType: string
+): Promise<{ Location: string; Key: string; ETag: string }> => {
+  try {
+    const fs = require('fs');
+    const fileBuffer = fs.readFileSync(filePath);
+    
+    return await uploadSingleFile(fileName, fileBuffer, contentType, false);
+  } catch (error) {
+    console.error('Error uploading file from path:', error);
+    throw error;
+  }
+};
+
+
 export {
   initiateMultipartUpload,
   createPresignedUrl,
   uploadPart,
   completeMultipartUpload,
   generateDownloadUrl,
-  deleteMedia
+  deleteMedia,
+  uploadSingleFile,
+  uploadFileFromPath
 };

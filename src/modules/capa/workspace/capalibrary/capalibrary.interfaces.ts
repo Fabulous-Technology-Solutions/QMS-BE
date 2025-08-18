@@ -70,6 +70,7 @@ export interface GetLibrariesQueryforUser {
   managers: {
     $in: mongoose.Types.ObjectId[]
   },
+  workspace: mongoose.Types.ObjectId;
   isDeleted?: boolean;
   $or?: [{ name: { $regex: string; $options: string } },
     { description: { $regex: string; $options: string } }];

@@ -156,7 +156,7 @@ export const updateForm5W2HController = catchAsync(async (req: Request, res: Res
 export const getLibrariesForUser = catchAsync(async (req: Request, res: Response) => {
   const userId = req.user._id as string;
   const { page = 1, limit = 10, search = '' } = req.query;
-  const libraries = await getLibrariesByManager(userId || '', Number(page), Number(limit), search as string);
+  const libraries = await getLibrariesByManager(req.params["workspaceId"] as string, userId || '', Number(page), Number(limit), search as string);
   res.status(200).json(libraries);
 });
 
@@ -180,7 +180,8 @@ export const deletePermanentLibrary = catchAsync(async (req: Request, res: Respo
   });
 }); 
 
-export const generateReportController = catchAsync(async (_: Request, res: Response) => {
-  const report = await generateReport();
+export const generateReportController = catchAsync(async (req: Request, res: Response) => {
+  const { libraryId } = req.params;
+  const report = await generateReport(libraryId as string || '');
   res.status(200).json(report);
 });

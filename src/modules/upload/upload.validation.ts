@@ -1,5 +1,5 @@
 const Joi = require('joi');
-import { CompleteUpload, IinitateUpload, IPressignedUrl } from './upload.interfaces';
+import { CompleteUpload, IinitateUpload, IPressignedUrl, ISingleFileUpload, IFilePathUpload } from './upload.interfaces';
 const initiateUploadBody: Record<keyof IinitateUpload, any> = {
     fileName: Joi.string().trim().min(3).required(),
     filetype: Joi.string()
@@ -31,4 +31,79 @@ const completeUploadBody: Record<keyof CompleteUpload, any> = {
 
 export const completeUploadSchema = {
     body: Joi.object().keys(completeUploadBody)
+};
+
+// Single file upload validation (non-multipart)
+const singleFileUploadBody: Record<keyof ISingleFileUpload, any> = {
+    fileName: Joi.string().trim().min(1).required(),
+    fileContent: Joi.string().required(),
+    contentType: Joi.string()
+        .valid(
+            'image/png', 
+            'image/jpeg', 
+            'image/jpg', 
+            'image/gif',
+            'image/webp',
+            'application/pdf', 
+            'video/mp4',
+            'video/avi',
+            'video/mov',
+            'text/plain',
+            'text/csv',
+            'application/json',
+            'application/xml',
+            'application/zip',
+            'application/vnd.ms-excel',
+            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        )
+        .required(),
+    isBase64: Joi.boolean().optional().default(true)
+};
+
+export const singleFileUploadSchema = {
+    body: Joi.object().keys(singleFileUploadBody)
+};
+
+// File path upload validation
+const filePathUploadBody: Record<keyof IFilePathUpload, any> = {
+    filePath: Joi.string().required(),
+    fileName: Joi.string().trim().min(1).required(),
+    contentType: Joi.string()
+        .valid(
+            'image/png', 
+            'image/jpeg', 
+            'image/jpg', 
+            'image/gif',
+            'image/webp',
+            'application/pdf', 
+            'video/mp4',
+            'video/avi',
+            'video/mov',
+            'text/plain',
+            'text/csv',
+            'application/json',
+            'application/xml',
+            'application/zip',
+            'application/vnd.ms-excel',
+            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        )
+        .required()
+};
+
+export const filePathUploadSchema = {
+    body: Joi.object().keys(filePathUploadBody)
+};
+
+// JSON data upload validation
+export const jsonDataUploadSchema = {
+    body: Joi.object().keys({
+        data: Joi.alternatives().try(
+            Joi.object(),
+            Joi.array(),
+            Joi.string(),
+            Joi.number(),
+            Joi.boolean()
+        ).required(),
+        fileName: Joi.string().trim().min(1).required()
+    })
 };

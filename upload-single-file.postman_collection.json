@@ -1,0 +1,449 @@
+{
+	"info": {
+		"_postman_id": "upload-single-file-collection",
+		"name": "File Upload - Non-Multipart",
+		"description": "Complete API collection for single file uploads without multipart form data. Supports base64 uploads, file path uploads, JSON data uploads, and file downloads.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "qms-system"
+	},
+	"item": [
+		{
+			"name": "Upload Base64 Image",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 201\", function () {",
+							"    pm.response.to.have.status(201);",
+							"});",
+							"",
+							"pm.test(\"Response has required fields\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData).to.have.property('Location');",
+							"    pm.expect(jsonData).to.have.property('Key');",
+							"    pm.expect(jsonData).to.have.property('success', true);",
+							"});",
+							"",
+							"// Save the file key for download test",
+							"if (pm.response.code === 201) {",
+							"    var responseJson = pm.response.json();",
+							"    pm.environment.set(\"uploaded_file_key\", responseJson.Key);",
+							"}"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "Authorization",
+						"value": "Bearer {{access_token}}",
+						"description": "JWT access token for authentication"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"fileName\": \"sample-image.jpg\",\n  \"fileContent\": \"data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCdABmX/9k=\",\n  \"contentType\": \"image/jpeg\",\n  \"isBase64\": true\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/v1/upload/single-file",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"v1",
+						"upload",
+						"single-file"
+					]
+				},
+				"description": "Upload an image file using base64 encoding. The file content should be a base64 encoded string with or without the data URL prefix."
+			},
+			"response": [
+				{
+					"name": "Success - Image Uploaded",
+					"originalRequest": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"fileName\": \"sample-image.jpg\",\n  \"fileContent\": \"data:image/jpeg;base64,/9j/4AAQ...\",\n  \"contentType\": \"image/jpeg\",\n  \"isBase64\": true\n}"
+						}
+					},
+					"status": "Created",
+					"code": 201,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "{\n  \"Location\": \"https://your-bucket.s3.us-east-1.amazonaws.com/1703875200000-sample-image.jpg\",\n  \"Key\": \"1703875200000-sample-image.jpg\",\n  \"ETag\": \"\\\"d41d8cd98f00b204e9800998ecf8427e\\\"\",\n  \"message\": \"File uploaded successfully\",\n  \"success\": true\n}"
+				}
+			]
+		},
+		{
+			"name": "Upload PDF Document",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 201\", function () {",
+							"    pm.response.to.have.status(201);",
+							"});",
+							"",
+							"pm.test(\"Response contains PDF upload confirmation\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData.Key).to.include('.pdf');",
+							"    pm.expect(jsonData.success).to.be.true;",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "Authorization",
+						"value": "Bearer {{access_token}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"fileName\": \"report.pdf\",\n  \"fileContent\": \"JVBERi0xLjQKJeLjz9MKNCAwIG9iago8PC9UeXBlL0NhdGFsb2cvUGFnZXMgMiAwIFIvVmVyc2lvbi8xLjQ+PgplbmRvYmoKMiAwIG9iago8PC9UeXBlL1BhZ2VzL0tpZHNbMyAwIFJdL0NvdW50IDE+PgplbmRvYmoKMyAwIG9iago8PC9UeXBlL1BhZ2UvTWVkaWFCb3hbMCAwIDU5NSA4NDJdL1BhcmVudCAyIDAgUi9SZXNvdXJjZXM8PC9Gb250PDwvRjEgNCAwIFI+Pj4+L0NvbnRlbnRzIDUgMCBSPj4KZW5kb2JqCjQgMCBvYmoKPDwvVHlwZS9Gb250L1N1YnR5cGUvVHlwZTEvQmFzZUZvbnQvSGVsdmV0aWNhPj4KZW5kb2JqCjUgMCBvYmoKPDwvTGVuZ3RoIDQ0Pj4Kc3RyZWFtCkJUCi9GMSAxMiBUZgoxMCA3MDAgVGQKKEhlbGxvIFdvcmxkKSBUagpFVApzdHJlYW0KZW5kb2JqCnhyZWYKMCA2CjAwMDAwMDAwMDAgNjU1MzUgZiAKMDAwMDAwMDAwOSAwMDAwMCBuIAowMDAwMDAwMDc0IDAwMDAwIG4gCjAwMDAwMDAxMjAgMDAwMDAgbiAKMDAwMDAwMDIyNiAwMDAwMCBuIAowMDAwMDAwMjk1IDAwMDAwIG4gCnRyYWlsZXIKPDwvU2l6ZSA2L1Jvb3QgMSAwIFI+PgpzdGFydHhyZWYKMzg5CiUlRU9G\",\n  \"contentType\": \"application/pdf\",\n  \"isBase64\": true\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/v1/upload/single-file",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"v1",
+						"upload",
+						"single-file"
+					]
+				},
+				"description": "Upload a PDF document using base64 encoding. The example includes a minimal PDF with 'Hello World' content."
+			},
+			"response": []
+		},
+		{
+			"name": "Upload from File Path",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 201\", function () {",
+							"    pm.response.to.have.status(201);",
+							"});",
+							"",
+							"pm.test(\"Response confirms file path upload\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData.message).to.include('from path');",
+							"    pm.expect(jsonData.success).to.be.true;",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "Authorization",
+						"value": "Bearer {{access_token}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"filePath\": \"/tmp/generated-report.pdf\",\n  \"fileName\": \"monthly-report.pdf\",\n  \"contentType\": \"application/pdf\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/v1/upload/from-path",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"v1",
+						"upload",
+						"from-path"
+					]
+				},
+				"description": "Upload a file from the server's file system. Useful for backend-generated files like reports or processed documents."
+			},
+			"response": []
+		},
+		{
+			"name": "Upload JSON Data",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 201\", function () {",
+							"    pm.response.to.have.status(201);",
+							"});",
+							"",
+							"pm.test(\"Response confirms JSON upload\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData.Key).to.include('.json');",
+							"    pm.expect(jsonData.message).to.include('JSON');",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "Authorization",
+						"value": "Bearer {{access_token}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"data\": {\n    \"report\": {\n      \"title\": \"Monthly Sales Report\",\n      \"period\": \"2024-12\",\n      \"metrics\": {\n        \"totalSales\": 150000,\n        \"newCustomers\": 45,\n        \"conversionRate\": 3.2\n      },\n      \"details\": [\n        {\n          \"product\": \"Product A\",\n          \"sales\": 75000,\n          \"growth\": \"+15%\"\n        },\n        {\n          \"product\": \"Product B\",\n          \"sales\": 45000,\n          \"growth\": \"+8%\"\n        },\n        {\n          \"product\": \"Product C\",\n          \"sales\": 30000,\n          \"growth\": \"-2%\"\n        }\n      ],\n      \"summary\": \"Strong performance across all product lines with exceptional growth in Product A.\"\n    }\n  },\n  \"fileName\": \"monthly-sales-report\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/v1/upload/json-data",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"v1",
+						"upload",
+						"json-data"
+					]
+				},
+				"description": "Upload structured JSON data as a file. Perfect for exporting reports, configurations, or any structured data."
+			},
+			"response": []
+		},
+		{
+			"name": "Download File",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Response contains download URL\", function () {",
+							"    var responseText = pm.response.text();",
+							"    pm.expect(responseText).to.include('amazonaws.com');",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{access_token}}"
+					}
+				],
+				"url": {
+					"raw": "{{base_url}}/v1/upload/download?key={{uploaded_file_key}}",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"v1",
+						"upload",
+						"download"
+					],
+					"query": [
+						{
+							"key": "key",
+							"value": "{{uploaded_file_key}}",
+							"description": "File key from upload response"
+						}
+					]
+				},
+				"description": "Generate a presigned download URL for a previously uploaded file. The URL is valid for 1 hour."
+			},
+			"response": []
+		},
+		{
+			"name": "Upload Text File",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 201\", function () {",
+							"    pm.response.to.have.status(201);",
+							"});",
+							"",
+							"pm.test(\"Text file uploaded successfully\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData.Key).to.include('.txt');",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "Authorization",
+						"value": "Bearer {{access_token}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"fileName\": \"sample-text.txt\",\n  \"fileContent\": \"VGhpcyBpcyBhIHNhbXBsZSB0ZXh0IGZpbGUgY29udGVudC4KSXQgY29udGFpbnMgbXVsdGlwbGUgbGluZXMuCkVhY2ggbGluZSBkZW1vbnN0cmF0ZXMgZGlmZmVyZW50IGNvbnRlbnQu\",\n  \"contentType\": \"text/plain\",\n  \"isBase64\": true\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/v1/upload/single-file",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"v1",
+						"upload",
+						"single-file"
+					]
+				},
+				"description": "Upload a text file using base64 encoding. The example contains multi-line text content."
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"// Set default environment variables if not already set",
+					"if (!pm.environment.get('base_url')) {",
+					"    pm.environment.set('base_url', 'http://localhost:3000');",
+					"}",
+					"",
+					"// Check if access token exists",
+					"if (!pm.environment.get('access_token')) {",
+					"    console.log('Warning: access_token not set. Please authenticate first.');",
+					"}",
+					"",
+					"// Generate timestamp for unique filenames",
+					"pm.environment.set('timestamp', Date.now());"
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"// Global test to check response time",
+					"pm.test('Response time is less than 10000ms', function () {",
+					"    pm.expect(pm.response.responseTime).to.be.below(10000);",
+					"});",
+					"",
+					"// Global test to check for common error responses",
+					"if (pm.response.code >= 400) {",
+					"    pm.test('Error response has message', function () {",
+					"        var jsonData = pm.response.json();",
+					"        pm.expect(jsonData).to.have.property('message');",
+					"    });",
+					"}",
+					"",
+					"// Log response for debugging",
+					"console.log('Response Status:', pm.response.status);",
+					"console.log('Response Body:', pm.response.text());"
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:3000",
+			"description": "Base URL for the QMS API"
+		},
+		{
+			"key": "access_token",
+			"value": "",
+			"description": "JWT access token for authentication"
+		},
+		{
+			"key": "uploaded_file_key",
+			"value": "",
+			"description": "File key from upload response (auto-set)"
+		},
+		{
+			"key": "timestamp",
+			"value": "",
+			"description": "Current timestamp for unique filenames"
+		}
+	]
+}

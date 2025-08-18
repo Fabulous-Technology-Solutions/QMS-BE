@@ -12,8 +12,8 @@ import subAdmin from './../../../user/user.subAdmin';
 import { IUserDoc } from '@/modules/user/user.interfaces';
 import ActivityLog from '../../../../modules/activitylogs/activitylogs.modal';
 import puppeteer from "puppeteer";
-import fs from "fs";
-import path from "path";
+import { pdfTemplate } from '../../../../modules/utils/pdfTemplate';
+import { uploadSingleFile } from '../../../../modules/upload/upload.middleware';
 
 export const CreateLibrary = async (body: CreateLibraryRequest) => {
   const library = new LibraryModel(body);
@@ -501,8 +501,9 @@ export const updateForm5W2H = async (libraryId: string, formData: UpdateForm5W2H
   return library;
 };
 
-export const getLibrariesByManager = async (managerId: string, page: number, limit: number, search: string) => {
+export const getLibrariesByManager = async (workspaceId: string, managerId: string, page: number, limit: number, search: string) => {
   const matchStage: GetLibrariesQueryforUser = {
+    workspace: new mongoose.Types.ObjectId(workspaceId),
     managers: { $in: [new mongoose.Types.ObjectId(managerId)] },
     isDeleted: false,
   };
@@ -616,32 +617,199 @@ export const deletePermanent = async (libraryIds: string[], workspaceId: string,
 };
 
 
-export const generateReport = async () => {
+export const generateReport = async (libraryId: string) => {
 
   // 1. Launch headless browser
   const browser = await puppeteer.launch();
 
-  // 2. Open a new page
+
   const page = await browser.newPage();
 
-    // 3. Read your HTML file"
-    const filePath = path.join( "public", "index.html");
-    console.log("filePath", filePath) // change file name if needed
-  const htmlContent = fs.readFileSync(filePath, "utf8");
+  const [findLibrary] = await LibraryModel.aggregate([
+  { $match: { _id: new mongoose.Types.ObjectId(libraryId) } },
+  {
+    $lookup: {
+      from: 'users',
+      localField: 'members',
+      foreignField: '_id',
+      as: 'members',
+      pipeline: [{ $project: { name: 1, email: 1, profilePicture: 1, role: 1 } }],
+    },
+  },
+  {
+    $lookup: {
+      from: 'users',
+      localField: 'managers',
+      foreignField: '_id',
+      as: 'managers',
+      pipeline: [{ $project: { name: 1, email: 1, profilePicture: 1, role: 1 } }],
+    },
+  },
+  {
+    $lookup: {
+      from: 'causes',
+      localField: '_id',
+      foreignField: 'library',
+      as: 'causes',
+      pipeline: [{ $project: { name: 1, description: 1, createdAt: 1 } }],
+    },
+  },
+  {
+    $lookup: {
+      from: 'actions',
+      localField: '_id',
+      foreignField: 'library',
+      as: 'actions',
+      pipeline: [
+        {
+          $lookup: {
+            from: 'users',
+            localField: 'assignedTo',
+            foreignField: '_id',
+            as: 'assignedTo',
+            pipeline: [{ $project: { name: 1, email: 1, profilePicture: 1 } }],
+          }
+        },
+        {
+          $project: {
+            name: 1,
+            email: 1,
+            profilePicture: 1,
+            status: 1,
+            createdAt: 1,
+            priority: 1,
+            endDate: 1,
+            startDate: 1,
+            type: 1,
+            assignedTo: 1,
+            cause: 1,
+            docfile: 1
+          }
+        }
+      ],
+    },
+  },
+  {
+    $addFields: {
+      pendingActions: {
+        $size: {
+          $ifNull: [
+            { $filter: { input: '$actions', as: 'action', cond: { $eq: ['$$action.status', 'pending'] } } },
+            []
+          ]
+        }
+      },
+      inProgressActions: {
+        $size: {
+          $ifNull: [
+            { $filter: { input: '$actions', as: 'action', cond: { $eq: ['$$action.status', 'in-progress'] } } },
+            []
+          ]
+        }
+      },
+      onHoldActions: {
+        $size: {
+          $ifNull: [
+            { $filter: { input: '$actions', as: 'action', cond: { $eq: ['$$action.status', 'on-hold'] } } },
+            []
+          ]
+        }
+      },
+      completedActions: {
+        $size: {
+          $ifNull: [
+            { $filter: { input: '$actions', as: 'action', cond: { $eq: ['$$action.status', 'completed'] } } },
+            []
+          ]
+        }
+      }
+    }
+  },
+  {
+    $lookup: {
+      from: 'checklisthistories',
+      localField: '_id',
+      foreignField: 'library',
+      as: 'checklisthistory',
+      pipeline: [
+        // bring in checklistitems for list.item
+        {
+          $lookup: {
+            from: 'checklistitems',
+            localField: 'list.item',
+            foreignField: '_id',
+            as: 'itemsData'
+          }
+        },
+        {
+          $addFields: {
+            list: {
+              $map: {
+                input: "$list",
+                as: "l",
+                in: {
+                  $mergeObjects: [
+                    "$$l",
+                    {
+                      itemName: {
+                        $arrayElemAt: [
+                          {
+                            $map: {
+                              input: {
+                                $filter: {
+                                  input: "$itemsData",
+                                  as: "i",
+                                  cond: { $eq: ["$$i._id", "$$l.item"] }
+                                }
+                              },
+                              as: "ii",
+                              in: "$$ii.name"
+                            }
+                          },
+                          0
+                        ]
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        { $project: { itemsData: 0 } }
+      ]
+    }
+  }
+]);
+
+  if (!findLibrary) {
+    throw new Error('Library not found');
+  }
+
+  const pdfContent = await pdfTemplate(findLibrary);
 
   // 4. Set the HTML as the page content
-  await page.setContent(htmlContent, { waitUntil: "networkidle0" });
+  await page.setContent(pdfContent, { waitUntil: "networkidle0" });
 
   // 5. Generate PDF
-  const response = await page.pdf({
-    path: "output.pdf",
+  const pdfBuffer = await page.pdf({
     format: "A4",
     printBackground: true,
     margin: { top: "20mm", bottom: "20mm" }
   });
+  const timestamp = Date.now();
+  const uniqueFileName = `${timestamp}-Report.pdf`;
 
+  // Convert Uint8Array to Buffer
+  const buffer = Buffer.from(pdfBuffer);
+  const response = await uploadSingleFile(uniqueFileName, buffer, "application/pdf", false);
 
-  await browser.close();
+  if (!response) {
+    throw new Error('Failed to upload PDF');
+  }
+  console.log('PDF uploaded successfully:', response);
+
+  browser.close();
 
   return response;
 
