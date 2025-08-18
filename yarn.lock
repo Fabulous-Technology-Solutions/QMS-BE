@@ -3034,9 +3034,9 @@ bare-path@^3.0.0:
     bare-os "^3.0.1"
 
 bare-stream@^2.6.4:
-  version "2.6.5"
-  resolved "https://registry.npmjs.org/bare-stream/-/bare-stream-2.6.5.tgz"
-  integrity sha512-jSmxKJNJmHySi6hC42zlZnq00rga4jjxcgNZjY9N5WlOe/iOoGRtdwGsHzQv2RlH2KOYMwGUXhf2zXd32BA9RA==
+  version "2.7.0"
+  resolved "https://registry.npmjs.org/bare-stream/-/bare-stream-2.7.0.tgz"
+  integrity sha512-oyXQNicV1y8nc2aKffH+BUHFRXmx6VrPzlnaEvMhram0nPBrKcEdcyBg5r08D0i8VxngHFAiVyn1QKXpSG0B8A==
   dependencies:
     streamx "^2.21.0"
 
@@ -7883,10 +7883,10 @@ punycode@^2.1.0, punycode@^2.1.1:
   resolved "https://registry.npmjs.org/punycode/-/punycode-2.1.1.tgz"
   integrity sha512-XRsRjdf+j5ml+y/6GKHPZbrF/8p2Yga0JPtdqTIY2Xe5ohJPD9saDJJLPvp9+NSBprVvevdXZybnj2cv8OEd0A==
 
-puppeteer-core@24.16.1:
-  version "24.16.1"
-  resolved "https://registry.npmjs.org/puppeteer-core/-/puppeteer-core-24.16.1.tgz"
-  integrity sha512-0dGD2kxoH9jqj/xiz4KZLcPKpqWygs+VSEBzvuVbU3KoT2cCw4HnMT9r/7NvYl1lIa+JCa5yIyRqi+4R3UyYfQ==
+puppeteer-core@24.16.2:
+  version "24.16.2"
+  resolved "https://registry.npmjs.org/puppeteer-core/-/puppeteer-core-24.16.2.tgz"
+  integrity sha512-areKSSQzpoHa5nCk3uD/o504yjrW5ws0N6jZfdFZ3a4H+Q7NBgvuDydjN5P87jN4Rj+eIpLcK3ELOThTtYuuxg==
   dependencies:
     "@puppeteer/browsers" "2.10.6"
     chromium-bidi "7.3.1"
@@ -7895,16 +7895,16 @@ puppeteer-core@24.16.1:
     typed-query-selector "^2.12.0"
     ws "^8.18.3"
 
-puppeteer@^24.16.1:
-  version "24.16.1"
-  resolved "https://registry.npmjs.org/puppeteer/-/puppeteer-24.16.1.tgz"
-  integrity sha512-3jrx2BrOBb8yr3+KE7OyxVtI2fjPNZi46/SQGxFvlKZX4/56i2LbdArEhNvlQw/xxmsZfpjFRbGtkMavgh3I+g==
+puppeteer@^24.16.2:
+  version "24.16.2"
+  resolved "https://registry.npmjs.org/puppeteer/-/puppeteer-24.16.2.tgz"
+  integrity sha512-eNjKzwjITM4Lvho6iHb+VQamadUBgc8TsjAApsKi5N8DXipxAaAZWssBOFsrIOLo4eYWYj0Qk5gmr4wBSqzJWw==
   dependencies:
     "@puppeteer/browsers" "2.10.6"
     chromium-bidi "7.3.1"
     cosmiconfig "^9.0.0"
     devtools-protocol "0.0.1475386"
-    puppeteer-core "24.16.1"
+    puppeteer-core "24.16.2"
     typed-query-selector "^2.12.0"
 
 q@^1.5.1:

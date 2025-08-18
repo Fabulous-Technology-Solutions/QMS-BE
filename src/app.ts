@@ -13,7 +13,7 @@ import { jwtStrategy } from './modules/auth';
 import { authLimiter } from './modules/utils';
 import { ApiError, GlobalError } from './modules/errors';
 import routes from './routes/v1';
-import path from 'path';
+
 
 
 const app: Express = express();
@@ -24,8 +24,6 @@ if (config.env !== 'test') {
 }
 app.set('trust proxy', 1);
 
-// Serve static files from public directory
-app.use('/public', express.static(path.join(__dirname, '..', 'public')));
 
 // app.use(
 //   session({

@@ -20,6 +20,7 @@ import checklisthistoryRoute from './checklisthistory.route';
 import logsRoutes from './logs.route';
 import FiveWhyRoutes from "./fivewhys.route";
 import IshikawaRoutes from "./Ishikawa.route";
+import ReportReport from "./report.route"
 const router = express.Router();
 
 interface IRoute {
@@ -103,6 +104,10 @@ const defaultIRoute: IRoute[] = [
   {
     path: '/ishikawa',
     route: IshikawaRoutes,
+  },
+  {
+    path: '/reports',
+    route: ReportReport,
   },
 ];
 

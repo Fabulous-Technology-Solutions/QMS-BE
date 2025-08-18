@@ -10,7 +10,7 @@
       list: [
         {
           item: { type: mongoose.Schema.Types.ObjectId, ref: 'CheckListItem', required: true },
-          yes: { type: Boolean, required: true },
+          yes: { type: Boolean, required: true }, 
           no: { type: Boolean, required: true },
           partial: { type: Boolean, required: true },
           evidence: { type: String, required: true },

@@ -11,9 +11,9 @@ import { LibraryModel } from './capalibrary.modal';
 import subAdmin from './../../../user/user.subAdmin';
 import { IUserDoc } from '@/modules/user/user.interfaces';
 import ActivityLog from '../../../../modules/activitylogs/activitylogs.modal';
-import puppeteer from "puppeteer";
 import { pdfTemplate } from '../../../../modules/utils/pdfTemplate';
 import { uploadSingleFile } from '../../../../modules/upload/upload.middleware';
+import puppeteer from "puppeteer"
 
 export const CreateLibrary = async (body: CreateLibraryRequest) => {
   const library = new LibraryModel(body);
@@ -21,7 +21,7 @@ export const CreateLibrary = async (body: CreateLibraryRequest) => {
 };
 
 export const getLibraryById = async (libraryId: string) => {
-  const data = await LibraryModel.findOne({ _id: libraryId, isDeleted: false })
+  const data = await LibraryModel.findOne({ _id: libraryId, isDeleted: false }) 
     .populate('members', 'name email profilePicture')
     .populate('managers', 'name email profilePicture');
 
@@ -621,7 +621,7 @@ export const generateReport = async (libraryId: string) => {
 
   // 1. Launch headless browser
   const browser = await puppeteer.launch();
-
+                 
 
   const page = await browser.newPage();
 
@@ -725,61 +725,78 @@ export const generateReport = async (libraryId: string) => {
       }
     }
   },
-  {
-    $lookup: {
-      from: 'checklisthistories',
-      localField: '_id',
-      foreignField: 'library',
-      as: 'checklisthistory',
-      pipeline: [
-        // bring in checklistitems for list.item
-        {
-          $lookup: {
-            from: 'checklistitems',
-            localField: 'list.item',
-            foreignField: '_id',
-            as: 'itemsData'
-          }
-        },
-        {
-          $addFields: {
-            list: {
-              $map: {
-                input: "$list",
-                as: "l",
-                in: {
-                  $mergeObjects: [
-                    "$$l",
-                    {
-                      itemName: {
-                        $arrayElemAt: [
-                          {
-                            $map: {
-                              input: {
-                                $filter: {
-                                  input: "$itemsData",
-                                  as: "i",
-                                  cond: { $eq: ["$$i._id", "$$l.item"] }
-                                }
-                              },
-                              as: "ii",
-                              in: "$$ii.name"
-                            }
-                          },
-                          0
-                        ]
-                      }
-                    }
-                  ]
-                }
-              }
+{
+  $lookup: {
+    from: 'checklisthistories',
+    localField: '_id',
+    foreignField: 'library',
+    as: 'checklisthistory',
+    pipeline: [
+      {
+        $lookup:{
+          from: 'checklists', // collection name for Checklist
+          localField: 'checklistId',
+          foreignField: '_id',
+          as: 'checklistId',
+          pipeline: [
+            { $project: { name: 1, description: 1 } } // project what you need
+          ]  
+        }
+      },
+      {
+        $unwind: {
+          path: "$checklistId",
+          preserveNullAndEmptyArrays: true
+        }
+      },
+      {
+        $unwind: {
+          path: "$list",
+          preserveNullAndEmptyArrays: true
+        }
+      },
+      {
+        $lookup: {
+          from: "checklistitems", // collection name for CheckListItem
+          localField: "list.item",
+          foreignField: "_id",
+          as: "list.itemDetails",
+          pipeline: [
+            { $project: { question: 1 } } // project what you need
+          ]
+        }
+      },
+      {
+        $unwind: {
+          path: "$list.itemDetails",
+          preserveNullAndEmptyArrays: true
+        }
+      },
+      {
+        $group: {
+          _id: "$_id",
+          checklist: { $first: "$checklistId" },
+          library: { $first: "$library" },
+          comment: { $first: "$comment" },
+          createdBy: { $first: "$createdBy" },
+          createdAt: { $first: "$createdAt" },
+          updatedAt: { $first: "$updatedAt" },
+          list: {
+            $push: {
+              item: "$list.itemDetails", // populated item
+              yes: "$list.yes",
+              no: "$list.no",
+              partial: "$list.partial",
+              evidence: "$list.evidence",
+              evidenceKey: "$list.evidenceKey",
+              comment: "$list.comment"
             }
           }
-        },
-        { $project: { itemsData: 0 } }
-      ]
-    }
+        }
+      }
+    ]
   }
+}
 ]);
 
   if (!findLibrary) {

@@ -3,8 +3,8 @@ import catchAsync from "../../../utils/catchAsync";
 import { Request, Response } from 'express';
 
 export const createReportController = catchAsync(async (req: Request, res: Response) => {
-  const createdBy = (req.user as any)._id;
-  const data = { ...req.body, createdBy };
+
+  const data = { ...req.body, createdBy: req.user._id, workspace: req.body.workspace };
   const report = await ReportService.createReport(data);
   res.status(201).json({ success: true, data: report });
 });             

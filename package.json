@@ -135,7 +135,7 @@
     "passport-google-oauth20": "^2.0.0",
     "passport-jwt": "^4.0.0",
     "pm2": "^5.1.2",
-    "puppeteer": "^24.16.1",
+    "puppeteer": "^24.16.2",
     "serverless-http": "^3.2.0",
     "stripe": "^18.3.0",
     "swagger-jsdoc": "^6.1.0",

@@ -7,7 +7,10 @@ export interface CreateIshikawa extends Document {
         problem: string;
         category: Array<{
             name: string;
-            cause: string[];
+            cause: Array<{
+                name: string;
+                subCauses: Array<string>;
+            }>;
         }>;
     }>;
 }
@@ -20,7 +23,10 @@ export interface createIshikawaRequest{
         problem: string;
         category: Array<{
             name: string;
-            cause: string[];
+            cause: Array<{
+                name: string;
+                subCauses: Array<string>;
+            }>;
         }>;
     }>;
 }
