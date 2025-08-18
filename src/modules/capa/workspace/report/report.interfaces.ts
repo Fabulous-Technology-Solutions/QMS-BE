@@ -9,6 +9,8 @@ export interface ReportModal extends Document {
   workspace: mongoose.Schema.Types.ObjectId;
   library: mongoose.Schema.Types.ObjectId;
   isDeleted?: boolean;
+  lastSchedule: Date;
+  nextSchedule: Date;
 }
 
 export interface ICreateReport {

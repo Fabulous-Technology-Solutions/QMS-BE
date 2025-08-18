@@ -5,7 +5,7 @@ import checkCreateRole from '../../modules/capa/workspace/mangeRole.middleware';
 
 const router: Router = express.Router();
 
-router.get(
+router.post(
   '/workspace/:workspaceId/library/:libraryId',
   auth('getReportPrevious'),
   checkCreateRole,

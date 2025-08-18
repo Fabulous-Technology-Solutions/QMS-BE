@@ -110,7 +110,8 @@ const allRoles = {
       'getReportById',
       'updateReport',
       'deleteReport',
-       'getReportPreview'
+       'getReportPrevious',
+       'getReport'
   ],
   subAdmin: {
     subAdmin: [
@@ -216,7 +217,8 @@ const allRoles = {
       'updateReport',
       'deleteReport',
       // Report Preview
-      'getReportPreview'
+      'getReportPrevious',
+      'getReport'
     ],
     standardUser: [
       'getSubscriptions',
@@ -477,8 +479,9 @@ const allRoles = {
       'getReportById',
       'updateReport',
       'deleteReport',
+      'getReport',
       // Report Preview
-      'getReportPreview',
+      'getReportPrevious',
     ],
   },
 };

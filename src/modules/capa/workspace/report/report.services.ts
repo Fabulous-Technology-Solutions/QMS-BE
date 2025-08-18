@@ -2,8 +2,40 @@ import mongoose from 'mongoose';
 import { ICreateReport } from './report.interfaces';
 
 import ReportModel from './report.modal';
+import { generateReport } from '../capalibrary/capalibrary.service';
+import { sendEmail } from '../../../email/email.service';
+
+
+ const getNextScheduleDate = (frequency?: string): Date => {
+  const now = new Date();
+  switch (frequency) {
+    case 'daily':
+      now.setDate(now.getDate() + 1);
+      return now;
+    case 'weekly':
+      now.setDate(now.getDate() + 7);
+      return now;
+    case 'monthly':
+      now.setMonth(now.getMonth() + 1);
+      return now;
+    default:
+      throw new Error('Invalid frequency');
+  }
+};
+
 
 export const createReport = async (data: ICreateReport) => {
+
+  const report = await generateReport(data.library);
+  if (data.scheduleEmails && data.scheduleEmails.length > 0 && report?.Location) {
+    await sendEmail(
+      data.scheduleEmails.join(', ') || "<default_email@example.com>",
+      'New report generated',
+      '',
+      `<a href="${report?.Location}">Download Report</a>`
+    );
+  }
+  const nextScheduleDate = getNextScheduleDate(data?.scheduleFrequency);
   const newReport = new ReportModel({
     name: data.name,
     schedule: data.schedule,
@@ -12,6 +44,8 @@ export const createReport = async (data: ICreateReport) => {
     createdBy: new mongoose.Types.ObjectId(data.createdBy),
     workspace: new mongoose.Types.ObjectId(data.workspace),
     library: new mongoose.Types.ObjectId(data.library),
+    lastSchedule: Date.now(),
+    nextSchedule: nextScheduleDate,
   });
   return await newReport.save();
 };
