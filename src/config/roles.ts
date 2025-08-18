@@ -104,6 +104,13 @@ const allRoles = {
     "createIshikawa",
     //Other
     'needAttention',
+    // Reports
+      'createReport',
+      'getReports',
+      'getReportById',
+      'updateReport',
+      'deleteReport',
+       'getReportPreview'
   ],
   subAdmin: {
     subAdmin: [
@@ -202,6 +209,14 @@ const allRoles = {
       "createIshikawa",
       //Other
       'needAttention',
+      // Reports
+      'createReport',
+      'getReports',
+      'getReportById',
+      'updateReport',
+      'deleteReport',
+      // Report Preview
+      'getReportPreview'
     ],
     standardUser: [
       'getSubscriptions',
@@ -269,6 +284,7 @@ const allRoles = {
       "getIshikawa",
       "deleteIshikawa",
       "createIshikawa",
+     
     ],
   },
 
@@ -455,6 +471,14 @@ const allRoles = {
       "createIshikawa",
       //Other
       'needAttention',
+      // Reports
+      'createReport',
+      'getReports',
+      'getReportById',
+      'updateReport',
+      'deleteReport',
+      // Report Preview
+      'getReportPreview',
     ],
   },
 };

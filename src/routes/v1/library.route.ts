@@ -18,7 +18,7 @@ router.post(
 router.get("/generateReport/:libraryId", libraryController.generateReportController);
 router.get('/workspace/:workspaceId', auth('getWorkspaceLibraries'), checkCreateRole, libraryController.getLibraries);
 router.get(
-  '/workspace/:libraryId/names',
+  '/workspace/:workspaceId/names',
   auth('getWorkspaceLibraryNames'),
   checkCreateRole,
   libraryController.getLibraryNamesController

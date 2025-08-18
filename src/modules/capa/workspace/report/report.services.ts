@@ -24,7 +24,7 @@ export const getReportById = async (reportId: string) => {
 export const getReportsByWorkspace = async (workspaceId: string, page = 1, limit = 10) => {
   const match = { workspace: new mongoose.Types.ObjectId(workspaceId) };
   const total = await ReportModel.countDocuments(match);
-  const data = await ReportModel.find(match)
+  const data = await ReportModel.find(match).populate('library', 'name')
     .sort({ createdAt: -1 })
     .skip((page - 1) * limit)
     .limit(limit)
