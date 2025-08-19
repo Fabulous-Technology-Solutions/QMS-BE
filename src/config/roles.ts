@@ -326,8 +326,9 @@ const allRoles = {
       //Ishikawa
       'getIshikawaByLibrary',
       "getIshikawa",
+      'getChecklistItems'
     ],
-    edit: [
+    edit: [ 
       // 'manageLibrary',
       'updateLibrary',
       'removeLibraryMember',
@@ -335,7 +336,6 @@ const allRoles = {
       'getLibraryMembers',
       'getWorkspaceLibraryNames',
       'getWorkspaceLibraries',
-      'createLibrary',
       'updateLibraryById',
       'getSingleLibrary',
       'getWorkspaceUsers',
@@ -367,6 +367,7 @@ const allRoles = {
       'getChecklistHistories',
       'getChecklistHistoryNames',
       'getlogs',
+      'getChecklistItems',
       // Five Whys
       'getFiveWhysByLibrary',
       'deleteFiveWhys',
