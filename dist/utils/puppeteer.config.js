@@ -12,8 +12,12 @@ async function launchBrowser() {
         console.log("Koyeb detected - using @sparticuz/chromium");
         return await puppeteer_1.default.launch({
             args: chromium_1.default.args,
+            defaultViewport: {
+                width: 1920,
+                height: 1080
+            },
             executablePath: await chromium_1.default.executablePath(),
-            headless: true,
+            headless: true, // ✅ ensures compatibility
         });
     }
     // Local dev → normal puppeteer

@@ -9,8 +9,12 @@ export async function launchBrowser() {
 
     return await puppeteer.launch({
       args: chromium.args,
-      executablePath: await chromium.executablePath(), // ✅ the actual binary
-      headless: true,
+      defaultViewport: {
+        width: 1920,
+        height: 1080
+      },
+      executablePath: await chromium.executablePath(), // ✅ proper binary path
+      headless: true, // ✅ ensures compatibility
     });
   }
 
