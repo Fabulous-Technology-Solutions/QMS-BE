@@ -35,17 +35,17 @@ const getPuppeteerConfig = () => {
     ];
     if (isServerless || isProduction) {
         // Try multiple possible paths for Chromium
-        const possiblePaths = [
-            process.env['PUPPETEER_EXECUTABLE_PATH'],
-            process.env['CHROME_BIN'],
-            '/usr/bin/chromium-browser',
-            '/usr/bin/chromium',
-            '/usr/bin/google-chrome',
-            '/usr/bin/google-chrome-stable'
-        ].filter(Boolean);
+        // const possiblePaths = [
+        //   process.env['PUPPETEER_EXECUTABLE_PATH'],
+        //   process.env['CHROME_BIN'],
+        //   '/usr/bin/chromium-browser',
+        //   '/usr/bin/chromium',
+        //   '/usr/bin/google-chrome',
+        //   '/usr/bin/google-chrome-stable'
+        // ].filter(Boolean);
         return {
             headless: true,
-            executablePath: possiblePaths[0] || '/usr/bin/chromium-browser',
+            //   executablePath: possiblePaths[0] || '/usr/bin/chromium-browser',
             args: serverlessArgs
         };
     }
@@ -74,10 +74,9 @@ const launchBrowser = async () => {
         const config = (0, exports.getPuppeteerConfig)();
         console.log('Launching browser with standard config:', config);
         const browser = await puppeteer_1.default.launch({
-            ...config,
-            timeout: 300000,
-            slowMo: 0,
-            protocolTimeout: 300000, // Increased to 5 minutes
+            headless: true,
+            args: ["--no-sandbox", "--disable-setuid-sandbox", "--disable-dev-shm-usage"],
+            // executablePath: "/usr/bin/google-chrome-stable" // This should be the path to the installed Chrome.
         });
         console.log('Successfully launched browser with standard config');
         return browser;
