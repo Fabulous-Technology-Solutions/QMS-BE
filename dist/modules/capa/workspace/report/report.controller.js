@@ -22,7 +22,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.deleteReportController = exports.updateReportController = exports.getReportsByLibraryController = exports.getReportsByWorkspaceController = exports.getReportByIdController = exports.createReportController = void 0;
+exports.deleteReportController = exports.updateReportController = exports.getReportsByWorkspaceController = exports.getReportByIdController = exports.createReportController = void 0;
 const ReportService = __importStar(require("./report.services"));
 const catchAsync_1 = __importDefault(require("../../../utils/catchAsync"));
 exports.createReportController = (0, catchAsync_1.default)(async (req, res) => {
@@ -40,13 +40,6 @@ exports.getReportsByWorkspaceController = (0, catchAsync_1.default)(async (req, 
     const page = Number(req.query["page"]) || 1;
     const limit = Number(req.query["limit"]) || 10;
     const result = await ReportService.getReportsByWorkspace(workspaceId, page, limit);
-    res.status(200).json({ success: true, ...result });
-});
-exports.getReportsByLibraryController = (0, catchAsync_1.default)(async (req, res) => {
-    const { libraryId } = req.params;
-    const page = Number(req.query["page"]) || 1;
-    const limit = Number(req.query["limit"]) || 10;
-    const result = await ReportService.getReportsByLibrary(libraryId, page, limit);
     res.status(200).json({ success: true, ...result });
 });
 exports.updateReportController = (0, catchAsync_1.default)(async (req, res) => {

@@ -7,7 +7,6 @@ const joi_1 = __importDefault(require("joi"));
 require("dotenv/config");
 const envVarsSchema = joi_1.default.object()
     .keys({
-    // NODE_ENV: joi_1.default.string().valid('production', 'development', 'test').required(),
     PORT: joi_1.default.number().default(3000),
     MONGODB_URL: joi_1.default.string().required().description('Mongo DB url'),
     JWT_SECRET: joi_1.default.string().required().description('JWT secret key'),

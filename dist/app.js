@@ -18,7 +18,6 @@ const auth_1 = require("./modules/auth");
 const utils_1 = require("./modules/utils");
 const errors_1 = require("./modules/errors");
 const v1_1 = __importDefault(require("./routes/v1"));
-require("./modules/utils/nodeCrone");
 const app = (0, express_1.default)();
 if (config_1.default.env !== 'test') {
     app.use(logger_1.morgan.successHandler);

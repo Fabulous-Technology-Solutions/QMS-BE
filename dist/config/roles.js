@@ -326,6 +326,7 @@ const allRoles = {
             'getLibraryMembers',
             'getWorkspaceLibraryNames',
             'getWorkspaceLibraries',
+            'createLibrary',
             'updateLibraryById',
             'getSingleLibrary',
             'getWorkspaceUsers',
@@ -354,7 +355,6 @@ const allRoles = {
             'getChecklistHistories',
             'getChecklistHistoryNames',
             'getlogs',
-            'getChecklistItems',
             // Five Whys
             'getFiveWhysByLibrary',
             'deleteFiveWhys',

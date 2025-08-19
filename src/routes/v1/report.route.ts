@@ -20,7 +20,6 @@ router.get(
   reportController.getReportByIdController
 );
 router.get('/workspace/:workspaceId', auth('getReports'), checkCreateRole, reportController.getReportsByWorkspaceController);
-router.get('/workspace/:workspaceId/library/:libraryId', auth('getLibraryReports'), checkCreateRole, reportController.getReportsByLibraryController);
 router.put(
   '/workspace/:workspaceId/report/:reportId',
   auth('updateReport'),

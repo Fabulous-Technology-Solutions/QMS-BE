@@ -13,6 +13,7 @@ coverage
 
 # build folder
 # dist
+.dist
 
 # docker volume
 data
