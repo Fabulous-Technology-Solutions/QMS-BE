@@ -25,3 +25,4 @@ docker-compose*.yml
 Dockerfile
 public
 api
+package-lock.json
