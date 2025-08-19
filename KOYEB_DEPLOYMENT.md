@@ -20,13 +20,36 @@ The error `Error: Failed to launch the browser process! spawn /root/.cache/puppe
 
 ### 4. Environment Variables for Koyeb
 
-Set these environment variables in your Koyeb app:
+Set these environment variables in your Koyeb app dashboard:
 
+**Required Environment Variables:**
 ```
 PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium-browser
 PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
 NODE_ENV=production
+KOYEB=true
+CHROME_BIN=/usr/bin/chromium-browser
 ```
+
+**Optional Environment Variables (for additional debugging):**
+```
+PUPPETEER_CACHE_DIR=/tmp/.cache/puppeteer
+DEBUG=puppeteer:*
+```
+
+### How to Set Environment Variables in Koyeb:
+
+1. **Go to Koyeb Dashboard**: Login to your Koyeb account
+2. **Select Your App**: Navigate to your QMS application
+3. **Open Settings**: Click on "Settings" tab
+4. **Environment Variables**: Find the "Environment Variables" section
+5. **Add Variables**: Click "Add Environment Variable" and add each one:
+   - **Name**: `PUPPETEER_EXECUTABLE_PATH` **Value**: `/usr/bin/chromium-browser`
+   - **Name**: `PUPPETEER_SKIP_CHROMIUM_DOWNLOAD` **Value**: `true`
+   - **Name**: `NODE_ENV` **Value**: `production`
+   - **Name**: `KOYEB` **Value**: `true`
+   - **Name**: `CHROME_BIN` **Value**: `/usr/bin/chromium-browser`
+6. **Save and Redeploy**: Save the changes and redeploy your application
 
 ## Deployment Steps
 

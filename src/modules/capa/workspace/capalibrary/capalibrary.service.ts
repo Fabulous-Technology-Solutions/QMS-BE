@@ -812,7 +812,7 @@ export const generateReport = async (libraryId: string) => {
 
   // 5. Generate PDF
   const pdfBuffer = await page.pdf({
-    format: "A4",
+    format: "a4",
     printBackground: true,
     margin: { top: "20mm", bottom: "20mm" }
   });
@@ -820,7 +820,7 @@ export const generateReport = async (libraryId: string) => {
   const uniqueFileName = `${timestamp}-Report.pdf`;
 
   // Convert Uint8Array to Buffer
-  const buffer = Buffer.from(pdfBuffer);
+  const buffer = Buffer.from(new Uint8Array(pdfBuffer));
   const response = await uploadSingleFile(uniqueFileName, buffer, "application/pdf", false);
 
   if (!response) {
