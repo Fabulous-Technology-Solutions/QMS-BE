@@ -1,0 +1,15 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const checklisthistory_controller_1 = require("../../modules/capa/workspace/capalibrary/checklisthistory/checklisthistory.controller");
+const checklisthistory_validaton_1 = require("../../modules/capa/workspace/capalibrary/checklisthistory/checklisthistory.validaton");
+const validate_1 = require("../../modules/validate");
+const auth_1 = require("../../modules/auth");
+const capalibrary_1 = require("../../modules/capa/workspace/capalibrary");
+const router = (0, express_1.Router)();
+router.post('/', (0, auth_1.auth)('createChecklistHistory'), capalibrary_1.checkValidation, (0, validate_1.validate)(checklisthistory_validaton_1.createChecklistHistoryValidation), checklisthistory_controller_1.createChecklistHistoryController);
+router.get('/libraries/:libraryId/history/:historyId', (0, auth_1.auth)('getChecklistHistory'), capalibrary_1.checkValidation, checklisthistory_controller_1.getChecklistHistoryByIdController);
+router.get('/libraries/:libraryId', (0, auth_1.auth)('getChecklistHistories'), capalibrary_1.checkValidation, checklisthistory_controller_1.getChecklistHistoriesByLibraryController);
+router.patch('/libraries/:libraryId/history/:historyId', (0, auth_1.auth)('updateChecklistHistory'), capalibrary_1.checkValidation, (0, validate_1.validate)(checklisthistory_validaton_1.updateChecklistHistoryValidation), checklisthistory_controller_1.updateChecklistHistoryController);
+router.delete('/libraries/:libraryId/history/:historyId', (0, auth_1.auth)('deleteChecklistHistory'), capalibrary_1.checkValidation, checklisthistory_controller_1.deleteChecklistHistoryController);
+exports.default = router;
