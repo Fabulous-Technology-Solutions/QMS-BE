@@ -5,6 +5,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.configurePage = exports.launchBrowser = exports.getPuppeteerConfig = void 0;
 const puppeteer_1 = __importDefault(require("puppeteer"));
+const chromium_1 = __importDefault(require("@sparticuz/chromium"));
 const getPuppeteerConfig = () => {
     const isProduction = process.env['NODE_ENV'] === 'production';
     const isServerless = process.env['VERCEL'] || process.env['LAMBDA_TASK_ROOT'] || process.env['KOYEB'];
@@ -106,33 +107,65 @@ const launchBrowser = async () => {
             console.log('Successfully launched browser with bundled Chromium on Vercel');
             return browser;
         }
-        // For Koyeb: Only try bundled Chromium, never system Chrome
+        // For Koyeb: Use @sparticuz/chromium for better serverless compatibility
         if (isKoyeb) {
-            console.log('Koyeb environment detected - using bundled Chromium only...');
-            // Force Puppeteer to use bundled Chromium by not specifying executablePath
-            const launchOptions = {
-                headless: true,
-                timeout: 300000,
-                protocolTimeout: 300000,
-                args: [
-                    '--no-sandbox',
-                    '--disable-setuid-sandbox',
-                    '--disable-dev-shm-usage',
-                    '--disable-gpu',
-                    '--no-zygote',
-                    '--no-first-run',
-                    '--disable-background-timer-throttling',
-                    '--disable-backgrounding-occluded-windows',
-                    '--disable-renderer-backgrounding',
-                    '--disable-extensions',
-                    '--disable-web-security',
-                    '--enable-automation'
-                ]
-            };
-            console.log('Launching with options:', launchOptions);
-            const browser = await puppeteer_1.default.launch(launchOptions);
-            console.log('Successfully launched browser with bundled Chromium on Koyeb');
-            return browser;
+            console.log('Koyeb environment detected - using @sparticuz/chromium...');
+            try {
+                const browser = await puppeteer_1.default.launch({
+                    args: [
+                        ...chromium_1.default.args,
+                        '--no-sandbox',
+                        '--disable-setuid-sandbox',
+                        '--disable-dev-shm-usage',
+                        '--disable-gpu',
+                        '--no-zygote',
+                        '--no-first-run',
+                        '--disable-background-timer-throttling',
+                        '--disable-backgrounding-occluded-windows',
+                        '--disable-renderer-backgrounding',
+                        '--disable-extensions',
+                        '--disable-web-security',
+                        '--enable-automation'
+                    ],
+                    executablePath: await chromium_1.default.executablePath(),
+                    headless: true,
+                    timeout: 300000,
+                    protocolTimeout: 300000, // 5 minutes
+                });
+                console.log('Successfully launched browser with @sparticuz/chromium on Koyeb');
+                return browser;
+            }
+            catch (sparticzError) {
+                console.warn('@sparticuz/chromium failed, trying bundled Chromium:', sparticzError);
+                // Fallback to bundled Chromium for Koyeb
+                try {
+                    const browser = await puppeteer_1.default.launch({
+                        headless: true,
+                        timeout: 300000,
+                        protocolTimeout: 300000,
+                        args: [
+                            '--no-sandbox',
+                            '--disable-setuid-sandbox',
+                            '--disable-dev-shm-usage',
+                            '--disable-gpu',
+                            '--no-zygote',
+                            '--no-first-run',
+                            '--disable-background-timer-throttling',
+                            '--disable-backgrounding-occluded-windows',
+                            '--disable-renderer-backgrounding',
+                            '--disable-extensions',
+                            '--disable-web-security',
+                            '--enable-automation'
+                        ]
+                    });
+                    console.log('Successfully launched browser with bundled Chromium fallback on Koyeb');
+                    return browser;
+                }
+                catch (bundledError) {
+                    console.error('Both @sparticuz/chromium and bundled Chromium failed on Koyeb:', bundledError);
+                    throw bundledError;
+                }
+            }
         }
         // For other serverless: Try bundled Chromium first
         if (isServerless) {
