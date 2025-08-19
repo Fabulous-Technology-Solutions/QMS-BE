@@ -34,18 +34,8 @@ const getPuppeteerConfig = () => {
         '--use-mock-keychain'
     ];
     if (isServerless || isProduction) {
-        // Try multiple possible paths for Chromium
-        // const possiblePaths = [
-        //   process.env['PUPPETEER_EXECUTABLE_PATH'],
-        //   process.env['CHROME_BIN'],
-        //   '/usr/bin/chromium-browser',
-        //   '/usr/bin/chromium',
-        //   '/usr/bin/google-chrome',
-        //   '/usr/bin/google-chrome-stable'
-        // ].filter(Boolean);
         return {
             headless: true,
-            //   executablePath: possiblePaths[0] || '/usr/bin/chromium-browser',
             args: serverlessArgs
         };
     }
