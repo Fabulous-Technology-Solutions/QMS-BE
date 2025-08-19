@@ -630,7 +630,7 @@ export const generateReport = async (libraryId: string) => {
     browser = await launchBrowser();
     console.log('Browser launched successfully');
                  
-    page = await browser.newPage();
+    page = await browser?.newPage();
     console.log('New page created');
     
     // Configure page with extended timeouts
@@ -671,7 +671,7 @@ export const generateReport = async (libraryId: string) => {
       foreignField: 'library',
       as: 'actions',
       pipeline: [
-        
+
         {
           $lookup: {
             from: 'users',
@@ -819,7 +819,7 @@ export const generateReport = async (libraryId: string) => {
     console.log('PDF content generated, setting page content...');
 
     // 4. Set the HTML as the page content with a more reliable wait strategy
-    await page.setContent(pdfContent, { 
+    await page?.setContent(pdfContent, { 
       waitUntil: "domcontentloaded", // Changed from networkidle0 to domcontentloaded for faster loading
       timeout: 120000 // 2 minutes timeout
     });
@@ -827,7 +827,7 @@ export const generateReport = async (libraryId: string) => {
 
     // 5. Generate PDF
     console.log('Generating PDF...');
-    const pdfBuffer = await page.pdf({
+    const pdfBuffer = await page?.pdf({
       format: "a4",
       printBackground: true,
       margin: { top: "20mm", bottom: "20mm" },
@@ -839,7 +839,7 @@ export const generateReport = async (libraryId: string) => {
     const uniqueFileName = `${timestamp}-Report.pdf`;
 
     // Convert Uint8Array to Buffer
-    const buffer = Buffer.from(new Uint8Array(pdfBuffer));
+    const buffer = Buffer.from(new Uint8Array(pdfBuffer || []));
     console.log('Uploading PDF...');
     const response = await uploadSingleFile(uniqueFileName, buffer, "application/pdf", false);
 

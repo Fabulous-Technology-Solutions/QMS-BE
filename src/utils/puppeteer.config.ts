@@ -67,6 +67,14 @@ export const launchBrowser = async () => {
         chromeBin: process.env['CHROME_BIN']
     });
 
+    // For serverless environments, clear any executable path environment variables
+    // to force Puppeteer to use bundled Chromium
+    if (isServerless) {
+        console.log('Clearing executable path environment variables for serverless...');
+        delete process.env['PUPPETEER_EXECUTABLE_PATH'];
+        delete process.env['CHROME_BIN'];
+    }
+
     // Helper function to check if executable exists
     const checkExecutableExists = async (path: string): Promise<boolean> => {
         try {
@@ -86,6 +94,7 @@ export const launchBrowser = async () => {
             console.log('Vercel environment detected - using bundled Chromium only...');
             const browser = await puppeteer.launch({
                 headless: true,
+                // No executablePath - force bundled Chromium
                 timeout: 300000, // 5 minutes
                 protocolTimeout: 300000, // 5 minutes
                 args: [
@@ -108,12 +117,44 @@ export const launchBrowser = async () => {
             return browser;
         }
 
-        // For other serverless (like Koyeb): Try bundled Chromium first
+        // For Koyeb: Only try bundled Chromium, never system Chrome
+        if (isKoyeb) {
+            console.log('Koyeb environment detected - using bundled Chromium only...');
+            
+            // Force Puppeteer to use bundled Chromium by not specifying executablePath
+            const launchOptions = {
+                headless: true,
+                timeout: 300000, // 5 minutes
+                protocolTimeout: 300000, // 5 minutes
+                args: [
+                    '--no-sandbox',
+                    '--disable-setuid-sandbox',
+                    '--disable-dev-shm-usage',
+                    '--disable-gpu',
+                    '--no-zygote',
+                    '--no-first-run',
+                    '--disable-background-timer-throttling',
+                    '--disable-backgrounding-occluded-windows',
+                    '--disable-renderer-backgrounding',
+                    '--disable-extensions',
+                    '--disable-web-security',
+                    '--enable-automation'
+                ]
+            };
+            
+            console.log('Launching with options:', launchOptions);
+            const browser = await puppeteer.launch(launchOptions);
+            console.log('Successfully launched browser with bundled Chromium on Koyeb');
+            return browser;
+        }
+
+        // For other serverless: Try bundled Chromium first
         if (isServerless) {
             console.log('Trying bundled Chromium for serverless environment...');
             try {
                 const browser = await puppeteer.launch({
                     headless: true,
+                    // No executablePath - force bundled Chromium
                     timeout: 300000, // 5 minutes
                     protocolTimeout: 300000, // 5 minutes
                     args: [

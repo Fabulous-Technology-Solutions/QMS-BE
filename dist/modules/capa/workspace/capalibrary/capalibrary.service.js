@@ -557,7 +557,7 @@ const generateReport = async (libraryId) => {
         // 1. Launch headless browser
         browser = await (0, puppeteer_config_1.launchBrowser)();
         console.log('Browser launched successfully');
-        page = await browser.newPage();
+        page = await browser?.newPage();
         console.log('New page created');
         // Configure page with extended timeouts
         await (0, puppeteer_config_1.configurePage)(page);
@@ -742,14 +742,14 @@ const generateReport = async (libraryId) => {
         const pdfContent = await (0, pdfTemplate_1.pdfTemplate)(findLibrary);
         console.log('PDF content generated, setting page content...');
         // 4. Set the HTML as the page content with a more reliable wait strategy
-        await page.setContent(pdfContent, {
+        await page?.setContent(pdfContent, {
             waitUntil: "domcontentloaded",
             timeout: 120000 // 2 minutes timeout
         });
         console.log('Page content set successfully');
         // 5. Generate PDF
         console.log('Generating PDF...');
-        const pdfBuffer = await page.pdf({
+        const pdfBuffer = await page?.pdf({
             format: "a4",
             printBackground: true,
             margin: { top: "20mm", bottom: "20mm" },
@@ -759,7 +759,7 @@ const generateReport = async (libraryId) => {
         const timestamp = Date.now();
         const uniqueFileName = `${timestamp}-Report.pdf`;
         // Convert Uint8Array to Buffer
-        const buffer = Buffer.from(new Uint8Array(pdfBuffer));
+        const buffer = Buffer.from(new Uint8Array(pdfBuffer || []));
         console.log('Uploading PDF...');
         const response = await (0, upload_middleware_1.uploadSingleFile)(uniqueFileName, buffer, "application/pdf", false);
         if (!response) {

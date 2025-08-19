@@ -21,7 +21,7 @@ RUN yarn build
 # === Production stage ===
 FROM node:18-alpine AS production
 
-# Install Chrome dependencies for Puppeteer
+# Install Chrome dependencies for Puppeteer (as backup)
 RUN apk add --no-cache \
     chromium \
     nss \
@@ -31,10 +31,10 @@ RUN apk add --no-cache \
     ca-certificates \
     ttf-freefont
 
-# Tell Puppeteer to use installed Chromium
-ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium
-ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
-ENV CHROME_BIN=/usr/bin/chromium
+# For Koyeb: Use bundled Chromium, not system Chrome
+# ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium
+ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=false
+# ENV CHROME_BIN=/usr/bin/chromium
 
 WORKDIR /app
 ENV NODE_ENV=production
