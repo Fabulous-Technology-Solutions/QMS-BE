@@ -559,8 +559,6 @@ const generateReport = async (libraryId) => {
         console.log('Browser launched successfully');
         page = await browser?.newPage();
         console.log('New page created');
-        // Configure page with extended timeouts
-        await (0, puppeteer_config_1.configurePage)(page);
         console.log('Page configured with timeouts');
         const [findLibrary] = await capalibrary_modal_1.LibraryModel.aggregate([
             { $match: { _id: new mongoose_1.default.Types.ObjectId(libraryId) } },
