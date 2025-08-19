@@ -620,16 +620,22 @@ export const deletePermanent = async (libraryIds: string[], workspaceId: string,
 
 
 export const generateReport = async (libraryId: string) => {
-
-  // 1. Launch headless browser
-  const browser = await launchBrowser();
-                 
-  const page = await browser.newPage();
+  let browser;
+  let page;
   
-  // Configure page with extended timeouts
-  await configurePage(page);
-
-  const [findLibrary] = await LibraryModel.aggregate([
+  try {
+    console.log('Starting PDF generation for library:', libraryId);
+    
+    // 1. Launch headless browser
+    browser = await launchBrowser();
+    console.log('Browser launched successfully');
+                 
+    page = await browser.newPage();
+    console.log('New page created');
+    
+    // Configure page with extended timeouts
+    await configurePage(page);
+    console.log('Page configured with timeouts');  const [findLibrary] = await LibraryModel.aggregate([
   { $match: { _id: new mongoose.Types.ObjectId(libraryId) } },
   {
     $lookup: {
@@ -803,36 +809,68 @@ export const generateReport = async (libraryId: string) => {
 }
 ]);
 
-  if (!findLibrary) {
-    throw new Error('Library not found');
+    if (!findLibrary) {
+      throw new Error('Library not found');
+    }
+
+    console.log('Generating PDF content...');
+    const pdfContent = await pdfTemplate(findLibrary);
+    console.log('PDF content generated, setting page content...');
+
+    // 4. Set the HTML as the page content with a more reliable wait strategy
+    await page.setContent(pdfContent, { 
+      waitUntil: "domcontentloaded", // Changed from networkidle0 to domcontentloaded for faster loading
+      timeout: 120000 // 2 minutes timeout
+    });
+    console.log('Page content set successfully');
+
+    // 5. Generate PDF
+    console.log('Generating PDF...');
+    const pdfBuffer = await page.pdf({
+      format: "a4",
+      printBackground: true,
+      margin: { top: "20mm", bottom: "20mm" },
+      timeout: 120000 // 2 minutes timeout for PDF generation
+    });
+    console.log('PDF generated successfully');
+    
+    const timestamp = Date.now();
+    const uniqueFileName = `${timestamp}-Report.pdf`;
+
+    // Convert Uint8Array to Buffer
+    const buffer = Buffer.from(new Uint8Array(pdfBuffer));
+    console.log('Uploading PDF...');
+    const response = await uploadSingleFile(uniqueFileName, buffer, "application/pdf", false);
+
+    if (!response) {
+      throw new Error('Failed to upload PDF');
+    }
+    console.log('PDF uploaded successfully:', response);
+
+    return response;
+    
+  } catch (error) {
+    console.error('Error generating PDF report:', error);
+    throw error;
+  } finally {
+    // Ensure browser is always closed
+    if (page) {
+      try {
+        await page.close();
+        console.log('Page closed');
+      } catch (err) {
+        console.warn('Error closing page:', err);
+      }
+    }
+    if (browser) {
+      try {
+        await browser.close();
+        console.log('Browser closed');
+      } catch (err) {
+        console.warn('Error closing browser:', err);
+      }
+    }
   }
-
-  const pdfContent = await pdfTemplate(findLibrary);
-
-  // 4. Set the HTML as the page content
-  await page.setContent(pdfContent, { waitUntil: "networkidle0" });
-
-  // 5. Generate PDF
-  const pdfBuffer = await page.pdf({
-    format: "a4",
-    printBackground: true,
-    margin: { top: "20mm", bottom: "20mm" }
-  });
-  const timestamp = Date.now();
-  const uniqueFileName = `${timestamp}-Report.pdf`;
-
-  // Convert Uint8Array to Buffer
-  const buffer = Buffer.from(new Uint8Array(pdfBuffer));
-  const response = await uploadSingleFile(uniqueFileName, buffer, "application/pdf", false);
-
-  if (!response) {
-    throw new Error('Failed to upload PDF');
-  }
-  console.log('PDF uploaded successfully:', response);
-
-  browser.close();
-
-  return response;
 
 
 }

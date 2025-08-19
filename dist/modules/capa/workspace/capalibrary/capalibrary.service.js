@@ -550,206 +550,248 @@ const deletePermanent = async (libraryIds, workspaceId, userId) => {
 };
 exports.deletePermanent = deletePermanent;
 const generateReport = async (libraryId) => {
-    // 1. Launch headless browser
-    const browser = await (0, puppeteer_config_1.launchBrowser)();
-    const page = await browser.newPage();
-    // Configure page with extended timeouts
-    await (0, puppeteer_config_1.configurePage)(page);
-    const [findLibrary] = await capalibrary_modal_1.LibraryModel.aggregate([
-        { $match: { _id: new mongoose_1.default.Types.ObjectId(libraryId) } },
-        {
-            $lookup: {
-                from: 'users',
-                localField: 'members',
-                foreignField: '_id',
-                as: 'members',
-                pipeline: [{ $project: { name: 1, email: 1, profilePicture: 1, role: 1 } }],
+    let browser;
+    let page;
+    try {
+        console.log('Starting PDF generation for library:', libraryId);
+        // 1. Launch headless browser
+        browser = await (0, puppeteer_config_1.launchBrowser)();
+        console.log('Browser launched successfully');
+        page = await browser.newPage();
+        console.log('New page created');
+        // Configure page with extended timeouts
+        await (0, puppeteer_config_1.configurePage)(page);
+        console.log('Page configured with timeouts');
+        const [findLibrary] = await capalibrary_modal_1.LibraryModel.aggregate([
+            { $match: { _id: new mongoose_1.default.Types.ObjectId(libraryId) } },
+            {
+                $lookup: {
+                    from: 'users',
+                    localField: 'members',
+                    foreignField: '_id',
+                    as: 'members',
+                    pipeline: [{ $project: { name: 1, email: 1, profilePicture: 1, role: 1 } }],
+                },
             },
-        },
-        {
-            $lookup: {
-                from: 'users',
-                localField: 'managers',
-                foreignField: '_id',
-                as: 'managers',
-                pipeline: [{ $project: { name: 1, email: 1, profilePicture: 1, role: 1 } }],
+            {
+                $lookup: {
+                    from: 'users',
+                    localField: 'managers',
+                    foreignField: '_id',
+                    as: 'managers',
+                    pipeline: [{ $project: { name: 1, email: 1, profilePicture: 1, role: 1 } }],
+                },
             },
-        },
-        {
-            $lookup: {
-                from: 'causes',
-                localField: '_id',
-                foreignField: 'library',
-                as: 'causes',
-                pipeline: [{ $project: { name: 1, description: 1, createdAt: 1 } }],
+            {
+                $lookup: {
+                    from: 'causes',
+                    localField: '_id',
+                    foreignField: 'library',
+                    as: 'causes',
+                    pipeline: [{ $project: { name: 1, description: 1, createdAt: 1 } }],
+                },
             },
-        },
-        {
-            $lookup: {
-                from: 'actions',
-                localField: '_id',
-                foreignField: 'library',
-                as: 'actions',
-                pipeline: [
-                    {
-                        $lookup: {
-                            from: 'users',
-                            localField: 'assignedTo',
-                            foreignField: '_id',
-                            as: 'assignedTo',
-                            pipeline: [{ $project: { name: 1, email: 1, profilePicture: 1 } }],
+            {
+                $lookup: {
+                    from: 'actions',
+                    localField: '_id',
+                    foreignField: 'library',
+                    as: 'actions',
+                    pipeline: [
+                        {
+                            $lookup: {
+                                from: 'users',
+                                localField: 'assignedTo',
+                                foreignField: '_id',
+                                as: 'assignedTo',
+                                pipeline: [{ $project: { name: 1, email: 1, profilePicture: 1 } }],
+                            }
+                        },
+                        {
+                            $project: {
+                                name: 1,
+                                email: 1,
+                                profilePicture: 1,
+                                status: 1,
+                                createdAt: 1,
+                                priority: 1,
+                                endDate: 1,
+                                startDate: 1,
+                                type: 1,
+                                assignedTo: 1,
+                                cause: 1,
+                                docfile: 1
+                            }
+                        }
+                    ],
+                },
+            },
+            {
+                $addFields: {
+                    pendingActions: {
+                        $size: {
+                            $ifNull: [
+                                { $filter: { input: '$actions', as: 'action', cond: { $eq: ['$$action.status', 'pending'] } } },
+                                []
+                            ]
                         }
                     },
-                    {
-                        $project: {
-                            name: 1,
-                            email: 1,
-                            profilePicture: 1,
-                            status: 1,
-                            createdAt: 1,
-                            priority: 1,
-                            endDate: 1,
-                            startDate: 1,
-                            type: 1,
-                            assignedTo: 1,
-                            cause: 1,
-                            docfile: 1
+                    inProgressActions: {
+                        $size: {
+                            $ifNull: [
+                                { $filter: { input: '$actions', as: 'action', cond: { $eq: ['$$action.status', 'in-progress'] } } },
+                                []
+                            ]
                         }
-                    }
-                ],
-            },
-        },
-        {
-            $addFields: {
-                pendingActions: {
-                    $size: {
-                        $ifNull: [
-                            { $filter: { input: '$actions', as: 'action', cond: { $eq: ['$$action.status', 'pending'] } } },
-                            []
-                        ]
-                    }
-                },
-                inProgressActions: {
-                    $size: {
-                        $ifNull: [
-                            { $filter: { input: '$actions', as: 'action', cond: { $eq: ['$$action.status', 'in-progress'] } } },
-                            []
-                        ]
-                    }
-                },
-                onHoldActions: {
-                    $size: {
-                        $ifNull: [
-                            { $filter: { input: '$actions', as: 'action', cond: { $eq: ['$$action.status', 'on-hold'] } } },
-                            []
-                        ]
-                    }
-                },
-                completedActions: {
-                    $size: {
-                        $ifNull: [
-                            { $filter: { input: '$actions', as: 'action', cond: { $eq: ['$$action.status', 'completed'] } } },
-                            []
-                        ]
+                    },
+                    onHoldActions: {
+                        $size: {
+                            $ifNull: [
+                                { $filter: { input: '$actions', as: 'action', cond: { $eq: ['$$action.status', 'on-hold'] } } },
+                                []
+                            ]
+                        }
+                    },
+                    completedActions: {
+                        $size: {
+                            $ifNull: [
+                                { $filter: { input: '$actions', as: 'action', cond: { $eq: ['$$action.status', 'completed'] } } },
+                                []
+                            ]
+                        }
                     }
                 }
-            }
-        },
-        {
-            $lookup: {
-                from: 'checklisthistories',
-                localField: '_id',
-                foreignField: 'library',
-                as: 'checklisthistory',
-                pipeline: [
-                    {
-                        $lookup: {
-                            from: 'checklists',
-                            localField: 'checklistId',
-                            foreignField: '_id',
-                            as: 'checklistId',
-                            pipeline: [
-                                { $project: { name: 1, description: 1 } } // project what you need
-                            ]
-                        }
-                    },
-                    {
-                        $unwind: {
-                            path: "$checklistId",
-                            preserveNullAndEmptyArrays: true
-                        }
-                    },
-                    {
-                        $unwind: {
-                            path: "$list",
-                            preserveNullAndEmptyArrays: true
-                        }
-                    },
-                    {
-                        $lookup: {
-                            from: "checklistitems",
-                            localField: "list.item",
-                            foreignField: "_id",
-                            as: "list.itemDetails",
-                            pipeline: [
-                                { $project: { question: 1 } } // project what you need
-                            ]
-                        }
-                    },
-                    {
-                        $unwind: {
-                            path: "$list.itemDetails",
-                            preserveNullAndEmptyArrays: true
-                        }
-                    },
-                    {
-                        $group: {
-                            _id: "$_id",
-                            checklist: { $first: "$checklistId" },
-                            library: { $first: "$library" },
-                            comment: { $first: "$comment" },
-                            createdBy: { $first: "$createdBy" },
-                            createdAt: { $first: "$createdAt" },
-                            updatedAt: { $first: "$updatedAt" },
-                            list: {
-                                $push: {
-                                    item: "$list.itemDetails",
-                                    yes: "$list.yes",
-                                    no: "$list.no",
-                                    partial: "$list.partial",
-                                    evidence: "$list.evidence",
-                                    evidenceKey: "$list.evidenceKey",
-                                    comment: "$list.comment"
+            },
+            {
+                $lookup: {
+                    from: 'checklisthistories',
+                    localField: '_id',
+                    foreignField: 'library',
+                    as: 'checklisthistory',
+                    pipeline: [
+                        {
+                            $lookup: {
+                                from: 'checklists',
+                                localField: 'checklistId',
+                                foreignField: '_id',
+                                as: 'checklistId',
+                                pipeline: [
+                                    { $project: { name: 1, description: 1 } } // project what you need
+                                ]
+                            }
+                        },
+                        {
+                            $unwind: {
+                                path: "$checklistId",
+                                preserveNullAndEmptyArrays: true
+                            }
+                        },
+                        {
+                            $unwind: {
+                                path: "$list",
+                                preserveNullAndEmptyArrays: true
+                            }
+                        },
+                        {
+                            $lookup: {
+                                from: "checklistitems",
+                                localField: "list.item",
+                                foreignField: "_id",
+                                as: "list.itemDetails",
+                                pipeline: [
+                                    { $project: { question: 1 } } // project what you need
+                                ]
+                            }
+                        },
+                        {
+                            $unwind: {
+                                path: "$list.itemDetails",
+                                preserveNullAndEmptyArrays: true
+                            }
+                        },
+                        {
+                            $group: {
+                                _id: "$_id",
+                                checklist: { $first: "$checklistId" },
+                                library: { $first: "$library" },
+                                comment: { $first: "$comment" },
+                                createdBy: { $first: "$createdBy" },
+                                createdAt: { $first: "$createdAt" },
+                                updatedAt: { $first: "$updatedAt" },
+                                list: {
+                                    $push: {
+                                        item: "$list.itemDetails",
+                                        yes: "$list.yes",
+                                        no: "$list.no",
+                                        partial: "$list.partial",
+                                        evidence: "$list.evidence",
+                                        evidenceKey: "$list.evidenceKey",
+                                        comment: "$list.comment"
+                                    }
                                 }
                             }
                         }
-                    }
-                ]
+                    ]
+                }
+            }
+        ]);
+        if (!findLibrary) {
+            throw new Error('Library not found');
+        }
+        console.log('Generating PDF content...');
+        const pdfContent = await (0, pdfTemplate_1.pdfTemplate)(findLibrary);
+        console.log('PDF content generated, setting page content...');
+        // 4. Set the HTML as the page content with a more reliable wait strategy
+        await page.setContent(pdfContent, {
+            waitUntil: "domcontentloaded",
+            timeout: 120000 // 2 minutes timeout
+        });
+        console.log('Page content set successfully');
+        // 5. Generate PDF
+        console.log('Generating PDF...');
+        const pdfBuffer = await page.pdf({
+            format: "a4",
+            printBackground: true,
+            margin: { top: "20mm", bottom: "20mm" },
+            timeout: 120000 // 2 minutes timeout for PDF generation
+        });
+        console.log('PDF generated successfully');
+        const timestamp = Date.now();
+        const uniqueFileName = `${timestamp}-Report.pdf`;
+        // Convert Uint8Array to Buffer
+        const buffer = Buffer.from(new Uint8Array(pdfBuffer));
+        console.log('Uploading PDF...');
+        const response = await (0, upload_middleware_1.uploadSingleFile)(uniqueFileName, buffer, "application/pdf", false);
+        if (!response) {
+            throw new Error('Failed to upload PDF');
+        }
+        console.log('PDF uploaded successfully:', response);
+        return response;
+    }
+    catch (error) {
+        console.error('Error generating PDF report:', error);
+        throw error;
+    }
+    finally {
+        // Ensure browser is always closed
+        if (page) {
+            try {
+                await page.close();
+                console.log('Page closed');
+            }
+            catch (err) {
+                console.warn('Error closing page:', err);
             }
         }
-    ]);
-    if (!findLibrary) {
-        throw new Error('Library not found');
+        if (browser) {
+            try {
+                await browser.close();
+                console.log('Browser closed');
+            }
+            catch (err) {
+                console.warn('Error closing browser:', err);
+            }
+        }
     }
-    const pdfContent = await (0, pdfTemplate_1.pdfTemplate)(findLibrary);
-    // 4. Set the HTML as the page content
-    await page.setContent(pdfContent, { waitUntil: "networkidle0" });
-    // 5. Generate PDF
-    const pdfBuffer = await page.pdf({
-        format: "a4",
-        printBackground: true,
-        margin: { top: "20mm", bottom: "20mm" }
-    });
-    const timestamp = Date.now();
-    const uniqueFileName = `${timestamp}-Report.pdf`;
-    // Convert Uint8Array to Buffer
-    const buffer = Buffer.from(new Uint8Array(pdfBuffer));
-    const response = await (0, upload_middleware_1.uploadSingleFile)(uniqueFileName, buffer, "application/pdf", false);
-    if (!response) {
-        throw new Error('Failed to upload PDF');
-    }
-    console.log('PDF uploaded successfully:', response);
-    browser.close();
-    return response;
 };
 exports.generateReport = generateReport;
