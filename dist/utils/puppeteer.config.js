@@ -82,7 +82,33 @@ const launchBrowser = async () => {
         }
     };
     try {
-        // First try: Use bundled Chromium (most reliable for serverless)
+        // For Vercel: Only use bundled Chromium, never try system Chrome
+        if (process.env['VERCEL']) {
+            console.log('Vercel environment detected - using bundled Chromium only...');
+            const browser = await puppeteer_1.default.launch({
+                headless: true,
+                timeout: 300000,
+                protocolTimeout: 300000,
+                args: [
+                    '--no-sandbox',
+                    '--disable-setuid-sandbox',
+                    '--disable-dev-shm-usage',
+                    '--disable-gpu',
+                    '--no-zygote',
+                    '--no-first-run',
+                    '--disable-background-timer-throttling',
+                    '--disable-backgrounding-occluded-windows',
+                    '--disable-renderer-backgrounding',
+                    '--disable-extensions',
+                    '--disable-web-security',
+                    '--enable-automation',
+                    '--disable-features=VizDisplayCompositor'
+                ]
+            });
+            console.log('Successfully launched browser with bundled Chromium on Vercel');
+            return browser;
+        }
+        // For other serverless (like Koyeb): Try bundled Chromium first
         if (isServerless) {
             console.log('Trying bundled Chromium for serverless environment...');
             try {
