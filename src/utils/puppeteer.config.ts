@@ -83,9 +83,9 @@ export const launchBrowser = async () => {
     
     const browser = await puppeteer.launch({
       ...config,
-      timeout: 30000,
+      timeout: 120000, // Increased to 2 minutes
       slowMo: 0,
-      protocolTimeout: 30000,
+      protocolTimeout: 120000, // Increased to 2 minutes
     });
     
     console.log('Successfully launched browser with standard config');
@@ -109,7 +109,8 @@ export const launchBrowser = async () => {
         const browser = await puppeteer.launch({
           headless: true,
           executablePath: execPath,
-          timeout: 30000,
+          timeout: 60000, // Increased to 1 minute
+          protocolTimeout: 60000, // Added protocol timeout
           args: [
             '--no-sandbox',
             '--disable-setuid-sandbox',
@@ -131,7 +132,8 @@ export const launchBrowser = async () => {
     try {
       const browser = await puppeteer.launch({
         headless: true,
-        timeout: 30000,
+        timeout: 60000, // Increased to 1 minute
+        protocolTimeout: 60000, // Added protocol timeout
         args: [
           '--no-sandbox',
           '--disable-setuid-sandbox',
@@ -146,4 +148,23 @@ export const launchBrowser = async () => {
       throw new Error(`Failed to launch browser with all configurations: ${errorMessage}. Please check if Chromium is properly installed and the environment variables are set correctly.`);
     }
   }
+};
+
+// Helper function to configure page with extended timeouts
+export const configurePage = async (page: any) => {
+  // Set extended timeouts for server responses
+  await page.setDefaultTimeout(120000); // 2 minutes for general operations
+  await page.setDefaultNavigationTimeout(120000); // 2 minutes for navigation
+  
+  // Set viewport for consistent rendering
+  await page.setViewport({
+    width: 1920,
+    height: 1080,
+    deviceScaleFactor: 1,
+  });
+
+  // Additional settings for better reliability
+  await page.setUserAgent('Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36');
+  
+  return page;
 };

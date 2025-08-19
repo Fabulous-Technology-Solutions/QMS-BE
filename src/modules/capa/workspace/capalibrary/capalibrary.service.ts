@@ -13,7 +13,7 @@ import { IUserDoc } from '@/modules/user/user.interfaces';
 import ActivityLog from '../../../../modules/activitylogs/activitylogs.modal';
 import { pdfTemplate } from '../../../../modules/utils/pdfTemplate';
 import { uploadSingleFile } from '../../../../modules/upload/upload.middleware';
-import { launchBrowser } from '../../../../utils/puppeteer.config';
+import { launchBrowser, configurePage } from '../../../../utils/puppeteer.config';
 
 export const CreateLibrary = async (body: CreateLibraryRequest) => {
   const library = new LibraryModel(body);
@@ -624,8 +624,10 @@ export const generateReport = async (libraryId: string) => {
   // 1. Launch headless browser
   const browser = await launchBrowser();
                  
-
   const page = await browser.newPage();
+  
+  // Configure page with extended timeouts
+  await configurePage(page);
 
   const [findLibrary] = await LibraryModel.aggregate([
   { $match: { _id: new mongoose.Types.ObjectId(libraryId) } },
