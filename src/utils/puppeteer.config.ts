@@ -83,9 +83,9 @@ export const launchBrowser = async () => {
     
     const browser = await puppeteer.launch({
       ...config,
-      timeout: 120000, // Increased to 2 minutes
+      timeout: 300000, // Increased to 5 minutes
       slowMo: 0,
-      protocolTimeout: 120000, // Increased to 2 minutes
+      protocolTimeout: 300000, // Increased to 5 minutes
     });
     
     console.log('Successfully launched browser with standard config');
@@ -109,8 +109,8 @@ export const launchBrowser = async () => {
         const browser = await puppeteer.launch({
           headless: true,
           executablePath: execPath,
-          timeout: 60000, // Increased to 1 minute
-          protocolTimeout: 60000, // Added protocol timeout
+          timeout: 300000, // Increased to 5 minutes
+          protocolTimeout: 300000, // Increased to 5 minutes
           args: [
             '--no-sandbox',
             '--disable-setuid-sandbox',
@@ -132,8 +132,8 @@ export const launchBrowser = async () => {
     try {
       const browser = await puppeteer.launch({
         headless: true,
-        timeout: 60000, // Increased to 1 minute
-        protocolTimeout: 60000, // Added protocol timeout
+        timeout: 300000, // Increased to 5 minutes
+        protocolTimeout: 300000, // Increased to 5 minutes
         args: [
           '--no-sandbox',
           '--disable-setuid-sandbox',
@@ -153,8 +153,8 @@ export const launchBrowser = async () => {
 // Helper function to configure page with extended timeouts
 export const configurePage = async (page: any) => {
   // Set extended timeouts for server responses
-  await page.setDefaultTimeout(120000); // 2 minutes for general operations
-  await page.setDefaultNavigationTimeout(120000); // 2 minutes for navigation
+  await page.setDefaultTimeout(300000); // 5 minutes for general operations
+  await page.setDefaultNavigationTimeout(300000); // 5 minutes for navigation
   
   // Set viewport for consistent rendering
   await page.setViewport({

@@ -10,8 +10,14 @@ mongoose.connect(config.mongoose.url).then(() => {
   server = app.listen(config.port, () => {
     logger.info(`Listening to Port ${config.port}`);
   });
+  
+  // Increase server timeouts for long-running operations like Puppeteer
+  server.timeout = 600000; // 10 minutes
+  server.keepAliveTimeout = 610000; // 10 minutes + 10 seconds
+  server.headersTimeout = 620000; // 10 minutes + 20 seconds
+  
   logger.info('Connected to MongoDB database');
-
+  logger.info('Server timeouts configured for long-running operations');
 });
 
 

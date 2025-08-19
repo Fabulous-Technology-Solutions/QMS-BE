@@ -51,6 +51,16 @@ app.use(express.json());
 // parse urlencoded request body
 app.use(express.urlencoded({ extended: true }));
 
+// increase timeout for long-running operations like PDF generation
+app.use((req, res, next) => {
+  // Set longer timeout for specific routes that might use Puppeteer
+  if (req.path.includes('/reports') || req.path.includes('/report')) {
+    req.setTimeout(600000); // 10 minutes
+    res.setTimeout(600000); // 10 minutes
+  }
+  next();
+});
+
 // sanitize request data
 app.use(xss());
 app.use(ExpressMongoSanitize());
