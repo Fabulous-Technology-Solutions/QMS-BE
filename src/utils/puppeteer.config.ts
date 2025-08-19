@@ -84,7 +84,7 @@ export const launchBrowser = async () => {
         const browser = await puppeteer.launch({
             headless: true,
             args: ["--no-sandbox", "--disable-setuid-sandbox", "--disable-dev-shm-usage"],
-            // executablePath: "/usr/bin/google-chrome-stable" // This should be the path to the installed Chrome.
+            executablePath: "/usr/bin/google-chrome-stable" // This should be the path to the installed Chrome.
         });
 
         console.log('Successfully launched browser with standard config');
