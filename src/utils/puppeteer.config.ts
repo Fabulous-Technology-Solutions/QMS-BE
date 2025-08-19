@@ -1,5 +1,4 @@
 import puppeteer from 'puppeteer';
-import chromium from 'chrome-aws-lambda';
 
 export interface PuppeteerConfig {
   headless: boolean;
@@ -78,34 +77,6 @@ export const launchBrowser = async () => {
   });
 
   try {
-    // For Koyeb specifically, try chrome-aws-lambda first
-    if (isKoyeb) {
-      console.log('Attempting to launch browser with chrome-aws-lambda for Koyeb...');
-      try {
-        const browser = await chromium.puppeteer.launch({
-          args: [
-            ...chromium.args,
-            '--disable-web-security',
-            '--disable-features=VizDisplayCompositor',
-            '--run-all-compositor-stages-before-draw',
-            '--disable-threaded-animation',
-            '--disable-threaded-scrolling',
-            '--disable-checker-imaging',
-            '--disable-new-contentful-paint',
-            '--disable-image-animation-resync'
-          ],
-          defaultViewport: chromium.defaultViewport,
-          executablePath: await chromium.executablePath,
-          headless: chromium.headless,
-          slowMo: 0,
-        });
-        console.log('Successfully launched browser with chrome-aws-lambda');
-        return browser;
-      } catch (chromeAwsError) {
-        console.warn('chrome-aws-lambda failed, trying fallback:', chromeAwsError);
-      }
-    }
-    
     // Try regular puppeteer with optimized config
     const config = getPuppeteerConfig();
     console.log('Launching browser with standard config:', config);
@@ -121,8 +92,39 @@ export const launchBrowser = async () => {
     return browser;
     
   } catch (error) {
-    console.error('Failed to launch browser with primary configurations');
+    console.error('Failed to launch browser with standard config');
     console.error('Error details:', error);
+    
+    // Try with alternative executable paths
+    console.log('Trying alternative executable paths...');
+    const alternativePaths = [
+      '/usr/bin/chromium',
+      '/usr/bin/google-chrome',
+      '/usr/bin/google-chrome-stable'
+    ];
+    
+    for (const execPath of alternativePaths) {
+      try {
+        console.log(`Trying executable path: ${execPath}`);
+        const browser = await puppeteer.launch({
+          headless: true,
+          executablePath: execPath,
+          timeout: 30000,
+          args: [
+            '--no-sandbox',
+            '--disable-setuid-sandbox',
+            '--disable-dev-shm-usage',
+            '--disable-gpu',
+            '--no-zygote',
+            '--no-first-run'
+          ]
+        });
+        console.log(`Successfully launched browser with path: ${execPath}`);
+        return browser;
+      } catch (pathError) {
+        console.warn(`Failed with path ${execPath}:`, pathError);
+      }
+    }
     
     // Final fallback - ultra minimal configuration
     console.log('Trying ultra-minimal fallback configuration...');
