@@ -6,7 +6,7 @@ import { generateReport } from '../capalibrary/capalibrary.service';
 import { sendEmail } from '../../../email/email.service';
 
 
- const getNextScheduleDate = (frequency?: string): Date => {
+export const getNextScheduleDate = (frequency?: string): Date => {
   const now = new Date();
   switch (frequency) {
     case 'daily':
@@ -29,10 +29,14 @@ export const createReport = async (data: ICreateReport) => {
   const report = await generateReport(data.library);
   if (data.scheduleEmails && data.scheduleEmails.length > 0 && report?.Location) {
     await sendEmail(
-      data.scheduleEmails.join(', ') || "<default_email@example.com>",
-      'New report generated',
+      data.scheduleEmails.join(',') || "<default_email@example.com>",
+      `Report Generated: ${data.name}`,
       '',
-      `<a href="${report?.Location}">Download Report</a>`
+      `<p>Dear User,</p>
+      <p>The report has been successfully generated.</p>
+      <p>You can download the report using the link below:</p>
+      <p><a href="${report?.Location}">Download Report</a></p>
+      <p>Best regards,<br/>QMS Team</p>`
     );
   }
   const nextScheduleDate = getNextScheduleDate(data?.scheduleFrequency);
@@ -57,6 +61,16 @@ export const getReportById = async (reportId: string) => {
 
 export const getReportsByWorkspace = async (workspaceId: string, page = 1, limit = 10) => {
   const match = { workspace: new mongoose.Types.ObjectId(workspaceId) };
+  const total = await ReportModel.countDocuments(match);
+  const data = await ReportModel.find(match).populate('library', 'name')
+    .sort({ createdAt: -1 })
+    .skip((page - 1) * limit)
+    .limit(limit)
+    .populate('createdBy');
+  return { data, total, page, limit };
+};
+export const getReportsByLibrary = async (libraryId: string, page = 1, limit = 10) => {
+  const match = { library: new mongoose.Types.ObjectId(libraryId) };
   const total = await ReportModel.countDocuments(match);
   const data = await ReportModel.find(match).populate('library', 'name')
     .sort({ createdAt: -1 })

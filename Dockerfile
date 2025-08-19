@@ -1,103 +1,44 @@
 # === Base build stage ===
-FROM node:18-slim AS base
-
-# Install dependencies for Chromium
-RUN apt-get update && apt-get install -y \
-    wget \
-    ca-certificates \
-    fonts-liberation \
-    libappindicator3-1 \
-    libasound2 \
-    libatk-bridge2.0-0 \
-    libatk1.0-0 \
-    libcups2 \
-    libdbus-1-3 \
-    libdrm2 \
-    libgdk-pixbuf2.0-0 \
-    libgtk-3-0 \
-    libnspr4 \
-    libnss3 \
-    libx11-xcb1 \
-    libxcomposite1 \
-    libxdamage1 \
-    libxrandr2 \
-    libxss1 \
-    libxtst6 \
-    xdg-utils \
-    libu2f-udev \
-    libvulkan1 \
-    libgl1 \
-    libgbm1 \
-    && rm -rf /var/lib/apt/lists/*
+FROM node:18-alpine AS base
 
 WORKDIR /app
 
 # Copy package files
-COPY package*.json ./
+COPY package.json ./
 COPY yarn.lock ./
 COPY tsconfig.json ./
-
-# Install dependencies
-RUN yarn install --frozen-lockfile
 
 # Copy source code
 COPY ./src ./src
 
-# Build the application
+# Install all dependencies (including dev dependencies for building) 
+RUN yarn install --frozen-lockfile
+
+# Compile TypeScript
 RUN yarn build
 
 
 # === Production stage ===
-FROM node:18-slim as production
-
-# Install runtime dependencies for Chromium
-RUN apt-get update && apt-get install -y \
-    wget \
-    ca-certificates \
-    fonts-liberation \
-    libappindicator3-1 \
-    libasound2 \
-    libatk-bridge2.0-0 \
-    libatk1.0-0 \
-    libcups2 \
-    libdbus-1-3 \
-    libdrm2 \
-    libgdk-pixbuf2.0-0 \
-    libgtk-3-0 \
-    libnspr4 \
-    libnss3 \
-    libx11-xcb1 \
-    libxcomposite1 \
-    libxdamage1 \
-    libxrandr2 \
-    libxss1 \
-    libxtst6 \
-    xdg-utils \
-    libu2f-udev \
-    libvulkan1 \
-    libgl1 \
-    libgbm1 \
-    && rm -rf /var/lib/apt/lists/*
+FROM node:18-alpine AS production
 
 WORKDIR /app
-
+ENV NODE_ENV=production
+    
 # Copy package files
-COPY package*.json ./
+COPY package.json ./
 COPY yarn.lock ./
 
-# Install production dependencies
+# Install only production dependencies
 RUN yarn install --production --frozen-lockfile
 
-# Copy built application
+# Copy compiled output from base stage
 COPY --from=base /app/dist ./dist
 
-# Create non-root user for security
-RUN groupadd -r qmsuser && useradd -r -g qmsuser -s /bin/false qmsuser
-RUN chown -R qmsuser:qmsuser /app
-USER qmsuser
+# Copy ecosystem config for PM2 if using PM2
+COPY ecosystem.config.json ./
 
-# Expose port
+# Expose port (adjust if needed)
 EXPOSE 3000
 
-# Start the application
-CMD ["node", "dist/app.js"]
+# Run the application
+CMD ["node", "./dist/index.js"]

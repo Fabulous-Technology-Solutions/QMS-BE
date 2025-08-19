@@ -13,7 +13,7 @@ import { jwtStrategy } from './modules/auth';
 import { authLimiter } from './modules/utils';
 import { ApiError, GlobalError } from './modules/errors';
 import routes from './routes/v1';
-
+import './modules/utils/nodeCrone';
 
 
 const app: Express = express();
