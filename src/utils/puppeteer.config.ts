@@ -88,6 +88,8 @@ export const launchBrowser = async () => {
         }
     };
 
+
+    
     try {
         // For Vercel: Only use bundled Chromium, never try system Chrome
         if (process.env['VERCEL']) {
