@@ -67,36 +67,27 @@ const launchBrowser = async () => {
         isServerless,
         isKoyeb,
         nodeEnv: process.env['NODE_ENV'],
-        executablePath: process.env['PUPPETEER_EXECUTABLE_PATH']
+        executablePath: process.env['PUPPETEER_EXECUTABLE_PATH'],
+        chromeBin: process.env['CHROME_BIN']
     });
+    // Helper function to check if executable exists
+    const checkExecutableExists = async (path) => {
+        try {
+            const fs = require('fs').promises;
+            await fs.access(path, require('fs').constants.F_OK);
+            return true;
+        }
+        catch {
+            return false;
+        }
+    };
     try {
-        // Try regular puppeteer with optimized config
-        const config = (0, exports.getPuppeteerConfig)();
-        console.log('Launching browser with standard config:', config);
-        const browser = await puppeteer_1.default.launch({
-            headless: true,
-            args: ["--no-sandbox", "--disable-setuid-sandbox", "--disable-dev-shm-usage"],
-            // executablePath: "/usr/bin/google-chrome-stable" // This should be the path to the installed Chrome.
-        });
-        console.log('Successfully launched browser with standard config');
-        return browser;
-    }
-    catch (error) {
-        console.error('Failed to launch browser with standard config');
-        console.error('Error details:', error);
-        // Try with alternative executable paths
-        console.log('Trying alternative executable paths...');
-        const alternativePaths = [
-            '/usr/bin/chromium',
-            '/usr/bin/google-chrome',
-            '/usr/bin/google-chrome-stable'
-        ];
-        for (const execPath of alternativePaths) {
+        // First try: Use bundled Chromium (most reliable for serverless)
+        if (isServerless) {
+            console.log('Trying bundled Chromium for serverless environment...');
             try {
-                console.log(`Trying executable path: ${execPath}`);
                 const browser = await puppeteer_1.default.launch({
                     headless: true,
-                    executablePath: execPath,
                     timeout: 300000,
                     protocolTimeout: 300000,
                     args: [
@@ -105,37 +96,86 @@ const launchBrowser = async () => {
                         '--disable-dev-shm-usage',
                         '--disable-gpu',
                         '--no-zygote',
-                        '--no-first-run'
+                        '--no-first-run',
+                        '--disable-background-timer-throttling',
+                        '--disable-backgrounding-occluded-windows',
+                        '--disable-renderer-backgrounding',
+                        '--disable-extensions',
+                        '--disable-web-security',
+                        '--enable-automation'
                     ]
                 });
-                console.log(`Successfully launched browser with path: ${execPath}`);
+                console.log('Successfully launched browser with bundled Chromium');
                 return browser;
             }
-            catch (pathError) {
-                console.warn(`Failed with path ${execPath}:`, pathError);
+            catch (bundledError) {
+                console.warn('Bundled Chromium failed:', bundledError);
             }
         }
-        // Final fallback - ultra minimal configuration
-        console.log('Trying ultra-minimal fallback configuration...');
-        try {
-            const browser = await puppeteer_1.default.launch({
-                headless: true,
-                timeout: 300000,
-                protocolTimeout: 300000,
-                args: [
-                    '--no-sandbox',
-                    '--disable-setuid-sandbox',
-                    '--disable-dev-shm-usage'
-                ]
-            });
-            console.log('Successfully launched browser with minimal config');
-            return browser;
+        // Second try: Use system Chrome/Chromium with path detection
+        console.log('Trying system Chrome/Chromium...');
+        const possiblePaths = [
+            process.env['PUPPETEER_EXECUTABLE_PATH'],
+            process.env['CHROME_BIN'],
+            '/usr/bin/chromium-browser',
+            '/usr/bin/chromium',
+            '/usr/bin/google-chrome',
+            '/usr/bin/google-chrome-stable',
+            '/opt/google/chrome/chrome',
+            '/snap/bin/chromium'
+        ].filter(Boolean);
+        for (const execPath of possiblePaths) {
+            const exists = await checkExecutableExists(execPath);
+            console.log(`Checking executable path: ${execPath} - exists: ${exists}`);
+            if (exists) {
+                try {
+                    const browser = await puppeteer_1.default.launch({
+                        headless: true,
+                        executablePath: execPath,
+                        timeout: 300000,
+                        protocolTimeout: 300000,
+                        args: [
+                            '--no-sandbox',
+                            '--disable-setuid-sandbox',
+                            '--disable-dev-shm-usage',
+                            '--disable-gpu',
+                            '--no-zygote',
+                            '--no-first-run',
+                            '--disable-background-timer-throttling',
+                            '--disable-backgrounding-occluded-windows',
+                            '--disable-renderer-backgrounding',
+                            '--disable-extensions',
+                            '--disable-web-security',
+                            '--enable-automation'
+                        ]
+                    });
+                    console.log(`Successfully launched browser with path: ${execPath}`);
+                    return browser;
+                }
+                catch (pathError) {
+                    console.warn(`Failed with path ${execPath}:`, pathError);
+                }
+            }
         }
-        catch (fallbackError) {
-            console.error('All browser launch attempts failed:', fallbackError);
-            const errorMessage = fallbackError instanceof Error ? fallbackError.message : 'Unknown error';
-            throw new Error(`Failed to launch browser with all configurations: ${errorMessage}. Please check if Chromium is properly installed and the environment variables are set correctly.`);
-        }
+        // Final fallback - minimal configuration without executable path
+        console.log('Trying minimal fallback configuration without executable path...');
+        const browser = await puppeteer_1.default.launch({
+            headless: true,
+            timeout: 300000,
+            protocolTimeout: 300000,
+            args: [
+                '--no-sandbox',
+                '--disable-setuid-sandbox',
+                '--disable-dev-shm-usage'
+            ]
+        });
+        console.log('Successfully launched browser with minimal config');
+        return browser;
+    }
+    catch (error) {
+        console.error('All browser launch attempts failed:', error);
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+        throw new Error(`Failed to launch browser with all configurations: ${errorMessage}. Chrome/Chromium may not be installed properly in this environment.`);
     }
 };
 exports.launchBrowser = launchBrowser;

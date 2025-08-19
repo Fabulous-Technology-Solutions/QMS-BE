@@ -1,6 +1,11 @@
 # Koyeb Deployment Guide for Puppeteer
 
-## Problem
+## 6. **Add Variables**: Click "Add Environment Variable" and add each one:
+   - **Name**: `PUPPETEER_EXECUTABLE_PATH` **Value**: `/usr/bin/chromium`
+   - **Name**: `PUPPETEER_SKIP_CHROMIUM_DOWNLOAD` **Value**: `true`
+   - **Name**: `NODE_ENV` **Value**: `production`
+   - **Name**: `KOYEB` **Value**: `true`
+   - **Name**: `CHROME_BIN` **Value**: `/usr/bin/chromium`m
 The error `Error: Failed to launch the browser process! spawn /root/.cache/puppeteer/chrome/linux-139.0.7258.68/chrome-linux64/chrome ENOENT` occurs because Puppeteer cannot find Chrome in the Koyeb environment.
 
 ## Solutions Implemented
@@ -24,11 +29,11 @@ Set these environment variables in your Koyeb app dashboard:
 
 **Required Environment Variables:**
 ```
-PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium-browser
+PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium
 PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
 NODE_ENV=production
 KOYEB=true
-CHROME_BIN=/usr/bin/chromium-browser
+CHROME_BIN=/usr/bin/chromium
 ```
 
 **Optional Environment Variables (for additional debugging):**

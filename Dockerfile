@@ -32,7 +32,9 @@ RUN apk add --no-cache \
     ttf-freefont
 
 # Tell Puppeteer to use installed Chromium
-ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium-browser
+ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium
+ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
+ENV CHROME_BIN=/usr/bin/chromium
 
 WORKDIR /app
 ENV NODE_ENV=production
