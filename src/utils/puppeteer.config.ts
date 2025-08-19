@@ -97,7 +97,6 @@ export const launchBrowser = async () => {
           defaultViewport: chromium.defaultViewport,
           executablePath: await chromium.executablePath,
           headless: chromium.headless,
-          ignoreHTTPSErrors: true,
           slowMo: 0,
         });
         console.log('Successfully launched browser with chrome-aws-lambda');
