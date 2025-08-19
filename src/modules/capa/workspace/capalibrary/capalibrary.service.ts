@@ -13,7 +13,7 @@ import { IUserDoc } from '@/modules/user/user.interfaces';
 import ActivityLog from '../../../../modules/activitylogs/activitylogs.modal';
 import { pdfTemplate } from '../../../../modules/utils/pdfTemplate';
 import { uploadSingleFile } from '../../../../modules/upload/upload.middleware';
-import puppeteer from "puppeteer"
+import { launchBrowser } from '../../../../utils/puppeteer.config';
 
 export const CreateLibrary = async (body: CreateLibraryRequest) => {
   const library = new LibraryModel(body);
@@ -622,10 +622,7 @@ export const deletePermanent = async (libraryIds: string[], workspaceId: string,
 export const generateReport = async (libraryId: string) => {
 
   // 1. Launch headless browser
-  const browser = await puppeteer.launch({
-    headless: true,
-    args: ['--no-sandbox', '--disable-setuid-sandbox']
-  });
+  const browser = await launchBrowser();
                  
 
   const page = await browser.newPage();
