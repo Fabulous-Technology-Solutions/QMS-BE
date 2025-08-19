@@ -99,19 +99,20 @@ const allRoles = {
     'getFiveWhys',
     //Ishikawa
     'getIshikawaByLibrary',
-    "getIshikawa",
-    "deleteIshikawa",
-    "createIshikawa",
+    'getIshikawa',
+    'deleteIshikawa',
+    'createIshikawa',
     //Other
     'needAttention',
     // Reports
-      'createReport',
-      'getReports',
-      'getReportById',
-      'updateReport',
-      'deleteReport',
-       'getReportPrevious',
-       'getReport'
+    'createReport',
+    'getReports',
+    'getReport',
+    'updateReport',
+    'deleteReport',
+    'getReportPrevious',
+    'getReport',
+    'getLibraryReports',
   ],
   subAdmin: {
     subAdmin: [
@@ -205,20 +206,21 @@ const allRoles = {
       'getFiveWhys',
       //Ishikawa
       'getIshikawaByLibrary',
-      "getIshikawa",
-      "deleteIshikawa",
-      "createIshikawa",
+      'getIshikawa',
+      'deleteIshikawa',
+      'createIshikawa',
       //Other
       'needAttention',
       // Reports
       'createReport',
       'getReports',
-      'getReportById',
+      'getReport',
       'updateReport',
       'deleteReport',
       // Report Preview
       'getReportPrevious',
-      'getReport'
+      'getReport',
+      'getLibraryReports',
     ],
     standardUser: [
       'getSubscriptions',
@@ -283,10 +285,14 @@ const allRoles = {
       'getFiveWhys',
       //Ishikawa
       'getIshikawaByLibrary',
-      "getIshikawa",
-      "deleteIshikawa",
-      "createIshikawa",
-     
+      'getIshikawa',
+      'deleteIshikawa',
+      'createIshikawa',
+
+      'getLibraryReports',
+      'getReport',
+      'updateReport',
+       'getReportPrevious',
     ],
   },
 
@@ -325,10 +331,12 @@ const allRoles = {
       'getFiveWhys',
       //Ishikawa
       'getIshikawaByLibrary',
-      "getIshikawa",
-      'getChecklistItems'
+      'getIshikawa',
+      'getChecklistItems',
+      'getLibraryReports',
+       'getReportPrevious',
     ],
-    edit: [ 
+    edit: [
       // 'manageLibrary',
       'updateLibrary',
       'removeLibraryMember',
@@ -375,7 +383,11 @@ const allRoles = {
       'getFiveWhys',
       //Ishikawa
       'getIshikawaByLibrary',
-      "getIshikawa"
+      'getIshikawa',
+      'getLibraryReports',
+      'getReport',
+      'updateReport',
+       'getReportPrevious',
     ],
     w_admin: [
       // permissions for workspace admin for role
@@ -469,20 +481,23 @@ const allRoles = {
       'getFiveWhys',
       //Ishikawa
       'getIshikawaByLibrary',
-      "getIshikawa",
-      "deleteIshikawa",
-      "createIshikawa",
+      'getIshikawa',
+      'deleteIshikawa',
+      'createIshikawa',
       //Other
       'needAttention',
       // Reports
       'createReport',
       'getReports',
-      'getReportById',
+      'getReport',
       'updateReport',
       'deleteReport',
       'getReport',
       // Report Preview
       'getReportPrevious',
+      'getLibraryReports',
+           'getReport',
+      'updateReport',
     ],
   },
 };
