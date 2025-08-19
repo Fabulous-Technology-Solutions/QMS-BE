@@ -671,6 +671,7 @@ export const generateReport = async (libraryId: string) => {
       foreignField: 'library',
       as: 'actions',
       pipeline: [
+        
         {
           $lookup: {
             from: 'users',
