@@ -630,7 +630,6 @@ export const generateReport = async (libraryId: string) => {
     defaultViewport: chromium.defaultViewport,
     executablePath: await chromium.executablePath,
     headless: chromium.headless,
-    ignoreHTTPSErrors: true,
   });
 
   const page = await browser.newPage();
