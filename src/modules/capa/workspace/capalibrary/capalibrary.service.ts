@@ -21,7 +21,7 @@ export const CreateLibrary = async (body: CreateLibraryRequest) => {
 };
 
 export const getLibraryById = async (libraryId: string) => {
-  const data = await LibraryModel.findOne({ _id: libraryId, isDeleted: false }) 
+  const data = await LibraryModel.findOne({ _id: libraryId, isDeleted: false })
     .populate('members', 'name email profilePicture')
     .populate('managers', 'name email profilePicture');
 
@@ -112,8 +112,6 @@ export const getLibrariesByWorkspace = async (
     message: 'Libraries retrieved successfully',
   };
 };
-
-
 
 export const getLibrariesfilterData = async (workspaceId: string, page: number, limit: number, search: string) => {
   const matchStage: GetLibrariesQuery = {
@@ -503,7 +501,13 @@ export const updateForm5W2H = async (libraryId: string, formData: UpdateForm5W2H
   return library;
 };
 
-export const getLibrariesByManager = async (workspaceId: string, managerId: string, page: number, limit: number, search: string) => {
+export const getLibrariesByManager = async (
+  workspaceId: string,
+  managerId: string,
+  page: number,
+  limit: number,
+  search: string
+) => {
   const matchStage: GetLibrariesQueryforUser = {
     workspace: new mongoose.Types.ObjectId(workspaceId),
     managers: { $in: [new mongoose.Types.ObjectId(managerId)] },
@@ -618,197 +622,188 @@ export const deletePermanent = async (libraryIds: string[], workspaceId: string,
   return result;
 };
 
-
 export const generateReport = async (libraryId: string) => {
   let browser;
   let page;
-  
+
   try {
     console.log('Starting PDF generation for library:', libraryId);
-    
+
     // 1. Launch headless browser
     browser = await launchBrowser();
     console.log('Browser launched successfully');
-                 
+
     page = await browser?.newPage();
     console.log('New page created');
-    
-   
-    console.log('Page configured with timeouts');  
-    const [findLibrary] = await LibraryModel.aggregate([
-  { $match: { _id: new mongoose.Types.ObjectId(libraryId) } },
-  {
-    $lookup: {
-      from: 'users',
-      localField: 'members',
-      foreignField: '_id',
-      as: 'members',
-      pipeline: [{ $project: { name: 1, email: 1, profilePicture: 1, role: 1 } }],
-    },
-  },
-  {
-    $lookup: {
-      from: 'users',
-      localField: 'managers',
-      foreignField: '_id',
-      as: 'managers',
-      pipeline: [{ $project: { name: 1, email: 1, profilePicture: 1, role: 1 } }],
-    },
-  },
-  {
-    $lookup: {
-      from: 'causes',
-      localField: '_id',
-      foreignField: 'library',
-      as: 'causes',
-      pipeline: [{ $project: { name: 1, description: 1, createdAt: 1 } }],
-    },
-  },
-  {
-    $lookup: {
-      from: 'actions',
-      localField: '_id',
-      foreignField: 'library',
-      as: 'actions',
-      pipeline: [
 
-        {
-          $lookup: {
-            from: 'users',
-            localField: 'assignedTo',
-            foreignField: '_id',
-            as: 'assignedTo',
-            pipeline: [{ $project: { name: 1, email: 1, profilePicture: 1 } }],
-          }
-        },
-        {
-          $project: {
-            name: 1,
-            email: 1,
-            profilePicture: 1,
-            status: 1,
-            createdAt: 1,
-            priority: 1,
-            endDate: 1,
-            startDate: 1,
-            type: 1,
-            assignedTo: 1,
-            cause: 1,
-            docfile: 1
-          }
-        }
-      ],
-    },
-  },
-  {
-    $addFields: {
-      pendingActions: {
-        $size: {
-          $ifNull: [
-            { $filter: { input: '$actions', as: 'action', cond: { $eq: ['$$action.status', 'pending'] } } },
-            []
-          ]
-        }
-      },
-      inProgressActions: {
-        $size: {
-          $ifNull: [
-            { $filter: { input: '$actions', as: 'action', cond: { $eq: ['$$action.status', 'in-progress'] } } },
-            []
-          ]
-        }
-      },
-      onHoldActions: {
-        $size: {
-          $ifNull: [
-            { $filter: { input: '$actions', as: 'action', cond: { $eq: ['$$action.status', 'on-hold'] } } },
-            []
-          ]
-        }
-      },
-      completedActions: {
-        $size: {
-          $ifNull: [
-            { $filter: { input: '$actions', as: 'action', cond: { $eq: ['$$action.status', 'completed'] } } },
-            []
-          ]
-        }
-      }
-    }
-  },
-{
-  $lookup: {
-    from: 'checklisthistories',
-    localField: '_id',
-    foreignField: 'library',
-    as: 'checklisthistory',
-    pipeline: [
+    console.log('Page configured with timeouts');
+    const [findLibrary] = await LibraryModel.aggregate([
+      { $match: { _id: new mongoose.Types.ObjectId(libraryId) } },
       {
-        $lookup:{
-          from: 'checklists', // collection name for Checklist
-          localField: 'checklistId',
+        $lookup: {
+          from: 'users',
+          localField: 'members',
           foreignField: '_id',
-          as: 'checklistId',
-          pipeline: [
-            { $project: { name: 1, description: 1 } } // project what you need
-          ]  
-        }
-      },
-      {
-        $unwind: {
-          path: "$checklistId",
-          preserveNullAndEmptyArrays: true
-        }
-      },
-      {
-        $unwind: {
-          path: "$list",
-          preserveNullAndEmptyArrays: true
-        }
+          as: 'members',
+          pipeline: [{ $project: { name: 1, email: 1, profilePicture: 1, role: 1 } }],
+        },
       },
       {
         $lookup: {
-          from: "checklistitems", // collection name for CheckListItem
-          localField: "list.item",
-          foreignField: "_id",
-          as: "list.itemDetails",
+          from: 'users',
+          localField: 'managers',
+          foreignField: '_id',
+          as: 'managers',
+          pipeline: [{ $project: { name: 1, email: 1, profilePicture: 1, role: 1 } }],
+        },
+      },
+      {
+        $lookup: {
+          from: 'causes',
+          localField: '_id',
+          foreignField: 'library',
+          as: 'causes',
+          pipeline: [{ $project: { name: 1, description: 1, createdAt: 1 } }],
+        },
+      },
+      {
+        $lookup: {
+          from: 'actions',
+          localField: '_id',
+          foreignField: 'library',
+          as: 'actions',
           pipeline: [
-            { $project: { question: 1 } } // project what you need
-          ]
-        }
+            {
+              $lookup: {
+                from: 'users',
+                localField: 'assignedTo',
+                foreignField: '_id',
+                as: 'assignedTo',
+                pipeline: [{ $project: { name: 1, email: 1, profilePicture: 1 } }],
+              },
+            },
+            {
+              $project: {
+                name: 1,
+                email: 1,
+                profilePicture: 1,
+                status: 1,
+                createdAt: 1,
+                priority: 1,
+                endDate: 1,
+                startDate: 1,
+                type: 1,
+                assignedTo: 1,
+                cause: 1,
+                docfile: 1,
+              },
+            },
+          ],
+        },
       },
       {
-        $unwind: {
-          path: "$list.itemDetails",
-          preserveNullAndEmptyArrays: true
-        }
+        $addFields: {
+          pendingActions: {
+            $size: {
+              $ifNull: [{ $filter: { input: '$actions', as: 'action', cond: { $eq: ['$$action.status', 'pending'] } } }, []],
+            },
+          },
+          inProgressActions: {
+            $size: {
+              $ifNull: [
+                { $filter: { input: '$actions', as: 'action', cond: { $eq: ['$$action.status', 'in-progress'] } } },
+                [],
+              ],
+            },
+          },
+          onHoldActions: {
+            $size: {
+              $ifNull: [{ $filter: { input: '$actions', as: 'action', cond: { $eq: ['$$action.status', 'on-hold'] } } }, []],
+            },
+          },
+          completedActions: {
+            $size: {
+              $ifNull: [
+                { $filter: { input: '$actions', as: 'action', cond: { $eq: ['$$action.status', 'completed'] } } },
+                [],
+              ],
+            },
+          },
+        },
       },
       {
-        $group: {
-          _id: "$_id",
-          checklist: { $first: "$checklistId" },
-          library: { $first: "$library" },
-          comment: { $first: "$comment" },
-          createdBy: { $first: "$createdBy" },
-          createdAt: { $first: "$createdAt" },
-          updatedAt: { $first: "$updatedAt" },
-          list: {
-            $push: {
-              item: "$list.itemDetails", // populated item
-              yes: "$list.yes",
-              no: "$list.no",
-              partial: "$list.partial",
-              evidence: "$list.evidence",
-              evidenceKey: "$list.evidenceKey",
-              comment: "$list.comment"
-            }
-          }
-        }
-      }
-    ]
-  }
-}
-]);
+        $lookup: {
+          from: 'checklisthistories',
+          localField: '_id',
+          foreignField: 'library',
+          as: 'checklisthistory',
+          pipeline: [
+            {
+              $lookup: {
+                from: 'checklists', // collection name for Checklist
+                localField: 'checklistId',
+                foreignField: '_id',
+                as: 'checklistId',
+                pipeline: [
+                  { $project: { name: 1, description: 1 } }, // project what you need
+                ],
+              },
+            },
+            {
+              $unwind: {
+                path: '$checklistId',
+                preserveNullAndEmptyArrays: true,
+              },
+            },
+            {
+              $unwind: {
+                path: '$list',
+                preserveNullAndEmptyArrays: true,
+              },
+            },
+            {
+              $lookup: {
+                from: 'checklistitems', // collection name for CheckListItem
+                localField: 'list.item',
+                foreignField: '_id',
+                as: 'list.itemDetails',
+                pipeline: [
+                  { $project: { question: 1 } }, // project what you need
+                ],
+              },
+            },
+            {
+              $unwind: {
+                path: '$list.itemDetails',
+                preserveNullAndEmptyArrays: true,
+              },
+            },
+            {
+              $group: {
+                _id: '$_id',
+                checklist: { $first: '$checklistId' },
+                library: { $first: '$library' },
+                comment: { $first: '$comment' },
+                createdBy: { $first: '$createdBy' },
+                createdAt: { $first: '$createdAt' },
+                updatedAt: { $first: '$updatedAt' },
+                list: {
+                  $push: {
+                    item: '$list.itemDetails', // populated item
+                    yes: '$list.yes',
+                    no: '$list.no',
+                    partial: '$list.partial',
+                    evidence: '$list.evidence',
+                    evidenceKey: '$list.evidenceKey',
+                    comment: '$list.comment',
+                  },
+                },
+              },
+            },
+          ],
+        },
+      },
+    ]);
 
     if (!findLibrary) {
       throw new Error('Library not found');
@@ -816,32 +811,28 @@ export const generateReport = async (libraryId: string) => {
 
     console.log('Generating PDF content...');
     const pdfContent = await pdfTemplate(findLibrary);
-    console.log('PDF content generated, setting page content...');
-
-    // 4. Set the HTML as the page content with a more reliable wait strategy
-    await page?.setContent(pdfContent, { 
-      waitUntil: "domcontentloaded", // Changed from networkidle0 to domcontentloaded for faster loading
-      timeout: 120000 // 2 minutes timeout
+    await page.setContent(pdfContent, {
+      waitUntil: 'networkidle0',
+      timeout: 120000,
     });
-    console.log('Page content set successfully');
 
     // 5. Generate PDF
     console.log('Generating PDF...');
     const pdfBuffer = await page?.pdf({
-      format: "a4",
+      format: 'a4',
       printBackground: true,
-      margin: { top: "20mm", bottom: "20mm" },
-      timeout: 120000 // 2 minutes timeout for PDF generation
+      margin: { top: '20mm', bottom: '20mm' },
+      timeout: 120000, // 2 minutes timeout for PDF generation
     });
     console.log('PDF generated successfully');
-    
+
     const timestamp = Date.now();
     const uniqueFileName = `${timestamp}-Report.pdf`;
 
     // Convert Uint8Array to Buffer
     const buffer = Buffer.from(new Uint8Array(pdfBuffer || []));
     console.log('Uploading PDF...');
-    const response = await uploadSingleFile(uniqueFileName, buffer, "application/pdf", false);
+    const response = await uploadSingleFile(uniqueFileName, buffer, 'application/pdf', false);
 
     if (!response) {
       throw new Error('Failed to upload PDF');
@@ -849,7 +840,6 @@ export const generateReport = async (libraryId: string) => {
     console.log('PDF uploaded successfully:', response);
 
     return response;
-    
   } catch (error) {
     console.error('Error generating PDF report:', error);
     throw error;
@@ -872,6 +862,4 @@ export const generateReport = async (libraryId: string) => {
       }
     }
   }
-
-
-}
+};
