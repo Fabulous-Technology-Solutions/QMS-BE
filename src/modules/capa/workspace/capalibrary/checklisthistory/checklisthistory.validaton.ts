@@ -23,6 +23,6 @@ const historyBody: Record<keyof createChecklistHistory, Joi.Schema> = {
 
 export const createChecklistHistoryValidation = Joi.object()
   .keys(historyBody)
-  .fork(['checklistId', 'library', 'comment', 'list'], (field) => field.required());
+  .fork(['checklistId', 'library', 'list'], (field) => field.required());
 
 export const updateChecklistHistoryValidation = Joi.object().keys(historyBody).min(1);

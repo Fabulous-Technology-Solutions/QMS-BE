@@ -24,5 +24,5 @@ const historyBody = {
 };
 exports.createChecklistHistoryValidation = joi_1.default.object()
     .keys(historyBody)
-    .fork(['checklistId', 'library', 'comment', 'list'], (field) => field.required());
+    .fork(['checklistId', 'library', 'list'], (field) => field.required());
 exports.updateChecklistHistoryValidation = joi_1.default.object().keys(historyBody).min(1);

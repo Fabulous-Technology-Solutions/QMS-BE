@@ -23,7 +23,8 @@ export const CreateLibrary = async (body: CreateLibraryRequest) => {
 export const getLibraryById = async (libraryId: string) => {
   const data = await LibraryModel.findOne({ _id: libraryId, isDeleted: false })
     .populate('members', 'name email profilePicture')
-    .populate('managers', 'name email profilePicture');
+    .populate('managers', 'name email profilePicture')
+    .populate('Form5W2H.responsibles', 'name email profilePicture');
 
   if (!data) {
     throw new Error('Library not found');

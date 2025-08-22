@@ -292,7 +292,7 @@ const allRoles = {
       'getLibraryReports',
       'getReport',
       'updateReport',
-       'getReportPrevious',
+      'getReportPrevious',
     ],
   },
 
@@ -329,12 +329,14 @@ const allRoles = {
       // Five Whys
       'getFiveWhysByLibrary',
       'getFiveWhys',
+      'createFiveWhys',
       //Ishikawa
       'getIshikawaByLibrary',
       'getIshikawa',
       'getChecklistItems',
       'getLibraryReports',
-       'getReportPrevious',
+      'getReportPrevious',
+      'createIshikawa',
     ],
     edit: [
       // 'manageLibrary',
@@ -387,7 +389,7 @@ const allRoles = {
       'getLibraryReports',
       'getReport',
       'updateReport',
-       'getReportPrevious',
+      'getReportPrevious',
     ],
     w_admin: [
       // permissions for workspace admin for role
@@ -496,7 +498,7 @@ const allRoles = {
       // Report Preview
       'getReportPrevious',
       'getLibraryReports',
-           'getReport',
+      'getReport',
       'updateReport',
     ],
   },

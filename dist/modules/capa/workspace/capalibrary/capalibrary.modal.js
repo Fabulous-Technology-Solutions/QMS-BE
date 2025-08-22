@@ -29,6 +29,12 @@ const LibrarySchema = new mongoose_1.default.Schema({
             type: Boolean,
             default: false,
         },
+        responsibles: [
+            {
+                type: mongoose_1.default.Schema.Types.ObjectId,
+                ref: 'User',
+            },
+        ],
         containmentDetails: {
             type: String,
             required: function () {

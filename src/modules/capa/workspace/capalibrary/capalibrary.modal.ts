@@ -26,6 +26,12 @@ const LibrarySchema = new mongoose.Schema<LibraryModal>(
         type: Boolean,
         default: false,
       },
+      responsibles: [
+        {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: 'User',
+        },
+      ],
       containmentDetails: {
         type: String,
         required: function (this: LibraryModal) {

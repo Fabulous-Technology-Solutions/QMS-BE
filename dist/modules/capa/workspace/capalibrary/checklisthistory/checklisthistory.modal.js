@@ -15,9 +15,9 @@ const ChecklistHistorySchema = new mongoose_1.default.Schema({
             yes: { type: Boolean, required: true },
             no: { type: Boolean, required: true },
             partial: { type: Boolean, required: true },
-            evidence: { type: String, required: true },
-            evidenceKey: { type: String, required: true },
-            comment: { type: String, required: true },
+            evidence: { type: String },
+            evidenceKey: { type: String },
+            comment: { type: String },
         },
     ],
 }, { timestamps: true });

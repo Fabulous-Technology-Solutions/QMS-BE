@@ -311,12 +311,14 @@ const allRoles = {
             // Five Whys
             'getFiveWhysByLibrary',
             'getFiveWhys',
+            'createFiveWhys',
             //Ishikawa
             'getIshikawaByLibrary',
             'getIshikawa',
             'getChecklistItems',
             'getLibraryReports',
             'getReportPrevious',
+            'createIshikawa',
         ],
         edit: [
             // 'manageLibrary',

@@ -19,7 +19,8 @@ exports.CreateLibrary = CreateLibrary;
 const getLibraryById = async (libraryId) => {
     const data = await capalibrary_modal_1.LibraryModel.findOne({ _id: libraryId, isDeleted: false })
         .populate('members', 'name email profilePicture')
-        .populate('managers', 'name email profilePicture');
+        .populate('managers', 'name email profilePicture')
+        .populate('Form5W2H.responsibles', 'name email profilePicture');
     if (!data) {
         throw new Error('Library not found');
     }

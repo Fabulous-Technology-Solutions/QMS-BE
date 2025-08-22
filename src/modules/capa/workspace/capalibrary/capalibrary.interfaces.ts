@@ -22,6 +22,7 @@ export interface LibraryModal extends Document {
     where: string;
     who: string;
     how: string;
+    responsibles: mongoose.Types.ObjectId[];
   };
 
 }
@@ -34,6 +35,7 @@ export interface UpdateForm5W2HRequest {
   where?: string;
   who?: string;
   how?: string;
+  responsibles?: string[];
 }
 
 
