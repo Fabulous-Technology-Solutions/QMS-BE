@@ -5,6 +5,7 @@ const allRoles = {
     'buySubscription',
     'getSubscriptions',
     'manageUsers',
+    'manageSites',
     // 'ManageWorkspaceRolespermissions',
     'updateRole',
     'getSingleRole',

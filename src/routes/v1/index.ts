@@ -22,6 +22,8 @@ import FiveWhyRoutes from "./fivewhys.route";
 import IshikawaRoutes from "./Ishikawa.route";
 import ReportReport from "./report.route"
 import ReportHistory from "./reporthistory.route";
+import SiteRoutes from "./site.route"
+import ProcessRoutes from "./process.route"
 const router = express.Router();
 
 interface IRoute {
@@ -113,6 +115,14 @@ const defaultIRoute: IRoute[] = [
   {
     path: '/report-history',
     route: ReportHistory,
+  },
+  {
+    path: '/sites',
+    route: SiteRoutes,
+  },
+  {
+    path: '/processes',
+    route: ProcessRoutes,
   },
 ];
 

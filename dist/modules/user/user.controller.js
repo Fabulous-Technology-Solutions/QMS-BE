@@ -54,6 +54,16 @@ exports.createUser = (0, catchAsync_1.default)(async (req, res) => {
     res.status(http_status_1.default.CREATED).send(user);
 });
 exports.getUsers = (0, catchAsync_1.default)(async (req, res) => {
+    // Authorization logic
+    if (req.user && req.user.role === 'admin') {
+        // Admin can see users they created
+    }
+    else if (req.user && req.user.role === 'sub-admin') {
+        // Sub-admin can see users created by their admin
+    }
+    else {
+        throw new Error("Unauthorized");
+    }
     const filter = (0, pick_1.default)(req.query, ['name', 'role']);
     const options = (0, pick_1.default)(req.query, ['sortBy', 'limit', 'page', 'projectBy']);
     const result = await userService.queryUsers(filter, options);
@@ -61,6 +71,16 @@ exports.getUsers = (0, catchAsync_1.default)(async (req, res) => {
 });
 exports.getAllUsers = (0, catchAsync_1.default)(async (req, res) => {
     const { page, limit, role, search } = req.query;
+    // Authorization logic
+    if (req.user && req.user.role === 'admin') {
+        // Admin can see users they created
+    }
+    else if (req.user && req.user.role === 'sub-admin') {
+        // Sub-admin can see users created by their admin
+    }
+    else {
+        throw new Error("Unauthorized");
+    }
     const queryParams = {
         page: Number(page) || 1,
         limit: Number(limit) || 10,

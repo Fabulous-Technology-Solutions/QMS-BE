@@ -27,6 +27,8 @@ const fivewhys_route_1 = __importDefault(require("./fivewhys.route"));
 const Ishikawa_route_1 = __importDefault(require("./Ishikawa.route"));
 const report_route_1 = __importDefault(require("./report.route"));
 const reporthistory_route_1 = __importDefault(require("./reporthistory.route"));
+const site_route_1 = __importDefault(require("./site.route"));
+const process_route_1 = __importDefault(require("./process.route"));
 const router = express_1.default.Router();
 const defaultIRoute = [
     {
@@ -112,6 +114,14 @@ const defaultIRoute = [
     {
         path: '/report-history',
         route: reporthistory_route_1.default,
+    },
+    {
+        path: '/sites',
+        route: site_route_1.default,
+    },
+    {
+        path: '/processes',
+        route: process_route_1.default,
     },
 ];
 // Add webhook route separately (should be public)

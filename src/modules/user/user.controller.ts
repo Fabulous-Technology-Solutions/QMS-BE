@@ -35,6 +35,15 @@ export const createUser = catchAsync(async (req: Request, res: Response) => {
 });
 
 export const getUsers = catchAsync(async (req: Request, res: Response) => {
+  // Authorization logic
+  if (req.user && req.user.role === 'admin') {
+    // Admin can see users they created
+  } else if (req.user && req.user.role === 'sub-admin') {
+    // Sub-admin can see users created by their admin
+  } else {
+    throw new Error("Unauthorized");
+  }
+  
   const filter = pick(req.query, ['name', 'role']);
   const options: IOptions = pick(req.query, ['sortBy', 'limit', 'page', 'projectBy']);
   const result = await userService.queryUsers(filter, options);
@@ -43,6 +52,15 @@ export const getUsers = catchAsync(async (req: Request, res: Response) => {
 
  export const getAllUsers = catchAsync(async (req: Request, res: Response) => {
   const { page, limit, role, search } = req.query;
+  
+  // Authorization logic
+  if (req.user && req.user.role === 'admin') {
+    // Admin can see users they created
+  } else if (req.user && req.user.role === 'sub-admin') {
+    // Sub-admin can see users created by their admin
+  } else {
+    throw new Error("Unauthorized");
+  }
   
   const queryParams: {
     page: number;

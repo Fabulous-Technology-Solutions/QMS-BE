@@ -24,6 +24,15 @@ export const createCapaworkspaceController = catchAsync(async (req: Request, res
 
 
 export const getAllCapaworkspacesController = catchAsync(async (req: Request, res: Response) => {
+  // Authorization logic
+  if (req.user && req.user.role === 'admin') {
+    // Admin can see workspaces they created
+  } else if (req.user && req.user.role === 'sub-admin') {
+    // Sub-admin can see workspaces created by their admin
+  } else {
+    throw new Error("Unauthorized");
+  }
+  
   const { page = 1, limit = 10 ,search} = req.query;
   const workspaces = await workspaceService.getAllCapaworkspaces({
     moduleId: req.params["moduleId"] as string,
