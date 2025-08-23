@@ -9,6 +9,7 @@ router
   .route('/')
   .post(auth('manageSites'), validate(SiteValidation.createSiteSchema), activityLoggerMiddleware, siteController.createSite)
   .get(auth('manageSites'), siteController.getAllSites);
+router.get('/names', auth('manageSites'), siteController.getAllSitesNames);
 
 router
   .route('/:id')
@@ -16,6 +17,6 @@ router
   .patch(auth('manageSites'), validate(SiteValidation.updateSiteSchema), activityLoggerMiddleware, siteController.updateSite)
   .delete(auth('manageSites'), activityLoggerMiddleware, siteController.deleteSite);
 
-router.get("/names/:moduleId", siteController.getSiteNamesByModule);
+router.get('/names/:moduleId', siteController.getSiteNamesByModule);
 
 export default router;

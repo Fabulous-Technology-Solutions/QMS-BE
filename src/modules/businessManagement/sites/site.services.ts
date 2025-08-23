@@ -2,6 +2,7 @@ import {  IUserDoc } from "@/modules/user/user.interfaces";
 import {createSite, SiteQuery, PaginationOptions, PaginatedResponse, SiteModal as ISiteModal} from "./site.interfaces";
 import  SiteModal from "./site.modal";
 
+
 const createSiteService = async (siteData: createSite) => {
   const newSite = new SiteModal(siteData);
   return await newSite.save();
@@ -105,6 +106,28 @@ const getAllSitesService = async (options?: PaginationOptions, user?: IUserDoc):
   };
 };
 
+
+const getAllSitesNamesService = async ( user?: IUserDoc)=> {
+
+  const query:{
+    createdBy?: String;
+  }= {};
+
+  if (user && user.role === 'admin') {
+    query.createdBy = user._id;
+  }else if (user && user.role === 'sub-admin') {
+    query.createdBy = user.createdBy?.toString() || "";
+  }else{
+    throw new Error("Unauthorized");
+  }
+
+  const sites = await SiteModal.find(query).select("name");
+  return {
+    data: sites,
+
+  };
+};
+
 export default {
   createSiteService,
   updateSiteService,
@@ -112,5 +135,6 @@ export default {
   getSiteService,
   getSiteServiceByModule,
   getSiteServiceNamesByModule,
-  getAllSitesService
+  getAllSitesService,
+  getAllSitesNamesService
 };

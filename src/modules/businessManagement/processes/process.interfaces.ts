@@ -3,7 +3,7 @@ import { Document, ObjectId } from "mongoose";
 export interface ProcessModal extends Document {
   name: string;
   location: string;
-  parentSite: string; 
+  parentSite: ObjectId; 
   processCode: string;
   note: string;
   createdBy: ObjectId;

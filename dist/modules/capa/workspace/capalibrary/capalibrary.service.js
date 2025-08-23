@@ -20,7 +20,9 @@ const getLibraryById = async (libraryId) => {
     const data = await capalibrary_modal_1.LibraryModel.findOne({ _id: libraryId, isDeleted: false })
         .populate('members', 'name email profilePicture')
         .populate('managers', 'name email profilePicture')
-        .populate('containment.responsibles', 'name email profilePicture');
+        .populate('containment.responsibles', 'name email profilePicture')
+        .populate('site', 'name')
+        .populate('process', 'name');
     if (!data) {
         throw new Error('Library not found');
     }
@@ -80,6 +82,30 @@ const getLibrariesByWorkspace = async (workspaceId, page, limit, search, isDelet
                 as: 'managers',
                 pipeline: [{ $project: { name: 1, email: 1, profilePicture: 1 } }],
             },
+        },
+        {
+            $lookup: {
+                from: 'sites',
+                localField: 'site',
+                foreignField: '_id',
+                as: 'site',
+                pipeline: [{ $project: { name: 1 } }],
+            },
+        },
+        {
+            $unwind: { path: '$site', preserveNullAndEmptyArrays: true }
+        },
+        {
+            $lookup: {
+                from: 'processes',
+                localField: 'process',
+                foreignField: '_id',
+                as: 'process',
+                pipeline: [{ $project: { name: 1 } }],
+            },
+        },
+        {
+            $unwind: { path: '$process', preserveNullAndEmptyArrays: true }
         },
         { $skip: (page - 1) * limit },
         { $limit: limit },
@@ -494,6 +520,30 @@ const getLibrariesByManager = async (workspaceId, managerId, page, limit, search
                 as: 'members',
                 pipeline: [{ $project: { name: 1, email: 1, profilePicture: 1 } }],
             },
+        },
+        {
+            $lookup: {
+                from: 'sites',
+                localField: 'site',
+                foreignField: '_id',
+                as: 'site',
+                pipeline: [{ $project: { name: 1 } }],
+            },
+        },
+        {
+            $unwind: { path: '$site', preserveNullAndEmptyArrays: true }
+        },
+        {
+            $lookup: {
+                from: 'processes',
+                localField: 'process',
+                foreignField: '_id',
+                as: 'process',
+                pipeline: [{ $project: { name: 1 } }],
+            },
+        },
+        {
+            $unwind: { path: '$process', preserveNullAndEmptyArrays: true }
         },
         {
             $lookup: {

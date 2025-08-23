@@ -6,6 +6,7 @@ const allRoles = {
     'getSubscriptions',
     'manageUsers',
     'manageSites',
+    'manageProcesses',
     // 'ManageWorkspaceRolespermissions',
     'updateRole',
     'getSingleRole',

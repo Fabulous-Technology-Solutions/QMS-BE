@@ -39,6 +39,11 @@ const getAllSites = catchAsync(async (req:Request, res:Response) => {
   res.status(200).json(sites);
 });
 
+const getAllSitesNames = catchAsync(async (req:Request, res:Response) => {
+  const siteNames = await siteServices.getAllSitesNamesService(req.user as IUserDoc);
+  res.status(200).json(siteNames);
+});
+
 export {
   createSite,
   updateSite,
@@ -46,5 +51,6 @@ export {
   getSite,
   getSitesByModule,
   getSiteNamesByModule,
-  getAllSites
+  getAllSites,
+  getAllSitesNames
 };
