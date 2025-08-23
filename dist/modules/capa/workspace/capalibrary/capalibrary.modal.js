@@ -13,8 +13,6 @@ const upload_middleware_1 = require("../../../upload/upload.middleware");
 const LibrarySchema = new mongoose_1.default.Schema({
     name: { type: String, required: true },
     description: { type: String, required: true },
-    startDate: { type: Date, required: true },
-    dueDate: { type: Date, required: true },
     workspace: { type: mongoose_1.default.Schema.Types.ObjectId, ref: 'Workspace', required: true },
     createdBy: { type: mongoose_1.default.Schema.Types.ObjectId, ref: 'User', required: true },
     isDeleted: { type: Boolean, default: false },
@@ -23,6 +21,16 @@ const LibrarySchema = new mongoose_1.default.Schema({
     status: { type: String, enum: ['pending', 'completed', 'in-progress'], default: 'pending' },
     members: [{ type: mongoose_1.default.Schema.Types.ObjectId, ref: 'User' }],
     managers: [{ type: mongoose_1.default.Schema.Types.ObjectId, ref: 'User' }],
+    site: {
+        type: mongoose_1.default.Schema.Types.ObjectId,
+        ref: 'Site',
+        required: true
+    },
+    process: {
+        type: mongoose_1.default.Schema.Types.ObjectId,
+        ref: 'Process',
+        required: true
+    },
     priority: { type: String, enum: ['low', 'medium', 'high'], default: 'medium' },
     containment: {
         responsibles: [

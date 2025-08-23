@@ -16,13 +16,15 @@ const libraryBody: Record<keyof CreateLibraryRequest, any> = {
     "string.max": `"description" should have a maximum length of {#limit}`,
     "any.required": `"description" is a required field`
   }),
-  startDate: Joi.date().messages({
-    "date.base": `"startDate" should be a type of 'date'`,
-    "any.required": `"startDate" is a required field`
+  site: Joi.string().messages({
+    "string.base": `"site" should be a type of 'text'`,
+    "string.empty": `"site" cannot be an empty field`,
+    "any.required": `"site" is a required field`
   }),
-  dueDate: Joi.date().messages({
-    "date.base": `"dueDate" should be a type of 'date'`,
-    "any.required": `"dueDate" is a required field`
+  process: Joi.string().messages({
+    "string.base": `"process" should be a type of 'text'`,
+    "string.empty": `"process" cannot be an empty field`,
+    "any.required": `"process" is a required field`
   }),
   workspace: Joi.string().messages({
     "string.base": `"workspace" should be a type of 'text'`,
@@ -64,7 +66,7 @@ const libraryBody: Record<keyof CreateLibraryRequest, any> = {
   }).optional(),
 };
 
-export const libraryValidationSchema = { body: Joi.object().keys(libraryBody).fork(['name', 'description', 'startDate', 'dueDate', 'workspace', 'priority'], (schema) => schema.required()) };
+export const libraryValidationSchema = { body: Joi.object().keys(libraryBody).fork(['name', 'description', 'workspace', 'priority'], (schema) => schema.required()) };
 
 export const updateLibraryValidationSchema = {
   body: Joi.object().keys(libraryBody).min(1).messages({

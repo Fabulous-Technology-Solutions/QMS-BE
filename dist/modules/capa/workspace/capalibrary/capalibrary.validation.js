@@ -20,13 +20,15 @@ const libraryBody = {
         "string.max": `"description" should have a maximum length of {#limit}`,
         "any.required": `"description" is a required field`
     }),
-    startDate: joi_1.default.date().messages({
-        "date.base": `"startDate" should be a type of 'date'`,
-        "any.required": `"startDate" is a required field`
+    site: joi_1.default.string().messages({
+        "string.base": `"site" should be a type of 'text'`,
+        "string.empty": `"site" cannot be an empty field`,
+        "any.required": `"site" is a required field`
     }),
-    dueDate: joi_1.default.date().messages({
-        "date.base": `"dueDate" should be a type of 'date'`,
-        "any.required": `"dueDate" is a required field`
+    process: joi_1.default.string().messages({
+        "string.base": `"process" should be a type of 'text'`,
+        "string.empty": `"process" cannot be an empty field`,
+        "any.required": `"process" is a required field`
     }),
     workspace: joi_1.default.string().messages({
         "string.base": `"workspace" should be a type of 'text'`,
@@ -67,7 +69,7 @@ const libraryBody = {
         dueDate: joi_1.default.date().optional(),
     }).optional(),
 };
-exports.libraryValidationSchema = { body: joi_1.default.object().keys(libraryBody).fork(['name', 'description', 'startDate', 'dueDate', 'workspace', 'priority'], (schema) => schema.required()) };
+exports.libraryValidationSchema = { body: joi_1.default.object().keys(libraryBody).fork(['name', 'description', 'workspace', 'priority'], (schema) => schema.required()) };
 exports.updateLibraryValidationSchema = {
     body: joi_1.default.object().keys(libraryBody).min(1).messages({
         "object.min": "At least one field must be provided for update"

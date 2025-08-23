@@ -3,8 +3,8 @@ import mongoose, { Document, ObjectId } from 'mongoose';
 export interface LibraryModal extends Document {
   name: string;
   description: string;
-  startDate: Date;
-  dueDate: Date;
+  site: ObjectId;
+  process: ObjectId;
   workspace: ObjectId;
   createdBy: ObjectId;
   isDeleted: boolean;
@@ -49,8 +49,8 @@ export interface UpdateContainmentRequest {
 export interface CreateLibraryRequest {
   name: string;
   description: string;
-  startDate: Date;
-  dueDate: Date;
+  site: string;
+  process: string;
   workspace: string;
   createdBy: string;
   status: string;

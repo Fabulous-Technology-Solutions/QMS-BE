@@ -69,12 +69,12 @@ const getAllProcessesService = async (
     .limit(limit)
     .populate('parentSite', 'name')
     .populate({
-      path: 'modules', // first populate modules
+      path: 'modules', 
       populate: {
-        path: 'planId', // then populate planId inside modules
-        select: 'name price', // choose fields from planId (optional)
+        path: 'planId', 
+        select: 'name price',
       },
-      select: '_id', // choose fields from modules (optional)
+      select: '_id',
     });
 
   const total = await ProcessModel.countDocuments(query);
