@@ -10,8 +10,8 @@ yarn-error.log
 
 # Code coverage
 coverage
-# build folder
-dist
-.dist
+# # build folder
+# dist
+# .dist
 # docker volume
 data
