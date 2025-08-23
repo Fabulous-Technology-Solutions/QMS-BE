@@ -45,6 +45,7 @@ const allRoles = {
         'getUserLibraries',
         'restoreLibrary',
         'deletePermanentLibrary',
+        'updateContainment',
         // Actions
         'deleteAction',
         'updateAction',
@@ -154,6 +155,7 @@ const allRoles = {
             'getUserLibraries',
             'restoreLibrary',
             'deletePermanentLibrary',
+            'updateContainment',
             // Actions
             'deleteAction',
             'updateAction',
@@ -229,6 +231,7 @@ const allRoles = {
             'createLibrary',
             'updateLibraryById',
             'update5W2H',
+            'updateContainment',
             'getUserLibraries',
             // Actions
             'deleteAction',
@@ -333,6 +336,7 @@ const allRoles = {
             'getWorkspaceUsers',
             'update5W2H',
             'getUserLibraries',
+            'updateContainment',
             // Actions
             'updateAction',
             'getSingleAction',
@@ -405,6 +409,7 @@ const allRoles = {
             'getUserLibraries',
             'restoreLibrary',
             'deletePermanentLibrary',
+            'updateContainment',
             // Actions
             'deleteAction',
             'updateAction',

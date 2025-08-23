@@ -48,6 +48,20 @@ const libraryBody: Record<keyof CreateLibraryRequest, any> = {
     "string.base": `"priority" should be a type of 'text'`,
     "any.required": `"priority" is a required field`
   }),
+  Form5W2H: Joi.object({
+    what: Joi.string().allow(null, '').optional(),
+    why: Joi.string().allow(null, '').optional(),
+    when: Joi.string().allow(null, '').optional(),
+    where: Joi.string().allow(null, '').optional(),
+    who: Joi.string().allow(null, '').optional(),
+    how: Joi.string().allow(null, '').optional(),
+    howImpacted: Joi.string().allow(null, '').optional(),
+  }).optional(),
+  containment: Joi.object({
+    status: Joi.boolean().optional(),
+    description: Joi.string().allow(null, '').optional(),
+    dueDate: Joi.date().optional(),
+  }).optional(),
 };
 
 export const libraryValidationSchema = { body: Joi.object().keys(libraryBody).fork(['name', 'description', 'startDate', 'dueDate', 'workspace', 'priority'], (schema) => schema.required()) };

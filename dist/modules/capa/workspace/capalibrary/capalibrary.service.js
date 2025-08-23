@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.generateReport = exports.deletePermanent = exports.restoreLibrary = exports.getLibrariesByManager = exports.updateForm5W2H = exports.checkUserBelongsToLibrary = exports.checkSubAdminBelongsToLibrary = exports.checkAdminBelongsTtoLibrary = exports.getLibraryMembers = exports.removeMemberFromLibrary = exports.addMemberToLibrary = exports.getLibrariesNames = exports.deleteLibrary = exports.updateLibrary = exports.getLibrariesfilterData = exports.getLibrariesByWorkspace = exports.getLibraryById = exports.CreateLibrary = void 0;
+exports.generateReport = exports.deletePermanent = exports.restoreLibrary = exports.getLibrariesByManager = exports.updateContainment = exports.updateForm5W2H = exports.checkUserBelongsToLibrary = exports.checkSubAdminBelongsToLibrary = exports.checkAdminBelongsTtoLibrary = exports.getLibraryMembers = exports.removeMemberFromLibrary = exports.addMemberToLibrary = exports.getLibrariesNames = exports.deleteLibrary = exports.updateLibrary = exports.getLibrariesfilterData = exports.getLibrariesByWorkspace = exports.getLibraryById = exports.CreateLibrary = void 0;
 const mongoose_1 = __importDefault(require("mongoose"));
 const capalibrary_modal_1 = require("./capalibrary.modal");
 const user_subAdmin_1 = __importDefault(require("./../../../user/user.subAdmin"));
@@ -20,7 +20,7 @@ const getLibraryById = async (libraryId) => {
     const data = await capalibrary_modal_1.LibraryModel.findOne({ _id: libraryId, isDeleted: false })
         .populate('members', 'name email profilePicture')
         .populate('managers', 'name email profilePicture')
-        .populate('Form5W2H.responsibles', 'name email profilePicture');
+        .populate('containment.responsibles', 'name email profilePicture');
     if (!data) {
         throw new Error('Library not found');
     }
@@ -448,6 +448,14 @@ const updateForm5W2H = async (libraryId, formData) => {
     return library;
 };
 exports.updateForm5W2H = updateForm5W2H;
+const updateContainment = async (libraryId, containmentData) => {
+    const library = await capalibrary_modal_1.LibraryModel.findOneAndUpdate({ _id: libraryId, isDeleted: false }, { containment: containmentData }, { new: true });
+    if (!library) {
+        throw new Error('Library not found');
+    }
+    return library;
+};
+exports.updateContainment = updateContainment;
 const getLibrariesByManager = async (workspaceId, managerId, page, limit, search) => {
     const matchStage = {
         workspace: new mongoose_1.default.Types.ObjectId(workspaceId),

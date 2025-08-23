@@ -52,6 +52,20 @@ const libraryBody = {
         "string.base": `"priority" should be a type of 'text'`,
         "any.required": `"priority" is a required field`
     }),
+    Form5W2H: joi_1.default.object({
+        what: joi_1.default.string().allow(null, '').optional(),
+        why: joi_1.default.string().allow(null, '').optional(),
+        when: joi_1.default.string().allow(null, '').optional(),
+        where: joi_1.default.string().allow(null, '').optional(),
+        who: joi_1.default.string().allow(null, '').optional(),
+        how: joi_1.default.string().allow(null, '').optional(),
+        howImpacted: joi_1.default.string().allow(null, '').optional(),
+    }).optional(),
+    containment: joi_1.default.object({
+        status: joi_1.default.boolean().optional(),
+        description: joi_1.default.string().allow(null, '').optional(),
+        dueDate: joi_1.default.date().optional(),
+    }).optional(),
 };
 exports.libraryValidationSchema = { body: joi_1.default.object().keys(libraryBody).fork(['name', 'description', 'startDate', 'dueDate', 'workspace', 'priority'], (schema) => schema.required()) };
 exports.updateLibraryValidationSchema = {

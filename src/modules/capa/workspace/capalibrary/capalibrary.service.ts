@@ -5,6 +5,7 @@ import {
   GetLibrariesQuery,
   GetLibrariesQueryforUser,
   SubAdminBelongtoLibrary,
+  UpdateContainmentRequest,
   UpdateForm5W2HRequest,
 } from './capalibrary.interfaces';
 import { LibraryModel } from './capalibrary.modal';
@@ -24,7 +25,7 @@ export const getLibraryById = async (libraryId: string) => {
   const data = await LibraryModel.findOne({ _id: libraryId, isDeleted: false })
     .populate('members', 'name email profilePicture')
     .populate('managers', 'name email profilePicture')
-    .populate('Form5W2H.responsibles', 'name email profilePicture');
+    .populate('containment.responsibles', 'name email profilePicture');
 
   if (!data) {
     throw new Error('Library not found');
@@ -494,6 +495,18 @@ export const updateForm5W2H = async (libraryId: string, formData: UpdateForm5W2H
   const library = await LibraryModel.findOneAndUpdate(
     { _id: libraryId, isDeleted: false },
     { Form5W2H: formData },
+    { new: true }
+  );
+  if (!library) {
+    throw new Error('Library not found');
+  }
+  return library;
+};
+
+export const updateContainment = async (libraryId: string, containmentData: UpdateContainmentRequest) => {
+  const library = await LibraryModel.findOneAndUpdate(
+    { _id: libraryId, isDeleted: false },
+    { containment: containmentData },
     { new: true }
   );
   if (!library) {

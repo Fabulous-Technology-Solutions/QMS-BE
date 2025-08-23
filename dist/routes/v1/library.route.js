@@ -23,6 +23,7 @@ router.get('/:workspaceId/:libraryId', (0, auth_1.auth)('getSingleLibrary'), cap
 router.patch('/:workspaceId/:libraryId', (0, auth_1.auth)('updateLibrary'), capalibrary_1.checkValidation, (0, validate_1.validate)(capalibrary_1.libraryValidationSchema.updateLibraryValidationSchema), activitylogs_middleware_1.activityLoggerMiddleware, capalibrary_1.libraryController.updateLibraryById);
 router.delete('/:workspaceId/:libraryId', (0, auth_1.auth)('deleteLibrary'), capalibrary_1.checkValidation, activitylogs_middleware_1.activityLoggerMiddleware, capalibrary_1.libraryController.deleteLibraryById);
 router.patch('/:workspaceId/:libraryId/form5W2H', (0, auth_1.auth)('update5W2H'), capalibrary_1.checkValidation, activitylogs_middleware_1.activityLoggerMiddleware, capalibrary_1.libraryController.updateForm5W2HController);
+router.patch('/:workspaceId/:libraryId/containment', (0, auth_1.auth)('updateContainment'), capalibrary_1.checkValidation, activitylogs_middleware_1.activityLoggerMiddleware, capalibrary_1.libraryController.updateContainmentController);
 router.get('/workspace/:workspaceId/libraries/User', (0, auth_1.auth)('getUserLibraries'), mangeRole_middleware_1.default, capalibrary_1.libraryController.getLibrariesForUser);
 router.get("/generateReport/:libraryId", capalibrary_1.libraryController.generateReportController);
 exports.default = router;

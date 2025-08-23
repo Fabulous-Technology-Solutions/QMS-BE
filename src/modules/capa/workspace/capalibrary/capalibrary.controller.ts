@@ -15,6 +15,7 @@ import {
   restoreLibrary,
   deletePermanent,
   generateReport,
+  updateContainment,
 } from './capalibrary.service';
 
 export const createLibrary = catchAsync(async (req: Request, res: Response) => {
@@ -150,6 +151,29 @@ export const updateForm5W2HController = catchAsync(async (req: Request, res: Res
     success: true,
     data: updatedLibrary,
     message: 'Form5W2H updated successfully',
+  });
+});
+export const updateContainmentController = catchAsync(async (req: Request, res: Response) => {
+  const { libraryId } = req.params;
+  const { containment } = req.body;
+
+  if (!containment) {
+    return res.status(400).json({
+      success: false,
+      message: 'Containment data is required',
+    });
+  }
+
+  const updatedLibrary = await updateContainment(libraryId || '', containment);
+  res.locals["message"] = "update Containment"
+  res.locals["documentId"] = libraryId;
+  res.locals["collectionName"] = "Library";
+  res.locals["changes"] = { containment: updatedLibrary.containment };
+  res.locals['logof'] = req.body.workspace || req.params['workspaceId'] || null; 
+  return res.status(200).json({
+    success: true,
+    data: updatedLibrary,
+    message: 'Containment updated successfully',
   });
 });
 

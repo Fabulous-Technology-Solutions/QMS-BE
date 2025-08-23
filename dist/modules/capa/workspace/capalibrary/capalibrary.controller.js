@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.generateReportController = exports.deletePermanentLibrary = exports.RestoreLibrary = exports.getLibrariesForUser = exports.updateForm5W2HController = exports.addMemberToLibraryController = exports.getLibraryMembersController = exports.removeMemberFromLibraryController = exports.getLibraryNamesController = exports.deleteLibraryById = exports.getLibraries = exports.getLibrary = exports.updateLibraryById = exports.createLibrary = void 0;
+exports.generateReportController = exports.deletePermanentLibrary = exports.RestoreLibrary = exports.getLibrariesForUser = exports.updateContainmentController = exports.updateForm5W2HController = exports.addMemberToLibraryController = exports.getLibraryMembersController = exports.removeMemberFromLibraryController = exports.getLibraryNamesController = exports.deleteLibraryById = exports.getLibraries = exports.getLibrary = exports.updateLibraryById = exports.createLibrary = void 0;
 const catchAsync_1 = __importDefault(require("./../../../utils/catchAsync"));
 const capalibrary_service_1 = require("./capalibrary.service");
 exports.createLibrary = (0, catchAsync_1.default)(async (req, res) => {
@@ -123,6 +123,27 @@ exports.updateForm5W2HController = (0, catchAsync_1.default)(async (req, res) =>
         success: true,
         data: updatedLibrary,
         message: 'Form5W2H updated successfully',
+    });
+});
+exports.updateContainmentController = (0, catchAsync_1.default)(async (req, res) => {
+    const { libraryId } = req.params;
+    const { containment } = req.body;
+    if (!containment) {
+        return res.status(400).json({
+            success: false,
+            message: 'Containment data is required',
+        });
+    }
+    const updatedLibrary = await (0, capalibrary_service_1.updateContainment)(libraryId || '', containment);
+    res.locals["message"] = "update Containment";
+    res.locals["documentId"] = libraryId;
+    res.locals["collectionName"] = "Library";
+    res.locals["changes"] = { containment: updatedLibrary.containment };
+    res.locals['logof'] = req.body.workspace || req.params['workspaceId'] || null;
+    return res.status(200).json({
+        success: true,
+        data: updatedLibrary,
+        message: 'Containment updated successfully',
     });
 });
 exports.getLibrariesForUser = (0, catchAsync_1.default)(async (req, res) => {

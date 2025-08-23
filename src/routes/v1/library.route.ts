@@ -64,6 +64,13 @@ router.patch(
   activityLoggerMiddleware,
   libraryController.updateForm5W2HController
 );
+router.patch(
+  '/:workspaceId/:libraryId/containment',  
+  auth('updateContainment'),
+  checkValidation,
+  activityLoggerMiddleware,
+  libraryController.updateContainmentController
+);
 router.get(
   '/workspace/:workspaceId/libraries/User',
   auth('getUserLibraries'),

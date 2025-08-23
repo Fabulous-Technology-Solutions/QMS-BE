@@ -24,30 +24,37 @@ const LibrarySchema = new mongoose_1.default.Schema({
     members: [{ type: mongoose_1.default.Schema.Types.ObjectId, ref: 'User' }],
     managers: [{ type: mongoose_1.default.Schema.Types.ObjectId, ref: 'User' }],
     priority: { type: String, enum: ['low', 'medium', 'high'], default: 'medium' },
-    Form5W2H: {
-        containment: {
-            type: Boolean,
-            default: false,
-        },
+    containment: {
         responsibles: [
             {
                 type: mongoose_1.default.Schema.Types.ObjectId,
                 ref: 'User',
             },
         ],
-        containmentDetails: {
+        description: {
             type: String,
-            required: function () {
-                return this.Form5W2H.containment;
-            },
             default: null,
         },
+        dueDate: {
+            type: Date,
+            default: null,
+        },
+        status: {
+            type: Boolean,
+            default: false,
+        },
+    },
+    Form5W2H: {
         what: { type: String, default: null },
         why: { type: String, default: null },
         when: { type: String, default: null },
         where: { type: String, default: null },
         who: { type: String, default: null },
         how: { type: String, default: null },
+        howImpacted: {
+            type: String,
+            default: null,
+        }
     },
 }, {
     timestamps: true,

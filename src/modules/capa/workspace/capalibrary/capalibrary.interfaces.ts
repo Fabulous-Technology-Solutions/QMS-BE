@@ -15,30 +15,36 @@ export interface LibraryModal extends Document {
   managers: ObjectId[];
   priority: string;
   Form5W2H: {
-    containment: boolean;
     what: string;
     why: string;
     when: string;
     where: string;
     who: string;
     how: string;
-    responsibles: mongoose.Types.ObjectId[];
   };
-
+  containment: {
+    responsibles: ObjectId[];
+    description: string;
+    dueDate: Date;
+    status: boolean;
+  };
 }
 
 export interface UpdateForm5W2HRequest {
-  containment?: boolean;
   what?: string;
   why?: string;
   when?: string;
   where?: string;
   who?: string;
   how?: string;
-  responsibles?: string[];
+  howImpacted?: string;
 }
 
-
+export interface UpdateContainmentRequest {
+  responsibles?: string[];
+  description?: string;
+  dueDate?: Date;
+}
 
 export interface CreateLibraryRequest {
   name: string;
@@ -51,6 +57,21 @@ export interface CreateLibraryRequest {
   members?: string[];
   managers?: string[];
   priority?: string;
+  containment?: {
+    status?: boolean;
+    description?: string;
+    dueDate?: Date;
+    responsibles?: string[];
+  };
+  Form5W2H?: {
+    what?: string;
+    why?: string;
+    when?: string;
+    where?: string;
+    who?: string;
+    how?: string;
+    howImpacted?: string;
+  };
 }
 
 export interface GetLibrariesQuery {
