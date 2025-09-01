@@ -24,6 +24,7 @@ import ReportReport from "./report.route"
 import ReportHistory from "./reporthistory.route";
 import SiteRoutes from "./site.route"
 import ProcessRoutes from "./process.route"
+import cronRoute from "./cron.route"
 const router = express.Router();
 
 interface IRoute {
@@ -123,6 +124,10 @@ const defaultIRoute: IRoute[] = [
   {
     path: '/processes',
     route: ProcessRoutes,
+  },
+  {
+    path: '/cron',
+    route: cronRoute,
   },
 ];
 

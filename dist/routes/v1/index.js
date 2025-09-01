@@ -29,6 +29,7 @@ const report_route_1 = __importDefault(require("./report.route"));
 const reporthistory_route_1 = __importDefault(require("./reporthistory.route"));
 const site_route_1 = __importDefault(require("./site.route"));
 const process_route_1 = __importDefault(require("./process.route"));
+const cron_route_1 = __importDefault(require("./cron.route"));
 const router = express_1.default.Router();
 const defaultIRoute = [
     {
@@ -122,6 +123,10 @@ const defaultIRoute = [
     {
         path: '/processes',
         route: process_route_1.default,
+    },
+    {
+        path: '/cron',
+        route: cron_route_1.default,
     },
 ];
 // Add webhook route separately (should be public)
