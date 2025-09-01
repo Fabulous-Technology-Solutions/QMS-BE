@@ -1,8 +1,9 @@
 import cron from "node-cron";
 import ReportModel from "../capa/workspace/report/report.modal";
-import { generateReport } from "../capa/workspace/capalibrary/capalibrary.service";
+import { generateFilterReport } from "../capa/workspace/capalibrary/capalibrary.service";
 import { sendEmail } from "../email/email.service";
 import { getNextScheduleDate } from "../capa/workspace/report/report.services";
+import { IUserDoc } from "../user/user.interfaces";
 
 // Cron: runs every day at 00:00
 cron.schedule("0 0 * * *", async (): Promise<void> => {
@@ -18,18 +19,19 @@ cron.schedule("0 0 * * *", async (): Promise<void> => {
 
     const dueReports = await ReportModel.find({
       nextSchedule: { $gte: today, $lt: tomorrow },
-    });
+    }).populate("process").populate('site').populate("assignUsers","name email profilePicture").populate('createdBy','name email profilePicture');
 
     for (const report of dueReports) {
       console.log(`📊 Generating report: ${report.name}`);
 
       // Generate report
-      const generated = await generateReport(report.library.toString());
+      const generated = await generateFilterReport(report?.workspace?.toString(), report?.process?.toString(), report?.site?.toString(), report?.status);
+      const emailAddresses = ((report?.assignUsers as unknown) as IUserDoc[])?.map(user => user.email) || [];
 
       // Send email if needed
-      if ((report?.scheduleEmails?.length ?? 0) > 0 && generated?.Location) {
+      if ((emailAddresses?.length ?? 0) > 0 && generated?.Location) {
         await sendEmail(
-          (report?.scheduleEmails ?? []).join(","),
+          emailAddresses.join(","),
           `Report Generated: ${report.name}`,
           "",
           `<p>Dear User,</p>

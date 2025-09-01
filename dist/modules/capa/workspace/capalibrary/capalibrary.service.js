@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.generateReport = exports.deletePermanent = exports.restoreLibrary = exports.getLibrariesByManager = exports.updateContainment = exports.updateForm5W2H = exports.checkUserBelongsToLibrary = exports.checkSubAdminBelongsToLibrary = exports.checkAdminBelongsTtoLibrary = exports.getLibraryMembers = exports.removeMemberFromLibrary = exports.addMemberToLibrary = exports.getLibrariesNames = exports.deleteLibrary = exports.updateLibrary = exports.getLibrariesfilterData = exports.getLibrariesByWorkspace = exports.getLibraryById = exports.CreateLibrary = void 0;
+exports.generateFilterReport = exports.generateReport = exports.deletePermanent = exports.restoreLibrary = exports.getLibrariesByManager = exports.updateContainment = exports.updateForm5W2H = exports.checkUserBelongsToLibrary = exports.checkSubAdminBelongsToLibrary = exports.checkAdminBelongsTtoLibrary = exports.getLibraryMembers = exports.removeMemberFromLibrary = exports.addMemberToLibrary = exports.getLibrariesNames = exports.deleteLibrary = exports.updateLibrary = exports.getLibrariesfilterData = exports.getLibrariesByWorkspace = exports.getLibraryById = exports.CreateLibrary = void 0;
 const mongoose_1 = __importDefault(require("mongoose"));
 const capalibrary_modal_1 = require("./capalibrary.modal");
 const user_subAdmin_1 = __importDefault(require("./../../../user/user.subAdmin"));
@@ -612,13 +612,9 @@ const generateReport = async (libraryId) => {
     let browser;
     let page;
     try {
-        console.log('Starting PDF generation for library:', libraryId);
         // 1. Launch headless browser
         browser = await (0, puppeteer_config_1.launchBrowser)();
-        console.log('Browser launched successfully');
         page = await browser?.newPage();
-        console.log('New page created');
-        console.log('Page configured with timeouts');
         const [findLibrary] = await capalibrary_modal_1.LibraryModel.aggregate([
             { $match: { _id: new mongoose_1.default.Types.ObjectId(libraryId) } },
             {
@@ -789,31 +785,26 @@ const generateReport = async (libraryId) => {
         if (!findLibrary) {
             throw new Error('Library not found');
         }
-        console.log('Generating PDF content...');
+        ;
         const pdfContent = await (0, pdfTemplate_1.pdfTemplate)(findLibrary);
         await page.setContent(pdfContent, {
             waitUntil: 'networkidle0',
             timeout: 120000,
         });
-        // 5. Generate PDF
-        console.log('Generating PDF...');
         const pdfBuffer = await page?.pdf({
             format: 'a4',
             printBackground: true,
             margin: { top: '20mm', bottom: '20mm' },
             timeout: 120000, // 2 minutes timeout for PDF generation
         });
-        console.log('PDF generated successfully');
         const timestamp = Date.now();
         const uniqueFileName = `${timestamp}-Report.pdf`;
         // Convert Uint8Array to Buffer
         const buffer = Buffer.from(new Uint8Array(pdfBuffer || []));
-        console.log('Uploading PDF...');
         const response = await (0, upload_middleware_1.uploadSingleFile)(uniqueFileName, buffer, 'application/pdf', false);
         if (!response) {
             throw new Error('Failed to upload PDF');
         }
-        console.log('PDF uploaded successfully:', response);
         return response;
     }
     catch (error) {
@@ -843,3 +834,162 @@ const generateReport = async (libraryId) => {
     }
 };
 exports.generateReport = generateReport;
+const generateFilterReport = async (workspaceId, site, process, status) => {
+    let browser;
+    let page;
+    try {
+        // 1. Launch headless browser
+        browser = await (0, puppeteer_config_1.launchBrowser)();
+        const query = {
+            workspaceId: new mongoose_1.default.Types.ObjectId(workspaceId),
+            ...(site && { site }),
+            ...(process && { process }),
+            ...(status && { status }),
+        };
+        page = await browser?.newPage();
+        const findLibraries = await capalibrary_modal_1.LibraryModel.aggregate([
+            { $match: query },
+            {
+                $lookup: {
+                    from: 'users',
+                    localField: 'members',
+                    foreignField: '_id',
+                    as: 'members',
+                    pipeline: [{ $project: { name: 1, email: 1, profilePicture: 1, role: 1 } }],
+                },
+            },
+            {
+                $lookup: {
+                    from: 'users',
+                    localField: 'managers',
+                    foreignField: '_id',
+                    as: 'managers',
+                    pipeline: [{ $project: { name: 1, email: 1, profilePicture: 1, role: 1 } }],
+                },
+            },
+            {
+                $lookup: {
+                    from: 'causes',
+                    localField: '_id',
+                    foreignField: 'library',
+                    as: 'causes',
+                    pipeline: [{ $project: { name: 1, description: 1, createdAt: 1 } }],
+                },
+            },
+            {
+                $lookup: {
+                    from: 'actions',
+                    localField: '_id',
+                    foreignField: 'library',
+                    as: 'actions',
+                    pipeline: [
+                        {
+                            $lookup: {
+                                from: 'users',
+                                localField: 'assignedTo',
+                                foreignField: '_id',
+                                as: 'assignedTo',
+                                pipeline: [{ $project: { name: 1, email: 1, profilePicture: 1 } }],
+                            },
+                        },
+                        {
+                            $project: {
+                                name: 1,
+                                email: 1,
+                                profilePicture: 1,
+                                status: 1,
+                                createdAt: 1,
+                                priority: 1,
+                                endDate: 1,
+                                startDate: 1,
+                                type: 1,
+                                assignedTo: 1,
+                                cause: 1,
+                                docfile: 1,
+                            },
+                        },
+                    ],
+                },
+            },
+            {
+                $addFields: {
+                    pendingActions: {
+                        $size: {
+                            $ifNull: [{ $filter: { input: '$actions', as: 'action', cond: { $eq: ['$$action.status', 'pending'] } } }, []],
+                        },
+                    },
+                    inProgressActions: {
+                        $size: {
+                            $ifNull: [
+                                { $filter: { input: '$actions', as: 'action', cond: { $eq: ['$$action.status', 'in-progress'] } } },
+                                [],
+                            ],
+                        },
+                    },
+                    onHoldActions: {
+                        $size: {
+                            $ifNull: [{ $filter: { input: '$actions', as: 'action', cond: { $eq: ['$$action.status', 'on-hold'] } } }, []],
+                        },
+                    },
+                    completedActions: {
+                        $size: {
+                            $ifNull: [
+                                { $filter: { input: '$actions', as: 'action', cond: { $eq: ['$$action.status', 'completed'] } } },
+                                [],
+                            ],
+                        },
+                    },
+                },
+            }
+        ]);
+        if (!findLibraries.length) {
+            throw new Error('No libraries found');
+        }
+        const pdfContent = await (0, pdfTemplate_1.pdfTemplateforMutiples)(findLibraries);
+        await page.setContent(pdfContent, {
+            waitUntil: 'networkidle0',
+            timeout: 120000,
+        });
+        const pdfBuffer = await page?.pdf({
+            format: 'a4',
+            printBackground: true,
+            margin: { top: '20mm', bottom: '20mm' },
+            timeout: 120000, // 2 minutes timeout for PDF generation
+        });
+        const timestamp = Date.now();
+        const uniqueFileName = `${timestamp}-Report.pdf`;
+        // Convert Uint8Array to Buffer
+        const buffer = Buffer.from(new Uint8Array(pdfBuffer || []));
+        const response = await (0, upload_middleware_1.uploadSingleFile)(uniqueFileName, buffer, 'application/pdf', false);
+        if (!response) {
+            throw new Error('Failed to upload PDF');
+        }
+        return response;
+    }
+    catch (error) {
+        console.error('Error generating PDF report:', error);
+        throw error;
+    }
+    finally {
+        // Ensure browser is always closed
+        if (page) {
+            try {
+                await page.close();
+                console.log('Page closed');
+            }
+            catch (err) {
+                console.warn('Error closing page:', err);
+            }
+        }
+        if (browser) {
+            try {
+                await browser.close();
+                console.log('Browser closed');
+            }
+            catch (err) {
+                console.warn('Error closing browser:', err);
+            }
+        }
+    }
+};
+exports.generateFilterReport = generateFilterReport;

@@ -12,7 +12,7 @@ import { LibraryModel } from './capalibrary.modal';
 import subAdmin from './../../../user/user.subAdmin';
 import { IUserDoc } from '@/modules/user/user.interfaces';
 import ActivityLog from '../../../../modules/activitylogs/activitylogs.modal';
-import { pdfTemplate } from '../../../../modules/utils/pdfTemplate';
+import { pdfTemplate, pdfTemplateforMutiples } from '../../../../modules/utils/pdfTemplate';
 import { uploadSingleFile } from '../../../../modules/upload/upload.middleware';
 import { launchBrowser } from '../../../../utils/puppeteer.config';
 
@@ -692,16 +692,11 @@ export const generateReport = async (libraryId: string) => {
   let page;
 
   try {
-    console.log('Starting PDF generation for library:', libraryId);
-
     // 1. Launch headless browser
     browser = await launchBrowser();
-    console.log('Browser launched successfully');
+   
 
     page = await browser?.newPage();
-    console.log('New page created');
-
-    console.log('Page configured with timeouts');
     const [findLibrary] = await LibraryModel.aggregate([
       { $match: { _id: new mongoose.Types.ObjectId(libraryId) } },
       {
@@ -872,38 +867,191 @@ export const generateReport = async (libraryId: string) => {
 
     if (!findLibrary) {
       throw new Error('Library not found');
-    }
-
-    console.log('Generating PDF content...');
+    };
     const pdfContent = await pdfTemplate(findLibrary);
     await page.setContent(pdfContent, {
       waitUntil: 'networkidle0',
       timeout: 120000,
     });
 
-    // 5. Generate PDF
-    console.log('Generating PDF...');
     const pdfBuffer = await page?.pdf({
       format: 'a4',
       printBackground: true,
       margin: { top: '20mm', bottom: '20mm' },
       timeout: 120000, // 2 minutes timeout for PDF generation
     });
-    console.log('PDF generated successfully');
-
     const timestamp = Date.now();
     const uniqueFileName = `${timestamp}-Report.pdf`;
 
     // Convert Uint8Array to Buffer
     const buffer = Buffer.from(new Uint8Array(pdfBuffer || []));
-    console.log('Uploading PDF...');
     const response = await uploadSingleFile(uniqueFileName, buffer, 'application/pdf', false);
 
     if (!response) {
       throw new Error('Failed to upload PDF');
     }
-    console.log('PDF uploaded successfully:', response);
+    return response;
+  } catch (error) {
+    console.error('Error generating PDF report:', error);
+    throw error;
+  } finally {
+    // Ensure browser is always closed
+    if (page) {
+      try {
+        await page.close();
+        console.log('Page closed');
+      } catch (err) {
+        console.warn('Error closing page:', err);
+      }
+    }
+    if (browser) {
+      try {
+        await browser.close();
+        console.log('Browser closed');
+      } catch (err) {
+        console.warn('Error closing browser:', err);
+      }
+    }
+  }
+};
 
+
+export const generateFilterReport = async (workspaceId: string, site?: string, process?: string, status?: string) => {
+  let browser;
+  let page;
+
+  try {
+    // 1. Launch headless browser
+    browser = await launchBrowser();
+   const query={
+     workspaceId: new mongoose.Types.ObjectId(workspaceId),
+     ...(site && { site }),
+     ...(process && { process }),
+     ...(status && { status }),
+   }
+
+    page = await browser?.newPage();
+    const findLibraries = await LibraryModel.aggregate([
+      { $match: query },
+      {
+        $lookup: {
+          from: 'users',
+          localField: 'members',
+          foreignField: '_id',
+          as: 'members',
+          pipeline: [{ $project: { name: 1, email: 1, profilePicture: 1, role: 1 } }],
+        },
+      },
+      {
+        $lookup: {
+          from: 'users',
+          localField: 'managers',
+          foreignField: '_id',
+          as: 'managers',
+          pipeline: [{ $project: { name: 1, email: 1, profilePicture: 1, role: 1 } }],
+        },
+      },
+      {
+        $lookup: {
+          from: 'causes',
+          localField: '_id',
+          foreignField: 'library',
+          as: 'causes',
+          pipeline: [{ $project: { name: 1, description: 1, createdAt: 1 } }],
+        },
+      },
+      {
+        $lookup: {
+          from: 'actions',
+          localField: '_id',
+          foreignField: 'library',
+          as: 'actions',
+          pipeline: [
+            {
+              $lookup: {
+                from: 'users',
+                localField: 'assignedTo',
+                foreignField: '_id',
+                as: 'assignedTo',
+                pipeline: [{ $project: { name: 1, email: 1, profilePicture: 1 } }],
+              },
+            },
+            {
+              $project: {
+                name: 1,
+                email: 1,
+                profilePicture: 1,
+                status: 1,
+                createdAt: 1,
+                priority: 1,
+                endDate: 1,
+                startDate: 1,
+                type: 1,
+                assignedTo: 1,
+                cause: 1,
+                docfile: 1,
+              },
+            },
+          ],
+        },
+      },
+      {
+        $addFields: {
+          pendingActions: {
+            $size: {
+              $ifNull: [{ $filter: { input: '$actions', as: 'action', cond: { $eq: ['$$action.status', 'pending'] } } }, []],
+            },
+          },
+          inProgressActions: {
+            $size: {
+              $ifNull: [
+                { $filter: { input: '$actions', as: 'action', cond: { $eq: ['$$action.status', 'in-progress'] } } },
+                [],
+              ],
+            },
+          },
+          onHoldActions: {
+            $size: {
+              $ifNull: [{ $filter: { input: '$actions', as: 'action', cond: { $eq: ['$$action.status', 'on-hold'] } } }, []],
+            },
+          },
+          completedActions: {
+            $size: {
+              $ifNull: [
+                { $filter: { input: '$actions', as: 'action', cond: { $eq: ['$$action.status', 'completed'] } } },
+                [],
+              ],
+            },
+          },
+        },
+      }
+    ]);
+
+    if (!findLibraries.length) {
+      throw new Error('No libraries found');
+    }
+    const pdfContent = await pdfTemplateforMutiples(findLibraries);
+    await page.setContent(pdfContent, {
+      waitUntil: 'networkidle0',
+      timeout: 120000,
+    });
+
+    const pdfBuffer = await page?.pdf({
+      format: 'a4',
+      printBackground: true,
+      margin: { top: '20mm', bottom: '20mm' },
+      timeout: 120000, // 2 minutes timeout for PDF generation
+    });
+    const timestamp = Date.now();
+    const uniqueFileName = `${timestamp}-Report.pdf`;
+
+    // Convert Uint8Array to Buffer
+    const buffer = Buffer.from(new Uint8Array(pdfBuffer || []));
+    const response = await uploadSingleFile(uniqueFileName, buffer, 'application/pdf', false);
+
+    if (!response) {
+      throw new Error('Failed to upload PDF');
+    }
     return response;
   } catch (error) {
     console.error('Error generating PDF report:', error);

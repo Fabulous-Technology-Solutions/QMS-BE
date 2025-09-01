@@ -21,7 +21,7 @@ router.get(
   '/workspace/:workspaceId/names',
   auth('getWorkspaceLibraryNames'),
   checkCreateRole,
-  libraryController.getLibraryNamesController
+  libraryController.getLibraryNamesController 
 );
 router.patch('/:workspaceId/libraries/restore', auth('restoreLibrary'), libraryController.RestoreLibrary);
 router.delete('/:workspaceId/libraries/delete', auth('deletePermanentLibrary'),  libraryController.deletePermanentLibrary);

@@ -2,8 +2,9 @@ import mongoose from 'mongoose';
 import { ICreateReport } from './report.interfaces';
 
 import ReportModel from './report.modal';
-import { generateReport } from '../capalibrary/capalibrary.service';
+import { generateFilterReport } from '../capalibrary/capalibrary.service';
 import { sendEmail } from '../../../email/email.service';
+import  User  from '../../../user/user.model';
 
 
 export const getNextScheduleDate = (frequency?: string): Date => {
@@ -26,10 +27,12 @@ export const getNextScheduleDate = (frequency?: string): Date => {
 
 export const createReport = async (data: ICreateReport) => {
 
-  const report = await generateReport(data.library);
-  if (data.scheduleEmails && data.scheduleEmails.length > 0 && report?.Location) {
+  const report = await generateFilterReport(data.workspace, data.process, data.site, data.status);
+  const users=await  User.find({_id: {$in: data.assignUsers}});
+  const emailAddresses = users.map(user => user.email);
+  if (emailAddresses && emailAddresses.length > 0 && report?.Location) {
     await sendEmail(
-      data.scheduleEmails.join(',') || "<default_email@example.com>",
+      emailAddresses.join(',') || "<default_email@example.com>",
       `Report Generated: ${data.name}`,
       '',
       `<p>Dear User,</p>
@@ -44,10 +47,12 @@ export const createReport = async (data: ICreateReport) => {
     name: data.name,
     schedule: data.schedule,
     scheduleFrequency: data.scheduleFrequency,
-    scheduleEmails: data.scheduleEmails,
+    assignUsers: data.assignUsers,
     createdBy: new mongoose.Types.ObjectId(data.createdBy),
     workspace: new mongoose.Types.ObjectId(data.workspace),
-    library: new mongoose.Types.ObjectId(data.library),
+    process: new mongoose.Types.ObjectId(data.process),
+    site: new mongoose.Types.ObjectId(data.site),
+    status: data.status || 'pending',
     lastSchedule: Date.now(),
     nextSchedule: nextScheduleDate,
   });
@@ -55,31 +60,20 @@ export const createReport = async (data: ICreateReport) => {
 };
 
 export const getReportById = async (reportId: string) => {
-  const report = await ReportModel.findById(reportId).populate('createdBy');
+  const report = await ReportModel.findById(reportId).populate("process").populate('site').populate("assignUsers","name email profilePicture").populate('createdBy','name email profilePicture');
   return report;
 };
 
 export const getReportsByWorkspace = async (workspaceId: string, page = 1, limit = 10) => {
   const match = { workspace: new mongoose.Types.ObjectId(workspaceId) };
   const total = await ReportModel.countDocuments(match);
-  const data = await ReportModel.find(match).populate('library', 'name')
+  const data = await ReportModel.find(match).populate("process").populate('site').populate("assignUsers","name email profilePicture").populate('createdBy','name email profilePicture')
     .sort({ createdAt: -1 })
     .skip((page - 1) * limit)
-    .limit(limit)
-    .populate('createdBy');
+    .limit(limit);
   return { data, total, page, limit };
 };
-export const getReportsByLibrary = async (libraryId: string, page = 1, limit = 10) => {
-  const match = { library: new mongoose.Types.ObjectId(libraryId) };
-  const total = await ReportModel.countDocuments(match);
-  const data = await ReportModel.find(match).populate('library', 'name')
-    .sort({ createdAt: -1 })
-    .skip((page - 1) * limit)
-    .limit(limit)
-    .populate('createdBy');
-  return { data, total, page, limit };
-};
-
+ 
 export const updateReport = async (reportId: string, data: Partial<ICreateReport>) => {
   
   const report = await ReportModel.findByIdAndUpdate(reportId, data, { new: false });

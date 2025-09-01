@@ -20,14 +20,15 @@ node_cron_1.default.schedule("0 0 * * *", async () => {
         tomorrow.setDate(today.getDate() + 1);
         const dueReports = await report_modal_1.default.find({
             nextSchedule: { $gte: today, $lt: tomorrow },
-        });
+        }).populate("process").populate('site').populate("assignUsers", "name email profilePicture").populate('createdBy', 'name email profilePicture');
         for (const report of dueReports) {
             console.log(`📊 Generating report: ${report.name}`);
             // Generate report
-            const generated = await (0, capalibrary_service_1.generateReport)(report.library.toString());
+            const generated = await (0, capalibrary_service_1.generateFilterReport)(report?.workspace?.toString(), report?.process?.toString(), report?.site?.toString(), report?.status);
+            const emailAddresses = report?.assignUsers?.map(user => user.email) || [];
             // Send email if needed
-            if ((report?.scheduleEmails?.length ?? 0) > 0 && generated?.Location) {
-                await (0, email_service_1.sendEmail)((report?.scheduleEmails ?? []).join(","), `Report Generated: ${report.name}`, "", `<p>Dear User,</p>
+            if ((emailAddresses?.length ?? 0) > 0 && generated?.Location) {
+                await (0, email_service_1.sendEmail)(emailAddresses.join(","), `Report Generated: ${report.name}`, "", `<p>Dear User,</p>
             <p>The report <b>${report.name}</b> has been successfully generated.</p>
             <p>You can download the report here: 
             <a href="${generated?.Location}">Download Report</a></p>

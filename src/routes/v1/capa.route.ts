@@ -52,7 +52,10 @@ router.get(
   auth('needAttention'),
   workspaceController.AttentionController
 );
-
-
+router.get(
+  "/module/:workspaceId/filter",
+  auth('manageCapa'),
+  workspaceController.filterPreviewReportController
+);
 
 export default router;

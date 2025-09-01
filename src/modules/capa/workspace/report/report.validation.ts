@@ -5,14 +5,16 @@ const reportSchemaBody:Record<keyof ICreateReport, Joi.Schema> = {
   name: Joi.string().required(), 
   schedule: Joi.boolean(),
   scheduleFrequency: Joi.string().valid('daily', 'weekly', 'monthly'),
-  scheduleEmails: Joi.array().items(Joi.string().email()),
+  assignUsers: Joi.array().items(Joi.string()),
+  site: Joi.string(),
+  process: Joi.string(),
+  status: Joi.string(),
   createdBy: Joi.string(),
   workspace: Joi.string(),
-  isDeleted: Joi.boolean().default(false),
-  library: Joi.string().required()
+  isDeleted: Joi.boolean().default(false)
 };
 
 
-export const createReportSchema = Joi.object().keys(reportSchemaBody).fork(['name', 'workspace', 'library'], (schema) => schema.required());
+export const createReportSchema = Joi.object().keys(reportSchemaBody).fork(['name', 'workspace'], (schema) => schema.required());
 
 export const updateReportSchema = Joi.object().keys(reportSchemaBody).min(1);

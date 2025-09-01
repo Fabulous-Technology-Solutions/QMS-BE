@@ -3,11 +3,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.deleteReportMedia = exports.deleteReport = exports.updateReport = exports.getReportsByLibrary = exports.getReportsByWorkspace = exports.getReportById = exports.createReport = exports.getNextScheduleDate = void 0;
+exports.deleteReportMedia = exports.deleteReport = exports.updateReport = exports.getReportsByWorkspace = exports.getReportById = exports.createReport = exports.getNextScheduleDate = void 0;
 const mongoose_1 = __importDefault(require("mongoose"));
 const report_modal_1 = __importDefault(require("./report.modal"));
 const capalibrary_service_1 = require("../capalibrary/capalibrary.service");
 const email_service_1 = require("../../../email/email.service");
+const user_model_1 = __importDefault(require("../../../user/user.model"));
 const getNextScheduleDate = (frequency) => {
     const now = new Date();
     switch (frequency) {
@@ -26,9 +27,11 @@ const getNextScheduleDate = (frequency) => {
 };
 exports.getNextScheduleDate = getNextScheduleDate;
 const createReport = async (data) => {
-    const report = await (0, capalibrary_service_1.generateReport)(data.library);
-    if (data.scheduleEmails && data.scheduleEmails.length > 0 && report?.Location) {
-        await (0, email_service_1.sendEmail)(data.scheduleEmails.join(',') || "<default_email@example.com>", `Report Generated: ${data.name}`, '', `<p>Dear User,</p>
+    const report = await (0, capalibrary_service_1.generateFilterReport)(data.workspace, data.process, data.site, data.status);
+    const users = await user_model_1.default.find({ _id: { $in: data.assignUsers } });
+    const emailAddresses = users.map(user => user.email);
+    if (emailAddresses && emailAddresses.length > 0 && report?.Location) {
+        await (0, email_service_1.sendEmail)(emailAddresses.join(',') || "<default_email@example.com>", `Report Generated: ${data.name}`, '', `<p>Dear User,</p>
       <p>The report has been successfully generated.</p>
       <p>You can download the report using the link below:</p>
       <p><a href="${report?.Location}">Download Report</a></p>
@@ -39,10 +42,12 @@ const createReport = async (data) => {
         name: data.name,
         schedule: data.schedule,
         scheduleFrequency: data.scheduleFrequency,
-        scheduleEmails: data.scheduleEmails,
+        assignUsers: data.assignUsers,
         createdBy: new mongoose_1.default.Types.ObjectId(data.createdBy),
         workspace: new mongoose_1.default.Types.ObjectId(data.workspace),
-        library: new mongoose_1.default.Types.ObjectId(data.library),
+        process: new mongoose_1.default.Types.ObjectId(data.process),
+        site: new mongoose_1.default.Types.ObjectId(data.site),
+        status: data.status || 'pending',
         lastSchedule: Date.now(),
         nextSchedule: nextScheduleDate,
     });
@@ -50,32 +55,20 @@ const createReport = async (data) => {
 };
 exports.createReport = createReport;
 const getReportById = async (reportId) => {
-    const report = await report_modal_1.default.findById(reportId).populate('createdBy');
+    const report = await report_modal_1.default.findById(reportId).populate("process").populate('site').populate("assignUsers", "name email profilePicture").populate('createdBy', 'name email profilePicture');
     return report;
 };
 exports.getReportById = getReportById;
 const getReportsByWorkspace = async (workspaceId, page = 1, limit = 10) => {
     const match = { workspace: new mongoose_1.default.Types.ObjectId(workspaceId) };
     const total = await report_modal_1.default.countDocuments(match);
-    const data = await report_modal_1.default.find(match).populate('library', 'name')
+    const data = await report_modal_1.default.find(match).populate("process").populate('site').populate("assignUsers", "name email profilePicture").populate('createdBy', 'name email profilePicture')
         .sort({ createdAt: -1 })
         .skip((page - 1) * limit)
-        .limit(limit)
-        .populate('createdBy');
+        .limit(limit);
     return { data, total, page, limit };
 };
 exports.getReportsByWorkspace = getReportsByWorkspace;
-const getReportsByLibrary = async (libraryId, page = 1, limit = 10) => {
-    const match = { library: new mongoose_1.default.Types.ObjectId(libraryId) };
-    const total = await report_modal_1.default.countDocuments(match);
-    const data = await report_modal_1.default.find(match).populate('library', 'name')
-        .sort({ createdAt: -1 })
-        .skip((page - 1) * limit)
-        .limit(limit)
-        .populate('createdBy');
-    return { data, total, page, limit };
-};
-exports.getReportsByLibrary = getReportsByLibrary;
 const updateReport = async (reportId, data) => {
     const report = await report_modal_1.default.findByIdAndUpdate(reportId, data, { new: false });
     return report;

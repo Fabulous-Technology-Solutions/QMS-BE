@@ -3,11 +3,10 @@ import catchAsync from "../../../utils/catchAsync";
 import  { Request, Response } from 'express';
 
 export const createReportController = catchAsync(async (req: Request, res: Response) => {
-
-  const data = { ...req.body, createdBy: req.user._id, workspace: req.body.workspace };
+  const data = { ...req.body, createdBy: req.user._id };
   const report = await ReportService.createReport(data);
   res.status(201).json({ success: true, data: report });
-});             
+});              
 
 export const getReportByIdController = catchAsync(async (req: Request, res: Response) => {
   const { reportId } = req.params as { reportId: string };
@@ -23,13 +22,7 @@ export const getReportsByWorkspaceController = catchAsync(async (req: Request, r
   res.status(200).json({ success: true, ...result });
 });
 
-export const getReportsByLibraryController = catchAsync(async (req: Request, res: Response) => {
-  const { libraryId } = req.params as { libraryId: string };
-  const page = Number(req.query["page"] as string) || 1;
-  const limit = Number(req.query["limit"] as string) || 10;
-  const result = await ReportService.getReportsByLibrary(libraryId, page, limit);
-  res.status(200).json({ success: true, ...result });
-});
+
 export const updateReportController = catchAsync(async (req: Request, res: Response) => {
   const { reportId } = req.params as { reportId: string };
   const updated = await ReportService.updateReport(reportId, req.body);

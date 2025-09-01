@@ -1,27 +1,24 @@
+import { workspaceService } from './index';
+import httpStatus from 'http-status';
+import { NextFunction, Request, Response } from 'express';
+import catchAsync from '../../utils/catchAsync';
+import AppiError from '../../errors/ApiError';
 
-import { workspaceService } from "./index";
-import httpStatus from "http-status";
-import { NextFunction, Request, Response } from "express";
-import catchAsync from "../../utils/catchAsync";
-import AppiError from "../../errors/ApiError"
-
-import { getActionsByWorkspace } from "./capalibrary/action/action.service";
-import { getLibrariesfilterData } from "./capalibrary/capalibrary.service";
-
+import { getActionsByWorkspace } from './capalibrary/action/action.service';
+import { generateFilterReport, getLibrariesfilterData } from './capalibrary/capalibrary.service';
 
 export const createCapaworkspaceController = catchAsync(async (req: Request, res: Response) => {
-  const workspace = await workspaceService.createCapaworkspace({...req.body, user: req.user});
-  res.locals["message"] = "create workspace";
-  res.locals["documentId"] = workspace._id || "";
-  res.locals["collectionName"] = "Workspace";
-  res.locals["changes"] = workspace;
+  const workspace = await workspaceService.createCapaworkspace({ ...req.body, user: req.user });
+  res.locals['message'] = 'create workspace';
+  res.locals['documentId'] = workspace._id || '';
+  res.locals['collectionName'] = 'Workspace';
+  res.locals['changes'] = workspace;
   res.locals['logof'] = req.body.moduleId || null;
   return res.status(httpStatus.CREATED).send({
     success: true,
     data: workspace,
   });
 });
-
 
 export const getAllCapaworkspacesController = catchAsync(async (req: Request, res: Response) => {
   // Authorization logic
@@ -30,74 +27,72 @@ export const getAllCapaworkspacesController = catchAsync(async (req: Request, re
   } else if (req.user && req.user.role === 'sub-admin') {
     // Sub-admin can see workspaces created by their admin
   } else {
-    throw new Error("Unauthorized");
+    throw new Error('Unauthorized');
   }
-  
-  const { page = 1, limit = 10 ,search} = req.query;
+
+  const { page = 1, limit = 10, search } = req.query;
   const workspaces = await workspaceService.getAllCapaworkspaces({
-    moduleId: req.params["moduleId"] as string,
+    moduleId: req.params['moduleId'] as string,
     user: req.user,
     Page: Number(page),
     Limit: Number(limit),
-    search: search as string
+    search: search as string,
   });
-  
+
   return res.status(httpStatus.OK).send({
     success: true,
     data: workspaces,
   });
 });
 
-export const getCapaworkspaceByIdController = catchAsync(async (req: Request, res: Response,next:NextFunction) => {
-  const workspace = await workspaceService.getCapaworkspaceById(req.params["workspaceId"] as string);
+export const getCapaworkspaceByIdController = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+  const workspace = await workspaceService.getCapaworkspaceById(req.params['workspaceId'] as string);
   if (!workspace) {
-    return next(new AppiError("Workspace not found", httpStatus.NOT_FOUND));
+    return next(new AppiError('Workspace not found', httpStatus.NOT_FOUND));
   }
-  
+
   return res.status(httpStatus.OK).send({
     success: true,
     data: workspace,
   });
 });
 
-
-export const updateCapaworkspaceController = catchAsync(async (req: Request, res: Response,next:NextFunction) => {
-  const workspace = await workspaceService.updateCapaworkspace(req.params["workspaceId"] as string, req.body);
+export const updateCapaworkspaceController = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+  const workspace = await workspaceService.updateCapaworkspace(req.params['workspaceId'] as string, req.body);
   if (!workspace) {
-    return next(new AppiError("Workspace not found", httpStatus.NOT_FOUND));
+    return next(new AppiError('Workspace not found', httpStatus.NOT_FOUND));
   }
-  res.locals["message"] = "update workspace";
-  res.locals["documentId"] = workspace._id || "";
-  res.locals["collectionName"] = "Workspace";
-  res.locals["changes"] = workspace;
+  res.locals['message'] = 'update workspace';
+  res.locals['documentId'] = workspace._id || '';
+  res.locals['collectionName'] = 'Workspace';
+  res.locals['changes'] = workspace;
   res.locals['logof'] = workspace.moduleId || null;
-  
+
   return res.status(httpStatus.OK).send({
     success: true,
     data: workspace,
   });
 });
 
-export const deleteCapaworkspaceController = catchAsync(async (req: Request, res: Response,next:NextFunction) => {
-  const workspace = await workspaceService.deleteCapaworkspace(req.params["workspaceId"] as string);
+export const deleteCapaworkspaceController = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+  const workspace = await workspaceService.deleteCapaworkspace(req.params['workspaceId'] as string);
   if (!workspace) {
-    return next(new AppiError("Workspace not found", httpStatus.NOT_FOUND));
+    return next(new AppiError('Workspace not found', httpStatus.NOT_FOUND));
   }
-  res.locals["message"] = "delete workspace";
-  res.locals["documentId"] = workspace._id || "";
-  res.locals["collectionName"] = "Workspace";
-  res.locals["changes"] = { isDeleted: true };
+  res.locals['message'] = 'delete workspace';
+  res.locals['documentId'] = workspace._id || '';
+  res.locals['collectionName'] = 'Workspace';
+  res.locals['changes'] = { isDeleted: true };
   res.locals['logof'] = workspace.moduleId || null;
-  
+
   return res.status(httpStatus.OK).send({
     success: true,
-    message: "Workspace deleted successfully",
+    message: 'Workspace deleted successfully',
   });
 });
-
 
 export const getCapaworkspaceAnalyticsController = catchAsync(async (req: Request, res: Response) => {
-  const analytics = await workspaceService.dashboardAnalytics(req.params["workspaceId"] as string);
+  const analytics = await workspaceService.dashboardAnalytics(req.params['workspaceId'] as string);
   return res.status(httpStatus.OK).send({
     success: true,
     data: analytics,
@@ -129,4 +124,15 @@ export const AttentionController = catchAsync(async (req: Request, res: Response
   } else {
     throw new AppiError('Invalid filter data', httpStatus.BAD_REQUEST);
   }
+});
+
+export const filterPreviewReportController = catchAsync(async (req: Request, res: Response) => {
+  const { site, process, status } = req.query;
+  const report = generateFilterReport(
+    req.params['workspaceId'] as string,
+    site as string,
+    process as string,
+    status as string
+  );
+  res.status(200).json({ report, success: true });
 });

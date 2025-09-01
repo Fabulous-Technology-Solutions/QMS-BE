@@ -9,11 +9,13 @@ const reportSchemaBody = {
     name: joi_1.default.string().required(),
     schedule: joi_1.default.boolean(),
     scheduleFrequency: joi_1.default.string().valid('daily', 'weekly', 'monthly'),
-    scheduleEmails: joi_1.default.array().items(joi_1.default.string().email()),
+    assignUsers: joi_1.default.array().items(joi_1.default.string()),
+    site: joi_1.default.string(),
+    process: joi_1.default.string(),
+    status: joi_1.default.string(),
     createdBy: joi_1.default.string(),
     workspace: joi_1.default.string(),
-    isDeleted: joi_1.default.boolean().default(false),
-    library: joi_1.default.string().required()
+    isDeleted: joi_1.default.boolean().default(false)
 };
-exports.createReportSchema = joi_1.default.object().keys(reportSchemaBody).fork(['name', 'workspace', 'library'], (schema) => schema.required());
+exports.createReportSchema = joi_1.default.object().keys(reportSchemaBody).fork(['name', 'workspace'], (schema) => schema.required());
 exports.updateReportSchema = joi_1.default.object().keys(reportSchemaBody).min(1);
