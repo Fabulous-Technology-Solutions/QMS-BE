@@ -14,8 +14,8 @@
   ],
   "crons": [
     {
-      "path": "dist/modules/utils/nodeCron.js",
+      "path": "dist/modules/utils/nodeCrone.js",
       "schedule": "0 0 * * *"
     }
   ]
-}
+} 
