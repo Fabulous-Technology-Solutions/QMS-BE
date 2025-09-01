@@ -4,16 +4,12 @@
     {
       "src": "dist/index.js",
       "use": "@vercel/node"
-    },
-    {
-      "src": "dist/modules/utils/nodeCrone.js",
-      "use": "@vercel/node"
     }
   ],
   "routes": [
     {
       "src": "/api/cron",
-      "dest": "dist/modules/utils/nodeCrone.js"
+      "dest": "dist/index.js"
     },
     {
       "src": "/(.*)",
@@ -26,4 +22,4 @@
       "schedule": "0 0 * * *"
     }
   ]
-} 
+}
