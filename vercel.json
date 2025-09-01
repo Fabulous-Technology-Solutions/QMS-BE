@@ -9,13 +9,7 @@
   "routes": [
     {
       "src": "/(.*)",
-      "dest": "dist/index.js"
-    }
-  ],
-  "crons": [
-    {
-      "path": "/v1/cron",
-      "schedule": "0 0 * * *"
+        "dest": "dist/index.js"
     }
   ]
 } 
