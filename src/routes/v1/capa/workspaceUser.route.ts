@@ -1,10 +1,10 @@
 import express, { Router } from 'express';
-import { validate } from '../../modules/validate';
-import { auth } from '../../modules/auth';
+import { validate } from '../../../modules/validate';
+import { auth } from '../../../modules/auth';
 
-import { workspaceUserController, workspaceUserValidation } from '../../modules/capa/workspace/workspaceUser';
-import checkCreateRole from '../../modules/capa/workspace/mangeRole.middleware';
-import { activityLoggerMiddleware } from '../../modules/activitylogs/activitylogs.middleware';
+import { workspaceUserController, workspaceUserValidation } from '../../../modules/capa/workspace/workspaceUser';
+import checkCreateRole from '../../../modules/capa/workspace/mangeRole.middleware';
+import { activityLoggerMiddleware } from '../../../modules/activitylogs/activitylogs.middleware';
 
 const router: Router = express.Router();
 router

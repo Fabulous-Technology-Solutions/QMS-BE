@@ -1,7 +1,7 @@
-import { itemController} from '../../modules/capa/workspace/checklist/item';
+import { itemController} from '../../../modules/capa/workspace/checklist/item';
 import  { Router } from 'express';
-import { auth } from '../../modules/auth';
-import checkCreateRole from '../../modules/capa/workspace/mangeRole.middleware';
+import { auth } from '../../../modules/auth';
+import checkCreateRole from '../../../modules/capa/workspace/mangeRole.middleware';
 const router: Router = Router();
 
 router

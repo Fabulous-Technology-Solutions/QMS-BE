@@ -1,9 +1,9 @@
 import express, { Router } from 'express';
-import {  ActionController, ActionValidation } from '../../modules/capa/workspace/capalibrary/action';
-import { validate } from '../../modules/validate';
-import { auth } from '../../modules/auth';
-import checkValidation from '../../modules/capa/workspace/capalibrary/capalibrary.middleware';
-import { activityLoggerMiddleware } from '../../modules/activitylogs/activitylogs.middleware';
+import {  ActionController, ActionValidation } from '../../../modules/capa/workspace/capalibrary/action';
+import { validate } from '../../../modules/validate';
+import { auth } from '../../../modules/auth';
+import checkValidation from '../../../modules/capa/workspace/capalibrary/capalibrary.middleware';
+import { activityLoggerMiddleware } from '../../../modules/activitylogs/activitylogs.middleware';
 
 const router: Router = express.Router();
 

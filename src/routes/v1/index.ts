@@ -2,29 +2,14 @@ import express, { Router } from 'express';
 import authRoute from './auth.route';
 import docsRoute from './swagger.route';
 import userRoute from './user.route';
-import capaRoute from './capa.route';
 import uploadRoute from "./upload.route";
 import planRoute from '../../modules/plans/plans.route';
-import roleRoute from './role.route';
-import workspaceUser from "./workspaceUser.route"
-import groupRoute from './group.route';
-import libraryroute from './library.route';
-import actionroute from './action.route';
-import attachmentroute from './attachment.route';
-import CheckListItemRoute from './checklistItem.route';
 import { subscriptionRoutes, webhookRouter } from '../../modules/subscription';
 import config from '../../config/config';
-import causeroute from "./causes.route" 
-import checklistroute from './checklist.route';
-import checklisthistoryRoute from './checklisthistory.route';
 import logsRoutes from './logs.route';
-import FiveWhyRoutes from "./fivewhys.route";
-import IshikawaRoutes from "./Ishikawa.route";
-import ReportReport from "./report.route"
-import ReportHistory from "./reporthistory.route";
 import SiteRoutes from "./site.route"
-import ProcessRoutes from "./process.route"
-import cronRoute from "./cron.route"
+import ProcessRoutes from "./process.route";
+import * as capa from "./capa"
 const router = express.Router();
 
 interface IRoute {
@@ -46,10 +31,6 @@ const defaultIRoute: IRoute[] = [
     route: planRoute,
   },
   {
-    path: '/capa',
-    route: capaRoute,
-  },
-  {
     path: '/subscriptions',
     route: subscriptionRoutes,
   },
@@ -58,64 +39,12 @@ const defaultIRoute: IRoute[] = [
     route: uploadRoute,
   },
   {
-    path: '/roles',
-    route: roleRoute,
-  },
-  {
     path: '/attachments',
-    route: attachmentroute,
-  },
-  {
-    path: '/groups',
-    route: groupRoute,
-  },
-  {
-    path: '/workspace-users',
-    route: workspaceUser,
-  },
-  {
-    path: '/libraries',
-    route: libraryroute,
-  },
-  {
-    path: '/actions',
-    route: actionroute,
-  },
-  {
-    path: '/causes',
-    route: causeroute,
-  },
-  {
-    path: '/five-whys',
-    route: FiveWhyRoutes,
-  },
-  {
-    path: '/checklist',
-    route: checklistroute,
-  },
-  {
-    path: '/checklistItem',
-    route: CheckListItemRoute,
-  },
-  {
-    path: '/checklisthistory',
-    route: checklisthistoryRoute,
+    route: capa.attachmentroute,
   },
   {
     path: '/logs',
     route: logsRoutes,
-  },
-  {
-    path: '/ishikawa',
-    route: IshikawaRoutes,
-  },
-  {
-    path: '/reports',
-    route: ReportReport,
-  },
-  {
-    path: '/report-history',
-    route: ReportHistory,
   },
   {
     path: '/sites',
@@ -125,9 +54,72 @@ const defaultIRoute: IRoute[] = [
     path: '/processes',
     route: ProcessRoutes,
   },
+];
+const capaIRoute: IRoute[] = [
+ 
+  {
+    path: '/capa',
+    route: capa.capaRoute,
+  },
+  {
+    path: '/roles',
+    route: capa.roleRoute,
+  },
+  {
+    path: '/attachments',
+    route: capa.attachmentroute,
+  },
+  {
+    path: '/groups',
+    route: capa.groupRoute,
+  },
+  {
+    path: '/workspace-users',
+    route: capa.workspaceUser,
+  },
+  {
+    path: '/libraries',
+    route: capa.libraryroute,
+  },
+  {
+    path: '/actions',
+    route: capa.actionroute,
+  },
+  {
+    path: '/causes',
+    route: capa.causeroute,
+  },
+  {
+    path: '/five-whys',
+    route: capa.FiveWhyRoutes,
+  },
+  {
+    path: '/checklist',
+    route: capa.checklistroute,
+  },
+  {
+    path: '/checklistItem',
+    route: capa.CheckListItemRoute,
+  },
+  {
+    path: '/checklisthistory',
+    route: capa.checklisthistoryRoute,
+  },
+  {
+    path: '/ishikawa',
+    route: capa.IshikawaRoutes,
+  },
+  {
+    path: '/reports',
+    route: capa.ReportReport,
+  },
+  {
+    path: '/report-history',
+    route: capa.ReportHistory,
+  },
   {
     path: '/cron',
-    route: cronRoute,
+    route: capa.cronRoute,
   },
 ];
 
@@ -147,7 +139,13 @@ const devIRoute: IRoute[] = [
   },
 ];
 
+// Globally Routes
 defaultIRoute.forEach((route) => {
+  router.use(route.path, route.route);
+});
+
+// Capa Routes
+capaIRoute.forEach((route) => {
   router.use(route.path, route.route);
 });
 
@@ -157,6 +155,8 @@ webhookIRoute.forEach((route) => {
 });
 
 /* istanbul ignore next */
+
+
 if (config.env === 'development') {
   devIRoute.forEach((route) => {
     router.use(route.path, route.route);

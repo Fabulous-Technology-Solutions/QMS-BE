@@ -62,7 +62,7 @@ exports.getReportById = getReportById;
 const getReportsByWorkspace = async (workspaceId, page = 1, limit = 10) => {
     const match = { workspace: new mongoose_1.default.Types.ObjectId(workspaceId) };
     const total = await report_modal_1.default.countDocuments(match);
-    const data = await report_modal_1.default.find(match).populate("process").populate('site').populate("assignUsers", "name email profilePicture").populate('createdBy', 'name email profilePicture')
+    const data = await report_modal_1.default.find(match).populate("process", "name").populate('site', 'name').populate("assignUsers", "name email profilePicture").populate('createdBy', 'name email profilePicture')
         .sort({ createdAt: -1 })
         .skip((page - 1) * limit)
         .limit(limit);
@@ -70,7 +70,8 @@ const getReportsByWorkspace = async (workspaceId, page = 1, limit = 10) => {
 };
 exports.getReportsByWorkspace = getReportsByWorkspace;
 const updateReport = async (reportId, data) => {
-    const report = await report_modal_1.default.findByIdAndUpdate(reportId, data, { new: false });
+    console.log('Updating report:', reportId, data);
+    const report = await report_modal_1.default.findByIdAndUpdate(reportId, data, { new: true });
     return report;
 };
 exports.updateReport = updateReport;

@@ -67,7 +67,7 @@ export const getReportById = async (reportId: string) => {
 export const getReportsByWorkspace = async (workspaceId: string, page = 1, limit = 10) => {
   const match = { workspace: new mongoose.Types.ObjectId(workspaceId) };
   const total = await ReportModel.countDocuments(match);
-  const data = await ReportModel.find(match).populate("process").populate('site').populate("assignUsers","name email profilePicture").populate('createdBy','name email profilePicture')
+  const data = await ReportModel.find(match).populate("process","name").populate('site','name').populate("assignUsers","name email profilePicture").populate('createdBy','name email profilePicture')
     .sort({ createdAt: -1 })
     .skip((page - 1) * limit)
     .limit(limit);
@@ -75,8 +75,9 @@ export const getReportsByWorkspace = async (workspaceId: string, page = 1, limit
 };
  
 export const updateReport = async (reportId: string, data: Partial<ICreateReport>) => {
-  
-  const report = await ReportModel.findByIdAndUpdate(reportId, data, { new: false });
+  console.log('Updating report:', reportId, data);
+
+  const report = await ReportModel.findByIdAndUpdate(reportId, data, { new: true });
   return report;
 };
 
@@ -98,4 +99,4 @@ export const deleteReportMedia = async (reportId: string) => {
   }
   return report;
 };
-    
+       

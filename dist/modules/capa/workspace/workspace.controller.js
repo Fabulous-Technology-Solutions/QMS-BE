@@ -113,6 +113,6 @@ exports.AttentionController = (0, catchAsync_1.default)(async (req, res) => {
 });
 exports.filterPreviewReportController = (0, catchAsync_1.default)(async (req, res) => {
     const { site, process, status } = req.query;
-    const report = (0, capalibrary_service_1.generateFilterReport)(req.params['workspaceId'], site, process, status);
+    const report = await (0, capalibrary_service_1.generateFilterReport)(req.params['workspaceId'], site, process, status);
     res.status(200).json({ report, success: true });
 });

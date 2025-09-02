@@ -562,6 +562,7 @@ const pdfTemplate = async (findLibrary) => {
 };
 exports.pdfTemplate = pdfTemplate;
 const pdfTemplateforMutiples = async (libraries) => {
+    console.log('Generating PDF for multiple libraries:', libraries);
     const htmlContent = `
 <!DOCTYPE html>
     <html lang="en">

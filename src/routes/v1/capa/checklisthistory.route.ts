@@ -5,14 +5,14 @@ import {
   getChecklistHistoriesByLibraryController,
   updateChecklistHistoryController,
   deleteChecklistHistoryController,
-} from '../../modules/capa/workspace/capalibrary/checklisthistory/checklisthistory.controller';
+} from '../../../modules/capa/workspace/capalibrary/checklisthistory/checklisthistory.controller';
 import {
   createChecklistHistoryValidation,
   updateChecklistHistoryValidation,
-} from '../../modules/capa/workspace/capalibrary/checklisthistory/checklisthistory.validaton';
-import { validate } from '../../modules/validate';
-import { auth } from '../../modules/auth';
-import { checkValidation } from '../../modules/capa/workspace/capalibrary';
+} from '../../../modules/capa/workspace/capalibrary/checklisthistory/checklisthistory.validaton';
+import { validate } from '../../../modules/validate';
+import { auth } from '../../../modules/auth';
+import { checkValidation } from '../../../modules/capa/workspace/capalibrary';
 
 const router = Router();
 

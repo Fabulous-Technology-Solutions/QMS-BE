@@ -128,7 +128,7 @@ export const AttentionController = catchAsync(async (req: Request, res: Response
 
 export const filterPreviewReportController = catchAsync(async (req: Request, res: Response) => {
   const { site, process, status } = req.query;
-  const report = generateFilterReport(
+  const report = await generateFilterReport(
     req.params['workspaceId'] as string,
     site as string,
     process as string,

@@ -1,9 +1,9 @@
 import express, { Router } from "express";
-import {workspaceController, workspaceValidation} from "../../modules/capa/workspace"
-import { validate } from "../../modules/validate";
-import { auth } from "../../modules/auth";
-import checkCreateRole from "../../modules/capa/workspace/mangeRole.middleware";
-import { activityLoggerMiddleware } from "../../modules/activitylogs/activitylogs.middleware";
+import {workspaceController, workspaceValidation} from "../../../modules/capa/workspace"
+import { validate } from "../../../modules/validate";
+import { auth } from "../../../modules/auth";
+import checkCreateRole from "../../../modules/capa/workspace/mangeRole.middleware";
+import { activityLoggerMiddleware } from "../../../modules/activitylogs/activitylogs.middleware";
 
 const router: Router = express.Router();
 

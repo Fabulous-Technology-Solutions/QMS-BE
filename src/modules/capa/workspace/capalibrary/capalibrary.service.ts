@@ -106,8 +106,7 @@ export const getLibrariesByWorkspace = async (
       },
     },
     {
-      $unwind: { path: '$site', preserveNullAndEmptyArrays: true }
-
+      $unwind: { path: '$site', preserveNullAndEmptyArrays: true },
     },
     {
       $lookup: {
@@ -119,7 +118,7 @@ export const getLibrariesByWorkspace = async (
       },
     },
     {
-      $unwind: { path: '$process', preserveNullAndEmptyArrays: true }
+      $unwind: { path: '$process', preserveNullAndEmptyArrays: true },
     },
     { $skip: (page - 1) * limit },
     { $limit: limit },
@@ -599,8 +598,7 @@ export const getLibrariesByManager = async (
       },
     },
     {
-      $unwind: { path: '$site', preserveNullAndEmptyArrays: true }
-
+      $unwind: { path: '$site', preserveNullAndEmptyArrays: true },
     },
     {
       $lookup: {
@@ -612,7 +610,7 @@ export const getLibrariesByManager = async (
       },
     },
     {
-      $unwind: { path: '$process', preserveNullAndEmptyArrays: true }
+      $unwind: { path: '$process', preserveNullAndEmptyArrays: true },
     },
     {
       $lookup: {
@@ -694,7 +692,6 @@ export const generateReport = async (libraryId: string) => {
   try {
     // 1. Launch headless browser
     browser = await launchBrowser();
-   
 
     page = await browser?.newPage();
     const [findLibrary] = await LibraryModel.aggregate([
@@ -865,9 +862,9 @@ export const generateReport = async (libraryId: string) => {
       },
     ]);
 
-    if (!findLibrary) {
-      throw new Error('Library not found');
-    };
+    // if (!findLibrary) {
+    //   throw new Error('Library not found');
+    // };
     const pdfContent = await pdfTemplate(findLibrary);
     await page.setContent(pdfContent, {
       waitUntil: 'networkidle0',
@@ -915,22 +912,21 @@ export const generateReport = async (libraryId: string) => {
   }
 };
 
-
 export const generateFilterReport = async (workspaceId: string, site?: string, process?: string, status?: string) => {
   let browser;
   let page;
 
   try {
     // 1. Launch headless browser
-    browser = await launchBrowser();
-   const query={
-     workspaceId: new mongoose.Types.ObjectId(workspaceId),
-     ...(site && { site }),
-     ...(process && { process }),
-     ...(status && { status }),
-   }
+    console.log('Generating filtered report with:', { workspaceId, site, process, status });
 
-    page = await browser?.newPage();
+    const query = {
+      workspace: new mongoose.Types.ObjectId(workspaceId),
+      ...(site && { site: new mongoose.Types.ObjectId(site) }),
+      ...(process && { process: new mongoose.Types.ObjectId(process) }),
+      ...(status && { status }),
+    };
+
     const findLibraries = await LibraryModel.aggregate([
       { $match: query },
       {
@@ -1024,13 +1020,19 @@ export const generateFilterReport = async (workspaceId: string, site?: string, p
             },
           },
         },
-      }
+      },
     ]);
 
-    if (!findLibraries.length) {
-      throw new Error('No libraries found');
+    console.log(findLibraries, 'Filtered libraries for report:');
+
+    if (findLibraries.length === 0) {
+      console.log('No libraries found for report'); 
+      return null;
     }
+    browser = await launchBrowser();
+    page = await browser?.newPage(); 
     const pdfContent = await pdfTemplateforMutiples(findLibraries);
+    console.log('PDF content generated', pdfContent);
     await page.setContent(pdfContent, {
       waitUntil: 'networkidle0',
       timeout: 120000,
@@ -1042,6 +1044,7 @@ export const generateFilterReport = async (workspaceId: string, site?: string, p
       margin: { top: '20mm', bottom: '20mm' },
       timeout: 120000, // 2 minutes timeout for PDF generation
     });
+    console.log('PDF buffer generated', pdfBuffer);
     const timestamp = Date.now();
     const uniqueFileName = `${timestamp}-Report.pdf`;
 

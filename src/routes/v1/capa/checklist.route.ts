@@ -1,9 +1,9 @@
-import { ChecklistController, ValidationChecklist } from '../../modules/capa/workspace/checklist';
+import { ChecklistController, ValidationChecklist } from '../../../modules/capa/workspace/checklist';
 import { Router } from 'express';
-import { validate } from '../../modules/validate';
-import { auth } from '../../modules/auth';
+import { validate } from '../../../modules/validate';
+import { auth } from '../../../modules/auth';
 
-import checkCreateRole from '../../modules/capa/workspace/mangeRole.middleware';
+import checkCreateRole from '../../../modules/capa/workspace/mangeRole.middleware';
 const router: Router = Router();
 
 router

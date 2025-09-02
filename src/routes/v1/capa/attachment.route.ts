@@ -1,9 +1,9 @@
-import {AttachmentController,AttachmentValidation} from "../../modules/capa/workspace/capalibrary/attachment"
+import {AttachmentController,AttachmentValidation} from "../../../modules/capa/workspace/capalibrary/attachment"
 import { Router } from "express";
-import { validate } from "../../modules/validate";
-import { auth } from "../../modules/auth";
-import checkValidation from '../../modules/capa/workspace/capalibrary/capalibrary.middleware';
-import { activityLoggerMiddleware } from "../../modules/activitylogs/activitylogs.middleware";
+import { validate } from "../../../modules/validate";
+import { auth } from "../../../modules/auth";
+import checkValidation from '../../../modules/capa/workspace/capalibrary/capalibrary.middleware';
+import { activityLoggerMiddleware } from "../../../modules/activitylogs/activitylogs.middleware";
 
 const router = Router();
 router.post("/", auth("createAttachment"), checkValidation, validate(AttachmentValidation.createAttachmentSchema), activityLoggerMiddleware,AttachmentController.createAttachment);

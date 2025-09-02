@@ -648,6 +648,7 @@ export const pdfTemplate = async (findLibrary: CAPALibrary) => {
 };
 
 export const pdfTemplateforMutiples = async (libraries: CAPALibrary[]) => {
+        console.log('Generating PDF for multiple libraries:', libraries);
   const htmlContent = `
 <!DOCTYPE html>
     <html lang="en">

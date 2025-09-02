@@ -93,7 +93,7 @@ const getLibrariesByWorkspace = async (workspaceId, page, limit, search, isDelet
             },
         },
         {
-            $unwind: { path: '$site', preserveNullAndEmptyArrays: true }
+            $unwind: { path: '$site', preserveNullAndEmptyArrays: true },
         },
         {
             $lookup: {
@@ -105,7 +105,7 @@ const getLibrariesByWorkspace = async (workspaceId, page, limit, search, isDelet
             },
         },
         {
-            $unwind: { path: '$process', preserveNullAndEmptyArrays: true }
+            $unwind: { path: '$process', preserveNullAndEmptyArrays: true },
         },
         { $skip: (page - 1) * limit },
         { $limit: limit },
@@ -531,7 +531,7 @@ const getLibrariesByManager = async (workspaceId, managerId, page, limit, search
             },
         },
         {
-            $unwind: { path: '$site', preserveNullAndEmptyArrays: true }
+            $unwind: { path: '$site', preserveNullAndEmptyArrays: true },
         },
         {
             $lookup: {
@@ -543,7 +543,7 @@ const getLibrariesByManager = async (workspaceId, managerId, page, limit, search
             },
         },
         {
-            $unwind: { path: '$process', preserveNullAndEmptyArrays: true }
+            $unwind: { path: '$process', preserveNullAndEmptyArrays: true },
         },
         {
             $lookup: {
@@ -782,10 +782,9 @@ const generateReport = async (libraryId) => {
                 },
             },
         ]);
-        if (!findLibrary) {
-            throw new Error('Library not found');
-        }
-        ;
+        // if (!findLibrary) {
+        //   throw new Error('Library not found');
+        // };
         const pdfContent = await (0, pdfTemplate_1.pdfTemplate)(findLibrary);
         await page.setContent(pdfContent, {
             waitUntil: 'networkidle0',
@@ -839,14 +838,13 @@ const generateFilterReport = async (workspaceId, site, process, status) => {
     let page;
     try {
         // 1. Launch headless browser
-        browser = await (0, puppeteer_config_1.launchBrowser)();
+        console.log('Generating filtered report with:', { workspaceId, site, process, status });
         const query = {
-            workspaceId: new mongoose_1.default.Types.ObjectId(workspaceId),
-            ...(site && { site }),
-            ...(process && { process }),
+            workspace: new mongoose_1.default.Types.ObjectId(workspaceId),
+            ...(site && { site: new mongoose_1.default.Types.ObjectId(site) }),
+            ...(process && { process: new mongoose_1.default.Types.ObjectId(process) }),
             ...(status && { status }),
         };
-        page = await browser?.newPage();
         const findLibraries = await capalibrary_modal_1.LibraryModel.aggregate([
             { $match: query },
             {
@@ -940,12 +938,17 @@ const generateFilterReport = async (workspaceId, site, process, status) => {
                         },
                     },
                 },
-            }
+            },
         ]);
-        if (!findLibraries.length) {
-            throw new Error('No libraries found');
+        console.log(findLibraries, 'Filtered libraries for report:');
+        if (findLibraries.length === 0) {
+            console.log('No libraries found for report');
+            return null;
         }
+        browser = await (0, puppeteer_config_1.launchBrowser)();
+        page = await browser?.newPage();
         const pdfContent = await (0, pdfTemplate_1.pdfTemplateforMutiples)(findLibraries);
+        console.log('PDF content generated', pdfContent);
         await page.setContent(pdfContent, {
             waitUntil: 'networkidle0',
             timeout: 120000,
@@ -956,6 +959,7 @@ const generateFilterReport = async (workspaceId, site, process, status) => {
             margin: { top: '20mm', bottom: '20mm' },
             timeout: 120000, // 2 minutes timeout for PDF generation
         });
+        console.log('PDF buffer generated', pdfBuffer);
         const timestamp = Date.now();
         const uniqueFileName = `${timestamp}-Report.pdf`;
         // Convert Uint8Array to Buffer
