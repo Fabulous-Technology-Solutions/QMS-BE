@@ -10,6 +10,7 @@ import logsRoutes from './logs.route';
 import SiteRoutes from "./site.route"
 import ProcessRoutes from "./process.route";
 import * as capa from "./capa"
+// import * as risk from "./risk"
 const router = express.Router();
 
 interface IRoute {
@@ -122,6 +123,13 @@ const capaIRoute: IRoute[] = [
     route: capa.cronRoute,
   },
 ];
+const riskIRoute: IRoute[] = [
+
+  {
+    path: '/risk',
+    route: capa.capaRoute,
+  }
+];
 
 // Add webhook route separately (should be public)
 const webhookIRoute: IRoute[] = [
@@ -146,6 +154,10 @@ defaultIRoute.forEach((route) => {
 
 // Capa Routes
 capaIRoute.forEach((route) => {
+  router.use(route.path, route.route);
+});
+// Risk Routes
+riskIRoute.forEach((route) => {
   router.use(route.path, route.route);
 });
 

@@ -7,7 +7,7 @@ const express_1 = __importDefault(require("express"));
 const capalibrary_1 = require("../../../modules/capa/workspace/capalibrary");
 const validate_1 = require("../../../modules/validate");
 const auth_1 = require("../../../modules/auth");
-const mangeRole_middleware_1 = __importDefault(require("../../../modules/capa/workspace/mangeRole.middleware"));
+const mangeRole_middleware_1 = __importDefault(require("../../../modules/workspace/mangeRole.middleware"));
 const activitylogs_middleware_1 = require("../../../modules/activitylogs/activitylogs.middleware");
 const router = express_1.default.Router();
 router.post('/', (0, auth_1.auth)('createLibrary'), mangeRole_middleware_1.default, (0, validate_1.validate)(capalibrary_1.libraryValidationSchema.libraryValidationSchema), activitylogs_middleware_1.activityLoggerMiddleware, capalibrary_1.libraryController.createLibrary);

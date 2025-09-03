@@ -4,7 +4,7 @@ import { ChecklistModal } from "./checklist.interface";
 const checklistSchema = new mongoose.Schema<ChecklistModal>({
     name: { type: String },
     description: { type: String },
-    workspace: { type: mongoose.Schema.Types.ObjectId, ref: "Capaworkspace", required: true },
+    workspace: { type: mongoose.Schema.Types.ObjectId, ref: "Workspace", required: true },
     isDelete: { type: Boolean, default: false },
 });
 

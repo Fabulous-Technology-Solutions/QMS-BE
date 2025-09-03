@@ -13,11 +13,10 @@ const subAdminSchema = new mongoose.Schema({
             type: mongoose.Schema.Types.ObjectId,
             ref: "Subscription"
         },
-        workspacePermissions: {
-            type: [mongoose.Schema.Types.ObjectId],
-            ref: "Capaworkspace",
-            default: []
-        }
+        workspacePermissions: [{
+            type: mongoose.Schema.Types.ObjectId,
+            refPath: "adminOF.type"
+        }]
     }],
     subAdminRole: {
         type: String,

@@ -6,7 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.checkWorkSubadminBelongsToWorkspace = exports.checkAdminBelongsToWorkspace = exports.getworkspacerolenames = exports.getworkspaceRoles = exports.getRoleById = exports.deleteRole = exports.updateRole = exports.createRole = void 0;
 const user_model_1 = __importDefault(require("../../../user/user.model"));
 const ApiError_1 = __importDefault(require("../../../errors/ApiError"));
-const workspace_modal_1 = __importDefault(require("../workspace.modal"));
+const workspace_modal_1 = __importDefault(require("../../../workspace/workspace.modal"));
 const manageRole_modal_1 = __importDefault(require("./manageRole.modal"));
 const http_status_1 = __importDefault(require("http-status"));
 const mongoose_1 = __importDefault(require("mongoose"));
@@ -16,6 +16,8 @@ const createRole = (data) => {
         description: data.description,
         permissions: data.permissions,
         workspace: data.workspace,
+        process: data.process,
+        site: data.site
     });
     return role.save();
 };
@@ -38,7 +40,7 @@ const deleteRole = async (id) => {
 };
 exports.deleteRole = deleteRole;
 const getRoleById = async (id) => {
-    const role = await manageRole_modal_1.default.findOne({ _id: id, isDeleted: false }).populate('workspace');
+    const role = await manageRole_modal_1.default.findOne({ _id: id, isDeleted: false }).populate('workspace').populate('process', 'name').populate('site', 'name');
     if (!role) {
         throw new ApiError_1.default('Role not found', http_status_1.default.NOT_FOUND);
     }
@@ -51,7 +53,7 @@ const getworkspaceRoles = async (data) => {
     if (search) {
         query.name = { $regex: search, $options: 'i' };
     }
-    const roles = await manageRole_modal_1.default.find(query).skip((page - 1) * limit).limit(limit);
+    const roles = await manageRole_modal_1.default.find(query).populate('process', 'name').populate('site', 'name').skip((page - 1) * limit).limit(limit);
     const total = await manageRole_modal_1.default.countDocuments(query);
     return {
         total,

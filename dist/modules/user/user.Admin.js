@@ -13,7 +13,7 @@ const AdminSchema = new mongoose_1.default.Schema({
             },
             workspacePermissions: {
                 type: [mongoose_1.default.Schema.Types.ObjectId],
-                ref: "Capaworkspace",
+                ref: "Workspace",
                 default: []
             }
         }],

@@ -15,7 +15,7 @@ const reportSchema = new mongoose_1.default.Schema({
     site: { type: mongoose_1.default.Schema.Types.ObjectId, ref: 'Site' },
     process: { type: mongoose_1.default.Schema.Types.ObjectId, ref: 'Process' },
     createdBy: { type: mongoose_1.default.Schema.Types.ObjectId, ref: 'User', required: true },
-    workspace: { type: mongoose_1.default.Schema.Types.ObjectId, ref: 'Capaworkspace', required: true },
+    workspace: { type: mongoose_1.default.Schema.Types.ObjectId, ref: 'Workspace', required: true },
     isDeleted: { type: Boolean, default: false },
 }, {
     timestamps: true,

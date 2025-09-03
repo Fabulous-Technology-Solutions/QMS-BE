@@ -6,7 +6,7 @@ const userSchema = new mongoose.Schema<IWorkspaceUserDoc>(
   {
     workspace: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'Capaworkspace',
+      ref: 'Workspace',
       required: true,
     },
     roleId: {

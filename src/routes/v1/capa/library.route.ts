@@ -2,7 +2,7 @@ import express, { Router } from 'express';
 import { checkValidation, libraryController, libraryValidationSchema } from '../../../modules/capa/workspace/capalibrary';
 import { validate } from '../../../modules/validate';
 import { auth } from '../../../modules/auth';
-import checkCreateRole from '../../../modules/capa/workspace/mangeRole.middleware';
+import checkCreateRole from '../../../modules/workspace/mangeRole.middleware';
 import { activityLoggerMiddleware } from '../../../modules/activitylogs/activitylogs.middleware';
 
 const router: Router = express.Router();

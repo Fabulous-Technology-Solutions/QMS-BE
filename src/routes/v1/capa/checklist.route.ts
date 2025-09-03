@@ -3,7 +3,7 @@ import { Router } from 'express';
 import { validate } from '../../../modules/validate';
 import { auth } from '../../../modules/auth';
 
-import checkCreateRole from '../../../modules/capa/workspace/mangeRole.middleware';
+import checkCreateRole from '../../../modules/workspace/mangeRole.middleware';
 const router: Router = Router();
 
 router

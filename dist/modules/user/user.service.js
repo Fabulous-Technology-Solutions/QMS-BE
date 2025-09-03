@@ -120,7 +120,7 @@ const getme = async (userId) => {
     const users = await user_model_1.default.aggregate([
         { $match: { _id: userId, isDeleted: false } },
         { $lookup: {
-                from: 'capaworkspaces',
+                from: 'workspaces',
                 localField: 'workspace',
                 foreignField: '_id',
                 as: 'workspace'

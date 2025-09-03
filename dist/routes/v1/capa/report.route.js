@@ -7,7 +7,7 @@ const express_1 = __importDefault(require("express"));
 const report_1 = require("../../../modules/capa/workspace/report");
 const validate_1 = require("../../../modules/validate");
 const auth_1 = require("../../../modules/auth");
-const mangeRole_middleware_1 = __importDefault(require("../../../modules/capa/workspace/mangeRole.middleware"));
+const mangeRole_middleware_1 = __importDefault(require("../../../modules/workspace/mangeRole.middleware"));
 const router = express_1.default.Router();
 router.post('/', (0, auth_1.auth)('createReport'), mangeRole_middleware_1.default, (0, validate_1.validate)(report_1.reportValidation.createReportSchema), report_1.reportController.createReportController);
 router.get('/workspace/:workspaceId/report/:reportId', (0, auth_1.auth)('getReport'), mangeRole_middleware_1.default, report_1.reportController.getReportByIdController);

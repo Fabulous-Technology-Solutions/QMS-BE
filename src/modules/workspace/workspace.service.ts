@@ -7,8 +7,10 @@ import {
   IqueryofGetworkspaces,
 } from './workspace.interfaces';
 import CapaworkspaceModel from './workspace.modal';
-import { LibraryModel } from './capalibrary/capalibrary.modal';
-import Action from './capalibrary/action/action.modal';
+
+
+import { LibraryModel } from '../capa/workspace/capalibrary/capalibrary.modal';
+import Action from '../capa/workspace/capalibrary/action/action.modal';
 
 export const createCapaworkspace = async (data: CreateCapaworkspaceServiceFunction) => {
   const { moduleId, name, imageUrl, imagekey, description, user } = data;

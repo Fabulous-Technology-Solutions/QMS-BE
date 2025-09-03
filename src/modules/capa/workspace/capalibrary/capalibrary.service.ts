@@ -383,7 +383,7 @@ export const checkAdminBelongsTtoLibrary = async (libraryId: string, userId: Obj
     { $match: Querydata },
     {
       $lookup: {
-        from: 'capaworkspaces',
+        from: 'workspaces',
         localField: 'workspace',
         foreignField: '_id',
         as: 'workspace',
@@ -430,7 +430,7 @@ export const checkSubAdminBelongsToLibrary = async (
     { $match: { _id: userId, isDeleted: false } },
     {
       $lookup: {
-        from: 'capaworkspaces',
+        from: 'workspaces',
         let: { workspaceIds: '$adminOF.workspacePermissions' },
         pipeline: [
           {
@@ -498,7 +498,7 @@ export const checkUserBelongsToLibrary = async (libraryId: string, user: IUserDo
     },
     {
       $lookup: {
-        from: 'capaworkspaces',
+        from: 'workspaces',
         localField: 'workspace',
         foreignField: '_id',
         as: 'workspace',

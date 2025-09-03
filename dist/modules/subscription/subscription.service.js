@@ -279,7 +279,7 @@ const getUserSubscriptionsandWorkspaces = async (userId) => {
         },
         {
             $lookup: {
-                from: 'capaworkspaces',
+                from: 'workspaces',
                 let: { moduleId: '$_id' },
                 pipeline: [
                     {

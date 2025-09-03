@@ -6,7 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const item_1 = require("../../../modules/capa/workspace/checklist/item");
 const express_1 = require("express");
 const auth_1 = require("../../../modules/auth");
-const mangeRole_middleware_1 = __importDefault(require("../../../modules/capa/workspace/mangeRole.middleware"));
+const mangeRole_middleware_1 = __importDefault(require("../../../modules/workspace/mangeRole.middleware"));
 const router = (0, express_1.Router)();
 router
     .route('/')

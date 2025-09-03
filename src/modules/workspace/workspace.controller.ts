@@ -1,11 +1,11 @@
 import { workspaceService } from './index';
 import httpStatus from 'http-status';
 import { NextFunction, Request, Response } from 'express';
-import catchAsync from '../../utils/catchAsync';
-import AppiError from '../../errors/ApiError';
+import catchAsync from '../utils/catchAsync';
+import AppiError from '../errors/ApiError';
 
-import { getActionsByWorkspace } from './capalibrary/action/action.service';
-import { generateFilterReport, getLibrariesfilterData } from './capalibrary/capalibrary.service';
+import { getActionsByWorkspace } from '../capa/workspace/capalibrary/action/action.service';
+import { generateFilterReport, getLibrariesfilterData } from '../capa/workspace/capalibrary/capalibrary.service';
 
 export const createCapaworkspaceController = catchAsync(async (req: Request, res: Response) => {
   const workspace = await workspaceService.createCapaworkspace({ ...req.body, user: req.user });

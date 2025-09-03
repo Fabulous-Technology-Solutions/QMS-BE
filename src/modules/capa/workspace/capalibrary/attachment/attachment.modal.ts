@@ -20,7 +20,7 @@ const AttachmentSchema = new mongoose.Schema<AttachmentModal>({
     },
     library: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'Capaworkspace',
+        ref: 'Workspace',
         required: true,
     },
     size: {

@@ -8,7 +8,7 @@ const mongoose_1 = __importDefault(require("mongoose"));
 const userSchema = new mongoose_1.default.Schema({
     workspace: {
         type: mongoose_1.default.Schema.Types.ObjectId,
-        ref: 'Capaworkspace',
+        ref: 'Workspace',
         required: true,
     },
     roleId: {

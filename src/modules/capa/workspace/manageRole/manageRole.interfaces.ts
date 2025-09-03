@@ -6,6 +6,8 @@ export interface IRoleModal extends Document {
     permissions:  string;  
     workspace: mongoose.Schema.Types.ObjectId;
     isDeleted: boolean;
+    process: mongoose.Schema.Types.ObjectId;
+    site: mongoose.Schema.Types.ObjectId;
 }
 
 
@@ -13,7 +15,9 @@ export interface CreateRoleRequest {
     name: string;
     description: string;
     permissions: string;
-    workspace: string; 
+    workspace: string;
+    process: string;
+    site: string;
 }
 
 

@@ -1,8 +1,8 @@
-import catchAsync from '../../utils/catchAsync';
+import catchAsync from '../utils/catchAsync';
 import { NextFunction, Request } from 'express';
-import { checkAdminBelongsToWorkspace, checkWorkSubadminBelongsToWorkspace } from './manageRole/manageRole.service';
+import { checkAdminBelongsToWorkspace, checkWorkSubadminBelongsToWorkspace } from '../capa/workspace/manageRole/manageRole.service';
 import CapaworkspaceModel from './workspace.modal';
-import AppiError from '../../errors/ApiError';
+import AppiError from '../errors/ApiError';
 import httpStatus from 'http-status';
 
 const checkCreateRole = catchAsync(async (req: Request, _: Response, next: NextFunction) => {

@@ -24,7 +24,7 @@ const AttachmentSchema = new mongoose_1.default.Schema({
     },
     library: {
         type: mongoose_1.default.Schema.Types.ObjectId,
-        ref: 'Capaworkspace',
+        ref: 'Workspace',
         required: true,
     },
     size: {

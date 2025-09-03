@@ -7,7 +7,7 @@ const express_1 = __importDefault(require("express"));
 const group_1 = require("../../../modules/capa/workspace/group");
 const validate_1 = require("../../../modules/validate");
 const auth_1 = require("../../../modules/auth");
-const mangeRole_middleware_1 = __importDefault(require("../../../modules/capa/workspace/mangeRole.middleware"));
+const mangeRole_middleware_1 = __importDefault(require("../../../modules/workspace/mangeRole.middleware"));
 const router = express_1.default.Router();
 router.post('/', (0, auth_1.auth)('createGroup'), mangeRole_middleware_1.default, (0, validate_1.validate)(group_1.groupvalidation.groupValidationSchema), group_1.groupcontroller.createGroupController);
 router.get('/workspace/:workspaceId', (0, auth_1.auth)('getWorkspaceGroups'), mangeRole_middleware_1.default, group_1.groupcontroller.getWorkspaceGroupsController);

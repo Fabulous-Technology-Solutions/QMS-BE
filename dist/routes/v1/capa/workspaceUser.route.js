@@ -7,7 +7,7 @@ const express_1 = __importDefault(require("express"));
 const validate_1 = require("../../../modules/validate");
 const auth_1 = require("../../../modules/auth");
 const workspaceUser_1 = require("../../../modules/capa/workspace/workspaceUser");
-const mangeRole_middleware_1 = __importDefault(require("../../../modules/capa/workspace/mangeRole.middleware"));
+const mangeRole_middleware_1 = __importDefault(require("../../../modules/workspace/mangeRole.middleware"));
 const activitylogs_middleware_1 = require("../../../modules/activitylogs/activitylogs.middleware");
 const router = express_1.default.Router();
 router

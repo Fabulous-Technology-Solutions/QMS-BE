@@ -12,7 +12,7 @@ const reportSchema = new mongoose.Schema<ReportModal>({
   site: { type: mongoose.Schema.Types.ObjectId, ref: 'Site' },
   process: { type: mongoose.Schema.Types.ObjectId, ref: 'Process'},
   createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-  workspace: { type: mongoose.Schema.Types.ObjectId, ref: 'Capaworkspace', required: true },
+  workspace: { type: mongoose.Schema.Types.ObjectId, ref: 'Workspace', required: true },
   isDeleted: { type: Boolean, default: false },
 },{
     timestamps: true,

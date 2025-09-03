@@ -141,7 +141,7 @@ export const getme = async (userId: mongoose.Types.ObjectId) => {
   const users = await User.aggregate([
     { $match: { _id: userId, isDeleted: false } },
     { $lookup: {
-        from: 'capaworkspaces',
+        from: 'workspaces',
         localField: 'workspace',
         foreignField: '_id', 
         as: 'workspace'

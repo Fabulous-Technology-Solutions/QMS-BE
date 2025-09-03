@@ -307,7 +307,7 @@ export const getUserSubscriptionsandWorkspaces = async (userId: string): Promise
     },
     {
       $lookup: {
-        from: 'capaworkspaces',
+        from: 'workspaces',
         let: { moduleId: '$_id' },
         pipeline: [
           {
