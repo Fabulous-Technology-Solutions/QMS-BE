@@ -1,6 +1,6 @@
-import  User  from '../../../user/user.model';
-import AppiError from '../../../errors/ApiError';
-import CapaworkspaceModel from '../../../workspace/workspace.modal';
+import  User  from '../../user/user.model';
+import AppiError from '../../errors/ApiError';
+import CapaworkspaceModel from '../workspace.modal';
 import { CreateRoleRequest, getParams, getrolesQuery } from './manageRole.interfaces';
 import RoleModal from './manageRole.modal';
 import httpStatus from 'http-status';

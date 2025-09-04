@@ -21,13 +21,11 @@ const LibrarySchema = new mongoose.Schema<LibraryModal>(
     managers: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
     site:{
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'Site',
-      required: true
+      ref: 'Site'
     },
     process:{
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'Process',
-      required: true
+      ref: 'Process'
     },
     priority: { type: String, enum: ['low', 'medium', 'high'], default: 'medium' },
     containment: {

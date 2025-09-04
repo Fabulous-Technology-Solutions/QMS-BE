@@ -1,5 +1,5 @@
 import roleRoute from './role.route'; 
-import workspaceUser from "./workspaceUser.route"
+import workspaceUser from "../workspaceUser.route"
 import groupRoute from './group.route';
 import libraryroute from './library.route';
 import actionroute from "./action.route";

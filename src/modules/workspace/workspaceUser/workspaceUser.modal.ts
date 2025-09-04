@@ -1,5 +1,5 @@
 import { IWorkspaceUserDoc, IUserWithWorkspace } from './workspaceUser.interfaces';
-import User from '../../../user/user.model';
+import User from '../../user/user.model';
 import mongoose from 'mongoose';
 
 const userSchema = new mongoose.Schema<IWorkspaceUserDoc>(

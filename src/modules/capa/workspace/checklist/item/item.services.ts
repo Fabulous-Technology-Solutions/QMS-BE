@@ -32,9 +32,10 @@ const updateCheckListItem = async (itemId: string, data: Partial<CreateCheckList
     return checkListItem;
 };
 const deleteCheckListItem = async (itemId: string) => {
+    console.log(itemId,"itemId...................");
     const checkListItem = await CheckListItem.findOneAndUpdate(
-        { _id: itemId, isDelete: false },
-        { isDelete: true },
+        { _id: itemId?.toString(), isDeleted: false },
+        { isDeleted: true },
         { new: true }
     );
 

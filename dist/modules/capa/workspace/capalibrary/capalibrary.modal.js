@@ -23,13 +23,11 @@ const LibrarySchema = new mongoose_1.default.Schema({
     managers: [{ type: mongoose_1.default.Schema.Types.ObjectId, ref: 'User' }],
     site: {
         type: mongoose_1.default.Schema.Types.ObjectId,
-        ref: 'Site',
-        required: true
+        ref: 'Site'
     },
     process: {
         type: mongoose_1.default.Schema.Types.ObjectId,
-        ref: 'Process',
-        required: true
+        ref: 'Process'
     },
     priority: { type: String, enum: ['low', 'medium', 'high'], default: 'medium' },
     containment: {

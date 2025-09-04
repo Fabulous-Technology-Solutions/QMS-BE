@@ -34,6 +34,7 @@ const logs_route_1 = __importDefault(require("./logs.route"));
 const site_route_1 = __importDefault(require("./site.route"));
 const process_route_1 = __importDefault(require("./process.route"));
 const capa = __importStar(require("./capa"));
+const risk = __importStar(require("./risk"));
 // import * as risk from "./risk"
 const router = express_1.default.Router();
 const defaultIRoute = [
@@ -142,9 +143,13 @@ const capaIRoute = [
 ];
 const riskIRoute = [
     {
-        path: '/risk',
+        path: '/',
         route: capa.capaRoute,
-    }
+    },
+    {
+        path: '/libraries',
+        route: risk.riskLibraryRoute,
+    },
 ];
 // Add webhook route separately (should be public)
 const webhookIRoute = [
@@ -170,7 +175,7 @@ capaIRoute.forEach((route) => {
 });
 // Risk Routes
 riskIRoute.forEach((route) => {
-    router.use(route.path, route.route);
+    router.use(`/risk${route.path}`, route.route);
 });
 // Register webhook routes (these should be public)
 webhookIRoute.forEach((route) => {

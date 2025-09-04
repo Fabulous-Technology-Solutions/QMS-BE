@@ -29,7 +29,8 @@ const updateCheckListItem = async (itemId, data) => {
 };
 exports.updateCheckListItem = updateCheckListItem;
 const deleteCheckListItem = async (itemId) => {
-    const checkListItem = await item_modal_1.default.findOneAndUpdate({ _id: itemId, isDelete: false }, { isDelete: true }, { new: true });
+    console.log(itemId, "itemId...................");
+    const checkListItem = await item_modal_1.default.findOneAndUpdate({ _id: itemId?.toString(), isDeleted: false }, { isDeleted: true }, { new: true });
     if (!checkListItem) {
         throw new Error('Checklist item not found');
     }

@@ -1,6 +1,6 @@
 import httpStatus from "http-status";
 import {  Request, Response } from "express";
-import catchAsync from "../../../utils/catchAsync";
+import catchAsync from "../../utils/catchAsync";
 import * as roleService from "./manageRole.service";
 
 export const createRoleController = catchAsync(async (req: Request, res: Response) => {

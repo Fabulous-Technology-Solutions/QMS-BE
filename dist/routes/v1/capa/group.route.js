@@ -4,7 +4,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
-const group_1 = require("../../../modules/capa/workspace/group");
+const group_1 = require("../../../modules/workspace/group");
 const validate_1 = require("../../../modules/validate");
 const auth_1 = require("../../../modules/auth");
 const mangeRole_middleware_1 = __importDefault(require("../../../modules/workspace/mangeRole.middleware"));

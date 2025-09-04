@@ -11,7 +11,7 @@ import {
   removeMemberFromGroup,
   getGroupUsers,
 } from './group.service';
-import catchAsync from '../../../utils/catchAsync';
+import catchAsync from '../../utils/catchAsync';
 
 
 export const createGroupController = catchAsync(async (req: Request, res: Response) => {

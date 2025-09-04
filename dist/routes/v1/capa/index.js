@@ -6,7 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.capaRoute = exports.cronRoute = exports.ReportHistory = exports.ReportReport = exports.IshikawaRoutes = exports.FiveWhyRoutes = exports.checklisthistoryRoute = exports.checklistroute = exports.causeroute = exports.CheckListItemRoute = exports.attachmentroute = exports.actionroute = exports.libraryroute = exports.groupRoute = exports.workspaceUser = exports.roleRoute = void 0;
 const role_route_1 = __importDefault(require("./role.route"));
 exports.roleRoute = role_route_1.default;
-const workspaceUser_route_1 = __importDefault(require("./workspaceUser.route"));
+const workspaceUser_route_1 = __importDefault(require("../workspaceUser.route"));
 exports.workspaceUser = workspaceUser_route_1.default;
 const group_route_1 = __importDefault(require("./group.route"));
 exports.groupRoute = group_route_1.default;

@@ -4,7 +4,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const catchAsync_1 = __importDefault(require("../utils/catchAsync"));
-const manageRole_service_1 = require("../capa/workspace/manageRole/manageRole.service");
+const manageRole_service_1 = require("./manageRole/manageRole.service");
 const workspace_modal_1 = __importDefault(require("./workspace.modal"));
 const ApiError_1 = __importDefault(require("../errors/ApiError"));
 const http_status_1 = __importDefault(require("http-status"));

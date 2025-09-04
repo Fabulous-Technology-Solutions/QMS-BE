@@ -4,7 +4,7 @@ import httpStatus from 'http-status';
 import ApiError from '../errors/ApiError';
 import { roleRights } from '../../config/roles';
 import { IUserDoc } from '../user/user.interfaces';
-import { getRoleById } from '../capa/workspace/manageRole/manageRole.service';
+import { getRoleById } from '../workspace/manageRole/manageRole.service';
 
 const verifyCallback =
   (req: Request, resolve: any, reject: any, requiredRights: string[]) =>

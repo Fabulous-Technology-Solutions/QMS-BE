@@ -1,7 +1,7 @@
 import mongoose, { ObjectId } from 'mongoose';
 import { CreateGroupRequest, GetGroupsParams, GetGroupsQuery } from './group.interfaces';
 import GroupModel from './group.modal';
-import User from '../../../user/user.model';
+import User from '../../user/user.model';
 
 export const CreateGroup = async (groupData: CreateGroupRequest) => {
   const group = new GroupModel(groupData);

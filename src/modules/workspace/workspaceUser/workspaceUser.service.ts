@@ -1,14 +1,14 @@
 import workspaceUser from './workspaceUser.modal';
 
 import { CreateWorkspaceUserRequest } from './workspaceUser.interfaces';
-import User from '../../../user/user.model';
-import ApiError from '../../../errors/ApiError';
+import User from '../../user/user.model';
+import ApiError from '../../errors/ApiError';
 import httpStatus from 'http-status';
-import * as tokenService from '../../../token/token.service';
-import { sendEmail } from '../../../email/email.service';
+import * as tokenService from '../../token/token.service';
+import { sendEmail } from '../../email/email.service';
 
 import mongoose from 'mongoose';
-import { deleteMedia } from '../../../upload/upload.middleware';
+import { deleteMedia } from '../../upload/upload.middleware';
 
 export const createWorkspaceUser = async (data: CreateWorkspaceUserRequest) => {
   if (await User.isEmailTaken(data.email)) {

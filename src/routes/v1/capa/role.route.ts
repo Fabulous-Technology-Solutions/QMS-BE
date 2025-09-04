@@ -1,5 +1,5 @@
 import express, { Router } from 'express';
-import { RoleController, RoleValidation } from '../../../modules/capa/workspace/manageRole';
+import { RoleController, RoleValidation } from '../../../modules/workspace/manageRole';
 import { validate } from '../../../modules/validate';
 import { auth } from '../../../modules/auth';
 import checkCreateRole from '../../../modules/workspace/mangeRole.middleware';

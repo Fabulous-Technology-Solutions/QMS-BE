@@ -7,7 +7,7 @@ const passport_1 = __importDefault(require("passport"));
 const http_status_1 = __importDefault(require("http-status"));
 const ApiError_1 = __importDefault(require("../errors/ApiError"));
 const roles_1 = require("../../config/roles");
-const manageRole_service_1 = require("../capa/workspace/manageRole/manageRole.service");
+const manageRole_service_1 = require("../workspace/manageRole/manageRole.service");
 const verifyCallback = (req, resolve, reject, requiredRights) => async (err, user, info) => {
     console.log('Authentication attempt:', req.headers.authorization);
     if (err || info || !user) {
