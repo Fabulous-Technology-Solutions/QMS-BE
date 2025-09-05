@@ -1,5 +1,5 @@
 import {capaEdit, capaWAdmin, capaView,capaSubadminRoles,capaadminRoles ,capastandardUser} from './modulesRole/capa.role';
-import { RiskadminRoles ,RiskstandardUser,RiskSubadminRoles} from './modulesRole/risk.role';
+import { RiskadminRoles ,RiskstandardUser,RiskSubadminRoles,RiskEditer,RiskViewer,RiskWAdmin} from './modulesRole/risk.role';
 
 const allRoles = {
   admin: ['getUsers', 'manageCapa', 'buySubscription', 'getSubscriptions', 'manageUsers', 'manageSites', 'manageProcesses',
@@ -28,13 +28,16 @@ const allRoles = {
 
   workspaceUser: {
     view: [
-      ...capaView
+      ...capaView,
+      ...RiskViewer
     ],
     edit: [
-      ...capaEdit
+      ...capaEdit,
+      ...RiskEditer
     ],
     w_admin: [
-      ...capaWAdmin
+      ...capaWAdmin,
+      ...RiskWAdmin
     ],
   },
 };

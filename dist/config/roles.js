@@ -29,13 +29,16 @@ const allRoles = {
     },
     workspaceUser: {
         view: [
-            ...capa_role_1.capaView
+            ...capa_role_1.capaView,
+            ...risk_role_1.RiskViewer
         ],
         edit: [
-            ...capa_role_1.capaEdit
+            ...capa_role_1.capaEdit,
+            ...risk_role_1.RiskEditer
         ],
         w_admin: [
-            ...capa_role_1.capaWAdmin
+            ...capa_role_1.capaWAdmin,
+            ...risk_role_1.RiskWAdmin
         ],
     },
 };

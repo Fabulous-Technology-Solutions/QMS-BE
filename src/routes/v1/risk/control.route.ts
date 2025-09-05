@@ -8,7 +8,7 @@ const router: Router = Router();
 router
   .route('/')
   .post(
-    auth('createControls'),
+    auth('createControl'),
     checkValidation,
     validate(controlValidation.createControlSchema),
     activityLoggerMiddleware,

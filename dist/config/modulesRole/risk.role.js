@@ -1,121 +1,85 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.RiskstandardUser = exports.RiskadminRoles = exports.RiskSubadminRoles = exports.RiskWAdmin = void 0;
+exports.RiskEditer = exports.RiskViewer = exports.RiskstandardUser = exports.RiskadminRoles = exports.RiskSubadminRoles = exports.RiskWAdmin = void 0;
 const RiskadminRoles = [
-    "manageRisk"
+    'manageRisk',
+    // permissions for admin role
+    'updateControl',
+    'deleteControl',
+    'createControl',
+    'getControl',
+    'getControls',
+    // consequence permissions
+    'createConsequence',
+    'getConsequence',
+    'getConsequences',
+    'updateConsequence',
+    'deleteConsequence',
 ];
 exports.RiskadminRoles = RiskadminRoles;
 const RiskSubadminRoles = [
-    "manageRisk"
+    'manageRisk',
+    // permissions for admin role
+    'updateControl',
+    'deleteControl',
+    'createControl',
+    'getControl',
+    'getControls',
+    // consequence permissions
+    'createConsequence',
+    'getConsequence',
+    'getConsequences',
+    'updateConsequence',
+    'deleteConsequence',
 ];
 exports.RiskSubadminRoles = RiskSubadminRoles;
 const RiskWAdmin = [
-    // permissions for workspace admin for role
-    'updateRole',
-    'getSingleRole',
-    `createRole`,
-    'deleteRole',
-    'getWorkspaceRoleNames',
-    // permissions for workspace admin for role
-    'getWorkspaceUsers',
-    'createWorkspaceUser',
-    'updateWorkspaceUser',
-    'deleteWorkspaceUser',
-    'getSingleWorkspaceUser',
-    // 'manageGroups',
-    'createGroup',
-    'getWorkspaceGroups',
-    'getWorkspaceGroupNames',
-    'getSingleGroup',
-    'updateGroup',
-    'deleteGroup',
-    // 'manageLibrary',
-    'deleteLibrary',
-    'updateLibrary',
-    'removeLibraryMember',
-    'addLibraryMember',
-    'getLibraryMembers',
-    'getWorkspaceLibraryNames',
-    'getWorkspaceLibraries',
-    'createLibrary',
-    'updateLibraryById',
-    'getSingleLibrary',
-    'update5W2H',
-    'getUserLibraries',
-    'restoreLibrary',
-    'deletePermanentLibrary',
-    'updateContainment',
-    // Actions
-    'deleteAction',
-    'updateAction',
-    'getSingleAction',
-    'getActions',
-    'createAction',
-    'getTasks',
-    // Attachments
-    'deleteAttachment',
-    'updateAttachment',
-    'getAttachmentById',
-    'getAttachmentsByWorkspace',
-    'createAttachment',
-    //Causes
-    'createCauses',
-    'getCauses',
-    'deleteCause',
-    'getCause',
-    'updateCause',
-    'getCausesNames',
-    // Checklist
-    'createChecklist',
-    'getChecklists',
-    'deleteChecklist',
-    'getChecklist',
-    'updateChecklist',
-    'getChecklistNames',
-    // Checklist Item
-    'createChecklistItem',
-    'getChecklistItems',
-    'deleteChecklistItem',
-    'getChecklistItem',
-    'updateChecklistItem',
-    'getChecklistItemNames',
-    // Checklist History
-    'createChecklistHistory',
-    'getChecklistHistory',
-    'updateChecklistHistory',
-    'getChecklistHistories',
-    'deleteChecklistHistory',
-    'getChecklistHistoryNames',
-    'getlogs',
-    // Five Whys
-    'getFiveWhysByLibrary',
-    'deleteFiveWhys',
-    'updateFiveWhys',
-    'createFiveWhys',
-    'getFiveWhys',
-    //Ishikawa
-    'getIshikawaByLibrary',
-    'getIshikawa',
-    'deleteIshikawa',
-    'createIshikawa',
-    //Other
-    'needAttention',
-    // Reports
-    'createReport',
-    'getReports',
-    'getReport',
-    'updateReport',
-    'deleteReport',
-    'getReport',
-    // Report Preview
-    'getReportPrevious',
-    'getLibraryReports',
-    'getReport',
-    'updateReport'
+    // permissions for admin role
+    'updateControl',
+    'deleteControl',
+    'createControl',
+    'getControl',
+    'getControls',
+    // consequence permissions
+    'createConsequence',
+    'getConsequence',
+    'getConsequences',
+    'updateConsequence',
+    'deleteConsequence',
 ];
 exports.RiskWAdmin = RiskWAdmin;
+const RiskViewer = [
+    // permissions for viewer role
+    'manageRisk',
+    // permissions for admin role
+    'updateControl',
+    'deleteControl',
+    'createControl',
+    'getControl',
+    'getControls',
+    // consequence permissions
+    'createConsequence',
+    'getConsequence',
+    'getConsequences',
+    'updateConsequence',
+    'deleteConsequence'
+];
+exports.RiskViewer = RiskViewer;
+const RiskEditer = [
+    // permissions for editor role'
+    'updateControl',
+    'deleteControl',
+    'getControl',
+    'getControls',
+    // consequence permissions
+    'getConsequence',
+    'getConsequences',
+    'updateConsequence',
+    'deleteConsequence'
+];
+exports.RiskEditer = RiskEditer;
 const RiskstandardUser = [
     // permissions for standard user for role
-    "manageRisk"
+    'manageRisk',
 ];
 exports.RiskstandardUser = RiskstandardUser;

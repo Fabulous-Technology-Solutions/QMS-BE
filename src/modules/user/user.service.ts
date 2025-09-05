@@ -9,7 +9,6 @@ import subAdmin from './user.subAdmin';
 import { sendEmail } from '../email/email.service';
 import { tokenService } from '../token';
 
-
 /**
  * Create a user
  * @param {NewCreatedUser} userBody
@@ -19,10 +18,10 @@ export const createUser = async (userBody: CreateNewUser): Promise<IUserDoc> => 
   if (await User.isEmailTaken(userBody.email)) {
     throw new ApiError('Email already taken', httpStatus.BAD_REQUEST);
   }
-  const user = await subAdmin.create({ ...userBody, role: "subAdmin" })
+  const user = await subAdmin.create({ ...userBody, role: 'subAdmin' });
   console.log('user create before create token', user);
   const inviteToken = await tokenService.generateInviteToken(userBody.email);
-  const inviteUrl = `${process.env["CLIENT_URL"]}/invite?email=${encodeURIComponent(userBody.email)}&token=${inviteToken}`;
+  const inviteUrl = `${process.env['CLIENT_URL']}/invite?email=${encodeURIComponent(userBody.email)}&token=${inviteToken}`;
   const htmlbodyforsendpassword = `
     <p>Welcome to Tellust, ${userBody.name}!</p>
     <p>Email: ${userBody.email}</p>
@@ -30,9 +29,8 @@ export const createUser = async (userBody: CreateNewUser): Promise<IUserDoc> => 
     <a href="${inviteUrl}" style="display:inline-block;padding:10px 20px;background:#007bff;color:#fff;text-decoration:none;border-radius:4px;">Accept Invitation</a>
     <p>If you did not expect this invitation, you can ignore this email.</p>
   `;
-  sendEmail(userBody.email, 'Welcome to Tellust! Accept Your Invitation', "", htmlbodyforsendpassword);
+  sendEmail(userBody.email, 'Welcome to Tellust! Accept Your Invitation', '', htmlbodyforsendpassword);
   return user;
-
 };
 
 /**
@@ -42,12 +40,10 @@ export const createUser = async (userBody: CreateNewUser): Promise<IUserDoc> => 
  */
 export const registerUser = async (userBody: NewRegisteredUser): Promise<IUserDoc> => {
   if (await User.isEmailTaken(userBody.email)) {
-
     throw new ApiError('Email already taken', httpStatus.BAD_REQUEST);
   }
   return User.create({ ...userBody, role: 'admin', isEmailVerified: false, providers: ['local'] });
 };
-
 
 export const googleprofiledata = async (access_token: string) => {
   try {
@@ -63,12 +59,11 @@ export const googleprofiledata = async (access_token: string) => {
   }
 };
 
-
 export const loginWithGoogle = async (body: any): Promise<IUserDoc> => {
   const { access_token } = body;
 
   if (!access_token) {
-    throw new ApiError('Access token is required', httpStatus.BAD_REQUEST, { access_token: "access_token is required" });
+    throw new ApiError('Access token is required', httpStatus.BAD_REQUEST, { access_token: 'access_token is required' });
   }
 
   let userData;
@@ -135,25 +130,46 @@ export const loginWithGoogle = async (body: any): Promise<IUserDoc> => {
   return user;
 };
 
-
-
 export const getme = async (userId: mongoose.Types.ObjectId) => {
   const users = await User.aggregate([
     { $match: { _id: userId, isDeleted: false } },
-    { $lookup: {
+    {
+      $lookup: {
         from: 'workspaces',
         localField: 'workspace',
-        foreignField: '_id', 
-        as: 'workspace'
-      } },
+        foreignField: '_id',
+        as: 'workspace',
+      },
+    },
     { $unwind: { path: '$workspace', preserveNullAndEmptyArrays: true } },
-    { $lookup: {
+    {
+      $lookup: {
+        from: 'subscriptions',
+        localField: 'moduleId',
+        foreignField: '_id',
+        as: 'workspace.module',
+      },
+    },
+    { $unwind: { path: '$workspace.module', preserveNullAndEmptyArrays: true } },
+    {
+      $lookup: {
+        from: 'plans',
+        localField: 'workspace.module.planId',
+        foreignField: '_id',
+        as: 'workspace.module.plan',
+      },
+    },
+    { $unwind: { path: '$workspace.module.plan', preserveNullAndEmptyArrays: true } },
+    {
+      $lookup: {
         from: 'roles',
         localField: 'roleId',
         foreignField: '_id',
-        as: 'roleDetails'
-      } },
-    { $unwind: { path: '$roleDetails', preserveNullAndEmptyArrays: true } },{
+        as: 'roleDetails',
+      },
+    },
+    { $unwind: { path: '$roleDetails', preserveNullAndEmptyArrays: true } },
+    {
       $project: {
         _id: 1,
         name: 1,
@@ -169,7 +185,7 @@ export const getme = async (userId: mongoose.Types.ObjectId) => {
           updatedAt: '$workspace.updatedAt',
           isDeleted: '$workspace.isDeleted',
           imageUrl: '$workspace.imageUrl',
-          
+          category: '$workspace.module.plan.category',
         },
         profilePicture: 1,
         isEmailVerified: 1,
@@ -181,8 +197,8 @@ export const getme = async (userId: mongoose.Types.ObjectId) => {
         createdAt: 1,
         updatedAt: 1,
         subAdminRole: 1,
-      } 
-    }
+      },
+    },
   ]);
   if (!users || users.length === 0) {
     throw new ApiError('User not found', httpStatus.NOT_FOUND);
@@ -216,9 +232,9 @@ export const getUsers = async (data: {
   limit: number;
   role?: string;
   userId?: mongoose.Types.ObjectId;
-  search?: string
+  search?: string;
 }): Promise<{ users: IUserDoc[]; total: number; page: number }> => {
-  const { page, limit, role = "subAdmin", userId, search } = data;
+  const { page, limit, role = 'subAdmin', userId, search } = data;
 
   const matchStage: any = { isDeleted: false };
 
@@ -253,48 +269,47 @@ export const getUsers = async (data: {
             $map: {
               input: '$adminOF',
               as: 'a',
-              in: '$$a.method'
-            }
-          }
+              in: '$$a.method',
+            },
+          },
         },
         pipeline: [
           {
             $match: {
               $expr: {
-                $in: ['$_id', '$$methods']
-              }
-            }
+                $in: ['$_id', '$$methods'],
+              },
+            },
           },
           {
             $lookup: {
               from: 'plans',
               localField: 'planId',
               foreignField: '_id',
-              as: 'plan'
-            }
+              as: 'plan',
+            },
           },
           {
             $unwind: {
               path: '$plan',
-              preserveNullAndEmptyArrays: true
-            }
+              preserveNullAndEmptyArrays: true,
+            },
           },
           {
             $project: {
-              name: "$plan.name"
-            }
-          }
+              name: '$plan.name',
+            },
+          },
         ],
-        as: 'modules'
-      }
+        as: 'modules',
+      },
     },
     { $skip: (page - 1) * limit },
-    { $limit: limit }
+    { $limit: limit },
   ]);
 
   return { users, total, page };
 };
-
 
 /**
  * Get user by email
@@ -321,8 +336,7 @@ export const updateUserById = async (
 ): Promise<IUserDoc | null> => {
   const user = await getUserById(userId);
   if (!user) {
-    throw new ApiError('User not found', httpStatus.
-      NOT_FOUND);
+    throw new ApiError('User not found', httpStatus.NOT_FOUND);
   }
   if (updateBody.email && (await User.isEmailTaken(updateBody.email, userId))) {
     throw new ApiError('Email already taken', httpStatus.BAD_REQUEST);

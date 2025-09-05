@@ -12,7 +12,7 @@ const activitylogs_middleware_1 = require("../../../modules/activitylogs/activit
 const router = (0, express_1.Router)();
 router
     .route('/')
-    .post((0, auth_1.auth)('createControls'), risklibrary_middleware_1.default, (0, validate_1.validate)(control_1.controlValidation.createControlSchema), activitylogs_middleware_1.activityLoggerMiddleware, control_1.controlController.createControl);
+    .post((0, auth_1.auth)('createControl'), risklibrary_middleware_1.default, (0, validate_1.validate)(control_1.controlValidation.createControlSchema), activitylogs_middleware_1.activityLoggerMiddleware, control_1.controlController.createControl);
 router
     .route('/libraries/:libraryId/control/:id')
     .get((0, auth_1.auth)('getControl'), risklibrary_middleware_1.default, control_1.controlController.getControlById)

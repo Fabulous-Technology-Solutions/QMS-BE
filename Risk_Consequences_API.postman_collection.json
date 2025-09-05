@@ -1,0 +1,548 @@
+{
+  "info": {
+    "name": "Risk Consequences API",
+    "description": "API collection for Risk Consequences management in QMS",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000",
+      "type": "string"
+    },
+    {
+      "key": "libraryId",
+      "value": "64f5c2b8e9a1234567890abc",
+      "type": "string"
+    },
+    {
+      "key": "consequenceId",
+      "value": "64f5c2b8e9a1234567890def",
+      "type": "string"
+    },
+    {
+      "key": "authToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "userId",
+      "value": "64f5c2b8e9a1234567890user",
+      "type": "string"
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{authToken}}",
+        "type": "string"
+      }
+    ]
+  },
+  "item": [
+    {
+      "name": "Create Consequence",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{authToken}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"library\": \"{{libraryId}}\",\n  \"name\": \"Data Breach\",\n  \"description\": \"Unauthorized access to sensitive customer data resulting in potential privacy violations and regulatory penalties\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/v1/risk/consequences",
+          "host": ["{{baseUrl}}"],
+          "path": ["v1", "risk", "consequences"]
+        },
+        "description": "Creates a new consequence in the risk library"
+      },
+      "response": [
+        {
+          "name": "Success Response",
+          "originalRequest": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"library\": \"64f5c2b8e9a1234567890abc\",\n  \"name\": \"Data Breach\",\n  \"description\": \"Unauthorized access to sensitive customer data\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/v1/risk/consequences",
+              "host": ["{{baseUrl}}"],
+              "path": ["v1", "risk", "consequences"]
+            }
+          },
+          "status": "Created",
+          "code": 201,
+          "_postman_previewlanguage": "json",
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "body": "{\n  \"_id\": \"64f5c2b8e9a1234567890def\",\n  \"library\": \"64f5c2b8e9a1234567890abc\",\n  \"name\": \"Data Breach\",\n  \"description\": \"Unauthorized access to sensitive customer data resulting in potential privacy violations and regulatory penalties\",\n  \"createdBy\": \"64f5c2b8e9a1234567890user\",\n  \"createdAt\": \"2023-09-05T10:30:00.000Z\",\n  \"updatedAt\": \"2023-09-05T10:30:00.000Z\"\n}"
+        },
+        {
+          "name": "Validation Error",
+          "originalRequest": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Data Breach\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/v1/risk/consequences",
+              "host": ["{{baseUrl}}"],
+              "path": ["v1", "risk", "consequences"]
+            }
+          },
+          "status": "Bad Request",
+          "code": 400,
+          "_postman_previewlanguage": "json",
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "body": "{\n  \"code\": 400,\n  \"message\": \"Validation Error\",\n  \"details\": [\n    {\n      \"field\": \"library\",\n      \"message\": \"library is required\"\n    },\n    {\n      \"field\": \"description\",\n      \"message\": \"description is required\"\n    }\n  ]\n}"
+        }
+      ]
+    },
+    {
+      "name": "Get All Consequences",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{authToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/v1/risk/consequences/libraries/{{libraryId}}?page=1&limit=10&search=data",
+          "host": ["{{baseUrl}}"],
+          "path": ["v1", "risk", "consequences", "libraries", "{{libraryId}}"],
+          "query": [
+            {
+              "key": "page",
+              "value": "1",
+              "description": "Page number for pagination"
+            },
+            {
+              "key": "limit",
+              "value": "10",
+              "description": "Number of items per page"
+            },
+            {
+              "key": "search",
+              "value": "data",
+              "description": "Search term for name or description"
+            }
+          ]
+        },
+        "description": "Retrieves all consequences for a specific library with pagination and search"
+      },
+      "response": [
+        {
+          "name": "Success Response",
+          "originalRequest": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/v1/risk/consequences/libraries/{{libraryId}}?page=1&limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["v1", "risk", "consequences", "libraries", "{{libraryId}}"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                }
+              ]
+            }
+          },
+          "status": "OK",
+          "code": 200,
+          "_postman_previewlanguage": "json",
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "body": "{\n  \"consequences\": [\n    {\n      \"_id\": \"64f5c2b8e9a1234567890def\",\n      \"library\": \"64f5c2b8e9a1234567890abc\",\n      \"name\": \"Data Breach\",\n      \"description\": \"Unauthorized access to sensitive customer data resulting in potential privacy violations and regulatory penalties\",\n      \"createdBy\": \"64f5c2b8e9a1234567890user\",\n      \"createdAt\": \"2023-09-05T10:30:00.000Z\",\n      \"updatedAt\": \"2023-09-05T10:30:00.000Z\"\n    },\n    {\n      \"_id\": \"64f5c2b8e9a1234567890ghi\",\n      \"library\": \"64f5c2b8e9a1234567890abc\",\n      \"name\": \"Financial Loss\",\n      \"description\": \"Significant monetary losses due to operational failures or market volatility\",\n      \"createdBy\": \"64f5c2b8e9a1234567890user\",\n      \"createdAt\": \"2023-09-05T09:30:00.000Z\",\n      \"updatedAt\": \"2023-09-05T09:30:00.000Z\"\n    }\n  ],\n  \"total\": 2,\n  \"page\": 1,\n  \"limit\": 10\n}"
+        }
+      ]
+    },
+    {
+      "name": "Get Consequence by ID",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{authToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/v1/risk/consequences/libraries/{{libraryId}}/consequence/{{consequenceId}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["v1", "risk", "consequences", "libraries", "{{libraryId}}", "consequence", "{{consequenceId}}"]
+        },
+        "description": "Retrieves a specific consequence by its ID"
+      },
+      "response": [
+        {
+          "name": "Success Response",
+          "originalRequest": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/v1/risk/consequences/libraries/{{libraryId}}/consequence/{{consequenceId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["v1", "risk", "consequences", "libraries", "{{libraryId}}", "consequence", "{{consequenceId}}"]
+            }
+          },
+          "status": "OK",
+          "code": 200,
+          "_postman_previewlanguage": "json",
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "body": "{\n  \"_id\": \"64f5c2b8e9a1234567890def\",\n  \"library\": \"64f5c2b8e9a1234567890abc\",\n  \"name\": \"Data Breach\",\n  \"description\": \"Unauthorized access to sensitive customer data resulting in potential privacy violations and regulatory penalties\",\n  \"createdBy\": \"64f5c2b8e9a1234567890user\",\n  \"createdAt\": \"2023-09-05T10:30:00.000Z\",\n  \"updatedAt\": \"2023-09-05T10:30:00.000Z\"\n}"
+        },
+        {
+          "name": "Not Found",
+          "originalRequest": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/v1/risk/consequences/libraries/{{libraryId}}/consequence/invalid-id",
+              "host": ["{{baseUrl}}"],
+              "path": ["v1", "risk", "consequences", "libraries", "{{libraryId}}", "consequence", "invalid-id"]
+            }
+          },
+          "status": "Not Found",
+          "code": 404,
+          "_postman_previewlanguage": "json",
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "body": "{\n  \"code\": 404,\n  \"message\": \"Consequence not found\"\n}"
+        }
+      ]
+    },
+    {
+      "name": "Update Consequence",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{authToken}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Major Data Breach\",\n  \"description\": \"Severe unauthorized access to sensitive customer data resulting in significant privacy violations, regulatory penalties, and reputation damage\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/v1/risk/consequences/libraries/{{libraryId}}/consequence/{{consequenceId}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["v1", "risk", "consequences", "libraries", "{{libraryId}}", "consequence", "{{consequenceId}}"]
+        },
+        "description": "Updates an existing consequence"
+      },
+      "response": [
+        {
+          "name": "Success Response",
+          "originalRequest": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Major Data Breach\",\n  \"description\": \"Severe unauthorized access to sensitive customer data\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/v1/risk/consequences/libraries/{{libraryId}}/consequence/{{consequenceId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["v1", "risk", "consequences", "libraries", "{{libraryId}}", "consequence", "{{consequenceId}}"]
+            }
+          },
+          "status": "OK",
+          "code": 200,
+          "_postman_previewlanguage": "json",
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "body": "{\n  \"_id\": \"64f5c2b8e9a1234567890def\",\n  \"library\": \"64f5c2b8e9a1234567890abc\",\n  \"name\": \"Major Data Breach\",\n  \"description\": \"Severe unauthorized access to sensitive customer data resulting in significant privacy violations, regulatory penalties, and reputation damage\",\n  \"createdBy\": \"64f5c2b8e9a1234567890user\",\n  \"createdAt\": \"2023-09-05T10:30:00.000Z\",\n  \"updatedAt\": \"2023-09-05T11:00:00.000Z\"\n}"
+        }
+      ]
+    },
+    {
+      "name": "Delete Consequence",
+      "request": {
+        "method": "DELETE",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{authToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/v1/risk/consequences/libraries/{{libraryId}}/consequence/{{consequenceId}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["v1", "risk", "consequences", "libraries", "{{libraryId}}", "consequence", "{{consequenceId}}"]
+        },
+        "description": "Deletes a specific consequence"
+      },
+      "response": [
+        {
+          "name": "Success Response",
+          "originalRequest": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/v1/risk/consequences/libraries/{{libraryId}}/consequence/{{consequenceId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["v1", "risk", "consequences", "libraries", "{{libraryId}}", "consequence", "{{consequenceId}}"]
+            }
+          },
+          "status": "OK",
+          "code": 200,
+          "_postman_previewlanguage": "json",
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "body": "{\n  \"message\": \"Consequence deleted successfully\",\n  \"deletedConsequence\": {\n    \"_id\": \"64f5c2b8e9a1234567890def\",\n    \"library\": \"64f5c2b8e9a1234567890abc\",\n    \"name\": \"Data Breach\",\n    \"description\": \"Unauthorized access to sensitive customer data resulting in potential privacy violations and regulatory penalties\",\n    \"createdBy\": \"64f5c2b8e9a1234567890user\"\n  }\n}"
+        },
+        {
+          "name": "Not Found",
+          "originalRequest": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/v1/risk/consequences/libraries/{{libraryId}}/consequence/invalid-id",
+              "host": ["{{baseUrl}}"],
+              "path": ["v1", "risk", "consequences", "libraries", "{{libraryId}}", "consequence", "invalid-id"]
+            }
+          },
+          "status": "Not Found",
+          "code": 404,
+          "_postman_previewlanguage": "json",
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "body": "{\n  \"code\": 404,\n  \"message\": \"Consequence not found\"\n}"
+        }
+      ]
+    },
+    {
+      "name": "Create Financial Loss Consequence",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{authToken}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"library\": \"{{libraryId}}\",\n  \"name\": \"Financial Loss\",\n  \"description\": \"Significant monetary losses due to operational failures, market volatility, or regulatory fines that impact company profitability\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/v1/risk/consequences",
+          "host": ["{{baseUrl}}"],
+          "path": ["v1", "risk", "consequences"]
+        },
+        "description": "Example: Creates a financial loss consequence"
+      }
+    },
+    {
+      "name": "Create Reputation Damage Consequence",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{authToken}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"library\": \"{{libraryId}}\",\n  \"name\": \"Reputation Damage\",\n  \"description\": \"Negative impact on company brand and public perception due to security incidents, service failures, or ethical violations\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/v1/risk/consequences",
+          "host": ["{{baseUrl}}"],
+          "path": ["v1", "risk", "consequences"]
+        },
+        "description": "Example: Creates a reputation damage consequence"
+      }
+    },
+    {
+      "name": "Create Legal and Regulatory Consequence",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{authToken}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"library\": \"{{libraryId}}\",\n  \"name\": \"Legal and Regulatory Penalties\",\n  \"description\": \"Legal actions, regulatory fines, sanctions, or compliance violations that result in monetary penalties and legal proceedings\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/v1/risk/consequences",
+          "host": ["{{baseUrl}}"],
+          "path": ["v1", "risk", "consequences"]
+        },
+        "description": "Example: Creates a legal and regulatory consequence"
+      }
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// Pre-request script to set up common variables",
+          "// You can add authentication logic here if needed",
+          "",
+          "// Auto-set createdBy if not provided in request body",
+          "if (pm.request.method === 'POST' && pm.request.body && pm.request.body.mode === 'raw') {",
+          "    try {",
+          "        let body = JSON.parse(pm.request.body.raw);",
+          "        if (!body.createdBy && pm.collectionVariables.get('userId')) {",
+          "            body.createdBy = pm.collectionVariables.get('userId');",
+          "            pm.request.body.raw = JSON.stringify(body, null, 2);",
+          "        }",
+          "    } catch (e) {",
+          "        // Ignore JSON parse errors",
+          "    }",
+          "}"
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// Common test scripts",
+          "pm.test(\"Response time is less than 2000ms\", function () {",
+          "    pm.expect(pm.response.responseTime).to.be.below(2000);",
+          "});",
+          "",
+          "pm.test(\"Content-Type is application/json\", function () {",
+          "    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");",
+          "});",
+          "",
+          "// Store consequence ID from create operations",
+          "if (pm.response.code === 201 && pm.request.method === 'POST') {",
+          "    try {",
+          "        const responseJson = pm.response.json();",
+          "        if (responseJson._id) {",
+          "            pm.collectionVariables.set('consequenceId', responseJson._id);",
+          "        }",
+          "    } catch (e) {",
+          "        // Ignore JSON parse errors",
+          "    }",
+          "}"
+        ]
+      }
+    }
+  ]
+}

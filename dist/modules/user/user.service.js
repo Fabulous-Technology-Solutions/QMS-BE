@@ -20,10 +20,10 @@ const createUser = async (userBody) => {
     if (await user_model_1.default.isEmailTaken(userBody.email)) {
         throw new ApiError_1.default('Email already taken', http_status_1.default.BAD_REQUEST);
     }
-    const user = await user_subAdmin_1.default.create({ ...userBody, role: "subAdmin" });
+    const user = await user_subAdmin_1.default.create({ ...userBody, role: 'subAdmin' });
     console.log('user create before create token', user);
     const inviteToken = await token_1.tokenService.generateInviteToken(userBody.email);
-    const inviteUrl = `${process.env["CLIENT_URL"]}/invite?email=${encodeURIComponent(userBody.email)}&token=${inviteToken}`;
+    const inviteUrl = `${process.env['CLIENT_URL']}/invite?email=${encodeURIComponent(userBody.email)}&token=${inviteToken}`;
     const htmlbodyforsendpassword = `
     <p>Welcome to Tellust, ${userBody.name}!</p>
     <p>Email: ${userBody.email}</p>
@@ -31,7 +31,7 @@ const createUser = async (userBody) => {
     <a href="${inviteUrl}" style="display:inline-block;padding:10px 20px;background:#007bff;color:#fff;text-decoration:none;border-radius:4px;">Accept Invitation</a>
     <p>If you did not expect this invitation, you can ignore this email.</p>
   `;
-    (0, email_service_1.sendEmail)(userBody.email, 'Welcome to Tellust! Accept Your Invitation', "", htmlbodyforsendpassword);
+    (0, email_service_1.sendEmail)(userBody.email, 'Welcome to Tellust! Accept Your Invitation', '', htmlbodyforsendpassword);
     return user;
 };
 exports.createUser = createUser;
@@ -65,7 +65,7 @@ exports.googleprofiledata = googleprofiledata;
 const loginWithGoogle = async (body) => {
     const { access_token } = body;
     if (!access_token) {
-        throw new ApiError_1.default('Access token is required', http_status_1.default.BAD_REQUEST, { access_token: "access_token is required" });
+        throw new ApiError_1.default('Access token is required', http_status_1.default.BAD_REQUEST, { access_token: 'access_token is required' });
     }
     let userData;
     try {
@@ -119,20 +119,43 @@ exports.loginWithGoogle = loginWithGoogle;
 const getme = async (userId) => {
     const users = await user_model_1.default.aggregate([
         { $match: { _id: userId, isDeleted: false } },
-        { $lookup: {
+        {
+            $lookup: {
                 from: 'workspaces',
                 localField: 'workspace',
                 foreignField: '_id',
-                as: 'workspace'
-            } },
+                as: 'workspace',
+            },
+        },
         { $unwind: { path: '$workspace', preserveNullAndEmptyArrays: true } },
-        { $lookup: {
+        {
+            $lookup: {
+                from: 'subscriptions',
+                localField: 'moduleId',
+                foreignField: '_id',
+                as: 'workspace.module',
+            },
+        },
+        { $unwind: { path: '$workspace.module', preserveNullAndEmptyArrays: true } },
+        {
+            $lookup: {
+                from: 'plans',
+                localField: 'workspace.module.planId',
+                foreignField: '_id',
+                as: 'workspace.module.plan',
+            },
+        },
+        { $unwind: { path: '$workspace.module.plan', preserveNullAndEmptyArrays: true } },
+        {
+            $lookup: {
                 from: 'roles',
                 localField: 'roleId',
                 foreignField: '_id',
-                as: 'roleDetails'
-            } },
-        { $unwind: { path: '$roleDetails', preserveNullAndEmptyArrays: true } }, {
+                as: 'roleDetails',
+            },
+        },
+        { $unwind: { path: '$roleDetails', preserveNullAndEmptyArrays: true } },
+        {
             $project: {
                 _id: 1,
                 name: 1,
@@ -148,6 +171,7 @@ const getme = async (userId) => {
                     updatedAt: '$workspace.updatedAt',
                     isDeleted: '$workspace.isDeleted',
                     imageUrl: '$workspace.imageUrl',
+                    category: '$workspace.module.plan.category',
                 },
                 profilePicture: 1,
                 isEmailVerified: 1,
@@ -159,8 +183,8 @@ const getme = async (userId) => {
                 createdAt: 1,
                 updatedAt: 1,
                 subAdminRole: 1,
-            }
-        }
+            },
+        },
     ]);
     if (!users || users.length === 0) {
         throw new ApiError_1.default('User not found', http_status_1.default.NOT_FOUND);
@@ -190,7 +214,7 @@ const getUserById = async (id) => {
 };
 exports.getUserById = getUserById;
 const getUsers = async (data) => {
-    const { page, limit, role = "subAdmin", userId, search } = data;
+    const { page, limit, role = 'subAdmin', userId, search } = data;
     const matchStage = { isDeleted: false };
     if (role) {
         matchStage.role = role;
@@ -218,43 +242,43 @@ const getUsers = async (data) => {
                         $map: {
                             input: '$adminOF',
                             as: 'a',
-                            in: '$$a.method'
-                        }
-                    }
+                            in: '$$a.method',
+                        },
+                    },
                 },
                 pipeline: [
                     {
                         $match: {
                             $expr: {
-                                $in: ['$_id', '$$methods']
-                            }
-                        }
+                                $in: ['$_id', '$$methods'],
+                            },
+                        },
                     },
                     {
                         $lookup: {
                             from: 'plans',
                             localField: 'planId',
                             foreignField: '_id',
-                            as: 'plan'
-                        }
+                            as: 'plan',
+                        },
                     },
                     {
                         $unwind: {
                             path: '$plan',
-                            preserveNullAndEmptyArrays: true
-                        }
+                            preserveNullAndEmptyArrays: true,
+                        },
                     },
                     {
                         $project: {
-                            name: "$plan.name"
-                        }
-                    }
+                            name: '$plan.name',
+                        },
+                    },
                 ],
-                as: 'modules'
-            }
+                as: 'modules',
+            },
         },
         { $skip: (page - 1) * limit },
-        { $limit: limit }
+        { $limit: limit },
     ]);
     return { users, total, page };
 };
@@ -281,8 +305,7 @@ exports.getUserByEmail = getUserByEmail;
 const updateUserById = async (userId, updateBody) => {
     const user = await (0, exports.getUserById)(userId);
     if (!user) {
-        throw new ApiError_1.default('User not found', http_status_1.default.
-            NOT_FOUND);
+        throw new ApiError_1.default('User not found', http_status_1.default.NOT_FOUND);
     }
     if (updateBody.email && (await user_model_1.default.isEmailTaken(updateBody.email, userId))) {
         throw new ApiError_1.default('Email already taken', http_status_1.default.BAD_REQUEST);

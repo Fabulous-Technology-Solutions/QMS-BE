@@ -134,6 +134,14 @@ const riskIRoute: IRoute[] = [
     path: '/libraries',
     route: risk.riskLibraryRoute,
   },
+  {
+    path: '/controls',
+    route: risk.riskControlRoute,
+  },
+  {
+    path: '/consequences',
+    route: risk.riskConsequenceRoute,
+  },
 ];
 
 // Add webhook route separately (should be public)
