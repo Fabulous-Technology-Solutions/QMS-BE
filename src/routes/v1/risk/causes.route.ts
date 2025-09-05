@@ -1,8 +1,8 @@
-import {causeController,  causeValidation} from '../../../modules/capa/workspace/capalibrary/causes';
+import {causeController,  causeValidation} from '../../../modules/risk/workspace/library/causes';
 import  { Router } from 'express';
 import { validate } from '../../../modules/validate';
 import { auth } from '../../../modules/auth';
-import checkValidation from '../../../modules/capa/workspace/capalibrary/capalibrary.middleware';
+import checkValidation from '../../../modules/risk/workspace/library/risklibrary.middleware';
 import { activityLoggerMiddleware } from '../../../modules/activitylogs/activitylogs.middleware';
 const router: Router = Router();
 router

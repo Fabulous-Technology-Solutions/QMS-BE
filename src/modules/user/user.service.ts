@@ -145,21 +145,21 @@ export const getme = async (userId: mongoose.Types.ObjectId) => {
     {
       $lookup: {
         from: 'subscriptions',
-        localField: 'moduleId',
+        localField: 'workspace.moduleId',
         foreignField: '_id',
-        as: 'workspace.module',
+        as: 'module',
       },
     },
-    { $unwind: { path: '$workspace.module', preserveNullAndEmptyArrays: true } },
+    { $unwind: { path: '$module', preserveNullAndEmptyArrays: true } },
     {
       $lookup: {
         from: 'plans',
-        localField: 'workspace.module.planId',
+        localField: 'module.planId',
         foreignField: '_id',
-        as: 'workspace.module.plan',
+        as: 'plan',
       },
     },
-    { $unwind: { path: '$workspace.module.plan', preserveNullAndEmptyArrays: true } },
+    { $unwind: { path: '$plan', preserveNullAndEmptyArrays: true } },
     {
       $lookup: {
         from: 'roles',
@@ -185,7 +185,7 @@ export const getme = async (userId: mongoose.Types.ObjectId) => {
           updatedAt: '$workspace.updatedAt',
           isDeleted: '$workspace.isDeleted',
           imageUrl: '$workspace.imageUrl',
-          category: '$workspace.module.plan.category',
+          category: '$plan.category',
         },
         profilePicture: 1,
         isEmailVerified: 1,
@@ -196,7 +196,7 @@ export const getme = async (userId: mongoose.Types.ObjectId) => {
         adminOF: 1,
         createdAt: 1,
         updatedAt: 1,
-        subAdminRole: 1,
+        subAdminRole: 1
       },
     },
   ]);

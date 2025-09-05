@@ -1,5 +1,5 @@
 import Joi from "joi";
-import { CreateCausesRequest } from "./causes.interfaces";
+import { CreateCausesRequest } from "./cause.interfaces";
 
 const causesBody: Record<keyof CreateCausesRequest, Joi.Schema> = {
     name: Joi.string().required(),

@@ -30,5 +30,5 @@ const cause_controller_1 = require("../../../../../shared/cause/cause.controller
 const causes_modal_1 = __importDefault(require("./causes.modal"));
 const causeService = new cause_service_1.BaseService(causes_modal_1.default);
 exports.causeService = causeService;
-const causeController = new cause_controller_1.BaseController(causeService, "Cause");
+const causeController = new cause_controller_1.BaseController(causeService, "RiskCauses");
 exports.causeController = causeController;

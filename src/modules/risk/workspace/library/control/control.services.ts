@@ -19,7 +19,7 @@ const getAllControlService = async (libraryId: string, page: number = 1, limit: 
       ];
   }
 
-  const controls = await ControlModel.find(query)
+  const controls = await ControlModel.find(query).populate('owners', 'name profilePicture')
       .skip(skip)
       .limit(limit)
       .sort({ createdAt: -1 });
@@ -35,7 +35,7 @@ const getAllControlService = async (libraryId: string, page: number = 1, limit: 
 }
 
 const getControlByIdService = async (id: string) => {
-  const control = await ControlModel.findById(id);
+  const control = await ControlModel.findById(id).populate('owners', 'name profilePicture');
   if (!control) {
     throw new ApiError('Control not found', 404);
   }

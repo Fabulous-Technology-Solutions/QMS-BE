@@ -12,16 +12,16 @@ const activitylogs_middleware_1 = require("../../../modules/activitylogs/activit
 const router = (0, express_1.Router)();
 router
     .route('/')
-    .post((0, auth_1.auth)('createCauses'), capalibrary_middleware_1.default, (0, validate_1.validate)(causes_1.causeValidation.createCausesSchema), activitylogs_middleware_1.activityLoggerMiddleware, causes_1.causeController.createCause);
+    .post((0, auth_1.auth)('createCauses'), capalibrary_middleware_1.default, (0, validate_1.validate)(causes_1.causeValidation.createCausesSchema), activitylogs_middleware_1.activityLoggerMiddleware, causes_1.causeController.create);
 router
     .route('/libraries/:libraryId/cause/:causeId')
-    .get((0, auth_1.auth)('getCause'), capalibrary_middleware_1.default, causes_1.causeController.getCauseById)
-    .patch((0, auth_1.auth)('updateCause'), capalibrary_middleware_1.default, (0, validate_1.validate)(causes_1.causeValidation.updateCausesSchema), activitylogs_middleware_1.activityLoggerMiddleware, causes_1.causeController.updateCause)
-    .delete((0, auth_1.auth)('deleteCause'), capalibrary_middleware_1.default, activitylogs_middleware_1.activityLoggerMiddleware, causes_1.causeController.deleteCause);
+    .get((0, auth_1.auth)('getCause'), capalibrary_middleware_1.default, causes_1.causeController.getById)
+    .patch((0, auth_1.auth)('updateCause'), capalibrary_middleware_1.default, (0, validate_1.validate)(causes_1.causeValidation.updateCausesSchema), activitylogs_middleware_1.activityLoggerMiddleware, causes_1.causeController.update)
+    .delete((0, auth_1.auth)('deleteCause'), capalibrary_middleware_1.default, activitylogs_middleware_1.activityLoggerMiddleware, causes_1.causeController.delete);
 router
     .route('/libraries/:libraryId/causes')
-    .get((0, auth_1.auth)('getCauses'), capalibrary_middleware_1.default, causes_1.causeController.getCausesByLibrary);
+    .get((0, auth_1.auth)('getCauses'), capalibrary_middleware_1.default, causes_1.causeController.getByLibrary);
 router
     .route('/libraries/:libraryId/causes/names')
-    .get((0, auth_1.auth)('getCausesNames'), capalibrary_middleware_1.default, causes_1.causeController.getCausesNamesByLibrary);
+    .get((0, auth_1.auth)('getCausesNames'), capalibrary_middleware_1.default, causes_1.causeController.getNamesByLibrary);
 exports.default = router;

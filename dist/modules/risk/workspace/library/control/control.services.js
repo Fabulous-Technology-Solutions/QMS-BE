@@ -20,7 +20,7 @@ const getAllControlService = async (libraryId, page = 1, limit = 10, search) => 
             { description: { $regex: search, $options: 'i' } }
         ];
     }
-    const controls = await control_modal_1.default.find(query)
+    const controls = await control_modal_1.default.find(query).populate('owners', 'name profilePicture')
         .skip(skip)
         .limit(limit)
         .sort({ createdAt: -1 });
@@ -34,7 +34,7 @@ const getAllControlService = async (libraryId, page = 1, limit = 10, search) => 
 };
 exports.getAllControlService = getAllControlService;
 const getControlByIdService = async (id) => {
-    const control = await control_modal_1.default.findById(id);
+    const control = await control_modal_1.default.findById(id).populate('owners', 'name profilePicture');
     if (!control) {
         throw new ApiError_1.default('Control not found', 404);
     }

@@ -158,6 +158,10 @@ const riskIRoute = [
         path: '/consequences',
         route: risk.riskConsequenceRoute,
     },
+    {
+        path: '/causes',
+        route: risk.riskCause,
+    },
 ];
 // Add webhook route separately (should be public)
 const webhookIRoute = [
