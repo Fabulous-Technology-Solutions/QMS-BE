@@ -10,11 +10,6 @@ const CausesSchema = new mongoose.Schema<CausesModal>({
         type: String,
         required: true,
     },
-    library: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Library',
-        required: true,
-    },
     isDeleted: {
         type: Boolean,
         default: false

@@ -18,13 +18,18 @@ var __importStar = (this && this.__importStar) || function (mod) {
     __setModuleDefault(result, mod);
     return result;
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AttachmentValidation = exports.AttachmentService = exports.AttachmentController = exports.Attachment = void 0;
-const Attachment = __importStar(require("./attachment.modal"));
-exports.Attachment = Attachment;
-const AttachmentController = __importStar(require("./attachment.controller"));
-exports.AttachmentController = AttachmentController;
-const AttachmentService = __importStar(require("./attachment.services"));
-exports.AttachmentService = AttachmentService;
-const AttachmentValidation = __importStar(require("./attachment.validation"));
+const attachment_modal_1 = __importDefault(require("./attachment.modal"));
+exports.Attachment = attachment_modal_1.default;
+const AttachmentValidation = __importStar(require("../../../../../shared/attachment/attachment.validation"));
 exports.AttachmentValidation = AttachmentValidation;
+const attachment_service_1 = require("../../../../../shared/attachment/attachment.service");
+const attachment_controller_1 = require("../../../../../shared/attachment/attachment.controller");
+const AttachmentService = new attachment_service_1.AttachmentServices(attachment_modal_1.default);
+exports.AttachmentService = AttachmentService;
+const AttachmentController = new attachment_controller_1.AttachmentControllers(AttachmentService, 'Attachment');
+exports.AttachmentController = AttachmentController;

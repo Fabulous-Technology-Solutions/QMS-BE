@@ -363,9 +363,9 @@ const checkAdminBelongsTtoLibrary = async (libraryId, userId, dataType) => {
             },
         },
     ]);
-    console.log('Admin belongs to library:', library, Querydata);
+    console.log('Admin belongs to library:', library, userId, Querydata);
     if (!library || library.length === 0) {
-        throw new Error('Library not found');
+        throw new Error('Library not found for this admin');
     }
     return true;
 };
@@ -414,7 +414,7 @@ const checkSubAdminBelongsToLibrary = async (libraryId, userId, dataType) => {
         { $unwind: '$workspace' },
         {
             $lookup: {
-                from: 'libraries',
+                from: 'risklibraries',
                 localField: 'workspace._id',
                 foreignField: 'workspace',
                 as: 'libraries',

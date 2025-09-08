@@ -12,13 +12,13 @@ const activitylogs_middleware_1 = require("../../../modules/activitylogs/activit
 const router = (0, express_1.Router)();
 router
     .route('/')
-    .post((0, auth_1.auth)('createFiveWhys'), capalibrary_middleware_1.default, (0, validate_1.validate)(fivewhys_1.FiveWhyValidation.CreateFiveWhysRequestSchema), activitylogs_middleware_1.activityLoggerMiddleware, fivewhys_1.FiveWhysController.createFiveWhys);
+    .post((0, auth_1.auth)('createFiveWhys'), capalibrary_middleware_1.default, (0, validate_1.validate)(fivewhys_1.FiveWhyValidation.CreateFiveWhysRequestSchema), activitylogs_middleware_1.activityLoggerMiddleware, fivewhys_1.FiveWhysController.create);
 router
     .route('/libraries/:libraryId/fivewhys/:fivewhysid')
-    .get((0, auth_1.auth)('getFiveWhys'), capalibrary_middleware_1.default, fivewhys_1.FiveWhysController.getFiveWhys)
-    .patch((0, auth_1.auth)('updateFiveWhys'), capalibrary_middleware_1.default, (0, validate_1.validate)(fivewhys_1.FiveWhyValidation.UpdateFiveWhysRequestSchema), activitylogs_middleware_1.activityLoggerMiddleware, fivewhys_1.FiveWhysController.updateFiveWhys)
-    .delete((0, auth_1.auth)('deleteFiveWhys'), capalibrary_middleware_1.default, activitylogs_middleware_1.activityLoggerMiddleware, fivewhys_1.FiveWhysController.deleteFiveWhys);
+    .get((0, auth_1.auth)('getFiveWhys'), capalibrary_middleware_1.default, fivewhys_1.FiveWhysController.getById)
+    .patch((0, auth_1.auth)('updateFiveWhys'), capalibrary_middleware_1.default, (0, validate_1.validate)(fivewhys_1.FiveWhyValidation.UpdateFiveWhysRequestSchema), activitylogs_middleware_1.activityLoggerMiddleware, fivewhys_1.FiveWhysController.update)
+    .delete((0, auth_1.auth)('deleteFiveWhys'), capalibrary_middleware_1.default, activitylogs_middleware_1.activityLoggerMiddleware, fivewhys_1.FiveWhysController.delete);
 router
     .route('/libraries/:libraryId/fivewhys')
-    .get((0, auth_1.auth)('getFiveWhysByLibrary'), capalibrary_middleware_1.default, fivewhys_1.FiveWhysController.getFiveWhysByLibrary);
+    .get((0, auth_1.auth)('getFiveWhysByLibrary'), capalibrary_middleware_1.default, fivewhys_1.FiveWhysController.getByLibrary);
 exports.default = router;

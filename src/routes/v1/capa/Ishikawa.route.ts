@@ -11,15 +11,15 @@ const router: Router = Router();
 
 router
     .route('/')
-    .post(auth('createIshikawa'), checkValidation, validate(IshikawaValidation.CreateIshikawaSchema), activityLoggerMiddleware, IshikawaController.createIshikawa);
+    .post(auth('createIshikawa'), checkValidation, validate(IshikawaValidation.CreateIshikawaSchema), activityLoggerMiddleware, IshikawaController.create);
 
 router
     .route('/libraries/:libraryId/ishikawa/:id')
-    .get(auth('getIshikawa'), checkValidation, IshikawaController.getIshikawaById)
-    .delete(auth('deleteIshikawa'), checkValidation, activityLoggerMiddleware, IshikawaController.deleteIshikawa);
+    .get(auth('getIshikawa'), checkValidation, IshikawaController.getById)
+    .delete(auth('deleteIshikawa'), checkValidation, activityLoggerMiddleware, IshikawaController.delete);
 
 router
     .route('/libraries/:libraryId/ishikawa')
-    .get(auth('getIshikawaByLibrary'), checkValidation, IshikawaController.getIshikawaByLibraryId);
+    .get(auth('getIshikawaByLibrary'), checkValidation, IshikawaController.getByLibrary);
 
 export default router;

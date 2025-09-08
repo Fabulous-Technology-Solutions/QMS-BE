@@ -7,16 +7,16 @@ import { activityLoggerMiddleware } from '../../../modules/activitylogs/activity
 const router: Router = Router();
 router
     .route('/')
-    .post(auth('createFiveWhys'), checkValidation, validate(FiveWhyValidation.CreateFiveWhysRequestSchema), activityLoggerMiddleware, FiveWhysController.createFiveWhys);
+    .post(auth('createFiveWhys'), checkValidation, validate(FiveWhyValidation.CreateFiveWhysRequestSchema), activityLoggerMiddleware, FiveWhysController.create);
 
 router
     .route('/libraries/:libraryId/fivewhys/:fivewhysid')
-    .get(auth('getFiveWhys'), checkValidation, FiveWhysController.getFiveWhys)
-    .patch(auth('updateFiveWhys'), checkValidation, validate(FiveWhyValidation.UpdateFiveWhysRequestSchema), activityLoggerMiddleware, FiveWhysController.updateFiveWhys)
-    .delete(auth('deleteFiveWhys'), checkValidation, activityLoggerMiddleware, FiveWhysController.deleteFiveWhys);
+    .get(auth('getFiveWhys'), checkValidation, FiveWhysController.getById)
+    .patch(auth('updateFiveWhys'), checkValidation, validate(FiveWhyValidation.UpdateFiveWhysRequestSchema), activityLoggerMiddleware, FiveWhysController.update)
+    .delete(auth('deleteFiveWhys'), checkValidation, activityLoggerMiddleware, FiveWhysController.delete);
 
 router
     .route('/libraries/:libraryId/fivewhys')
-    .get(auth('getFiveWhysByLibrary'), checkValidation, FiveWhysController.getFiveWhysByLibrary);
+    .get(auth('getFiveWhysByLibrary'), checkValidation, FiveWhysController.getByLibrary);
 
 export default router;

@@ -1,40 +1,12 @@
-import { CreateIshikawa as ICreateIshikawa } from './Ishikawa.interfaces';
+import IshikawaSchema from '../../../../../shared/ishikawa/ishikawa.schema';
 import mongoose from 'mongoose';
+import { CreateIshikawa } from '../../../../../shared/ishikawa/ishikawa.interfaces';
 
-const IshikawaSchema = new mongoose.Schema<ICreateIshikawa>(
-  {
-    library: { type: mongoose.Schema.Types.ObjectId, ref: 'Library', required: true },
-    createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-    problems: [
-      {
-        problem: { type: String, required: true },
-        category: [
-          {
-            name: { type: String, required: true },
-            cause: [
-              {
-                name: {
-                  type: String,
-                  required: true,
-                },
-                subCauses: [
-                  {
-                    type: String,
-                    required: false,
-                  },
-                ],
-              },
-            ],
-          },
-        ],
-      },
-    ],
-  },
-  {
-    timestamps: true,
-  }
-);
 
-const IshikawaModel = mongoose.model<ICreateIshikawa>('Ishikawa', IshikawaSchema);
+IshikawaSchema.add({
+     library: { type: mongoose.Schema.Types.ObjectId, ref: 'Library', required: true }
+})
+
+const IshikawaModel = mongoose.model<CreateIshikawa>('Ishikawa', IshikawaSchema);
 
 export default IshikawaModel;

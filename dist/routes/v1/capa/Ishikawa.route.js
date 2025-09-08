@@ -12,12 +12,12 @@ const activitylogs_middleware_1 = require("../../../modules/activitylogs/activit
 const router = (0, express_1.Router)();
 router
     .route('/')
-    .post((0, auth_1.auth)('createIshikawa'), capalibrary_middleware_1.default, (0, validate_1.validate)(Ishikawa_1.IshikawaValidation.CreateIshikawaSchema), activitylogs_middleware_1.activityLoggerMiddleware, Ishikawa_1.IshikawaController.createIshikawa);
+    .post((0, auth_1.auth)('createIshikawa'), capalibrary_middleware_1.default, (0, validate_1.validate)(Ishikawa_1.IshikawaValidation.CreateIshikawaSchema), activitylogs_middleware_1.activityLoggerMiddleware, Ishikawa_1.IshikawaController.create);
 router
     .route('/libraries/:libraryId/ishikawa/:id')
-    .get((0, auth_1.auth)('getIshikawa'), capalibrary_middleware_1.default, Ishikawa_1.IshikawaController.getIshikawaById)
-    .delete((0, auth_1.auth)('deleteIshikawa'), capalibrary_middleware_1.default, activitylogs_middleware_1.activityLoggerMiddleware, Ishikawa_1.IshikawaController.deleteIshikawa);
+    .get((0, auth_1.auth)('getIshikawa'), capalibrary_middleware_1.default, Ishikawa_1.IshikawaController.getById)
+    .delete((0, auth_1.auth)('deleteIshikawa'), capalibrary_middleware_1.default, activitylogs_middleware_1.activityLoggerMiddleware, Ishikawa_1.IshikawaController.delete);
 router
     .route('/libraries/:libraryId/ishikawa')
-    .get((0, auth_1.auth)('getIshikawaByLibrary'), capalibrary_middleware_1.default, Ishikawa_1.IshikawaController.getIshikawaByLibraryId);
+    .get((0, auth_1.auth)('getIshikawaByLibrary'), capalibrary_middleware_1.default, Ishikawa_1.IshikawaController.getByLibrary);
 exports.default = router;

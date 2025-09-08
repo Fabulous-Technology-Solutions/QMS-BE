@@ -3,36 +3,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+const ishikawa_schema_1 = __importDefault(require("../../../../../shared/ishikawa/ishikawa.schema"));
 const mongoose_1 = __importDefault(require("mongoose"));
-const IshikawaSchema = new mongoose_1.default.Schema({
-    library: { type: mongoose_1.default.Schema.Types.ObjectId, ref: 'Library', required: true },
-    createdBy: { type: mongoose_1.default.Schema.Types.ObjectId, ref: 'User', required: true },
-    problems: [
-        {
-            problem: { type: String, required: true },
-            category: [
-                {
-                    name: { type: String, required: true },
-                    cause: [
-                        {
-                            name: {
-                                type: String,
-                                required: true,
-                            },
-                            subCauses: [
-                                {
-                                    type: String,
-                                    required: false,
-                                },
-                            ],
-                        },
-                    ],
-                },
-            ],
-        },
-    ],
-}, {
-    timestamps: true,
+ishikawa_schema_1.default.add({
+    library: { type: mongoose_1.default.Schema.Types.ObjectId, ref: 'Library', required: true }
 });
-const IshikawaModel = mongoose_1.default.model('Ishikawa', IshikawaSchema);
+const IshikawaModel = mongoose_1.default.model('Ishikawa', ishikawa_schema_1.default);
 exports.default = IshikawaModel;

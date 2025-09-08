@@ -12,6 +12,30 @@ const RiskadminRoles = [
   'getConsequences',
   'updateConsequence',
   'deleteConsequence',
+  // risk actions
+  'risk_createAction',
+  'risk_getActions',
+  'risk_getSingleAction',
+  'risk_updateAction',
+  'risk_deleteAction',
+  'risk_getTasks',
+  // risk five whys
+  'Risk_createFiveWhys',
+  'Risk_getFiveWhys',
+  'Risk_getFiveWhysByLibrary',
+  'Risk_updateFiveWhys',
+  'Risk_deleteFiveWhys',
+  // Ishikawa permissions
+  'Risk_createIshikawa',
+  'Risk_getIshikawa',
+  'Risk_getIshikawaByLibrary',
+  'Risk_deleteIshikawa',
+  // Attachment permissions
+  'Risk_createAttachment',
+  'Risk_getAttachmentById',
+  'Risk_getAttachmentsByWorkspace',
+  'Risk_updateAttachment',
+  'Risk_deleteAttachment'
 ];
 
 const RiskSubadminRoles = [
@@ -28,6 +52,25 @@ const RiskSubadminRoles = [
   'getConsequences',
   'updateConsequence',
   'deleteConsequence',
+  // risk actions
+  'risk_createAction',
+  'risk_getActions',
+  'risk_getSingleAction',
+  'risk_updateAction',
+  'risk_deleteAction',
+  'risk_getTasks',
+  // risk five whys
+  'Risk_createFiveWhys',
+  'Risk_getFiveWhys',
+  'Risk_getFiveWhysByLibrary',
+  'Risk_updateFiveWhys',
+  'Risk_deleteFiveWhys',
+
+  // Ishikawa permissions
+  'Risk_createIshikawa',
+  'Risk_getIshikawa',
+  'Risk_getIshikawaByLibrary',
+  'Risk_deleteIshikawa'
 ];
 
 const RiskWAdmin = [
@@ -43,12 +86,30 @@ const RiskWAdmin = [
   'getConsequences',
   'updateConsequence',
   'deleteConsequence',
+  // risk actions
+  'risk_createAction',
+  'risk_getActions',
+  'risk_getSingleAction',
+  'risk_updateAction',
+  'risk_deleteAction',
+  'risk_getTasks',
+  // risk five whys
+  'Risk_createFiveWhys',
+  'Risk_getFiveWhys',
+  'Risk_getFiveWhysByLibrary',
+  'Risk_updateFiveWhys',
+  'Risk_deleteFiveWhys',
+  // Ishikawa permissions
+  'Risk_createIshikawa',
+  'Risk_getIshikawa',
+  'Risk_getIshikawaByLibrary',
+  'Risk_deleteIshikawa'
 ];
 
 const RiskViewer = [
   // permissions for viewer role
   'manageRisk',
-    // permissions for admin role
+  // permissions for admin role
   'updateControl',
   'deleteControl',
   'createControl',
@@ -59,7 +120,17 @@ const RiskViewer = [
   'getConsequence',
   'getConsequences',
   'updateConsequence',
-  'deleteConsequence'
+  'deleteConsequence',
+  // risk actions
+  'risk_getActions',
+  'risk_getSingleAction',
+  'risk_getTasks',
+  // risk five whys
+  'Risk_getFiveWhys',
+  'Risk_getFiveWhysByLibrary',
+  // Ishikawa permissions
+  'Risk_getIshikawa',
+  'Risk_getIshikawaByLibrary'
 ];
 
 const RiskEditer = [
@@ -72,11 +143,45 @@ const RiskEditer = [
   'getConsequence',
   'getConsequences',
   'updateConsequence',
-  'deleteConsequence'
+  'deleteConsequence',
+  // risk actions
+  'risk_getActions',
+  'risk_getSingleAction',
+  'risk_updateAction',
+  'risk_deleteAction',
+  'risk_getTasks',
+  // risk five whys
+  'Risk_getFiveWhys',
+  'Risk_getFiveWhysByLibrary',
+  'Risk_updateFiveWhys',
+  'Risk_deleteFiveWhys',
+  // Ishikawa permissions
+  'Risk_getIshikawa',
+  'Risk_getIshikawaByLibrary',
+  'Risk_deleteIshikawa'
 ];
 
 const RiskstandardUser = [
   // permissions for standard user for role
   'manageRisk',
+  // risk actions
+  'risk_createAction',
+  'risk_getActions',
+  'risk_getSingleAction',
+  'risk_updateAction',
+  'risk_deleteAction',
+  'risk_getTasks',
+  
+  // risk five whys
+  'Risk_createFiveWhys',
+  'Risk_getFiveWhys',
+  'Risk_getFiveWhysByLibrary',
+  'Risk_updateFiveWhys',
+  'Risk_deleteFiveWhys',
+  // Ishikawa permissions
+  'Risk_createIshikawa',
+  'Risk_getIshikawa',
+  'Risk_getIshikawaByLibrary',
+  'Risk_deleteIshikawa'
 ];
-export { RiskWAdmin, RiskSubadminRoles, RiskadminRoles, RiskstandardUser,RiskViewer,RiskEditer };
+export { RiskWAdmin, RiskSubadminRoles, RiskadminRoles, RiskstandardUser, RiskViewer, RiskEditer };

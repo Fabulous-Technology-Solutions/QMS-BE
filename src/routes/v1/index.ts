@@ -11,9 +11,7 @@ import SiteRoutes from "./site.route"
 import ProcessRoutes from "./process.route";
 import * as capa from "./capa"
 import * as risk from "./risk"
-// import * as risk from "./risk"
 const router = express.Router();
-
 interface IRoute {
   path: string;
   route: Router;
@@ -146,6 +144,22 @@ const riskIRoute: IRoute[] = [
     path: '/causes',
     route: risk.riskCause,
   },
+  {
+    path: '/actions',
+    route: risk.riskAction,
+  },
+  {
+    path: '/five-whys',
+    route: risk.riskFivewhys,
+  },
+  {
+    path: '/ishikawa',
+    route: risk.riskIsikawaRoute,
+  },
+  {
+    path: '/attachments',
+    route: risk.riskAttachment,
+  }
 ];
 
 // Add webhook route separately (should be public)
@@ -184,7 +198,6 @@ webhookIRoute.forEach((route) => {
 });
 
 /* istanbul ignore next */
-
 
 if (config.env === 'development') {
   devIRoute.forEach((route) => {
