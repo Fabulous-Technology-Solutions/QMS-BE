@@ -4,6 +4,7 @@ export interface LibraryModal extends Document {
   name: string;
   description: string;
   site: ObjectId;
+  status: 'pending' | 'completed' | 'in-progress';
   process: ObjectId;
   workspace: ObjectId;
   createdBy: ObjectId;
@@ -41,6 +42,7 @@ export interface CreateLibraryRequest {
     status?: 'Reviewed' | 'Approved' | 'Draft';
     feedback?: string;
   };
+  status: 'pending' | 'completed' | 'in-progress';
   category?: string;
   dateIdentified?: String;
 }

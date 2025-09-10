@@ -594,7 +594,7 @@ const restoreLibrary = async (libraryIds, workspaceId, userId) => {
     }
     await Promise.all(libraryIds.map((id) => activitylogs_modal_1.default.create({
         action: 'restore',
-        collectionName: 'Library',
+        collectionName: 'RiskLibrary',
         documentId: id,
         changes: { isDeleted: false },
         performedBy: userId,
@@ -612,7 +612,7 @@ const deletePermanent = async (libraryIds, workspaceId, userId) => {
     }
     await Promise.all(libraryIds.map((id) => activitylogs_modal_1.default.create({
         action: 'delete',
-        collectionName: 'Library',
+        collectionName: 'RiskLibrary',
         documentId: id,
         changes: { isDeleted: true },
         performedBy: userId,
@@ -651,7 +651,7 @@ const generateReport = async (libraryId) => {
             },
             {
                 $lookup: {
-                    from: 'causes',
+                    from: 'riskcauses',
                     localField: '_id',
                     foreignField: 'library',
                     as: 'causes',
@@ -660,7 +660,7 @@ const generateReport = async (libraryId) => {
             },
             {
                 $lookup: {
-                    from: 'actions',
+                    from: 'riskactions',
                     localField: '_id',
                     foreignField: 'library',
                     as: 'actions',
@@ -721,78 +721,6 @@ const generateReport = async (libraryId) => {
                             ],
                         },
                     },
-                },
-            },
-            {
-                $lookup: {
-                    from: 'checklisthistories',
-                    localField: '_id',
-                    foreignField: 'library',
-                    as: 'checklisthistory',
-                    pipeline: [
-                        {
-                            $lookup: {
-                                from: 'checklists',
-                                localField: 'checklistId',
-                                foreignField: '_id',
-                                as: 'checklistId',
-                                pipeline: [
-                                    { $project: { name: 1, description: 1 } }, // project what you need
-                                ],
-                            },
-                        },
-                        {
-                            $unwind: {
-                                path: '$checklistId',
-                                preserveNullAndEmptyArrays: true,
-                            },
-                        },
-                        {
-                            $unwind: {
-                                path: '$list',
-                                preserveNullAndEmptyArrays: true,
-                            },
-                        },
-                        {
-                            $lookup: {
-                                from: 'checklistitems',
-                                localField: 'list.item',
-                                foreignField: '_id',
-                                as: 'list.itemDetails',
-                                pipeline: [
-                                    { $project: { question: 1 } }, // project what you need
-                                ],
-                            },
-                        },
-                        {
-                            $unwind: {
-                                path: '$list.itemDetails',
-                                preserveNullAndEmptyArrays: true,
-                            },
-                        },
-                        {
-                            $group: {
-                                _id: '$_id',
-                                checklist: { $first: '$checklistId' },
-                                library: { $first: '$library' },
-                                comment: { $first: '$comment' },
-                                createdBy: { $first: '$createdBy' },
-                                createdAt: { $first: '$createdAt' },
-                                updatedAt: { $first: '$updatedAt' },
-                                list: {
-                                    $push: {
-                                        item: '$list.itemDetails',
-                                        yes: '$list.yes',
-                                        no: '$list.no',
-                                        partial: '$list.partial',
-                                        evidence: '$list.evidence',
-                                        evidenceKey: '$list.evidenceKey',
-                                        comment: '$list.comment',
-                                    },
-                                },
-                            },
-                        },
-                    ],
                 },
             },
         ]);

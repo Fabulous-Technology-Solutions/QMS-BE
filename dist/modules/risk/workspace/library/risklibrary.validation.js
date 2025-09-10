@@ -46,6 +46,7 @@ const libraryBody = {
     managers: joi_1.default.array().items(joi_1.default.string()).optional().messages({
         "array.base": `"managers" should be an array of 'text'`,
     }),
+    status: joi_1.default.string().valid('pending', 'completed', 'in-progress').optional(),
     assessmentApproval: joi_1.default.object({
         status: joi_1.default.string().valid('Reviewed', 'Approved', 'Draft').optional(),
         feedback: joi_1.default.string().allow('', null).optional()

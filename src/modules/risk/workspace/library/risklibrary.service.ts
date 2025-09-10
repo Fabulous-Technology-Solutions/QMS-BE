@@ -659,7 +659,7 @@ export const restoreLibrary = async (libraryIds: string[], workspaceId: string, 
     libraryIds.map((id) =>
       ActivityLog.create({
         action: 'restore',
-        collectionName: 'Library',
+        collectionName: 'RiskLibrary',
         documentId: id,
         changes: { isDeleted: false },
         performedBy: userId, // You can set this to the user ID if available
@@ -680,7 +680,7 @@ export const deletePermanent = async (libraryIds: string[], workspaceId: string,
     libraryIds.map((id) =>
       ActivityLog.create({
         action: 'delete',
-        collectionName: 'Library',
+        collectionName: 'RiskLibrary',
         documentId: id,
         changes: { isDeleted: true },
         performedBy: userId, // You can set this to the user ID if available
@@ -723,7 +723,7 @@ export const generateReport = async (libraryId: string) => {
       },
       {
         $lookup: {
-          from: 'causes',
+          from: 'riskcauses',
           localField: '_id',
           foreignField: 'library',
           as: 'causes',
@@ -732,7 +732,7 @@ export const generateReport = async (libraryId: string) => {
       },
       {
         $lookup: {
-          from: 'actions',
+          from: 'riskactions',
           localField: '_id',
           foreignField: 'library',
           as: 'actions',
@@ -793,78 +793,6 @@ export const generateReport = async (libraryId: string) => {
               ],
             },
           },
-        },
-      },
-      {
-        $lookup: {
-          from: 'checklisthistories',
-          localField: '_id',
-          foreignField: 'library',
-          as: 'checklisthistory',
-          pipeline: [
-            {
-              $lookup: {
-                from: 'checklists', // collection name for Checklist
-                localField: 'checklistId',
-                foreignField: '_id',
-                as: 'checklistId',
-                pipeline: [
-                  { $project: { name: 1, description: 1 } }, // project what you need
-                ],
-              },
-            },
-            {
-              $unwind: {
-                path: '$checklistId',
-                preserveNullAndEmptyArrays: true,
-              },
-            },
-            {
-              $unwind: {
-                path: '$list',
-                preserveNullAndEmptyArrays: true,
-              },
-            },
-            {
-              $lookup: {
-                from: 'checklistitems', // collection name for CheckListItem
-                localField: 'list.item',
-                foreignField: '_id',
-                as: 'list.itemDetails',
-                pipeline: [
-                  { $project: { question: 1 } }, // project what you need
-                ],
-              },
-            },
-            {
-              $unwind: {
-                path: '$list.itemDetails',
-                preserveNullAndEmptyArrays: true,
-              },
-            },
-            {
-              $group: {
-                _id: '$_id',
-                checklist: { $first: '$checklistId' },
-                library: { $first: '$library' },
-                comment: { $first: '$comment' },
-                createdBy: { $first: '$createdBy' },
-                createdAt: { $first: '$createdAt' },
-                updatedAt: { $first: '$updatedAt' },
-                list: {
-                  $push: {
-                    item: '$list.itemDetails', // populated item
-                    yes: '$list.yes',
-                    no: '$list.no',
-                    partial: '$list.partial',
-                    evidence: '$list.evidence',
-                    evidenceKey: '$list.evidenceKey',
-                    comment: '$list.comment',
-                  },
-                },
-              },
-            },
-          ],
         },
       },
     ]);

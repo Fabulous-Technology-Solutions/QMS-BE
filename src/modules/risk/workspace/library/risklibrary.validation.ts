@@ -42,6 +42,7 @@ const libraryBody: Record<keyof CreateLibraryRequest, any> = {
   managers: Joi.array().items(Joi.string()).optional().messages({
     "array.base": `"managers" should be an array of 'text'`,
   }),
+  status: Joi.string().valid('pending', 'completed', 'in-progress').optional(),
   assessmentApproval: Joi.object({
     status: Joi.string().valid('Reviewed', 'Approved', 'Draft').optional(),
     feedback: Joi.string().allow('', null).optional()

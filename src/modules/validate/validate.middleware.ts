@@ -25,8 +25,6 @@ const validate =
           return acc;
         }, {});
 
-        
-
         return next(new ApiError("Invalid request", httpStatus.BAD_REQUEST,  errorFields ));
       }
       Object.assign(req, value);
