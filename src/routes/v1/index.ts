@@ -159,6 +159,14 @@ const riskIRoute: IRoute[] = [
   {
     path: '/attachments',
     route: risk.riskAttachment,
+  },
+  {
+    path: '/assessments',
+    route: risk.riskAssessment,
+  },
+  {
+    path: '/attention',
+    route: risk.riskAttention,
   }
 ];
 

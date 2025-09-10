@@ -11,9 +11,11 @@ const mangeRole_middleware_1 = __importDefault(require("../../../modules/workspa
 const activitylogs_middleware_1 = require("../../../modules/activitylogs/activitylogs.middleware");
 const router = express_1.default.Router();
 router.post('/', (0, auth_1.auth)('createLibrary'), mangeRole_middleware_1.default, (0, validate_1.validate)(library_1.libraryValidationSchema.libraryValidationSchema), activitylogs_middleware_1.activityLoggerMiddleware, library_1.libraryController.createLibrary);
-router.get("/generateReport/:libraryId", library_1.libraryController.generateReportController);
+router.get('/generateReport/:libraryId', library_1.libraryController.generateReportController);
 router.get('/workspace/:workspaceId', (0, auth_1.auth)('getWorkspaceLibraries'), mangeRole_middleware_1.default, library_1.libraryController.getLibraries);
 router.get('/workspace/:workspaceId/names', (0, auth_1.auth)('getWorkspaceLibraryNames'), mangeRole_middleware_1.default, library_1.libraryController.getLibraryNamesController);
+router.patch('/:workspaceId/:libraryId/setRiskAppetite', (0, auth_1.auth)('setRiskAppetite'), library_1.checkValidation, (0, validate_1.validate)(library_1.libraryValidationSchema.updateLibraryValidationSchema), activitylogs_middleware_1.activityLoggerMiddleware, library_1.libraryController.setriskappetiteController);
+router.patch('/:workspaceId/:libraryId/setAssessmentApproval', (0, auth_1.auth)('setRiskassessmentApproval'), library_1.checkValidation, (0, validate_1.validate)(library_1.libraryValidationSchema.updateLibraryValidationSchema), activitylogs_middleware_1.activityLoggerMiddleware, library_1.libraryController.setassessmentApprovalController);
 router.patch('/:workspaceId/libraries/restore', (0, auth_1.auth)('restoreLibrary'), library_1.libraryController.RestoreLibrary);
 router.delete('/:workspaceId/libraries/delete', (0, auth_1.auth)('deletePermanentLibrary'), library_1.libraryController.deletePermanentLibrary);
 router.get('/:workspaceId/:libraryId/members', (0, auth_1.auth)('getLibraryMembers'), library_1.checkValidation, library_1.libraryController.getLibraryMembersController);
@@ -22,8 +24,6 @@ router.delete('/:workspaceId/:libraryId/:memberId', (0, auth_1.auth)('removeLibr
 router.get('/:workspaceId/:libraryId', (0, auth_1.auth)('getSingleLibrary'), library_1.checkValidation, library_1.libraryController.getLibrary);
 router.patch('/:workspaceId/:libraryId', (0, auth_1.auth)('updateLibrary'), library_1.checkValidation, (0, validate_1.validate)(library_1.libraryValidationSchema.updateLibraryValidationSchema), activitylogs_middleware_1.activityLoggerMiddleware, library_1.libraryController.updateLibraryById);
 router.delete('/:workspaceId/:libraryId', (0, auth_1.auth)('deleteLibrary'), library_1.checkValidation, activitylogs_middleware_1.activityLoggerMiddleware, library_1.libraryController.deleteLibraryById);
-router.patch('/:workspaceId/:libraryId/form5W2H', (0, auth_1.auth)('update5W2H'), library_1.checkValidation, activitylogs_middleware_1.activityLoggerMiddleware, library_1.libraryController.updateForm5W2HController);
-router.patch('/:workspaceId/:libraryId/containment', (0, auth_1.auth)('updateContainment'), library_1.checkValidation, activitylogs_middleware_1.activityLoggerMiddleware, library_1.libraryController.updateContainmentController);
 router.get('/workspace/:workspaceId/libraries/User', (0, auth_1.auth)('getUserLibraries'), mangeRole_middleware_1.default, library_1.libraryController.getLibrariesForUser);
-router.get("/generateReport/:libraryId", library_1.libraryController.generateReportController);
+router.get('/generateReport/:libraryId', library_1.libraryController.generateReportController);
 exports.default = router;

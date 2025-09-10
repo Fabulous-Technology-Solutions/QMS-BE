@@ -176,6 +176,14 @@ const riskIRoute = [
     {
         path: '/attachments',
         route: risk.riskAttachment,
+    },
+    {
+        path: '/assessments',
+        route: risk.riskAssessment,
+    },
+    {
+        path: '/attention',
+        route: risk.riskAttention,
     }
 ];
 // Add webhook route separately (should be public)

@@ -23,9 +23,9 @@ export class AttachmentControllers<TService> {
   });
 
   update = catchAsync(async (req: Request, res: Response) => {
-    const {  causeId } = req.params;
+    const {  attachmentId } = req.params;
     // @ts-ignore
-    const doc = await this.service.update(causeId, req.body);
+    const doc = await this.service.update(attachmentId, req.body);
 
     res.locals["message"] = `update ${this.collectionName.toLowerCase()}`;
     res.locals["documentId"] = doc._id;
@@ -37,9 +37,9 @@ export class AttachmentControllers<TService> {
   });
 
   delete = catchAsync(async (req: Request, res: Response) => {
-    const { causeId } = req.params;
+    const { attachmentId } = req.params;
     // @ts-ignore
-    const doc = await this.service.delete(causeId);
+    const doc = await this.service.delete(attachmentId);
 
     res.locals["message"] = `delete ${this.collectionName.toLowerCase()}`;
     res.locals["documentId"] = doc._id;

@@ -20,7 +20,7 @@ const createActionBody = {
         'string.base': 'CreatedBy ID must be a string',
         'string.pattern.base': 'CreatedBy ID must be a valid ObjectId',
     }),
-    status: joi_1.default.string().valid('pending', 'in-progress', 'completed', 'on-hold').messages({
+    status: joi_1.default.string().valid('open', 'in-progress', 'closed').messages({
         'string.base': 'Status must be a string',
     }),
     assignedTo: joi_1.default.array().items(joi_1.default.string().pattern(/^[0-9a-fA-F]{24}$/).messages({

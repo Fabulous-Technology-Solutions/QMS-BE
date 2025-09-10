@@ -5,8 +5,8 @@ import {
   GetLibrariesQuery,
   GetLibrariesQueryforUser,
   SubAdminBelongtoLibrary,
-  UpdateContainmentRequest,
-  UpdateForm5W2HRequest,
+  
+
 } from './risklibrary.interfaces';
 import { LibraryModel } from './risklibrary.modal';
 import subAdmin from '../../../user/user.subAdmin';
@@ -25,7 +25,6 @@ export const getLibraryById = async (libraryId: string) => {
   const data = await LibraryModel.findOne({ _id: libraryId, isDeleted: false })
     .populate('members', 'name email profilePicture')
     .populate('managers', 'name email profilePicture')
-    .populate('containment.responsibles', 'name email profilePicture')
     .populate('site', 'name')
     .populate('process', 'name');
 
@@ -51,11 +50,12 @@ export const getLibrariesByWorkspace = async (
     { $match: matchStage },
     {
       $lookup: {
-        from: 'actions',
+        from: 'riskactions',
         localField: '_id',
         foreignField: 'library',
         as: 'tasks',
         pipeline: [
+          { $match: { isDeleted: false } },
           {
             $lookup: {
               from: 'users',
@@ -65,6 +65,16 @@ export const getLibrariesByWorkspace = async (
               pipeline: [{ $project: { name: 1, email: 1, profilePicture: 1 } }],
             },
           },
+          {
+            $lookup: {
+              from: 'riskcauses',
+              localField: 'cause',
+              foreignField: '_id',
+              as: 'cause',
+              pipeline: [{ $project: { name: 1, description: 1 } }],
+            },
+          },
+          { $unwind: { path: '$cause', preserveNullAndEmptyArrays: true } },
         ],
       },
     },
@@ -160,7 +170,7 @@ export const getLibrariesfilterData = async (workspaceId: string, page: number, 
     { $match: { ...matchStage, updatedAt: { $lte: cutoffDate } } },
     {
       $lookup: {
-        from: 'actions',
+        from: 'riskactions',
         localField: '_id',
         foreignField: 'library',
         as: 'tasks',
@@ -174,6 +184,16 @@ export const getLibrariesfilterData = async (workspaceId: string, page: number, 
               pipeline: [{ $project: { name: 1, email: 1, profilePicture: 1 } }],
             },
           },
+          {
+            $lookup: {
+              from: 'riskcauses',
+              localField: 'cause',
+              foreignField: '_id',
+              as: 'cause',
+              pipeline: [{ $project: { name: 1, description: 1 } }],
+            },
+          },
+          { $unwind: { path: '$cause', preserveNullAndEmptyArrays: true } }
         ],
       },
     },
@@ -517,29 +537,6 @@ export const checkUserBelongsToLibrary = async (libraryId: string, user: IUserDo
   return true;
 };
 
-export const updateForm5W2H = async (libraryId: string, formData: UpdateForm5W2HRequest) => {
-  const library = await LibraryModel.findOneAndUpdate(
-    { _id: libraryId, isDeleted: false },
-    { Form5W2H: formData },
-    { new: true }
-  );
-  if (!library) {
-    throw new Error('Library not found');
-  }
-  return library;
-};
-
-export const updateContainment = async (libraryId: string, containmentData: UpdateContainmentRequest) => {
-  const library = await LibraryModel.findOneAndUpdate(
-    { _id: libraryId, isDeleted: false },
-    { containment: containmentData },
-    { new: true }
-  );
-  if (!library) {
-    throw new Error('Library not found');
-  }
-  return library;
-};
 
 export const getLibrariesByManager = async (
   workspaceId: string,
@@ -562,11 +559,12 @@ export const getLibrariesByManager = async (
     { $match: matchStage },
     {
       $lookup: {
-        from: 'actions',
+        from: 'riskactions',
         localField: '_id',
         foreignField: 'library',
         as: 'tasks',
         pipeline: [
+          { $match: { isDeleted: false } },
           {
             $lookup: {
               from: 'users',
@@ -576,6 +574,15 @@ export const getLibrariesByManager = async (
               pipeline: [{ $project: { name: 1, email: 1, profilePicture: 1 } }],
             },
           },
+          { $lookup: {
+              from: 'riskcauses',
+              localField: 'cause',
+              foreignField: '_id',
+              as: 'cause',
+              pipeline: [{ $project: { name: 1, description: 1 } }],
+            },
+          },
+          { $unwind: { path: '$cause', preserveNullAndEmptyArrays: true } },
         ],
       },
     },
@@ -1078,4 +1085,28 @@ export const generateFilterReport = async (workspaceId: string, site?: string, p
       }
     }
   }
+};
+
+
+export const setriskappetite = async (libraryId: string, riskappetite: string) => {
+  const library = await LibraryModel.findOneAndUpdate(
+    { _id: libraryId, isDeleted: false },
+    { riskappetite: riskappetite },
+    { new: true }
+  );
+  if (!library) {
+    throw new Error('Library not found');
+  }
+  return library;
+};
+export const setassessmentApproval = async (libraryId: string, assessmentApproval: { status?: 'Reviewed' | 'Approved' | 'Draft'; feedback?: string }) => {
+  const library = await LibraryModel.findOneAndUpdate(
+    { _id: libraryId, isDeleted: false },
+    { assessmentApproval },
+    { new: true }
+  );
+  if (!library) {
+    throw new Error('Library not found');
+  }
+  return library;
 };

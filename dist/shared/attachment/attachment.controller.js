@@ -18,9 +18,9 @@ class AttachmentControllers {
             res.status(201).json(doc);
         });
         this.update = (0, catchAsync_1.default)(async (req, res) => {
-            const { causeId } = req.params;
+            const { attachmentId } = req.params;
             // @ts-ignore
-            const doc = await this.service.update(causeId, req.body);
+            const doc = await this.service.update(attachmentId, req.body);
             res.locals["message"] = `update ${this.collectionName.toLowerCase()}`;
             res.locals["documentId"] = doc._id;
             res.locals["collectionName"] = this.collectionName;
@@ -29,9 +29,9 @@ class AttachmentControllers {
             res.status(200).json(doc);
         });
         this.delete = (0, catchAsync_1.default)(async (req, res) => {
-            const { causeId } = req.params;
+            const { attachmentId } = req.params;
             // @ts-ignore
-            const doc = await this.service.delete(causeId);
+            const doc = await this.service.delete(attachmentId);
             res.locals["message"] = `delete ${this.collectionName.toLowerCase()}`;
             res.locals["documentId"] = doc._id;
             res.locals["collectionName"] = this.collectionName;

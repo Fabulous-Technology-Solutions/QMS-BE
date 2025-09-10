@@ -10,12 +10,12 @@ import {
   removeMemberFromLibrary,
   getLibraryMembers,
   addMemberToLibrary,
-  updateForm5W2H,
   getLibrariesByManager,
   restoreLibrary,
   deletePermanent,
   generateReport,
-  updateContainment,
+  setriskappetite,
+  setassessmentApproval
 } from './risklibrary.service';
 
 export const createLibrary = catchAsync(async (req: Request, res: Response) => {
@@ -52,7 +52,7 @@ export const getLibrary = catchAsync(async (req: Request, res: Response) => {
     message: 'Library retrieved successfully',
     data: library,
   });
-});
+});    
 
 export const getLibraries = catchAsync(async (req: Request, res: Response) => {
   const { workspaceId } = req.params;
@@ -130,52 +130,8 @@ export const addMemberToLibraryController = catchAsync(async (req: Request, res:
   });
 });
 
-export const updateForm5W2HController = catchAsync(async (req: Request, res: Response) => {
-  const { libraryId } = req.params;
-  const { form5W2H } = req.body;
 
-  if (!form5W2H) {
-    return res.status(400).json({
-      success: false,
-      message: 'Form5W2H data is required',
-    });
-  }
 
-  const updatedLibrary = await updateForm5W2H(libraryId || '', form5W2H);
-  res.locals["message"] = "update Form5W2H"
-  res.locals["documentId"] = libraryId;
-  res.locals["collectionName"] = "Library";
-  res.locals["changes"] = { Form5W2H: updatedLibrary.Form5W2H };
-  res.locals['logof'] = req.body.workspace || req.params['workspaceId'] || null; 
-  return res.status(200).json({
-    success: true,
-    data: updatedLibrary,
-    message: 'Form5W2H updated successfully',
-  });
-});
-export const updateContainmentController = catchAsync(async (req: Request, res: Response) => {
-  const { libraryId } = req.params;
-  const { containment } = req.body;
-
-  if (!containment) {
-    return res.status(400).json({
-      success: false,
-      message: 'Containment data is required',
-    });
-  }
-
-  const updatedLibrary = await updateContainment(libraryId || '', containment);
-  res.locals["message"] = "update Containment"
-  res.locals["documentId"] = libraryId;
-  res.locals["collectionName"] = "Library";
-  res.locals["changes"] = { containment: updatedLibrary.containment };
-  res.locals['logof'] = req.body.workspace || req.params['workspaceId'] || null; 
-  return res.status(200).json({
-    success: true,
-    data: updatedLibrary,
-    message: 'Containment updated successfully',
-  });
-});
 
 export const getLibrariesForUser = catchAsync(async (req: Request, res: Response) => {
   const userId = req.user._id as string;
@@ -208,4 +164,32 @@ export const generateReportController = catchAsync(async (req: Request, res: Res
   const { libraryId } = req.params;
   const report = await generateReport(libraryId as string || '');
   res.status(200).json(report);
+});
+export const setriskappetiteController = catchAsync(async (req: Request, res: Response) => {
+  const { libraryId } = req.params;
+  const { riskappetite } = req.body;
+  const library = await setriskappetite(libraryId as string, riskappetite);
+  res.locals["message"] = "update library"
+  res.locals["documentId"] = library._id;
+  res.locals["collectionName"] = "Library";
+  res.locals['logof'] = req.body.workspace || req.params['workspaceId'] || null; 
+  res.status(200).json({
+    success: true,
+    message: 'Library updated successfully',
+    data: library,
+  });
+});
+export const setassessmentApprovalController = catchAsync(async (req: Request, res: Response) => {
+  const { libraryId } = req.params;
+  const { assessmentApproval } = req.body;
+  const library = await setassessmentApproval(libraryId as string, assessmentApproval);
+  res.locals["message"] = "update library"
+  res.locals["documentId"] = library._id;
+  res.locals["collectionName"] = "Library";
+  res.locals['logof'] = req.body.workspace || req.params['workspaceId'] || null; 
+  res.status(200).json({
+    success: true,
+    message: 'Library updated successfully',
+    data: library,
+  });
 });

@@ -6,11 +6,15 @@ import riskAction from './action.route'
 import riskFivewhys from './fivewhys.route';
 import riskIsikawaRoute from './Ishikawa.route';
 import riskAttachment from './attachment.route';
+import riskAssessment from './assessment.route';
+import riskAttention from './attention.route';
 export {
     riskLibraryRoute,
     riskControlRoute,
     riskConsequenceRoute,
     riskCause,
+    riskAttention,
+    riskAssessment,
     riskAttachment,
     riskIsikawaRoute,
     riskAction,

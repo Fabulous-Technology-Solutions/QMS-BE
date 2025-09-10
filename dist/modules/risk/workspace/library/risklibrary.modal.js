@@ -29,38 +29,16 @@ const LibrarySchema = new mongoose_1.default.Schema({
         type: mongoose_1.default.Schema.Types.ObjectId,
         ref: 'Process'
     },
-    containment: {
-        responsibles: [
-            {
-                type: mongoose_1.default.Schema.Types.ObjectId,
-                ref: 'User',
-            },
-        ],
-        description: {
-            type: String,
-            default: null,
-        },
-        dueDate: {
-            type: Date,
-            default: null,
-        },
-        status: {
-            type: Boolean,
-            default: false,
-        },
+    riskappetite: {
+        type: Number,
+        min: 1,
+        max: 25,
+        default: null
     },
-    Form5W2H: {
-        what: { type: String, default: null },
-        why: { type: String, default: null },
-        when: { type: String, default: null },
-        where: { type: String, default: null },
-        who: { type: String, default: null },
-        how: { type: String, default: null },
-        howImpacted: {
-            type: String,
-            default: null,
-        }
-    },
+    assessmentApproval: {
+        status: { type: String, enum: ['Reviewed', 'Approved', 'Draft'], default: 'Draft' },
+        feedback: { type: String, default: '' },
+    }
 }, {
     timestamps: true,
     versionKey: false,

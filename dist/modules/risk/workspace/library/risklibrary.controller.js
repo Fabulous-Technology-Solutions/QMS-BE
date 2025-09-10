@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.generateReportController = exports.deletePermanentLibrary = exports.RestoreLibrary = exports.getLibrariesForUser = exports.updateContainmentController = exports.updateForm5W2HController = exports.addMemberToLibraryController = exports.getLibraryMembersController = exports.removeMemberFromLibraryController = exports.getLibraryNamesController = exports.deleteLibraryById = exports.getLibraries = exports.getLibrary = exports.updateLibraryById = exports.createLibrary = void 0;
+exports.setassessmentApprovalController = exports.setriskappetiteController = exports.generateReportController = exports.deletePermanentLibrary = exports.RestoreLibrary = exports.getLibrariesForUser = exports.addMemberToLibraryController = exports.getLibraryMembersController = exports.removeMemberFromLibraryController = exports.getLibraryNamesController = exports.deleteLibraryById = exports.getLibraries = exports.getLibrary = exports.updateLibraryById = exports.createLibrary = void 0;
 const catchAsync_1 = __importDefault(require("../../../utils/catchAsync"));
 const risklibrary_service_1 = require("./risklibrary.service");
 exports.createLibrary = (0, catchAsync_1.default)(async (req, res) => {
@@ -104,48 +104,6 @@ exports.addMemberToLibraryController = (0, catchAsync_1.default)(async (req, res
         message: 'Member added to library successfully',
     });
 });
-exports.updateForm5W2HController = (0, catchAsync_1.default)(async (req, res) => {
-    const { libraryId } = req.params;
-    const { form5W2H } = req.body;
-    if (!form5W2H) {
-        return res.status(400).json({
-            success: false,
-            message: 'Form5W2H data is required',
-        });
-    }
-    const updatedLibrary = await (0, risklibrary_service_1.updateForm5W2H)(libraryId || '', form5W2H);
-    res.locals["message"] = "update Form5W2H";
-    res.locals["documentId"] = libraryId;
-    res.locals["collectionName"] = "Library";
-    res.locals["changes"] = { Form5W2H: updatedLibrary.Form5W2H };
-    res.locals['logof'] = req.body.workspace || req.params['workspaceId'] || null;
-    return res.status(200).json({
-        success: true,
-        data: updatedLibrary,
-        message: 'Form5W2H updated successfully',
-    });
-});
-exports.updateContainmentController = (0, catchAsync_1.default)(async (req, res) => {
-    const { libraryId } = req.params;
-    const { containment } = req.body;
-    if (!containment) {
-        return res.status(400).json({
-            success: false,
-            message: 'Containment data is required',
-        });
-    }
-    const updatedLibrary = await (0, risklibrary_service_1.updateContainment)(libraryId || '', containment);
-    res.locals["message"] = "update Containment";
-    res.locals["documentId"] = libraryId;
-    res.locals["collectionName"] = "Library";
-    res.locals["changes"] = { containment: updatedLibrary.containment };
-    res.locals['logof'] = req.body.workspace || req.params['workspaceId'] || null;
-    return res.status(200).json({
-        success: true,
-        data: updatedLibrary,
-        message: 'Containment updated successfully',
-    });
-});
 exports.getLibrariesForUser = (0, catchAsync_1.default)(async (req, res) => {
     const userId = req.user._id;
     const { page = 1, limit = 10, search = '' } = req.query;
@@ -174,4 +132,32 @@ exports.generateReportController = (0, catchAsync_1.default)(async (req, res) =>
     const { libraryId } = req.params;
     const report = await (0, risklibrary_service_1.generateReport)(libraryId || '');
     res.status(200).json(report);
+});
+exports.setriskappetiteController = (0, catchAsync_1.default)(async (req, res) => {
+    const { libraryId } = req.params;
+    const { riskappetite } = req.body;
+    const library = await (0, risklibrary_service_1.setriskappetite)(libraryId, riskappetite);
+    res.locals["message"] = "update library";
+    res.locals["documentId"] = library._id;
+    res.locals["collectionName"] = "Library";
+    res.locals['logof'] = req.body.workspace || req.params['workspaceId'] || null;
+    res.status(200).json({
+        success: true,
+        message: 'Library updated successfully',
+        data: library,
+    });
+});
+exports.setassessmentApprovalController = (0, catchAsync_1.default)(async (req, res) => {
+    const { libraryId } = req.params;
+    const { assessmentApproval } = req.body;
+    const library = await (0, risklibrary_service_1.setassessmentApproval)(libraryId, assessmentApproval);
+    res.locals["message"] = "update library";
+    res.locals["documentId"] = library._id;
+    res.locals["collectionName"] = "Library";
+    res.locals['logof'] = req.body.workspace || req.params['workspaceId'] || null;
+    res.status(200).json({
+        success: true,
+        message: 'Library updated successfully',
+        data: library,
+    });
 });

@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.generateFilterReport = exports.generateReport = exports.deletePermanent = exports.restoreLibrary = exports.getLibrariesByManager = exports.updateContainment = exports.updateForm5W2H = exports.checkUserBelongsToLibrary = exports.checkSubAdminBelongsToLibrary = exports.checkAdminBelongsTtoLibrary = exports.getLibraryMembers = exports.removeMemberFromLibrary = exports.addMemberToLibrary = exports.getLibrariesNames = exports.deleteLibrary = exports.updateLibrary = exports.getLibrariesfilterData = exports.getLibrariesByWorkspace = exports.getLibraryById = exports.CreateLibrary = void 0;
+exports.setassessmentApproval = exports.setriskappetite = exports.generateFilterReport = exports.generateReport = exports.deletePermanent = exports.restoreLibrary = exports.getLibrariesByManager = exports.checkUserBelongsToLibrary = exports.checkSubAdminBelongsToLibrary = exports.checkAdminBelongsTtoLibrary = exports.getLibraryMembers = exports.removeMemberFromLibrary = exports.addMemberToLibrary = exports.getLibrariesNames = exports.deleteLibrary = exports.updateLibrary = exports.getLibrariesfilterData = exports.getLibrariesByWorkspace = exports.getLibraryById = exports.CreateLibrary = void 0;
 const mongoose_1 = __importDefault(require("mongoose"));
 const risklibrary_modal_1 = require("./risklibrary.modal");
 const user_subAdmin_1 = __importDefault(require("../../../user/user.subAdmin"));
@@ -20,7 +20,6 @@ const getLibraryById = async (libraryId) => {
     const data = await risklibrary_modal_1.LibraryModel.findOne({ _id: libraryId, isDeleted: false })
         .populate('members', 'name email profilePicture')
         .populate('managers', 'name email profilePicture')
-        .populate('containment.responsibles', 'name email profilePicture')
         .populate('site', 'name')
         .populate('process', 'name');
     if (!data) {
@@ -38,11 +37,12 @@ const getLibrariesByWorkspace = async (workspaceId, page, limit, search, isDelet
         { $match: matchStage },
         {
             $lookup: {
-                from: 'actions',
+                from: 'riskactions',
                 localField: '_id',
                 foreignField: 'library',
                 as: 'tasks',
                 pipeline: [
+                    { $match: { isDeleted: false } },
                     {
                         $lookup: {
                             from: 'users',
@@ -52,6 +52,16 @@ const getLibrariesByWorkspace = async (workspaceId, page, limit, search, isDelet
                             pipeline: [{ $project: { name: 1, email: 1, profilePicture: 1 } }],
                         },
                     },
+                    {
+                        $lookup: {
+                            from: 'riskcauses',
+                            localField: 'cause',
+                            foreignField: '_id',
+                            as: 'cause',
+                            pipeline: [{ $project: { name: 1, description: 1 } }],
+                        },
+                    },
+                    { $unwind: { path: '$cause', preserveNullAndEmptyArrays: true } },
                 ],
             },
         },
@@ -141,7 +151,7 @@ const getLibrariesfilterData = async (workspaceId, page, limit, search) => {
         { $match: { ...matchStage, updatedAt: { $lte: cutoffDate } } },
         {
             $lookup: {
-                from: 'actions',
+                from: 'riskactions',
                 localField: '_id',
                 foreignField: 'library',
                 as: 'tasks',
@@ -155,6 +165,16 @@ const getLibrariesfilterData = async (workspaceId, page, limit, search) => {
                             pipeline: [{ $project: { name: 1, email: 1, profilePicture: 1 } }],
                         },
                     },
+                    {
+                        $lookup: {
+                            from: 'riskcauses',
+                            localField: 'cause',
+                            foreignField: '_id',
+                            as: 'cause',
+                            pipeline: [{ $project: { name: 1, description: 1 } }],
+                        },
+                    },
+                    { $unwind: { path: '$cause', preserveNullAndEmptyArrays: true } }
                 ],
             },
         },
@@ -466,22 +486,6 @@ const checkUserBelongsToLibrary = async (libraryId, user, dataType) => {
     return true;
 };
 exports.checkUserBelongsToLibrary = checkUserBelongsToLibrary;
-const updateForm5W2H = async (libraryId, formData) => {
-    const library = await risklibrary_modal_1.LibraryModel.findOneAndUpdate({ _id: libraryId, isDeleted: false }, { Form5W2H: formData }, { new: true });
-    if (!library) {
-        throw new Error('Library not found');
-    }
-    return library;
-};
-exports.updateForm5W2H = updateForm5W2H;
-const updateContainment = async (libraryId, containmentData) => {
-    const library = await risklibrary_modal_1.LibraryModel.findOneAndUpdate({ _id: libraryId, isDeleted: false }, { containment: containmentData }, { new: true });
-    if (!library) {
-        throw new Error('Library not found');
-    }
-    return library;
-};
-exports.updateContainment = updateContainment;
 const getLibrariesByManager = async (workspaceId, managerId, page, limit, search) => {
     const matchStage = {
         workspace: new mongoose_1.default.Types.ObjectId(workspaceId),
@@ -495,11 +499,12 @@ const getLibrariesByManager = async (workspaceId, managerId, page, limit, search
         { $match: matchStage },
         {
             $lookup: {
-                from: 'actions',
+                from: 'riskactions',
                 localField: '_id',
                 foreignField: 'library',
                 as: 'tasks',
                 pipeline: [
+                    { $match: { isDeleted: false } },
                     {
                         $lookup: {
                             from: 'users',
@@ -509,6 +514,15 @@ const getLibrariesByManager = async (workspaceId, managerId, page, limit, search
                             pipeline: [{ $project: { name: 1, email: 1, profilePicture: 1 } }],
                         },
                     },
+                    { $lookup: {
+                            from: 'riskcauses',
+                            localField: 'cause',
+                            foreignField: '_id',
+                            as: 'cause',
+                            pipeline: [{ $project: { name: 1, description: 1 } }],
+                        },
+                    },
+                    { $unwind: { path: '$cause', preserveNullAndEmptyArrays: true } },
                 ],
             },
         },
@@ -997,3 +1011,19 @@ const generateFilterReport = async (workspaceId, site, process, status) => {
     }
 };
 exports.generateFilterReport = generateFilterReport;
+const setriskappetite = async (libraryId, riskappetite) => {
+    const library = await risklibrary_modal_1.LibraryModel.findOneAndUpdate({ _id: libraryId, isDeleted: false }, { riskappetite: riskappetite }, { new: true });
+    if (!library) {
+        throw new Error('Library not found');
+    }
+    return library;
+};
+exports.setriskappetite = setriskappetite;
+const setassessmentApproval = async (libraryId, assessmentApproval) => {
+    const library = await risklibrary_modal_1.LibraryModel.findOneAndUpdate({ _id: libraryId, isDeleted: false }, { assessmentApproval }, { new: true });
+    if (!library) {
+        throw new Error('Library not found');
+    }
+    return library;
+};
+exports.setassessmentApproval = setassessmentApproval;

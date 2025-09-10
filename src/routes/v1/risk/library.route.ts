@@ -15,16 +15,32 @@ router.post(
   activityLoggerMiddleware,
   libraryController.createLibrary
 );
-router.get("/generateReport/:libraryId", libraryController.generateReportController);
+router.get('/generateReport/:libraryId', libraryController.generateReportController);
 router.get('/workspace/:workspaceId', auth('getWorkspaceLibraries'), checkCreateRole, libraryController.getLibraries);
 router.get(
   '/workspace/:workspaceId/names',
   auth('getWorkspaceLibraryNames'),
   checkCreateRole,
-  libraryController.getLibraryNamesController 
+  libraryController.getLibraryNamesController
+);
+router.patch(
+  '/:workspaceId/:libraryId/setRiskAppetite',
+  auth('setRiskAppetite'),
+  checkValidation,
+  validate(libraryValidationSchema.updateLibraryValidationSchema),
+  activityLoggerMiddleware,
+  libraryController.setriskappetiteController
+);
+router.patch(
+  '/:workspaceId/:libraryId/setAssessmentApproval',
+  auth('setRiskassessmentApproval'),
+  checkValidation,
+  validate(libraryValidationSchema.updateLibraryValidationSchema),
+  activityLoggerMiddleware,
+  libraryController.setassessmentApprovalController
 );
 router.patch('/:workspaceId/libraries/restore', auth('restoreLibrary'), libraryController.RestoreLibrary);
-router.delete('/:workspaceId/libraries/delete', auth('deletePermanentLibrary'),  libraryController.deletePermanentLibrary);
+router.delete('/:workspaceId/libraries/delete', auth('deletePermanentLibrary'), libraryController.deletePermanentLibrary);
 router.get(
   '/:workspaceId/:libraryId/members',
   auth('getLibraryMembers'),
@@ -56,21 +72,15 @@ router.patch(
   activityLoggerMiddleware,
   libraryController.updateLibraryById
 );
-router.delete('/:workspaceId/:libraryId', auth('deleteLibrary'), checkValidation, activityLoggerMiddleware, libraryController.deleteLibraryById);
-router.patch(
-  '/:workspaceId/:libraryId/form5W2H',  
-  auth('update5W2H'),
+
+router.delete(
+  '/:workspaceId/:libraryId',
+  auth('deleteLibrary'),
   checkValidation,
   activityLoggerMiddleware,
-  libraryController.updateForm5W2HController
+  libraryController.deleteLibraryById
 );
-router.patch(
-  '/:workspaceId/:libraryId/containment',  
-  auth('updateContainment'),
-  checkValidation,
-  activityLoggerMiddleware,
-  libraryController.updateContainmentController
-);
+
 router.get(
   '/workspace/:workspaceId/libraries/User',
   auth('getUserLibraries'),
@@ -78,6 +88,6 @@ router.get(
   libraryController.getLibrariesForUser
 );
 
-router.get("/generateReport/:libraryId", libraryController.generateReportController);
+router.get('/generateReport/:libraryId', libraryController.generateReportController);
 
 export default router;

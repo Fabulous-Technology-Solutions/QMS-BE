@@ -16,7 +16,7 @@ const createActionBody: Record<keyof CreateActionRequest, any> = {
     'string.base': 'CreatedBy ID must be a string',
     'string.pattern.base': 'CreatedBy ID must be a valid ObjectId',
   }),
-  status: Joi.string().valid('pending', 'in-progress', 'completed', 'on-hold').messages({
+  status: Joi.string().valid('open', 'in-progress','closed').messages({
     'string.base': 'Status must be a string',
   }),
   assignedTo: Joi.array().items(Joi.string().pattern(/^[0-9a-fA-F]{24}$/).messages({

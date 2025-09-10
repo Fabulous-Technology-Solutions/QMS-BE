@@ -1,5 +1,7 @@
 const RiskadminRoles = [
   'manageRisk',
+  'setRiskAppetite',
+  'setRiskassessmentApproval',
   // permissions for admin role
   'updateControl',
   'deleteControl',
@@ -35,11 +37,19 @@ const RiskadminRoles = [
   'Risk_getAttachmentById',
   'Risk_getAttachmentsByWorkspace',
   'Risk_updateAttachment',
-  'Risk_deleteAttachment'
+  'Risk_deleteAttachment',
+ // assessment permissions
+  'risk_createAssessment',
+  'risk_getAssessmentById',
+  'risk_getAssessmentsByLibrary',
+  'risk_updateAssessment',
+  'risk_deleteAssessment'
 ];
 
 const RiskSubadminRoles = [
   'manageRisk',
+  'setRiskAppetite',
+    'setRiskassessmentApproval',
   // permissions for admin role
   'updateControl',
   'deleteControl',
@@ -70,10 +80,18 @@ const RiskSubadminRoles = [
   'Risk_createIshikawa',
   'Risk_getIshikawa',
   'Risk_getIshikawaByLibrary',
-  'Risk_deleteIshikawa'
+  'Risk_deleteIshikawa',
+    // assessment permissions
+  'risk_createAssessment',
+  'risk_getAssessmentById',
+  'risk_getAssessmentsByLibrary',
+  'risk_updateAssessment',
+  'risk_deleteAssessment'
 ];
 
 const RiskWAdmin = [
+  'setRiskAppetite',
+    'setRiskassessmentApproval',
   // permissions for admin role
   'updateControl',
   'deleteControl',
@@ -103,7 +121,13 @@ const RiskWAdmin = [
   'Risk_createIshikawa',
   'Risk_getIshikawa',
   'Risk_getIshikawaByLibrary',
-  'Risk_deleteIshikawa'
+  'Risk_deleteIshikawa',
+    // assessment permissions
+  'risk_createAssessment',
+  'risk_getAssessmentById',
+    'risk_getAssessmentsByLibrary',
+  'risk_updateAssessment',
+  'risk_deleteAssessment'
 ];
 
 const RiskViewer = [
@@ -130,10 +154,15 @@ const RiskViewer = [
   'Risk_getFiveWhysByLibrary',
   // Ishikawa permissions
   'Risk_getIshikawa',
-  'Risk_getIshikawaByLibrary'
+  'Risk_getIshikawaByLibrary',
+    // assessment permissions
+  'risk_getAssessmentById',
+  'risk_getAssessmentsByLibrary',
 ];
 
 const RiskEditer = [
+  'setRiskAppetite',
+    'setRiskassessmentApproval',
   // permissions for editor role'
   'updateControl',
   'deleteControl',
@@ -158,12 +187,19 @@ const RiskEditer = [
   // Ishikawa permissions
   'Risk_getIshikawa',
   'Risk_getIshikawaByLibrary',
-  'Risk_deleteIshikawa'
+  'Risk_deleteIshikawa',
+    // assessment permissions
+  'risk_getAssessmentById',
+  'risk_getAssessmentsByWorkspace',
+  'risk_updateAssessment',
+  'risk_deleteAssessment'
 ];
 
 const RiskstandardUser = [
   // permissions for standard user for role
   'manageRisk',
+  'setRiskAppetite',
+    'setRiskassessmentApproval',
   // risk actions
   'risk_createAction',
   'risk_getActions',
@@ -182,6 +218,12 @@ const RiskstandardUser = [
   'Risk_createIshikawa',
   'Risk_getIshikawa',
   'Risk_getIshikawaByLibrary',
-  'Risk_deleteIshikawa'
+  'Risk_deleteIshikawa',
+    // assessment permissions
+  'risk_createAssessment',
+  'risk_getAssessmentById',
+  'risk_getAssessmentsByLibrary',
+  'risk_updateAssessment',
+  'risk_deleteAssessment'
 ];
 export { RiskWAdmin, RiskSubadminRoles, RiskadminRoles, RiskstandardUser, RiskViewer, RiskEditer };

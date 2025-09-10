@@ -44,7 +44,7 @@ const getLibraryMembersByAction = async (actionId = '', search = '', page = 1, l
         { $match: { _id: new mongoose_1.default.Types.ObjectId(actionId), isDeleted: false } },
         {
             $lookup: {
-                from: 'libraries',
+                from: 'risklibraries',
                 localField: 'library',
                 foreignField: '_id',
                 as: 'library',
@@ -96,7 +96,7 @@ const getActionsByLibrary = async (libraryId, page = 1, limit = 10, search = '')
         ...searchStages,
         {
             $lookup: {
-                from: 'libraries',
+                from: 'risklibraries',
                 localField: 'library',
                 foreignField: '_id',
                 as: 'library',
@@ -122,7 +122,7 @@ const getActionsByLibrary = async (libraryId, page = 1, limit = 10, search = '')
         },
         {
             $lookup: {
-                from: 'causes',
+                from: 'riskcauses',
                 localField: 'cause',
                 foreignField: '_id',
                 as: 'cause',
@@ -143,6 +143,8 @@ const getActionsByLibrary = async (libraryId, page = 1, limit = 10, search = '')
                 createdBy: { name: 1, email: 1, profilePicture: 1, _id: 1 },
                 assignedTo: { name: 1, email: 1, profilePicture: 1, _id: 1 },
                 library: { name: 1, description: 1, _id: 1 },
+                personnel: 1,
+                budget: 1,
             },
         },
         {
@@ -167,7 +169,7 @@ const getActionsByLibrary = async (libraryId, page = 1, limit = 10, search = '')
                         $addFields: {
                             counts: {
                                 $map: {
-                                    input: ['pending', 'in-progress', 'completed', 'on-hold'],
+                                    input: ['open', 'in-progress', 'closed'],
                                     as: 'status',
                                     in: {
                                         status: '$$status',
@@ -203,7 +205,7 @@ const getActionsByLibrary = async (libraryId, page = 1, limit = 10, search = '')
                                         $filter: {
                                             input: '$counts',
                                             as: 'c',
-                                            cond: { $eq: ['$$c.status', 'completed'] },
+                                            cond: { $eq: ['$$c.status', 'closed'] },
                                         },
                                     },
                                     0,
@@ -238,10 +240,9 @@ const getActionsByLibrary = async (libraryId, page = 1, limit = 10, search = '')
     // Ensure stats object exists
     const stats = result[0]?.stats[0] || {
         counts: [
-            { status: 'pending', count: 0 },
+            { status: 'open', count: 0 },
             { status: 'in-progress', count: 0 },
-            { status: 'completed', count: 0 },
-            { status: 'on-hold', count: 0 },
+            { status: 'closed', count: 0 },
         ],
         total: 0,
         percentageCompleted: 0,
@@ -289,7 +290,7 @@ const getActionsByAssignedTo = async (userId, page = 1, limit = 10, search = '')
         { $unwind: { path: '$createdBy', preserveNullAndEmptyArrays: true } },
         {
             $lookup: {
-                from: 'libraries',
+                from: 'risklibraries',
                 let: {
                     libraryId: '$library',
                 },
@@ -318,6 +319,15 @@ const getActionsByAssignedTo = async (userId, page = 1, limit = 10, search = '')
             },
         },
         {
+            $lookup: {
+                from: 'riskcauses',
+                localField: 'cause',
+                foreignField: '_id',
+                as: 'cause',
+            },
+        },
+        { $unwind: { path: '$cause', preserveNullAndEmptyArrays: true } },
+        {
             $project: {
                 _id: 1,
                 name: 1,
@@ -330,6 +340,9 @@ const getActionsByAssignedTo = async (userId, page = 1, limit = 10, search = '')
                 createdBy: { name: 1, email: 1, profilePicture: 1, _id: 1 },
                 assignedTo: { name: 1, email: 1, profilePicture: 1, _id: 1 },
                 library: { name: 1, description: 1, _id: 1 },
+                cause: { name: 1, description: 1, _id: 1 },
+                personnel: 1,
+                budget: 1,
             },
         },
         {
@@ -365,7 +378,7 @@ const getActionsByWorkspace = async (workspaceId, page = 1, limit = 10, search =
         ...searchStages,
         {
             $lookup: {
-                from: 'libraries',
+                from: 'risklibraries',
                 localField: 'library',
                 foreignField: '_id',
                 as: 'library',
@@ -375,6 +388,16 @@ const getActionsByWorkspace = async (workspaceId, page = 1, limit = 10, search =
         {
             $match: { 'library.workspace': new mongoose_1.default.Types.ObjectId(workspaceId) },
         },
+        {
+            $lookup: {
+                from: 'riskcauses',
+                localField: 'cause',
+                foreignField: '_id',
+                as: 'cause',
+                pipeline: [{ $project: { name: 1, description: 1 } }],
+            },
+        },
+        { $unwind: { path: '$cause', preserveNullAndEmptyArrays: true } },
         {
             $lookup: {
                 from: 'users',

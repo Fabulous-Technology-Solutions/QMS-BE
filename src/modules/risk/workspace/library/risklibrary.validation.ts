@@ -42,20 +42,11 @@ const libraryBody: Record<keyof CreateLibraryRequest, any> = {
   managers: Joi.array().items(Joi.string()).optional().messages({
     "array.base": `"managers" should be an array of 'text'`,
   }),
-  Form5W2H: Joi.object({
-    what: Joi.string().allow(null, '').optional(),
-    why: Joi.string().allow(null, '').optional(),
-    when: Joi.string().allow(null, '').optional(),
-    where: Joi.string().allow(null, '').optional(),
-    who: Joi.string().allow(null, '').optional(),
-    how: Joi.string().allow(null, '').optional(),
-    howImpacted: Joi.string().allow(null, '').optional(),
+  assessmentApproval: Joi.object({
+    status: Joi.string().valid('Reviewed', 'Approved', 'Draft').optional(),
+    feedback: Joi.string().allow('', null).optional()
   }).optional(),
-  containment: Joi.object({
-    status: Joi.boolean().optional(),
-    description: Joi.string().allow(null, '').optional(),
-    dueDate: Joi.date().optional(),
-  }).optional(),
+  riskappetite: Joi.number().optional(),
   category: Joi.string().allow(null, '').optional(),
   dateIdentified: Joi.string().allow(null, '').optional(),
 };

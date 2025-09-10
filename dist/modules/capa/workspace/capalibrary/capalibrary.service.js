@@ -43,6 +43,7 @@ const getLibrariesByWorkspace = async (workspaceId, page, limit, search, isDelet
                 foreignField: 'library',
                 as: 'tasks',
                 pipeline: [
+                    { $match: { isDeleted: false } },
                     {
                         $lookup: {
                             from: 'users',

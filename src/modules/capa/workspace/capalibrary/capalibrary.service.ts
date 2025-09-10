@@ -56,6 +56,7 @@ export const getLibrariesByWorkspace = async (
         foreignField: 'library',
         as: 'tasks',
         pipeline: [
+          { $match: { isDeleted: false } },
           {
             $lookup: {
               from: 'users',

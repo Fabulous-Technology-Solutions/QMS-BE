@@ -46,20 +46,11 @@ const libraryBody = {
     managers: joi_1.default.array().items(joi_1.default.string()).optional().messages({
         "array.base": `"managers" should be an array of 'text'`,
     }),
-    Form5W2H: joi_1.default.object({
-        what: joi_1.default.string().allow(null, '').optional(),
-        why: joi_1.default.string().allow(null, '').optional(),
-        when: joi_1.default.string().allow(null, '').optional(),
-        where: joi_1.default.string().allow(null, '').optional(),
-        who: joi_1.default.string().allow(null, '').optional(),
-        how: joi_1.default.string().allow(null, '').optional(),
-        howImpacted: joi_1.default.string().allow(null, '').optional(),
+    assessmentApproval: joi_1.default.object({
+        status: joi_1.default.string().valid('Reviewed', 'Approved', 'Draft').optional(),
+        feedback: joi_1.default.string().allow('', null).optional()
     }).optional(),
-    containment: joi_1.default.object({
-        status: joi_1.default.boolean().optional(),
-        description: joi_1.default.string().allow(null, '').optional(),
-        dueDate: joi_1.default.date().optional(),
-    }).optional(),
+    riskappetite: joi_1.default.number().optional(),
     category: joi_1.default.string().allow(null, '').optional(),
     dateIdentified: joi_1.default.string().allow(null, '').optional(),
 };

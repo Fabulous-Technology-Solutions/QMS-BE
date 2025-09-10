@@ -14,30 +14,11 @@ export interface LibraryModal extends Document {
   managers: ObjectId[];
   category?: string;
   dateIdentified?: Date;
-  Form5W2H: {
-    what: string;
-    why: string;
-    when: string;
-    where: string;
-    who: string;
-    how: string;
+  assessmentApproval: {
+    status: 'Reviewed' | 'Approved' | 'Draft';
+    feedback: string;
   };
-  containment: {
-    responsibles: ObjectId[];
-    description: string;
-    dueDate: Date;
-    status: boolean;
-  };
-}
-
-export interface UpdateForm5W2HRequest {
-  what?: string;
-  why?: string;
-  when?: string;
-  where?: string;
-  who?: string;
-  how?: string;
-  howImpacted?: string;
+  riskappetite?: number;
 }
 
 export interface UpdateContainmentRequest {
@@ -53,24 +34,12 @@ export interface CreateLibraryRequest {
   process: string;
   workspace: string;
   createdBy: string;
-
+  riskappetite?: number;
   members?: string[];
   managers?: string[];
- 
-  containment?: {
-    status?: boolean;
-    description?: string;
-    dueDate?: Date;
-    responsibles?: string[];
-  };
-  Form5W2H?: {
-    what?: string;
-    why?: string;
-    when?: string;
-    where?: string;
-    who?: string;
-    how?: string;
-    howImpacted?: string;
+  assessmentApproval?: {
+    status?: 'Reviewed' | 'Approved' | 'Draft';
+    feedback?: string;
   };
   category?: string;
   dateIdentified?: String;
@@ -83,7 +52,6 @@ export interface GetLibrariesQuery {
   $or?: [{ name: { $regex: string; $options: string } }, { description: { $regex: string; $options: string } }];
 }
 
-
 export interface forIncludes {
   _id: ObjectId;
   name: string;
@@ -93,28 +61,25 @@ export interface forIncludes {
 
 export interface GetLibrariesQueryforUser {
   managers: {
-    $in: mongoose.Types.ObjectId[]
-  },
+    $in: mongoose.Types.ObjectId[];
+  };
   workspace: mongoose.Types.ObjectId;
   isDeleted?: boolean;
-  $or?: [{ name: { $regex: string; $options: string } },
-    { description: { $regex: string; $options: string } }];
+  $or?: [{ name: { $regex: string; $options: string } }, { description: { $regex: string; $options: string } }];
 }
 
 export interface AdminBelongtoLibrary {
-  _id: mongoose.Types.ObjectId,
-  isDeleted: false,
+  _id: mongoose.Types.ObjectId;
+  isDeleted: false;
   managers?: {
-    $in: ObjectId[]
-  }
+    $in: ObjectId[];
+  };
 }
 
 export interface SubAdminBelongtoLibrary {
-
   'libraries._id': mongoose.Types.ObjectId;
   'libraries.isDeleted': boolean;
   'libraries.managers'?: {
     $in: mongoose.Types.ObjectId[];
   };
 }
-
