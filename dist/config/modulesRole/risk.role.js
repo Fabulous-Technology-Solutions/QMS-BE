@@ -46,7 +46,13 @@ const RiskadminRoles = [
     'risk_getAssessmentById',
     'risk_getAssessmentsByLibrary',
     'risk_updateAssessment',
-    'risk_deleteAssessment'
+    'risk_deleteAssessment',
+    // report permissions
+    'risk-createReport',
+    'risk-getReports',
+    'risk-getReport',
+    'risk-updateReport',
+    'risk-deleteReport'
 ];
 exports.RiskadminRoles = RiskadminRoles;
 const RiskSubadminRoles = [
@@ -88,7 +94,13 @@ const RiskSubadminRoles = [
     'risk_getAssessmentById',
     'risk_getAssessmentsByLibrary',
     'risk_updateAssessment',
-    'risk_deleteAssessment'
+    'risk_deleteAssessment',
+    // report permissions
+    'risk-createReport',
+    'risk-getReports',
+    'risk-getReport',
+    'risk-updateReport',
+    'risk-deleteReport'
 ];
 exports.RiskSubadminRoles = RiskSubadminRoles;
 const RiskWAdmin = [
@@ -129,7 +141,13 @@ const RiskWAdmin = [
     'risk_getAssessmentById',
     'risk_getAssessmentsByLibrary',
     'risk_updateAssessment',
-    'risk_deleteAssessment'
+    'risk_deleteAssessment',
+    // report permissions
+    'risk-createReport',
+    'risk-getReports',
+    'risk-getReport',
+    'risk-updateReport',
+    'risk-deleteReport'
 ];
 exports.RiskWAdmin = RiskWAdmin;
 const RiskViewer = [
@@ -160,6 +178,9 @@ const RiskViewer = [
     // assessment permissions
     'risk_getAssessmentById',
     'risk_getAssessmentsByLibrary',
+    // report permissions
+    'risk-getReports',
+    'risk-getReport'
 ];
 exports.RiskViewer = RiskViewer;
 const RiskEditer = [
@@ -194,7 +215,12 @@ const RiskEditer = [
     'risk_getAssessmentById',
     'risk_getAssessmentsByWorkspace',
     'risk_updateAssessment',
-    'risk_deleteAssessment'
+    'risk_deleteAssessment',
+    // report permissions
+    'risk-getReports',
+    'risk-getReport',
+    'risk-updateReport',
+    'risk-deleteReport'
 ];
 exports.RiskEditer = RiskEditer;
 const RiskstandardUser = [
@@ -225,6 +251,12 @@ const RiskstandardUser = [
     'risk_getAssessmentById',
     'risk_getAssessmentsByLibrary',
     'risk_updateAssessment',
-    'risk_deleteAssessment'
+    'risk_deleteAssessment',
+    // report permissions
+    'risk-createReport',
+    'risk-getReports',
+    'risk-getReport',
+    'risk-updateReport',
+    'risk-deleteReport'
 ];
 exports.RiskstandardUser = RiskstandardUser;

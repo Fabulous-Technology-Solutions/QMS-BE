@@ -18,17 +18,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
     __setModuleDefault(result, mod);
     return result;
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.reportController = exports.reportValidation = void 0;
-const reportValidation = __importStar(require("../../../../shared/report/report.validation"));
-exports.reportValidation = reportValidation;
-const report_services_1 = __importDefault(require("../../../../shared/report/report.services"));
-const capalibrary_service_1 = require("../capalibrary/capalibrary.service");
-const report_modal_1 = __importDefault(require("./report.modal"));
-const report_controller_1 = require("../../../../shared/report/report.controller");
-const reportService = new report_services_1.default(report_modal_1.default, capalibrary_service_1.generateFilterReport);
-const reportController = new report_controller_1.ReportController(reportService, 'Report');
-exports.reportController = reportController;
+exports.reportHistoryController = void 0;
+const reportHistoryController = __importStar(require("./reporthistory.controller"));
+exports.reportHistoryController = reportHistoryController;

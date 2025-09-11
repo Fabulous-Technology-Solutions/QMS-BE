@@ -7,9 +7,9 @@ exports.executeScheduledReports = void 0;
 const report_modal_1 = __importDefault(require("../capa/workspace/report/report.modal"));
 const capalibrary_service_1 = require("../capa/workspace/capalibrary/capalibrary.service");
 const email_service_1 = require("../email/email.service");
-const report_services_1 = require("../capa/workspace/report/report.services");
 const http_status_1 = __importDefault(require("http-status"));
 const catchAsync_1 = __importDefault(require("./catchAsync"));
+const report_services_1 = require("../../shared/report/report.services");
 exports.executeScheduledReports = (0, catchAsync_1.default)(async (_, res) => {
     console.log('⏳ Cron Job Started: Generating scheduled reports');
     try {

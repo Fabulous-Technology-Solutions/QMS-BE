@@ -43,7 +43,13 @@ const RiskadminRoles = [
   'risk_getAssessmentById',
   'risk_getAssessmentsByLibrary',
   'risk_updateAssessment',
-  'risk_deleteAssessment'
+  'risk_deleteAssessment',
+  // report permissions
+  'risk-createReport',
+  'risk-getReports',
+  'risk-getReport',
+  'risk-updateReport',
+  'risk-deleteReport'
 ];
 
 const RiskSubadminRoles = [
@@ -86,7 +92,13 @@ const RiskSubadminRoles = [
   'risk_getAssessmentById',
   'risk_getAssessmentsByLibrary',
   'risk_updateAssessment',
-  'risk_deleteAssessment'
+  'risk_deleteAssessment',
+    // report permissions
+  'risk-createReport',
+  'risk-getReports',
+  'risk-getReport',
+  'risk-updateReport',
+  'risk-deleteReport'
 ];
 
 const RiskWAdmin = [
@@ -127,7 +139,13 @@ const RiskWAdmin = [
   'risk_getAssessmentById',
     'risk_getAssessmentsByLibrary',
   'risk_updateAssessment',
-  'risk_deleteAssessment'
+  'risk_deleteAssessment',
+    // report permissions
+  'risk-createReport',
+  'risk-getReports',
+  'risk-getReport',
+  'risk-updateReport',
+  'risk-deleteReport'
 ];
 
 const RiskViewer = [
@@ -158,6 +176,9 @@ const RiskViewer = [
     // assessment permissions
   'risk_getAssessmentById',
   'risk_getAssessmentsByLibrary',
+    // report permissions
+  'risk-getReports',
+  'risk-getReport'
 ];
 
 const RiskEditer = [
@@ -192,7 +213,12 @@ const RiskEditer = [
   'risk_getAssessmentById',
   'risk_getAssessmentsByWorkspace',
   'risk_updateAssessment',
-  'risk_deleteAssessment'
+  'risk_deleteAssessment',
+    // report permissions
+  'risk-getReports',
+  'risk-getReport',
+  'risk-updateReport',
+  'risk-deleteReport'
 ];
 
 const RiskstandardUser = [
@@ -224,6 +250,12 @@ const RiskstandardUser = [
   'risk_getAssessmentById',
   'risk_getAssessmentsByLibrary',
   'risk_updateAssessment',
-  'risk_deleteAssessment'
+  'risk_deleteAssessment',
+    // report permissions
+  'risk-createReport',
+  'risk-getReports',
+  'risk-getReport',
+  'risk-updateReport',
+  'risk-deleteReport'
 ];
 export { RiskWAdmin, RiskSubadminRoles, RiskadminRoles, RiskstandardUser, RiskViewer, RiskEditer };

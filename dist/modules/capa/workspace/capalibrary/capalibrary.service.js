@@ -11,7 +11,28 @@ const activitylogs_modal_1 = __importDefault(require("../../../../modules/activi
 const pdfTemplate_1 = require("../../../../modules/utils/pdfTemplate");
 const upload_middleware_1 = require("../../../../modules/upload/upload.middleware");
 const puppeteer_config_1 = require("../../../../utils/puppeteer.config");
+const workspace_modal_1 = __importDefault(require("../../../../modules/workspace/workspace.modal"));
 const CreateLibrary = async (body) => {
+    const findWorkspace = await workspace_modal_1.default.aggregate([
+        { $match: { _id: new mongoose_1.default.Types.ObjectId(body.workspace), isDeleted: false } },
+        { $lookup: { from: 'subscriptions', localField: 'moduleId', foreignField: '_id', as: 'module' } },
+        { $unwind: '$module' },
+        {
+            $lookup: {
+                from: "plans",
+                localField: "module.planId",
+                foreignField: "_id",
+                as: "plan",
+                pipeline: [{
+                        $match: { category: 'capa-management' }
+                    }]
+            }
+        },
+        { $unwind: '$plan' },
+    ]);
+    if (!findWorkspace || findWorkspace.length === 0) {
+        throw new Error('Workspace not found');
+    }
     const library = new capalibrary_modal_1.LibraryModel(body);
     return await library.save();
 };
@@ -191,7 +212,7 @@ const getLibrariesfilterData = async (workspaceId, page, limit, search) => {
         page,
         limit,
         success: true,
-        message: 'Libraries retrieved successfully',
+        message: 'Libraries retrieved successfully'
     };
 };
 exports.getLibrariesfilterData = getLibrariesfilterData;
@@ -359,6 +380,20 @@ const checkAdminBelongsTtoLibrary = async (libraryId, userId, dataType) => {
         },
         { $unwind: '$module' },
         {
+            $lookup: {
+                from: 'plans',
+                localField: 'module.planId',
+                foreignField: '_id',
+                as: 'plan',
+                pipeline: [{
+                        $match: { category: 'capa-management' }
+                    }]
+            }
+        },
+        {
+            $unwind: '$plan'
+        },
+        {
             $match: {
                 'module.userId': userId,
             },
@@ -415,6 +450,31 @@ const checkSubAdminBelongsToLibrary = async (libraryId, userId, dataType) => {
         { $unwind: '$workspace' },
         {
             $lookup: {
+                from: 'modules',
+                localField: 'workspace.moduleId',
+                foreignField: '_id',
+                as: 'module',
+            }
+        },
+        {
+            $unwind: '$module'
+        },
+        {
+            $lookup: {
+                from: 'plans',
+                localField: 'module.planId',
+                foreignField: '_id',
+                as: 'plan',
+                pipeline: [{
+                        $match: { category: 'capa-management' }
+                    }]
+            }
+        },
+        {
+            $unwind: '$plan'
+        },
+        {
+            $lookup: {
                 from: 'libraries',
                 localField: 'workspace._id',
                 foreignField: 'workspace',
@@ -460,6 +520,29 @@ const checkUserBelongsToLibrary = async (libraryId, user, dataType) => {
                 'workspace._id': user.workspace,
             },
         },
+        {
+            $lookup: {
+                from: 'subscriptions',
+                localField: 'workspace.moduleId',
+                foreignField: '_id',
+                as: 'module',
+            }
+        },
+        { $unwind: '$module' },
+        {
+            $lookup: {
+                from: 'plans',
+                localField: 'module.planId',
+                foreignField: '_id',
+                as: 'plan',
+                pipeline: [{
+                        $match: { category: 'capa-management' }
+                    }]
+            }
+        },
+        {
+            $unwind: '$plan'
+        }
     ]);
     if (!result || result.length === 0) {
         throw new Error('User does not belong to this library');

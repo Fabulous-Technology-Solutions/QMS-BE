@@ -2,7 +2,7 @@ import cron from "node-cron";
 import ReportModel from "../capa/workspace/report/report.modal";
 import { generateFilterReport } from "../capa/workspace/capalibrary/capalibrary.service";
 import { sendEmail } from "../email/email.service";
-import { getNextScheduleDate } from "../capa/workspace/report/report.services";
+import { getNextScheduleDate } from "../../shared/report/report.services";
 import { IUserDoc } from "../user/user.interfaces";
 
 // Cron: runs every day at 00:00

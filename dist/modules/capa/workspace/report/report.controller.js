@@ -28,6 +28,10 @@ const catchAsync_1 = __importDefault(require("../../../utils/catchAsync"));
 exports.createReportController = (0, catchAsync_1.default)(async (req, res) => {
     const data = { ...req.body, createdBy: req.user._id };
     const report = await ReportService.createReport(data);
+    res.locals["message"] = "create Report";
+    res.locals["documentId"] = report._id;
+    res.locals["collectionName"] = "Report";
+    res.locals['logof'] = req.body.workspace || req.params['workspaceId'] || null;
     res.status(201).json({ success: true, data: report });
 });
 exports.getReportByIdController = (0, catchAsync_1.default)(async (req, res) => {
@@ -45,10 +49,18 @@ exports.getReportsByWorkspaceController = (0, catchAsync_1.default)(async (req, 
 exports.updateReportController = (0, catchAsync_1.default)(async (req, res) => {
     const { reportId } = req.params;
     const updated = await ReportService.updateReport(reportId, req.body);
+    res.locals["message"] = "update Report";
+    res.locals["documentId"] = updated?._id;
+    res.locals["collectionName"] = "Report";
+    res.locals['logof'] = req.body.workspace || req.params['workspaceId'] || null;
     res.status(200).json({ success: true, data: updated });
 });
 exports.deleteReportController = (0, catchAsync_1.default)(async (req, res) => {
     const { reportId } = req.params;
     await ReportService.deleteReport(reportId);
+    res.locals["message"] = "delete Report";
+    res.locals["documentId"] = reportId;
+    res.locals["collectionName"] = "Report";
+    res.locals['logof'] = req.body.workspace || req.params['workspaceId'] || null;
     res.status(204).send();
 });

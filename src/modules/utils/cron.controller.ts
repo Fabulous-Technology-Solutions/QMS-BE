@@ -2,10 +2,11 @@ import { Request, Response } from 'express';
 import ReportModel from '../capa/workspace/report/report.modal';
 import { generateFilterReport } from '../capa/workspace/capalibrary/capalibrary.service';
 import { sendEmail } from '../email/email.service';
-import { getNextScheduleDate } from '../capa/workspace/report/report.services';
+
 import { IUserDoc } from '../user/user.interfaces';
 import httpStatus from 'http-status';
 import catchAsync from './catchAsync';
+import { getNextScheduleDate } from '../../shared/report/report.services';
 
 interface ProcessedReport {
   id: any;

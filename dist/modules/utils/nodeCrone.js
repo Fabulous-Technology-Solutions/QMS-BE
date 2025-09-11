@@ -7,7 +7,7 @@ const node_cron_1 = __importDefault(require("node-cron"));
 const report_modal_1 = __importDefault(require("../capa/workspace/report/report.modal"));
 const capalibrary_service_1 = require("../capa/workspace/capalibrary/capalibrary.service");
 const email_service_1 = require("../email/email.service");
-const report_services_1 = require("../capa/workspace/report/report.services");
+const report_services_1 = require("../../shared/report/report.services");
 // Cron: runs every day at 00:00
 node_cron_1.default.schedule("0 0 * * *", async () => {
     console.log("⏳ Cron Job Started: Generating scheduled reports");

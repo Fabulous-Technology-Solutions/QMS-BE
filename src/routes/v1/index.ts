@@ -167,7 +167,11 @@ const riskIRoute: IRoute[] = [
   {
     path: '/attention',
     route: risk.riskAttention,
-  }
+  },
+  {
+    path: '/reports',
+    route: risk.riskReport,
+  },
 ];
 
 // Add webhook route separately (should be public)

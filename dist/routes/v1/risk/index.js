@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.riskFivewhys = exports.riskAction = exports.riskIsikawaRoute = exports.riskAttachment = exports.riskAssessment = exports.riskAttention = exports.riskCause = exports.riskConsequenceRoute = exports.riskControlRoute = exports.riskLibraryRoute = void 0;
+exports.riskReport = exports.riskFivewhys = exports.riskAction = exports.riskIsikawaRoute = exports.riskAttachment = exports.riskAssessment = exports.riskAttention = exports.riskCause = exports.riskConsequenceRoute = exports.riskControlRoute = exports.riskLibraryRoute = void 0;
 const library_route_1 = __importDefault(require("./library.route"));
 exports.riskLibraryRoute = library_route_1.default;
 const control_route_1 = __importDefault(require("./control.route"));
@@ -24,3 +24,5 @@ const assessment_route_1 = __importDefault(require("./assessment.route"));
 exports.riskAssessment = assessment_route_1.default;
 const attention_route_1 = __importDefault(require("./attention.route"));
 exports.riskAttention = attention_route_1.default;
+const report_route_1 = __importDefault(require("./report.route"));
+exports.riskReport = report_route_1.default;

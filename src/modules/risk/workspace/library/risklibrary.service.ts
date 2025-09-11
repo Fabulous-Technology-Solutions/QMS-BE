@@ -4,9 +4,7 @@ import {
   CreateLibraryRequest,
   GetLibrariesQuery,
   GetLibrariesQueryforUser,
-  SubAdminBelongtoLibrary,
-  
-
+  SubAdminBelongtoLibrary
 } from './risklibrary.interfaces';
 import { LibraryModel } from './risklibrary.modal';
 import subAdmin from '../../../user/user.subAdmin';
@@ -15,8 +13,30 @@ import ActivityLog from '../../../activitylogs/activitylogs.modal';
 import { pdfTemplate, pdfTemplateforMutiples } from '../../../utils/pdfTemplate';
 import { uploadSingleFile } from '../../../upload/upload.middleware';
 import { launchBrowser } from '../../../../utils/puppeteer.config';
+import CapaworkspaceModel from '../../../../modules/workspace/workspace.modal';
 
 export const CreateLibrary = async (body: CreateLibraryRequest) => {
+    const findWorkspace = await CapaworkspaceModel.aggregate([
+    { $match: { _id: new mongoose.Types.ObjectId(body.workspace), isDeleted: false } },
+    { $lookup: { from: 'subscriptions', localField: 'moduleId', foreignField: '_id', as: 'module' } },
+    { $unwind: '$module' },
+    {
+      $lookup: {
+        from: "plans",
+        localField: "module.planId",
+        foreignField: "_id",
+        as: "plan",
+        pipeline:[{
+          $match: {  category:'risk-management' }
+        }]
+      }
+    },
+    { $unwind: '$plan' },
+  ]);
+
+  if (!findWorkspace || findWorkspace.length === 0) {
+    throw new Error('Workspace not found');
+  }
   const library = new LibraryModel(body);
   return await library.save();
 };
@@ -424,6 +444,19 @@ export const checkAdminBelongsTtoLibrary = async (libraryId: string, userId: Obj
         'module.userId': userId,
       },
     },
+    {
+      $lookup: {
+        from:'plans',
+        localField: 'module.planId',
+        foreignField: '_id',
+        as: 'plan', 
+        pipeline:[{
+          $match: {  category:'risk-management' }
+        }]
+      }
+    },
+    { $unwind: '$plan' }
+
   ]);
   console.log('Admin belongs to library:', library, userId,Querydata);
   if (!library || library.length === 0) {
@@ -480,6 +513,27 @@ export const checkSubAdminBelongsToLibrary = async (
       },
     },
     { $unwind: '$workspace' },
+        {
+      $lookup: {
+        from:'subscriptions',
+        localField: 'workspace.moduleId',
+        foreignField: '_id',
+        as: 'module', 
+      }
+    },
+    { $unwind: '$module' },
+    {
+      $lookup: {
+        from:'plans',
+        localField: 'module.planId',
+        foreignField: '_id',
+        as: 'plan', 
+        pipeline:[{
+          $match: {  category:'risk-management' }
+        }]
+      }
+    },
+    { $unwind: '$plan' },
     {
       $lookup: {
         from: 'risklibraries',
@@ -530,6 +584,27 @@ export const checkUserBelongsToLibrary = async (libraryId: string, user: IUserDo
         'workspace._id': user.workspace,
       },
     },
+        {
+      $lookup: {
+        from:'subscriptions',
+        localField: 'workspace.moduleId',
+        foreignField: '_id',
+        as: 'module', 
+      }
+    },
+    { $unwind: '$module' },
+    {
+      $lookup: {
+        from:'plans',
+        localField: 'module.planId',
+        foreignField: '_id',
+        as: 'plan', 
+        pipeline:[{
+          $match: { category:'risk-management' }
+        }]
+      }
+    },
+    { $unwind: '$plan' }
   ]);
   if (!result || result.length === 0) {
     throw new Error('User does not belong to this library');
