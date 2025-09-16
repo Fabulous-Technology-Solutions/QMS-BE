@@ -47,6 +47,7 @@ export default class ReportService {
       );
     }
     
+    
     const nextScheduleDate = this.getNextScheduleDate(data?.scheduleFrequency);
     const newReport = new this.reportModel({
       name: data.name,
