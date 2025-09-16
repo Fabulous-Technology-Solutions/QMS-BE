@@ -9,16 +9,65 @@ export const createAction = async (data: CreateActionRequest) => {
 };
 
 export const getActionById = async (actionId: string, userId: string | undefined) => {
-  const match: ActionMatchQuery = { _id: actionId, isDeleted: false };
+  const match: ActionMatchQuery = { _id: new mongoose.Types.ObjectId(actionId), isDeleted: false };
   if (userId) {
     match.assignedTo = { $in: [new mongoose.Types.ObjectId(userId)] };
   }
 
-  const action = await Action.findOne(match)
-    .populate('createdBy', 'name email profilePicture')
-    .populate('assignedTo', 'name email profilePicture')
-    .populate('library', 'name description');
+  const result = await Action.aggregate([
+    { $match: match },
+    {
+      $lookup: {
+        from: 'users',
+        localField: 'createdBy',
+        foreignField: '_id',
+        as: 'createdBy',
+      },
+    },
+    { $unwind: { path: '$createdBy', preserveNullAndEmptyArrays: true } },
+    {
+      $lookup: {
+        from: 'users',
+        localField: 'assignedTo',
+        foreignField: '_id',
+        as: 'assignedTo',
+        pipeline: [
+          { $match: { isDeleted: false } }
+        ]
+      },
+    },
+    {
+      $lookup: {
+        from: 'libraries',
+        localField: 'library',
+        foreignField: '_id',
+        as: 'library',
+        pipeline: [
+          { $match: { isDeleted: false } }
+        ]
+      },
+    },
+    { $unwind: { path: '$library', preserveNullAndEmptyArrays: true } },
+    {
+      $project: {
+        createdBy: { name: 1, email: 1, profilePicture: 1, _id: 1 },
+        assignedTo: { name: 1, email: 1, profilePicture: 1, _id: 1 },
+        library: { name: 1, description: 1, _id: 1 },
+        _id: 1,
+        name: 1,
+        description: 1,
+        priority: 1,
+        type: 1,
+        status: 1,
+        startDate: 1,
+        endDate: 1,
+        docfile: 1,
+        docfileKey: 1,
+      },
+    },
+  ]);
 
+  const action = result[0];
   if (!action) {
     throw new Error('Action not found');
   }
@@ -52,6 +101,9 @@ export const getLibraryMembersByAction = async (
         localField: 'library',
         foreignField: '_id',
         as: 'library',
+        pipeline: [
+          { $match: { isDeleted: false } }
+        ]
       },
     },
     { $unwind: '$library' },
@@ -106,6 +158,9 @@ export const getActionsByLibrary = async (libraryId: string, page: number = 1, l
         localField: 'library',
         foreignField: '_id',
         as: 'library',
+        pipeline: [
+          { $match: { isDeleted: false } }
+        ]
       },
     },
     { $unwind: '$library' },
@@ -115,6 +170,9 @@ export const getActionsByLibrary = async (libraryId: string, page: number = 1, l
         localField: 'createdBy',
         foreignField: '_id',
         as: 'createdBy',
+        pipeline: [
+          { $match: { isDeleted: false } }
+        ]
       },
     },
     { $unwind: { path: '$createdBy', preserveNullAndEmptyArrays: true } },
@@ -124,6 +182,9 @@ export const getActionsByLibrary = async (libraryId: string, page: number = 1, l
         localField: 'assignedTo',
         foreignField: '_id',
         as: 'assignedTo',
+        pipeline: [
+          { $match: { isDeleted: false } }
+        ]
       },
     },
     {
@@ -132,6 +193,9 @@ export const getActionsByLibrary = async (libraryId: string, page: number = 1, l
         localField: 'cause',
         foreignField: '_id',
         as: 'cause',
+        pipeline: [
+          { $match: { isDeleted: false } }
+        ]
       },
     },
     { $unwind: { path: '$cause', preserveNullAndEmptyArrays: true } },
@@ -305,6 +369,9 @@ export const getActionsByAssignedTo = async (
         localField: 'createdBy',
         foreignField: '_id',
         as: 'createdBy',
+        pipeline: [
+          { $match: { isDeleted: false } }
+        ]
       },
     },
     { $unwind: { path: '$createdBy', preserveNullAndEmptyArrays: true } },
@@ -398,6 +465,9 @@ export const getActionsByWorkspace = async (
         localField: 'library',
         foreignField: '_id',
         as: 'library',
+        pipeline: [
+          { $match: { isDeleted: false } }
+        ]
       },
     },
     { $unwind: '$library' },
@@ -410,6 +480,9 @@ export const getActionsByWorkspace = async (
         localField: 'createdBy',
         foreignField: '_id',
         as: 'createdBy',
+        pipeline: [
+          { $match: { isDeleted: false } }
+        ]
       },
     },
     { $unwind: { path: '$createdBy', preserveNullAndEmptyArrays: true } },
@@ -419,6 +492,9 @@ export const getActionsByWorkspace = async (
         localField: 'assignedTo',
         foreignField: '_id',
         as: 'assignedTo',
+        pipeline: [
+          { $match: { isDeleted: false } }
+        ]
       },
     },
     {

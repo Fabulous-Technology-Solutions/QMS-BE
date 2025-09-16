@@ -8,7 +8,7 @@ const mongoose_1 = __importDefault(require("mongoose"));
 const risklibrary_modal_1 = require("./risklibrary.modal");
 const user_subAdmin_1 = __importDefault(require("../../../user/user.subAdmin"));
 const activitylogs_modal_1 = __importDefault(require("../../../activitylogs/activitylogs.modal"));
-const pdfTemplate_1 = require("../../../utils/pdfTemplate");
+const pdfTemplateRisk_1 = require("../../../utils/pdfTemplateRisk");
 const upload_middleware_1 = require("../../../upload/upload.middleware");
 const puppeteer_config_1 = require("../../../../utils/puppeteer.config");
 const workspace_modal_1 = __importDefault(require("../../../../modules/workspace/workspace.modal"));
@@ -183,7 +183,7 @@ const getLibrariesfilterData = async (workspaceId, page, limit, search) => {
                             localField: 'assignedTo',
                             foreignField: '_id',
                             as: 'assignedTo',
-                            pipeline: [{ $project: { name: 1, email: 1, profilePicture: 1 } }],
+                            pipeline: [{ $match: { isDeleted: false } }, { $project: { name: 1, email: 1, profilePicture: 1 } }],
                         },
                     },
                     {
@@ -192,7 +192,7 @@ const getLibrariesfilterData = async (workspaceId, page, limit, search) => {
                             localField: 'cause',
                             foreignField: '_id',
                             as: 'cause',
-                            pipeline: [{ $project: { name: 1, description: 1 } }],
+                            pipeline: [{ $match: { isDeleted: false } }, { $project: { name: 1, description: 1 } }],
                         },
                     },
                     { $unwind: { path: '$cause', preserveNullAndEmptyArrays: true } }
@@ -205,7 +205,7 @@ const getLibrariesfilterData = async (workspaceId, page, limit, search) => {
                 localField: 'members',
                 foreignField: '_id',
                 as: 'members',
-                pipeline: [{ $project: { name: 1, email: 1, profilePicture: 1 } }],
+                pipeline: [{ $match: { isDeleted: false } }, { $project: { name: 1, email: 1, profilePicture: 1 } }],
             },
         },
         {
@@ -214,8 +214,32 @@ const getLibrariesfilterData = async (workspaceId, page, limit, search) => {
                 localField: 'managers',
                 foreignField: '_id',
                 as: 'managers',
-                pipeline: [{ $project: { name: 1, email: 1, profilePicture: 1 } }],
+                pipeline: [{ $match: { isDeleted: false } }, { $project: { name: 1, email: 1, profilePicture: 1 } }],
             },
+        },
+        {
+            $lookup: {
+                from: 'sites',
+                localField: 'site',
+                foreignField: '_id',
+                as: 'site',
+                pipeline: [{ $project: { name: 1 } }],
+            },
+        },
+        {
+            $unwind: { path: '$site', preserveNullAndEmptyArrays: true },
+        },
+        {
+            $lookup: {
+                from: 'processes',
+                localField: 'process',
+                foreignField: '_id',
+                as: 'process',
+                pipeline: [{ $project: { name: 1 } }],
+            },
+        },
+        {
+            $unwind: { path: '$process', preserveNullAndEmptyArrays: true },
         },
         { $skip: (page - 1) * limit },
         { $limit: limit },
@@ -277,7 +301,7 @@ const addMemberToLibrary = async (libraryId, members) => {
             }
             library.members.push(memberId);
         }
-        return await library.save();
+        return await risklibrary_modal_1.LibraryModel.updateOne({ _id: library._id }, { members: library.members }, { new: true });
     }
     catch (error) {
         console.error('Error adding members to library:', error);
@@ -324,6 +348,7 @@ const getLibraryMembers = async (libraryId, page = 1, limit = 10, search = '') =
                 foreignField: '_id',
                 as: 'members',
                 pipeline: [
+                    { $match: { isDeleted: false } },
                     ...(search ? [{ $match: memberMatch }] : []),
                     { $project: { name: 1, email: 1, profilePicture: 1, role: 1, status: 1 } },
                 ],
@@ -335,7 +360,7 @@ const getLibraryMembers = async (libraryId, page = 1, limit = 10, search = '') =
                 localField: 'managers',
                 foreignField: '_id',
                 as: 'managers',
-                pipeline: [{ $project: { name: 1, email: 1, profilePicture: 1, role: 1, status: 1 } }],
+                pipeline: [{ $match: { isDeleted: false } }, { $project: { name: 1, email: 1, profilePicture: 1, role: 1, status: 1 } }],
             },
         },
         { $unwind: '$members' },
@@ -370,14 +395,14 @@ const getLibraryMembers = async (libraryId, page = 1, limit = 10, search = '') =
     };
 };
 exports.getLibraryMembers = getLibraryMembers;
-const checkAdminBelongsTtoLibrary = async (libraryId, userId, dataType) => {
+const checkAdminBelongsTtoLibrary = async (libraryId, userId) => {
     const Querydata = {
         _id: new mongoose_1.default.Types.ObjectId(libraryId),
         isDeleted: false,
     };
-    if (dataType === 'mydocuments') {
-        Querydata['managers'] = { $in: [userId] };
-    }
+    // if (dataType === 'mydocuments') {
+    //   Querydata['managers'] = { $in: [userId] };
+    // }
     const library = await risklibrary_modal_1.LibraryModel.aggregate([
         { $match: Querydata },
         {
@@ -512,7 +537,7 @@ const checkUserBelongsToLibrary = async (libraryId, user, dataType) => {
     };
     console.log('Query data for user library check:', libraryId, 'User ID:', user?._id);
     if (dataType === 'mydocuments') {
-        Querydata['managers'] = { $in: [user?._id] };
+        Querydata['managers'] = { $in: [new mongoose_1.default.Types.ObjectId(user?._id)] };
     }
     console.log('Query data for user library check:', Querydata, 'User ID:', dataType);
     const result = await risklibrary_modal_1.LibraryModel.aggregate([
@@ -586,7 +611,7 @@ const getLibrariesByManager = async (workspaceId, managerId, page, limit, search
                             localField: 'assignedTo',
                             foreignField: '_id',
                             as: 'assignedTo',
-                            pipeline: [{ $project: { name: 1, email: 1, profilePicture: 1 } }],
+                            pipeline: [{ $match: { isDeleted: false } }, { $project: { name: 1, email: 1, profilePicture: 1 } }],
                         },
                     },
                     { $lookup: {
@@ -594,7 +619,7 @@ const getLibrariesByManager = async (workspaceId, managerId, page, limit, search
                             localField: 'cause',
                             foreignField: '_id',
                             as: 'cause',
-                            pipeline: [{ $project: { name: 1, description: 1 } }],
+                            pipeline: [{ $match: { isDeleted: false } }, { $project: { name: 1, description: 1 } }],
                         },
                     },
                     { $unwind: { path: '$cause', preserveNullAndEmptyArrays: true } },
@@ -607,7 +632,7 @@ const getLibrariesByManager = async (workspaceId, managerId, page, limit, search
                 localField: 'members',
                 foreignField: '_id',
                 as: 'members',
-                pipeline: [{ $project: { name: 1, email: 1, profilePicture: 1 } }],
+                pipeline: [{ $match: { isDeleted: false } }, { $project: { name: 1, email: 1, profilePicture: 1 } }],
             },
         },
         {
@@ -640,7 +665,7 @@ const getLibrariesByManager = async (workspaceId, managerId, page, limit, search
                 localField: 'managers',
                 foreignField: '_id',
                 as: 'managers',
-                pipeline: [{ $project: { name: 1, email: 1, profilePicture: 1 } }],
+                pipeline: [{ $match: { isDeleted: false } }, { $project: { name: 1, email: 1, profilePicture: 1 } }],
             },
         },
         { $skip: (page - 1) * limit },
@@ -705,14 +730,14 @@ const generateReport = async (libraryId) => {
         browser = await (0, puppeteer_config_1.launchBrowser)();
         page = await browser?.newPage();
         const [findLibrary] = await risklibrary_modal_1.LibraryModel.aggregate([
-            { $match: { _id: new mongoose_1.default.Types.ObjectId(libraryId) } },
+            { $match: { _id: new mongoose_1.default.Types.ObjectId(libraryId), isDeleted: false } },
             {
                 $lookup: {
                     from: 'users',
                     localField: 'members',
                     foreignField: '_id',
                     as: 'members',
-                    pipeline: [{ $project: { name: 1, email: 1, profilePicture: 1, role: 1 } }],
+                    pipeline: [{ $match: { isDeleted: false } }, { $project: { name: 1, email: 1, profilePicture: 1, role: 1 } }],
                 },
             },
             {
@@ -721,7 +746,7 @@ const generateReport = async (libraryId) => {
                     localField: 'managers',
                     foreignField: '_id',
                     as: 'managers',
-                    pipeline: [{ $project: { name: 1, email: 1, profilePicture: 1, role: 1 } }],
+                    pipeline: [{ $match: { isDeleted: false } }, { $project: { name: 1, email: 1, profilePicture: 1, role: 1 } }],
                 },
             },
             {
@@ -746,7 +771,7 @@ const generateReport = async (libraryId) => {
                                 localField: 'assignedTo',
                                 foreignField: '_id',
                                 as: 'assignedTo',
-                                pipeline: [{ $project: { name: 1, email: 1, profilePicture: 1 } }],
+                                pipeline: [{ $match: { isDeleted: false } }, { $project: { name: 1, email: 1, profilePicture: 1 } }],
                             },
                         },
                         {
@@ -770,9 +795,9 @@ const generateReport = async (libraryId) => {
             },
             {
                 $addFields: {
-                    pendingActions: {
+                    closedActions: {
                         $size: {
-                            $ifNull: [{ $filter: { input: '$actions', as: 'action', cond: { $eq: ['$$action.status', 'pending'] } } }, []],
+                            $ifNull: [{ $filter: { input: '$actions', as: 'action', cond: { $eq: ['$$action.status', 'closed'] } } }, []],
                         },
                     },
                     inProgressActions: {
@@ -783,17 +808,9 @@ const generateReport = async (libraryId) => {
                             ],
                         },
                     },
-                    onHoldActions: {
+                    openActions: {
                         $size: {
-                            $ifNull: [{ $filter: { input: '$actions', as: 'action', cond: { $eq: ['$$action.status', 'on-hold'] } } }, []],
-                        },
-                    },
-                    completedActions: {
-                        $size: {
-                            $ifNull: [
-                                { $filter: { input: '$actions', as: 'action', cond: { $eq: ['$$action.status', 'completed'] } } },
-                                [],
-                            ],
+                            $ifNull: [{ $filter: { input: '$actions', as: 'action', cond: { $eq: ['$$action.status', 'open'] } } }, []],
                         },
                     },
                 },
@@ -802,7 +819,7 @@ const generateReport = async (libraryId) => {
         // if (!findLibrary) {
         //   throw new Error('Library not found');
         // };
-        const pdfContent = await (0, pdfTemplate_1.pdfTemplate)(findLibrary);
+        const pdfContent = await (0, pdfTemplateRisk_1.pdfTemplate)(findLibrary);
         await page.setContent(pdfContent, {
             waitUntil: 'networkidle0',
             timeout: 120000,
@@ -870,7 +887,7 @@ const generateFilterReport = async (workspaceId, site, process, status) => {
                     localField: 'members',
                     foreignField: '_id',
                     as: 'members',
-                    pipeline: [{ $project: { name: 1, email: 1, profilePicture: 1, role: 1 } }],
+                    pipeline: [{ $match: { isDeleted: false } }, { $project: { name: 1, email: 1, profilePicture: 1, role: 1 } }],
                 },
             },
             {
@@ -879,12 +896,12 @@ const generateFilterReport = async (workspaceId, site, process, status) => {
                     localField: 'managers',
                     foreignField: '_id',
                     as: 'managers',
-                    pipeline: [{ $project: { name: 1, email: 1, profilePicture: 1, role: 1 } }],
+                    pipeline: [{ $match: { isDeleted: false } }, { $project: { name: 1, email: 1, profilePicture: 1, role: 1 } }],
                 },
             },
             {
                 $lookup: {
-                    from: 'causes',
+                    from: 'riskcauses',
                     localField: '_id',
                     foreignField: 'library',
                     as: 'causes',
@@ -893,18 +910,19 @@ const generateFilterReport = async (workspaceId, site, process, status) => {
             },
             {
                 $lookup: {
-                    from: 'actions',
+                    from: 'riskactions',
                     localField: '_id',
                     foreignField: 'library',
                     as: 'actions',
                     pipeline: [
+                        { $match: { isDeleted: false } },
                         {
                             $lookup: {
                                 from: 'users',
                                 localField: 'assignedTo',
                                 foreignField: '_id',
                                 as: 'assignedTo',
-                                pipeline: [{ $project: { name: 1, email: 1, profilePicture: 1 } }],
+                                pipeline: [{ $match: { isDeleted: false } }, { $project: { name: 1, email: 1, profilePicture: 1 } }],
                             },
                         },
                         {
@@ -928,9 +946,9 @@ const generateFilterReport = async (workspaceId, site, process, status) => {
             },
             {
                 $addFields: {
-                    pendingActions: {
+                    openActions: {
                         $size: {
-                            $ifNull: [{ $filter: { input: '$actions', as: 'action', cond: { $eq: ['$$action.status', 'pending'] } } }, []],
+                            $ifNull: [{ $filter: { input: '$actions', as: 'action', cond: { $eq: ['$$action.status', 'open'] } } }, []],
                         },
                     },
                     inProgressActions: {
@@ -941,17 +959,9 @@ const generateFilterReport = async (workspaceId, site, process, status) => {
                             ],
                         },
                     },
-                    onHoldActions: {
+                    closedActions: {
                         $size: {
-                            $ifNull: [{ $filter: { input: '$actions', as: 'action', cond: { $eq: ['$$action.status', 'on-hold'] } } }, []],
-                        },
-                    },
-                    completedActions: {
-                        $size: {
-                            $ifNull: [
-                                { $filter: { input: '$actions', as: 'action', cond: { $eq: ['$$action.status', 'completed'] } } },
-                                [],
-                            ],
+                            $ifNull: [{ $filter: { input: '$actions', as: 'action', cond: { $eq: ['$$action.status', 'closed'] } } }, []],
                         },
                     },
                 },
@@ -964,7 +974,7 @@ const generateFilterReport = async (workspaceId, site, process, status) => {
         }
         browser = await (0, puppeteer_config_1.launchBrowser)();
         page = await browser?.newPage();
-        const pdfContent = await (0, pdfTemplate_1.pdfTemplateforMutiples)(findLibraries);
+        const pdfContent = await (0, pdfTemplateRisk_1.pdfTemplateforMutiples)(findLibraries);
         console.log('PDF content generated', pdfContent);
         await page.setContent(pdfContent, {
             waitUntil: 'networkidle0',

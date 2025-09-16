@@ -33,7 +33,7 @@ export default class ReportService {
     const report = await this.generateFilterReport(data.workspace, data.process, data.site, data.status);
     const users = await User.find({ _id: { $in: data.assignUsers } });
     const emailAddresses = users.map(user => user.email);
-    
+    console.log('Email addresses:', emailAddresses);
     if (emailAddresses && emailAddresses.length > 0 && report?.Location) {
       await sendEmail(
         emailAddresses.join(',') || "<default_email@example.com>",

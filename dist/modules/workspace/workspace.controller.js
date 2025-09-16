@@ -3,13 +3,14 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.filterPreviewReportController = exports.AttentionController = exports.getCapaworkspaceAnalyticsController = exports.deleteCapaworkspaceController = exports.updateCapaworkspaceController = exports.getCapaworkspaceByIdController = exports.getAllCapaworkspacesController = exports.createCapaworkspaceController = void 0;
+exports.filterPreviewRiskReportController = exports.filterPreviewReportController = exports.AttentionController = exports.getCapaworkspaceAnalyticsController = exports.deleteCapaworkspaceController = exports.updateCapaworkspaceController = exports.getCapaworkspaceByIdController = exports.getAllCapaworkspacesController = exports.createCapaworkspaceController = void 0;
 const index_1 = require("./index");
 const http_status_1 = __importDefault(require("http-status"));
 const catchAsync_1 = __importDefault(require("../utils/catchAsync"));
 const ApiError_1 = __importDefault(require("../errors/ApiError"));
 const action_service_1 = require("../capa/workspace/capalibrary/action/action.service");
 const capalibrary_service_1 = require("../capa/workspace/capalibrary/capalibrary.service");
+const risklibrary_service_1 = require("../risk/workspace/library/risklibrary.service");
 exports.createCapaworkspaceController = (0, catchAsync_1.default)(async (req, res) => {
     const workspace = await index_1.workspaceService.createCapaworkspace({ ...req.body, user: req.user });
     res.locals['message'] = 'create workspace';
@@ -17,6 +18,7 @@ exports.createCapaworkspaceController = (0, catchAsync_1.default)(async (req, re
     res.locals['collectionName'] = 'Workspace';
     res.locals['changes'] = workspace;
     res.locals['logof'] = req.body.moduleId || null;
+    ``;
     return res.status(http_status_1.default.CREATED).send({
         success: true,
         data: workspace,
@@ -114,5 +116,10 @@ exports.AttentionController = (0, catchAsync_1.default)(async (req, res) => {
 exports.filterPreviewReportController = (0, catchAsync_1.default)(async (req, res) => {
     const { site, process, status } = req.query;
     const report = await (0, capalibrary_service_1.generateFilterReport)(req.params['workspaceId'], site, process, status);
+    res.status(200).json({ report, success: true });
+});
+exports.filterPreviewRiskReportController = (0, catchAsync_1.default)(async (req, res) => {
+    const { site, process, status } = req.query;
+    const report = await (0, risklibrary_service_1.generateFilterReport)(req.params['workspaceId'], site, process, status);
     res.status(200).json({ report, success: true });
 });

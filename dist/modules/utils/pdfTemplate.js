@@ -442,7 +442,7 @@ const pdfTemplate = async (findLibrary) => {
                                     <span style="color: #2e263de5">${action?.cause ? 'Attached' : 'N/A'}</span>
                                     </div>
                             </div>
-                            </div>
+                            
     
                     </div>`)}
 
@@ -916,7 +916,7 @@ const pdfTemplateforMutiples = async (libraries) => {
                                     <span style="color: #2e263de5">${action?.cause ? 'Attached' : 'N/A'}</span>
                                     </div>
                             </div>
-                            </div>
+        
     
                     </div>`)}
 

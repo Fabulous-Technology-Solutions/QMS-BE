@@ -57,5 +57,10 @@ router.get(
   auth('manageCapa'),
   workspaceController.filterPreviewReportController
 );
+router.get(
+  "/module/:workspaceId/riskfilter",
+  auth('manageCapa'),
+  workspaceController.filterPreviewRiskReportController
+);
 
 export default router;

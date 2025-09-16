@@ -10,6 +10,6 @@ router.post("/", auth("Risk_createAttachment"), checkValidation, validate(Attach
 router.patch("/libraries/:libraryId/attachment/:attachmentId", auth("Risk_updateAttachment"), checkValidation, activityLoggerMiddleware,validate(AttachmentValidation.updateAttachmentSchema), AttachmentController.update);
 router.delete("/libraries/:libraryId/attachment/:attachmentId", auth("Risk_deleteAttachment"), checkValidation, activityLoggerMiddleware, AttachmentController.delete);
 router.get("/libraries/:libraryId/attachment/:attachmentId", auth("Risk_getAttachmentById"), checkValidation, AttachmentController.getById);
-router.get("/libraries/:libraryId/attachments", auth("Risk_getAttachmentsByWorkspace"), checkValidation, AttachmentController.getByLibrary);
+router.get("/libraries/:libraryId/attachments", auth("Risk_getAttachmentsByLibrary"), checkValidation, AttachmentController.getByLibrary);
 
 export default router;

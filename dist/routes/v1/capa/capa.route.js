@@ -18,4 +18,5 @@ router.get("/module/:workspaceId", (0, auth_1.auth)('manageCapa'), workspace_1.w
 router.get("/module/:workspaceId/analytics", (0, auth_1.auth)('manageCapa'), workspace_1.workspaceController.getCapaworkspaceAnalyticsController);
 router.get("/module/:workspaceId/attention", (0, auth_1.auth)('needAttention'), workspace_1.workspaceController.AttentionController);
 router.get("/module/:workspaceId/filter", (0, auth_1.auth)('manageCapa'), workspace_1.workspaceController.filterPreviewReportController);
+router.get("/module/:workspaceId/riskfilter", (0, auth_1.auth)('manageCapa'), workspace_1.workspaceController.filterPreviewRiskReportController);
 exports.default = router;

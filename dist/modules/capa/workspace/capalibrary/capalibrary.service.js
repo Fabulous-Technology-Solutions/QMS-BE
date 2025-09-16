@@ -38,16 +38,71 @@ const CreateLibrary = async (body) => {
 };
 exports.CreateLibrary = CreateLibrary;
 const getLibraryById = async (libraryId) => {
-    const data = await capalibrary_modal_1.LibraryModel.findOne({ _id: libraryId, isDeleted: false })
-        .populate('members', 'name email profilePicture')
-        .populate('managers', 'name email profilePicture')
-        .populate('containment.responsibles', 'name email profilePicture')
-        .populate('site', 'name')
-        .populate('process', 'name');
-    if (!data) {
+    const data = await capalibrary_modal_1.LibraryModel.aggregate([
+        {
+            $match: {
+                _id: new mongoose_1.default.Types.ObjectId(libraryId),
+                isDeleted: false
+            }
+        },
+        {
+            $lookup: {
+                from: 'users',
+                localField: 'members',
+                foreignField: '_id',
+                as: 'members',
+                pipeline: [{
+                        $match: { isDeleted: false }
+                    }, { $project: { name: 1, email: 1, profilePicture: 1 } }]
+            }
+        },
+        {
+            $lookup: {
+                from: 'users',
+                localField: 'managers',
+                foreignField: '_id',
+                as: 'managers',
+                pipeline: [{ $match: { isDeleted: false } }, { $project: { name: 1, email: 1, profilePicture: 1 } }]
+            }
+        },
+        {
+            $lookup: {
+                from: 'users',
+                localField: 'containment.responsibles',
+                foreignField: '_id',
+                as: 'containment.responsibles',
+                pipeline: [{ $match: { isDeleted: false } }, { $project: { name: 1, email: 1, profilePicture: 1 } }]
+            }
+        },
+        {
+            $lookup: {
+                from: 'sites',
+                localField: 'site',
+                foreignField: '_id',
+                as: 'site',
+                pipeline: [{ $project: { name: 1 } }]
+            }
+        },
+        {
+            $unwind: { path: '$site', preserveNullAndEmptyArrays: true }
+        },
+        {
+            $lookup: {
+                from: 'processes',
+                localField: 'process',
+                foreignField: '_id',
+                as: 'process',
+                pipeline: [{ $project: { name: 1 } }]
+            }
+        },
+        {
+            $unwind: { path: '$process', preserveNullAndEmptyArrays: true }
+        }
+    ]);
+    if (!data || data.length === 0) {
         throw new Error('Library not found');
     }
-    return data;
+    return data[0];
 };
 exports.getLibraryById = getLibraryById;
 const getLibrariesByWorkspace = async (workspaceId, page, limit, search, isDeleted) => {
@@ -258,7 +313,7 @@ const addMemberToLibrary = async (libraryId, members) => {
             }
             library.members.push(memberId);
         }
-        return await library.save();
+        return await capalibrary_modal_1.LibraryModel.updateOne({ _id: library._id }, { members: library.members }, { new: true });
     }
     catch (error) {
         console.error('Error adding members to library:', error);
@@ -351,14 +406,14 @@ const getLibraryMembers = async (libraryId, page = 1, limit = 10, search = '') =
     };
 };
 exports.getLibraryMembers = getLibraryMembers;
-const checkAdminBelongsTtoLibrary = async (libraryId, userId, dataType) => {
+const checkAdminBelongsTtoLibrary = async (libraryId, userId) => {
     const Querydata = {
         _id: new mongoose_1.default.Types.ObjectId(libraryId),
         isDeleted: false,
     };
-    if (dataType === 'mydocuments') {
-        Querydata['managers'] = { $in: [userId] };
-    }
+    // if (dataType === 'mydocuments') {
+    //   Querydata['managers'] = { $in: [userId] };
+    // }
     const library = await capalibrary_modal_1.LibraryModel.aggregate([
         { $match: Querydata },
         {

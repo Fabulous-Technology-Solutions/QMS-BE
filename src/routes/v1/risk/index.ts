@@ -9,6 +9,7 @@ import riskAttachment from './attachment.route';
 import riskAssessment from './assessment.route';
 import riskAttention from './attention.route';
 import riskReport from './report.route';
+import riskReportHistory from './reporthistory.route';
 export {
     riskLibraryRoute,
     riskControlRoute,
@@ -20,5 +21,6 @@ export {
     riskIsikawaRoute,
     riskAction,
     riskFivewhys,
-    riskReport
+    riskReport,
+    riskReportHistory
 }

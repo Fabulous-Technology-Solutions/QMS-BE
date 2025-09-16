@@ -8,7 +8,7 @@ const capalibrary_service_1 = require("./capalibrary.service");
 const checkValidation = (0, catchAsync_1.default)(async (req, _, next) => {
     const { user } = req;
     if (user.role === 'admin') {
-        await (0, capalibrary_service_1.checkAdminBelongsTtoLibrary)(req.params['libraryId'] || req.body.library, user._id, req.headers["datatype"]);
+        await (0, capalibrary_service_1.checkAdminBelongsTtoLibrary)(req.params['libraryId'] || req.body.library, user._id);
     }
     else if (user.role === 'subadmin') {
         await (0, capalibrary_service_1.checkSubAdminBelongsToLibrary)(req.params['libraryId'] || req.body.library, user._id, req.headers["datatype"]);

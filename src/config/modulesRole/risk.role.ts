@@ -35,12 +35,12 @@ const RiskadminRoles = [
   // Attachment permissions
   'Risk_createAttachment',
   'Risk_getAttachmentById',
-  'Risk_getAttachmentsByWorkspace',
+  'Risk_getAttachmentsByLibrary',
   'Risk_updateAttachment',
   'Risk_deleteAttachment',
  // assessment permissions
   'risk_createAssessment',
-  'risk_getAssessmentById',
+  'risk_getSingleAssessment',
   'risk_getAssessmentsByLibrary',
   'risk_updateAssessment',
   'risk_deleteAssessment',
@@ -87,9 +87,9 @@ const RiskSubadminRoles = [
   'Risk_getIshikawa',
   'Risk_getIshikawaByLibrary',
   'Risk_deleteIshikawa',
-    // assessment permissions
+ // assessment permissions
   'risk_createAssessment',
-  'risk_getAssessmentById',
+  'risk_getSingleAssessment',
   'risk_getAssessmentsByLibrary',
   'risk_updateAssessment',
   'risk_deleteAssessment',
@@ -98,7 +98,13 @@ const RiskSubadminRoles = [
   'risk-getReports',
   'risk-getReport',
   'risk-updateReport',
-  'risk-deleteReport'
+  'risk-deleteReport',
+   // Attachment permissions
+  'Risk_createAttachment',
+  'Risk_getAttachmentById',
+  'Risk_getAttachmentsByLibrary',
+  'Risk_updateAttachment',
+  'Risk_deleteAttachment',
 ];
 
 const RiskWAdmin = [
@@ -136,8 +142,8 @@ const RiskWAdmin = [
   'Risk_deleteIshikawa',
     // assessment permissions
   'risk_createAssessment',
-  'risk_getAssessmentById',
-    'risk_getAssessmentsByLibrary',
+  'risk_getSingleAssessment',
+  'risk_getAssessmentsByLibrary',
   'risk_updateAssessment',
   'risk_deleteAssessment',
     // report permissions
@@ -145,7 +151,13 @@ const RiskWAdmin = [
   'risk-getReports',
   'risk-getReport',
   'risk-updateReport',
-  'risk-deleteReport'
+  'risk-deleteReport',
+   // Attachment permissions
+  'Risk_createAttachment',
+  'Risk_getAttachmentById',
+  'Risk_getAttachmentsByLibrary',
+  'Risk_updateAttachment',
+  'Risk_deleteAttachment',
 ];
 
 const RiskViewer = [
@@ -173,12 +185,17 @@ const RiskViewer = [
   // Ishikawa permissions
   'Risk_getIshikawa',
   'Risk_getIshikawaByLibrary',
-    // assessment permissions
-  'risk_getAssessmentById',
+// assessment permissions
+
+  'risk_getSingleAssessment',
   'risk_getAssessmentsByLibrary',
     // report permissions
   'risk-getReports',
-  'risk-getReport'
+  'risk-getReport',
+   // Attachment permissions
+  'Risk_getAttachmentById',
+  'Risk_getAttachmentsByLibrary',
+
 ];
 
 const RiskEditer = [
@@ -210,15 +227,21 @@ const RiskEditer = [
   'Risk_getIshikawaByLibrary',
   'Risk_deleteIshikawa',
     // assessment permissions
-  'risk_getAssessmentById',
-  'risk_getAssessmentsByWorkspace',
+// assessment permissions
+
+  'risk_getSingleAssessment',
+  'risk_getAssessmentsByLibrary',
   'risk_updateAssessment',
-  'risk_deleteAssessment',
+
     // report permissions
   'risk-getReports',
   'risk-getReport',
   'risk-updateReport',
-  'risk-deleteReport'
+  'risk-deleteReport',
+   // Attachment permissions
+  'Risk_getAttachmentById',
+  'Risk_getAttachmentsByLibrary',
+  'Risk_updateAttachment',
 ];
 
 const RiskstandardUser = [
@@ -245,9 +268,9 @@ const RiskstandardUser = [
   'Risk_getIshikawa',
   'Risk_getIshikawaByLibrary',
   'Risk_deleteIshikawa',
-    // assessment permissions
+// assessment permissions
   'risk_createAssessment',
-  'risk_getAssessmentById',
+  'risk_getSingleAssessment',
   'risk_getAssessmentsByLibrary',
   'risk_updateAssessment',
   'risk_deleteAssessment',
@@ -256,6 +279,12 @@ const RiskstandardUser = [
   'risk-getReports',
   'risk-getReport',
   'risk-updateReport',
-  'risk-deleteReport'
+  'risk-deleteReport',
+   // Attachment permissions
+  'Risk_createAttachment',
+  'Risk_getAttachmentById',
+  'Risk_getAttachmentsByLibrary',
+  'Risk_updateAttachment',
+  'Risk_deleteAttachment',
 ];
 export { RiskWAdmin, RiskSubadminRoles, RiskadminRoles, RiskstandardUser, RiskViewer, RiskEditer };

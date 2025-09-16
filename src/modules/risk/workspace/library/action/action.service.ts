@@ -9,16 +9,63 @@ export const createAction = async (data: CreateActionRequest) => {
 };
 
 export const getActionById = async (actionId: string, userId: string | undefined) => {
-  const match: ActionMatchQuery = { _id: actionId, isDeleted: false };
+  const match: ActionMatchQuery = { _id: new mongoose.Types.ObjectId(actionId), isDeleted: false };
   if (userId) {
     match.assignedTo = { $in: [new mongoose.Types.ObjectId(userId)] };
   }
 
-  const action = await Action.findOne(match)
-    .populate('createdBy', 'name email profilePicture')
-    .populate('assignedTo', 'name email profilePicture')
-    .populate('library', 'name description');
+  const result = await Action.aggregate([
+    { $match: match },
+    {
+      $lookup: {
+        from: 'users',
+        localField: 'createdBy',
+        foreignField: '_id',
+        as: 'createdBy',
+        // pipeline: [{ $match: { isDeleted: false } }]
+      },
+    },
+    { $unwind: { path: '$createdBy', preserveNullAndEmptyArrays: true } },
+    {
+      $lookup: {
+        from: 'users',
+        localField: 'assignedTo',
+        foreignField: '_id',
+        as: 'assignedTo',
+        // pipeline: [{ $match: { isDeleted: false } }]
+      },
+    },
+    {
+      $lookup: {
+        from: 'risklibraries',
+        localField: 'library',
+        foreignField: '_id',
+        as: 'library',
+        // pipeline: [{ $match: { isDeleted: false } }]
+      },
+    },
+    { $unwind: { path: '$library', preserveNullAndEmptyArrays: true } },
+    {
+      $project: {
+        _id: 1,
+        name: 1,
+        description: 1,
+        priority: 1,
+        type: 1,
+        status: 1,
+        startDate: 1,
+        endDate: 1,
+        cause: 1,
+        personnel: 1,
+        budget: 1,
+        createdBy: { name: 1, email: 1, profilePicture: 1 },
+        assignedTo: { name: 1, email: 1, profilePicture: 1 },
+        library: { name: 1, description: 1 },
+      },
+    },
+  ]);
 
+  const action = result[0];
   if (!action) {
     throw new Error('Action not found');
   }
@@ -391,7 +438,7 @@ export const getActionsByWorkspace = async (
   limit: number = 10,
   search: string = ''
 ) => {
-  const matchStage = { isDeleted: false, endDate: { $lt: new Date() }, status: { $ne: 'completed' } };
+  const matchStage = { isDeleted: false, endDate: { $lt: new Date() }, status: { $ne: 'closed' } };
   const searchStages = search
     ? [
         {
@@ -455,9 +502,11 @@ export const getActionsByWorkspace = async (
         status: 1,
         startDate: 1,
         endDate: 1,
-        createdBy: { name: 1, email: 1, profilePicture: 1 },
+        budget: 1,
+        personnel: 1,
+        cause: { name: 1, description: 1, _id: 1 },
         assignedTo: { name: 1, email: 1, profilePicture: 1 },
-        library: { name: 1, description: 1,_id: 1},
+        library: { name: 1, description: 1, _id: 1 },
       },
     },
     {

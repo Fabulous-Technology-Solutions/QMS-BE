@@ -9,6 +9,6 @@ const reportHistorySchema = new mongoose.Schema<ReportHistory>({
     timestamps: true
 });
 
-const ReportHistoryModel = mongoose.model<ReportHistory>("ReportHistory", reportHistorySchema);
+const ReportHistoryModel = mongoose.model<ReportHistory>("RiskReportHistory", reportHistorySchema);
 
 export default ReportHistoryModel;

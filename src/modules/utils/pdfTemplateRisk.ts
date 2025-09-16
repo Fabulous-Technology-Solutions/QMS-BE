@@ -55,27 +55,12 @@ interface CAPALibrary {
   actions?: Action[];
   completedActions?: number;
   inProgressActions?: number;
-  pendingActions?: number;
-  onHoldActions?: number;
+  closedActions?: number;
+  openActions?: number;
   checklisthistory: ChecklistHistory[];
 }
 
-const getEffectivenessScore = (list: ChecklistItem[]) => {
-  const totalSelected = list.filter((item) => item.yes || item.no || item.partial).length;
-  const score = (totalSelected / (list.length * 3)) * 100;
-  return score || 0;
-};
 
-const calculateEffectiveness = (list: ChecklistItem[]) => {
-  const no = list.filter((i) => i.no).length;
-  const partial = list.filter((i) => i.partial).length;
-  const yes = list.filter((i) => i.yes).length;
-  return {
-    no,
-    partial,
-    yes,
-  };
-};
 
 export const pdfTemplate = async (findLibrary: CAPALibrary) => {
   console.log('Generating PDF for library:', findLibrary?.checklisthistory);
@@ -137,7 +122,7 @@ export const pdfTemplate = async (findLibrary: CAPALibrary) => {
                             <div class="col-4">
                                     <strong
                                     style="color: #0049b7; font-size: 14px; font-weight: 500"
-                                    >CAPA Name</strong
+                                    >Name</strong
                                     ><br />${findLibrary?.name}
                             </div>
                             <div class="col-4">
@@ -337,7 +322,7 @@ export const pdfTemplate = async (findLibrary: CAPALibrary) => {
                     <div class="p-3">
                             <div class="d-flex justify-content-between mb-2">
                             <h6 style="color: #04aeef; font-size: 14px; font-weight: 600">
-                                    CAPA Cause
+                                    Cause
                             </h6>
                             <span style="color: #04aeef; font-size: 14px; font-weight: 600"
                                     >${findLibrary?.causes?.length || 0}</span
@@ -418,26 +403,20 @@ export const pdfTemplate = async (findLibrary: CAPALibrary) => {
                             <div class="col-3">
                                     <strong
                                     style="color: #34a853; font-size: 14px; font-weight: 500"
-                                    >Action Complete</strong
-                                    ><br />${findLibrary?.completedActions || 0}
+                                    >Action Open</strong
+                                    ><br />${findLibrary?.openActions || 0}
                             </div>
                             <div class="col-3">
                                     <strong
                                     style="color: #04aeef; font-size: 14px; font-weight: 500"
-                                    >Action Incomplete</strong
+                                    >Action In Progress</strong
                                     ><br />${findLibrary?.inProgressActions || 0}
                             </div>
                             <div class="col-3">
                                     <strong
                                     style="color: #ffd200; font-size: 14px; font-weight: 500"
-                                    >Action Pending</strong
-                                    ><br />${findLibrary?.pendingActions || 0}
-                            </div>
-                            <div class="col-3">
-                                    <strong
-                                    style="color: #f68d2b; font-size: 14px; font-weight: 500"
-                                    >Action On Hold</strong
-                                    ><br />${findLibrary?.onHoldActions || 0}
+                                    >Action Closed</strong
+                                    ><br />${findLibrary?.closedActions || 0}
                             </div>
                             </div>
                     </div>
@@ -457,11 +436,10 @@ export const pdfTemplate = async (findLibrary: CAPALibrary) => {
                     <div class="border-bottom p-3">
                             <h6 style="font-size: 14; font-weight: 600; color: #04aeef">
                             Progress Tracking <span class="float-end">$${
-                              (findLibrary?.completedActions || 0) /
-                                ((findLibrary?.completedActions || 0) +
+                              (findLibrary?.closedActions || 0) /
+                                ((findLibrary?.openActions || 0) +
                                   (findLibrary?.inProgressActions || 0) +
-                                  (findLibrary?.pendingActions || 0) +
-                                  (findLibrary?.onHoldActions || 0)) *
+                                  (findLibrary?.closedActions || 0)) *
                                 100 || 0
                             }%</span>
                             </h6>
@@ -523,7 +501,7 @@ export const pdfTemplate = async (findLibrary: CAPALibrary) => {
                                     <span style="color: #2e263de5">${action?.cause ? 'Attached' : 'N/A'}</span>
                                     </div>
                             </div>
-                            
+                           
     
                     </div>`
                             )}
@@ -532,112 +510,7 @@ export const pdfTemplate = async (findLibrary: CAPALibrary) => {
                     </div>
             </section>
 
-            <!-- SECTION 4 -->
-            <section class="mb-5">
-                    <div class="card shadow-sm">
-                    
-
-                    <div class="p-3 border-bottom">
-                            <div class="d-flex justify-content-between">
-                            <h6 style="font-weight: 600">Effectiveness</h6>
-                            </div>
-                            <div class="d-flex justify-content-between align-items-center">
-                            <div style="color: #04aeef; font-size: 14px; font-weight: 600">
-                                    Effectiveness Up to dated
-                            </div>
-                            <br />
-                            </div>
-                    </div>
-
-
-
-                    ${findLibrary?.checklisthistory.map(
-                      (item: ChecklistHistory) => `<div class="p-3 border-bottom">
-                            <div
-                            class="p-3 mb-2 border rounded"
-                            style="background-color: #f1f1f1; border-color: #0049b714"
-                            >
-                            <p>
-                                    <strong style="font-size: 14px; font-weight: 500"
-                                    >Checklist</strong
-                                    ><br />
-                                    <span style="color: #2e263de5; font-size: 14px"
-                            >${item?.checklist?.name}</span
-                                    >
-                            </p>
-
-                            <p>
-                                <strong style="font-size: 14px; font-weight: 500"
-                                >Checklist items</strong
-                                ><br />
-                            </p>
-                            ${item?.list?.map(
-                              (listItem: any) => `<div class="row">
-                                <span style="color: #2e263de5; font-size: 14px">${listItem?.item?.question}</span>
-                                    <div class="col-3">
-                                    <strong style="font-weight: 500">Yes</strong><br />
-                                    <span style="color: #2e263de5">${listItem?.yes ? 'Checked' : 'Not Checked'}</span>
-                                    </div>
-                                    <div class="col-3">
-                                    <strong style="font-weight: 500">No</strong><br />
-                                    <span style="color: #2e263de5">${listItem?.no ? 'Checked' : 'Not Checked'}</span>
-                                    </div>
-                                    <div class="col-3">
-                                    <strong style="font-weight: 500">Evidence</strong><br />
-                                    <span style="color: #2e263de5">${listItem?.evidence ? 'Attached' : 'N/A'}</span>
-                                    </div>
-                                    <div class="col-3">
-                                    <strong style="font-weight: 500">Partial</strong><br />
-                                    <span style="color: #2e263de5">${listItem?.partial ? 'Checked' : 'Not Checked'}</span>
-                                    </div>
-                                    <div class="col-3">
-                                    <strong style="font-weight: 500">Comments</strong><br />
-                                    <span style="color: #2e263de5">${listItem?.comment || 'N/A'}</span>
-                                    </div>    
-                            </div>`
-                            )}
-                            </div>
-                            <div class="p-3 border-bottom">
-                            <div
-                            style="
-                                    color: #04aeef;
-                                    font-size: 14px;
-                                    font-weight: 600;
-                                    padding-bottom: 8px;
-                            "
-                            >
-                            Validate Effectiveness
-                            </div>
-                            <div class="mt-2 border-bottom border-top py-3">
-                            <strong style="font-size: 14px; font-weight: 500; color: #0049b7"
-                                    >Effectiveness Score</strong
-                            >
-                            <p
-                                    style="
-                                    color: orange;
-                                    font-size: 14px;
-                                    font-weight: 500;
-                                    margin: 0px;
-                                    "
-                            >
-                    ${getEffectivenessScore(item?.list).toFixed(2)}%
-                            </p>
-                            </div>
-
-                            <p class="mb-1">
-                            <strong style="font-size: 14px; font-weight: 500; color: #0049b7"
-                                    >Validation Summary</strong
-                            >
-                            </p>
-                            <ul style="font-size: 14px; font-weight: 500">
-                            <li>Full Implemented: ${calculateEffectiveness(item?.list)?.yes || 0}</li>
-                            <li>Partially Implemented: ${calculateEffectiveness(item?.list)?.partial || 0}</li>
-                            <li>Not Implemented: ${calculateEffectiveness(item?.list)?.no || 0}</li>
-                            </ul>
-                    </div>
-                    </div>
-                    </div>`
-                    )} 
+           
             </section>
             </div>
     </body>
@@ -707,7 +580,7 @@ export const pdfTemplateforMutiples = async (libraries: CAPALibrary[]) => {
                             <div class="col-4">
                                     <strong
                                     style="color: #0049b7; font-size: 14px; font-weight: 500"
-                                    >CAPA Name</strong
+                                    >Risk Name</strong
                                     ><br />${findLibrary?.name}
                             </div>
                             <div class="col-4">
@@ -915,8 +788,8 @@ export const pdfTemplateforMutiples = async (libraries: CAPALibrary[]) => {
                             <div class="col-3">
                                     <strong
                                     style="color: #34a853; font-size: 14px; font-weight: 500"
-                                    >Action Complete</strong
-                                    ><br />${findLibrary?.completedActions || 0}
+                                    >Action Open</strong
+                                    ><br />${findLibrary?.openActions || 0}
                             </div>
                             <div class="col-3">
                                     <strong
@@ -927,15 +800,10 @@ export const pdfTemplateforMutiples = async (libraries: CAPALibrary[]) => {
                             <div class="col-3">
                                     <strong
                                     style="color: #ffd200; font-size: 14px; font-weight: 500"
-                                    >Action Pending</strong
-                                    ><br />${findLibrary?.pendingActions || 0}
+                                    >Action Closed</strong
+                                    ><br />${findLibrary?.closedActions || 0}
                             </div>
-                            <div class="col-3">
-                                    <strong
-                                    style="color: #f68d2b; font-size: 14px; font-weight: 500"
-                                    >Action On Hold</strong
-                                    ><br />${findLibrary?.onHoldActions || 0}
-                            </div>
+        
                             </div>
                     </div>
                     </div>
@@ -954,11 +822,11 @@ export const pdfTemplateforMutiples = async (libraries: CAPALibrary[]) => {
                     <div class="border-bottom p-3">
                             <h6 style="font-size: 14; font-weight: 600; color: #04aeef">
                             Progress Tracking <span class="float-end">$${
-                              (findLibrary?.completedActions || 0) /
-                                ((findLibrary?.completedActions || 0) +
+                              (findLibrary?.closedActions  || 0) /
+                                (
                                   (findLibrary?.inProgressActions || 0) +
-                                  (findLibrary?.pendingActions || 0) +
-                                  (findLibrary?.onHoldActions || 0)) *
+                                  (findLibrary?.openActions || 0) +
+                                  (findLibrary?.closedActions || 0)) *
                                 100 || 0
                             }%</span>
                             </h6>
@@ -1020,7 +888,7 @@ export const pdfTemplateforMutiples = async (libraries: CAPALibrary[]) => {
                                     <span style="color: #2e263de5">${action?.cause ? 'Attached' : 'N/A'}</span>
                                     </div>
                             </div>
-        
+                        
     
                     </div>`
                             )}

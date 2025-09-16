@@ -1,86 +1,9 @@
-interface User {
-  name: string;
-  email: string;
-  role?: string;
-  profilePicture?: string;
-}
-
-interface Cause {
-  name: string;
-  description: string;
-  createdAt: string | Date;
-}
-
-interface Action {
-  name: string;
-  status: string;
-  priority: string;
-  startDate: string | Date;
-  endDate: string | Date;
-  createdAt: string | Date;
-  assignedTo?: User[];
-  docfile?: string;
-  cause?: string;
-}
-
-interface ChecklistItem {
-  item: {
-    question: string;
-  };
-  yes?: boolean;
-  no?: boolean;
-  partial?: boolean;
-  evidence?: string;
-  comment?: string;
-}
-
-interface ChecklistHistory {
-  checklist: {
-    name: string;
-  };
-  list: ChecklistItem[];
-}
-
-interface CAPALibrary {
-  name: string;
-  priority: string;
-  status: string;
-  description: string;
-  createdAt: string | Date;
-  startDate?: string | Date;
-  dueDate?: string | Date;
-  managers?: User[];
-  members?: User[];
-  causes?: Cause[];
-  actions?: Action[];
-  completedActions?: number;
-  inProgressActions?: number;
-  pendingActions?: number;
-  onHoldActions?: number;
-  checklisthistory: ChecklistHistory[];
-}
-
-const getEffectivenessScore = (list: ChecklistItem[]) => {
-  const totalSelected = list.filter((item) => item.yes || item.no || item.partial).length;
-  const score = (totalSelected / (list.length * 3)) * 100;
-  return score || 0;
-};
-
-const calculateEffectiveness = (list: ChecklistItem[]) => {
-  const no = list.filter((i) => i.no).length;
-  const partial = list.filter((i) => i.partial).length;
-  const yes = list.filter((i) => i.yes).length;
-  return {
-    no,
-    partial,
-    yes,
-  };
-};
-
-export const pdfTemplate = async (findLibrary: CAPALibrary) => {
-  console.log('Generating PDF for library:', findLibrary?.checklisthistory);
-
-  const htmlContent = `
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.pdfTemplateforMutiples = exports.pdfTemplate = void 0;
+const pdfTemplate = async (findLibrary) => {
+    console.log('Generating PDF for library:', findLibrary?.checklisthistory);
+    const htmlContent = `
 <!DOCTYPE html>
     <html lang="en">
     <head>
@@ -137,7 +60,7 @@ export const pdfTemplate = async (findLibrary: CAPALibrary) => {
                             <div class="col-4">
                                     <strong
                                     style="color: #0049b7; font-size: 14px; font-weight: 500"
-                                    >CAPA Name</strong
+                                    >Name</strong
                                     ><br />${findLibrary?.name}
                             </div>
                             <div class="col-4">
@@ -152,9 +75,7 @@ export const pdfTemplate = async (findLibrary: CAPALibrary) => {
                                     <strong
                                     style="color: #0049b7; font-size: 14px; font-weight: 500"
                                     >Created Date</strong
-                                    ><br />${
-                                      findLibrary?.createdAt ? new Date(findLibrary?.createdAt).toLocaleDateString() : 'N/A'
-                                    }
+                                    ><br />${findLibrary?.createdAt ? new Date(findLibrary?.createdAt).toLocaleDateString() : 'N/A'}
                             </div>
                             <div class="col-4">
                                     <strong
@@ -168,17 +89,13 @@ export const pdfTemplate = async (findLibrary: CAPALibrary) => {
                                     <strong
                                     style="color: #0049b7; font-size: 14px; font-weight: 500"
                                     >Start Date</strong
-                                    ><br />${
-                                      findLibrary?.startDate ? new Date(findLibrary?.startDate).toLocaleDateString() : 'N/A'
-                                    }
+                                    ><br />${findLibrary?.startDate ? new Date(findLibrary?.startDate).toLocaleDateString() : 'N/A'}
                             </div>
                             <div class="col-4">
                                     <strong
                                     style="color: #0049b7; font-size: 14px; font-weight: 500"
                                     >End Date</strong
-                                    ><br />${
-                                      findLibrary?.dueDate ? new Date(findLibrary?.dueDate).toLocaleDateString() : 'N/A'
-                                    }
+                                    ><br />${findLibrary?.dueDate ? new Date(findLibrary?.dueDate).toLocaleDateString() : 'N/A'}
                             </div>
                             </div>
                     </div>
@@ -241,8 +158,7 @@ export const pdfTemplate = async (findLibrary: CAPALibrary) => {
                             </thead>
                             <tbody>
                                  ${findLibrary?.managers
-                                   ?.map(
-                                     (member: User) => `
+        ?.map((member) => `
                                  <tr>
                                     <td>
                                             <img
@@ -254,9 +170,8 @@ export const pdfTemplate = async (findLibrary: CAPALibrary) => {
                                     </td>
                                     <td>${member?.role || 'N/A'}</td>
                                     <td>${member.email || 'N/A'}</td>
-                                    </tr>`
-                                   )
-                                   .join('')}
+                                    </tr>`)
+        .join('')}
                             </tbody>
                             </table>
                     </div>
@@ -309,8 +224,7 @@ export const pdfTemplate = async (findLibrary: CAPALibrary) => {
                             </thead>
                             <tbody>
                                  ${findLibrary?.members
-                                   ?.map(
-                                     (member: User) => `
+        ?.map((member) => `
                                  <tr>
                                     <td>
                                             <img
@@ -322,9 +236,8 @@ export const pdfTemplate = async (findLibrary: CAPALibrary) => {
                                     </td>
                                     <td>${member?.role || 'N/A'}</td>
                                     <td>${member.email || 'N/A'}</td>
-                                    </tr>`
-                                   )
-                                   .join('')}
+                                    </tr>`)
+        .join('')}
                             </tbody>
                             </table>
                     </div>
@@ -337,7 +250,7 @@ export const pdfTemplate = async (findLibrary: CAPALibrary) => {
                     <div class="p-3">
                             <div class="d-flex justify-content-between mb-2">
                             <h6 style="color: #04aeef; font-size: 14px; font-weight: 600">
-                                    CAPA Cause
+                                    Cause
                             </h6>
                             <span style="color: #04aeef; font-size: 14px; font-weight: 600"
                                     >${findLibrary?.causes?.length || 0}</span
@@ -394,16 +307,14 @@ export const pdfTemplate = async (findLibrary: CAPALibrary) => {
                             </thead>
                             <tbody>
                                  ${findLibrary?.causes
-                                   ?.map(
-                                     (cause: any, index: number) => `
+        ?.map((cause, index) => `
                                  <tr>
                                     <td>${index + 1}</td>
                                     <td>${cause.name || 'N/A'}</td>
                                     <td>${new Date(cause.createdAt).toLocaleDateString() || 'N/A'}</td>
                                     <td>${cause.description || 'N/A'}</td>
-                                    </tr>`
-                                   )
-                                   .join('')}
+                                    </tr>`)
+        .join('')}
                             </tbody>
                             </table>
                     </div>
@@ -418,26 +329,20 @@ export const pdfTemplate = async (findLibrary: CAPALibrary) => {
                             <div class="col-3">
                                     <strong
                                     style="color: #34a853; font-size: 14px; font-weight: 500"
-                                    >Action Complete</strong
-                                    ><br />${findLibrary?.completedActions || 0}
+                                    >Action Open</strong
+                                    ><br />${findLibrary?.openActions || 0}
                             </div>
                             <div class="col-3">
                                     <strong
                                     style="color: #04aeef; font-size: 14px; font-weight: 500"
-                                    >Action Incomplete</strong
+                                    >Action In Progress</strong
                                     ><br />${findLibrary?.inProgressActions || 0}
                             </div>
                             <div class="col-3">
                                     <strong
                                     style="color: #ffd200; font-size: 14px; font-weight: 500"
-                                    >Action Pending</strong
-                                    ><br />${findLibrary?.pendingActions || 0}
-                            </div>
-                            <div class="col-3">
-                                    <strong
-                                    style="color: #f68d2b; font-size: 14px; font-weight: 500"
-                                    >Action On Hold</strong
-                                    ><br />${findLibrary?.onHoldActions || 0}
+                                    >Action Closed</strong
+                                    ><br />${findLibrary?.closedActions || 0}
                             </div>
                             </div>
                     </div>
@@ -456,20 +361,16 @@ export const pdfTemplate = async (findLibrary: CAPALibrary) => {
 
                     <div class="border-bottom p-3">
                             <h6 style="font-size: 14; font-weight: 600; color: #04aeef">
-                            Progress Tracking <span class="float-end">$${
-                              (findLibrary?.completedActions || 0) /
-                                ((findLibrary?.completedActions || 0) +
-                                  (findLibrary?.inProgressActions || 0) +
-                                  (findLibrary?.pendingActions || 0) +
-                                  (findLibrary?.onHoldActions || 0)) *
-                                100 || 0
-                            }%</span>
+                            Progress Tracking <span class="float-end">$${(findLibrary?.closedActions || 0) /
+        ((findLibrary?.openActions || 0) +
+            (findLibrary?.inProgressActions || 0) +
+            (findLibrary?.closedActions || 0)) *
+        100 || 0}%</span>
                             </h6>
                     </div>
                     <div class="p-3">
 
-                            ${findLibrary?.actions?.map(
-                              (action: Action) => `
+                            ${findLibrary?.actions?.map((action) => `
                             <div
                             class="p-3 mb-2 border rounded"
                             style="background-color: #f1f1f1; border-color: #0049b714"
@@ -481,13 +382,11 @@ export const pdfTemplate = async (findLibrary: CAPALibrary) => {
                                     </div>
                                     <div class="col-3">
                                     <strong style="font-weight: 500">Create Date</strong><br />
-                                    <span style="color: #2e263de5">${
-                                      new Date(action.createdAt).toLocaleDateString() || 'N/A'
-                                    }</span>
+                                    <span style="color: #2e263de5">${new Date(action.createdAt).toLocaleDateString() || 'N/A'}</span>
                                     </div>
                                     <div class="col-6">
                                     <strong style="font-weight: 500">Assigned to</strong><br />
-                                 ${action.assignedTo ? action.assignedTo?.map((user: any) => user.name).join(', ') : 'N/A'}
+                                 ${action.assignedTo ? action.assignedTo?.map((user) => user.name).join(', ') : 'N/A'}
                                     </div>
                             </div>
                             <div class="row mt-2">
@@ -510,9 +409,7 @@ export const pdfTemplate = async (findLibrary: CAPALibrary) => {
                                     <div class="col-3">
                                     <strong style="font-weight: 500">Start Date / End Date</strong
                                     ><br />
-                                    <span style="color: #2e263de5">${
-                                      new Date(action.startDate).toLocaleDateString() || 'N/A'
-                                    } - ${new Date(action.endDate).toLocaleDateString() || 'N/A'}</span>
+                                    <span style="color: #2e263de5">${new Date(action.startDate).toLocaleDateString() || 'N/A'} - ${new Date(action.endDate).toLocaleDateString() || 'N/A'}</span>
                                     </div>
                                     <div class="col-3">
                                     <strong style="font-weight: 500">Evidence</strong><br />
@@ -523,133 +420,27 @@ export const pdfTemplate = async (findLibrary: CAPALibrary) => {
                                     <span style="color: #2e263de5">${action?.cause ? 'Attached' : 'N/A'}</span>
                                     </div>
                             </div>
-                            
+                           
     
-                    </div>`
-                            )}
+                    </div>`)}
 
 
                     </div>
             </section>
 
-            <!-- SECTION 4 -->
-            <section class="mb-5">
-                    <div class="card shadow-sm">
-                    
-
-                    <div class="p-3 border-bottom">
-                            <div class="d-flex justify-content-between">
-                            <h6 style="font-weight: 600">Effectiveness</h6>
-                            </div>
-                            <div class="d-flex justify-content-between align-items-center">
-                            <div style="color: #04aeef; font-size: 14px; font-weight: 600">
-                                    Effectiveness Up to dated
-                            </div>
-                            <br />
-                            </div>
-                    </div>
-
-
-
-                    ${findLibrary?.checklisthistory.map(
-                      (item: ChecklistHistory) => `<div class="p-3 border-bottom">
-                            <div
-                            class="p-3 mb-2 border rounded"
-                            style="background-color: #f1f1f1; border-color: #0049b714"
-                            >
-                            <p>
-                                    <strong style="font-size: 14px; font-weight: 500"
-                                    >Checklist</strong
-                                    ><br />
-                                    <span style="color: #2e263de5; font-size: 14px"
-                            >${item?.checklist?.name}</span
-                                    >
-                            </p>
-
-                            <p>
-                                <strong style="font-size: 14px; font-weight: 500"
-                                >Checklist items</strong
-                                ><br />
-                            </p>
-                            ${item?.list?.map(
-                              (listItem: any) => `<div class="row">
-                                <span style="color: #2e263de5; font-size: 14px">${listItem?.item?.question}</span>
-                                    <div class="col-3">
-                                    <strong style="font-weight: 500">Yes</strong><br />
-                                    <span style="color: #2e263de5">${listItem?.yes ? 'Checked' : 'Not Checked'}</span>
-                                    </div>
-                                    <div class="col-3">
-                                    <strong style="font-weight: 500">No</strong><br />
-                                    <span style="color: #2e263de5">${listItem?.no ? 'Checked' : 'Not Checked'}</span>
-                                    </div>
-                                    <div class="col-3">
-                                    <strong style="font-weight: 500">Evidence</strong><br />
-                                    <span style="color: #2e263de5">${listItem?.evidence ? 'Attached' : 'N/A'}</span>
-                                    </div>
-                                    <div class="col-3">
-                                    <strong style="font-weight: 500">Partial</strong><br />
-                                    <span style="color: #2e263de5">${listItem?.partial ? 'Checked' : 'Not Checked'}</span>
-                                    </div>
-                                    <div class="col-3">
-                                    <strong style="font-weight: 500">Comments</strong><br />
-                                    <span style="color: #2e263de5">${listItem?.comment || 'N/A'}</span>
-                                    </div>    
-                            </div>`
-                            )}
-                            </div>
-                            <div class="p-3 border-bottom">
-                            <div
-                            style="
-                                    color: #04aeef;
-                                    font-size: 14px;
-                                    font-weight: 600;
-                                    padding-bottom: 8px;
-                            "
-                            >
-                            Validate Effectiveness
-                            </div>
-                            <div class="mt-2 border-bottom border-top py-3">
-                            <strong style="font-size: 14px; font-weight: 500; color: #0049b7"
-                                    >Effectiveness Score</strong
-                            >
-                            <p
-                                    style="
-                                    color: orange;
-                                    font-size: 14px;
-                                    font-weight: 500;
-                                    margin: 0px;
-                                    "
-                            >
-                    ${getEffectivenessScore(item?.list).toFixed(2)}%
-                            </p>
-                            </div>
-
-                            <p class="mb-1">
-                            <strong style="font-size: 14px; font-weight: 500; color: #0049b7"
-                                    >Validation Summary</strong
-                            >
-                            </p>
-                            <ul style="font-size: 14px; font-weight: 500">
-                            <li>Full Implemented: ${calculateEffectiveness(item?.list)?.yes || 0}</li>
-                            <li>Partially Implemented: ${calculateEffectiveness(item?.list)?.partial || 0}</li>
-                            <li>Not Implemented: ${calculateEffectiveness(item?.list)?.no || 0}</li>
-                            </ul>
-                    </div>
-                    </div>
-                    </div>`
-                    )} 
+           
             </section>
             </div>
     </body>
     </html>
 
 `;
-  return htmlContent;
+    return htmlContent;
 };
-
-export const pdfTemplateforMutiples = async (libraries: CAPALibrary[]) => {
-        console.log('Generating PDF for multiple libraries:', libraries);
-  const htmlContent = `
+exports.pdfTemplate = pdfTemplate;
+const pdfTemplateforMutiples = async (libraries) => {
+    console.log('Generating PDF for multiple libraries:', libraries);
+    const htmlContent = `
 <!DOCTYPE html>
     <html lang="en">
     <head>
@@ -662,8 +453,7 @@ export const pdfTemplateforMutiples = async (libraries: CAPALibrary[]) => {
             />
     </head>
     <body style="background-color: #f3f3f3">
-         ${libraries.map(
-           (findLibrary, index) => `
+         ${libraries.map((findLibrary, index) => `
          <div key=${index} class="container my-4">
             <section class="mb-5">
                     <div class="card shadow-sm">
@@ -707,7 +497,7 @@ export const pdfTemplateforMutiples = async (libraries: CAPALibrary[]) => {
                             <div class="col-4">
                                     <strong
                                     style="color: #0049b7; font-size: 14px; font-weight: 500"
-                                    >CAPA Name</strong
+                                    >Risk Name</strong
                                     ><br />${findLibrary?.name}
                             </div>
                             <div class="col-4">
@@ -722,9 +512,7 @@ export const pdfTemplateforMutiples = async (libraries: CAPALibrary[]) => {
                                     <strong
                                     style="color: #0049b7; font-size: 14px; font-weight: 500"
                                     >Created Date</strong
-                                    ><br />${
-                                      findLibrary?.createdAt ? new Date(findLibrary?.createdAt).toLocaleDateString() : 'N/A'
-                                    }
+                                    ><br />${findLibrary?.createdAt ? new Date(findLibrary?.createdAt).toLocaleDateString() : 'N/A'}
                             </div>
                             <div class="col-4">
                                     <strong
@@ -738,17 +526,13 @@ export const pdfTemplateforMutiples = async (libraries: CAPALibrary[]) => {
                                     <strong
                                     style="color: #0049b7; font-size: 14px; font-weight: 500"
                                     >Start Date</strong
-                                    ><br />${
-                                      findLibrary?.startDate ? new Date(findLibrary?.startDate).toLocaleDateString() : 'N/A'
-                                    }
+                                    ><br />${findLibrary?.startDate ? new Date(findLibrary?.startDate).toLocaleDateString() : 'N/A'}
                             </div>
                             <div class="col-4">
                                     <strong
                                     style="color: #0049b7; font-size: 14px; font-weight: 500"
                                     >End Date</strong
-                                    ><br />${
-                                      findLibrary?.dueDate ? new Date(findLibrary?.dueDate).toLocaleDateString() : 'N/A'
-                                    }
+                                    ><br />${findLibrary?.dueDate ? new Date(findLibrary?.dueDate).toLocaleDateString() : 'N/A'}
                             </div>
                             </div>
                     </div>
@@ -811,8 +595,7 @@ export const pdfTemplateforMutiples = async (libraries: CAPALibrary[]) => {
                             </thead>
                             <tbody>
                                  ${findLibrary?.managers
-                                   ?.map(
-                                     (member: User) => `
+        ?.map((member) => `
                                  <tr>
                                     <td>
                                             <img
@@ -824,9 +607,8 @@ export const pdfTemplateforMutiples = async (libraries: CAPALibrary[]) => {
                                     </td>
                                     <td>${member?.role || 'N/A'}</td>
                                     <td>${member.email || 'N/A'}</td>
-                                    </tr>`
-                                   )
-                                   .join('')}
+                                    </tr>`)
+        .join('')}
                             </tbody>
                             </table>
                     </div>
@@ -879,8 +661,7 @@ export const pdfTemplateforMutiples = async (libraries: CAPALibrary[]) => {
                             </thead>
                             <tbody>
                                  ${findLibrary?.members
-                                   ?.map(
-                                     (member: User) => `
+        ?.map((member) => `
                                  <tr>
                                     <td>
                                             <img
@@ -892,9 +673,8 @@ export const pdfTemplateforMutiples = async (libraries: CAPALibrary[]) => {
                                     </td>
                                     <td>${member?.role || 'N/A'}</td>
                                     <td>${member.email || 'N/A'}</td>
-                                    </tr>`
-                                   )
-                                   .join('')}
+                                    </tr>`)
+        .join('')}
                             </tbody>
                             </table>
                     </div>
@@ -915,8 +695,8 @@ export const pdfTemplateforMutiples = async (libraries: CAPALibrary[]) => {
                             <div class="col-3">
                                     <strong
                                     style="color: #34a853; font-size: 14px; font-weight: 500"
-                                    >Action Complete</strong
-                                    ><br />${findLibrary?.completedActions || 0}
+                                    >Action Open</strong
+                                    ><br />${findLibrary?.openActions || 0}
                             </div>
                             <div class="col-3">
                                     <strong
@@ -927,15 +707,10 @@ export const pdfTemplateforMutiples = async (libraries: CAPALibrary[]) => {
                             <div class="col-3">
                                     <strong
                                     style="color: #ffd200; font-size: 14px; font-weight: 500"
-                                    >Action Pending</strong
-                                    ><br />${findLibrary?.pendingActions || 0}
+                                    >Action Closed</strong
+                                    ><br />${findLibrary?.closedActions || 0}
                             </div>
-                            <div class="col-3">
-                                    <strong
-                                    style="color: #f68d2b; font-size: 14px; font-weight: 500"
-                                    >Action On Hold</strong
-                                    ><br />${findLibrary?.onHoldActions || 0}
-                            </div>
+        
                             </div>
                     </div>
                     </div>
@@ -953,20 +728,16 @@ export const pdfTemplateforMutiples = async (libraries: CAPALibrary[]) => {
 
                     <div class="border-bottom p-3">
                             <h6 style="font-size: 14; font-weight: 600; color: #04aeef">
-                            Progress Tracking <span class="float-end">$${
-                              (findLibrary?.completedActions || 0) /
-                                ((findLibrary?.completedActions || 0) +
-                                  (findLibrary?.inProgressActions || 0) +
-                                  (findLibrary?.pendingActions || 0) +
-                                  (findLibrary?.onHoldActions || 0)) *
-                                100 || 0
-                            }%</span>
+                            Progress Tracking <span class="float-end">$${(findLibrary?.closedActions || 0) /
+        ((findLibrary?.inProgressActions || 0) +
+            (findLibrary?.openActions || 0) +
+            (findLibrary?.closedActions || 0)) *
+        100 || 0}%</span>
                             </h6>
                     </div>
                     <div class="p-3">
 
-                            ${findLibrary?.actions?.map(
-                              (action: Action) => `
+                            ${findLibrary?.actions?.map((action) => `
                             <div
                             class="p-3 mb-2 border rounded"
                             style="background-color: #f1f1f1; border-color: #0049b714"
@@ -978,13 +749,11 @@ export const pdfTemplateforMutiples = async (libraries: CAPALibrary[]) => {
                                     </div>
                                     <div class="col-3">
                                     <strong style="font-weight: 500">Create Date</strong><br />
-                                    <span style="color: #2e263de5">${
-                                      new Date(action.createdAt).toLocaleDateString() || 'N/A'
-                                    }</span>
+                                    <span style="color: #2e263de5">${new Date(action.createdAt).toLocaleDateString() || 'N/A'}</span>
                                     </div>
                                     <div class="col-6">
                                     <strong style="font-weight: 500">Assigned to</strong><br />
-                                 ${action.assignedTo ? action.assignedTo?.map((user: any) => user.name).join(', ') : 'N/A'}
+                                 ${action.assignedTo ? action.assignedTo?.map((user) => user.name).join(', ') : 'N/A'}
                                     </div>
                             </div>
                             <div class="row mt-2">
@@ -1007,9 +776,7 @@ export const pdfTemplateforMutiples = async (libraries: CAPALibrary[]) => {
                                     <div class="col-3">
                                     <strong style="font-weight: 500">Start Date / End Date</strong
                                     ><br />
-                                    <span style="color: #2e263de5">${
-                                      new Date(action.startDate).toLocaleDateString() || 'N/A'
-                                    } - ${new Date(action.endDate).toLocaleDateString() || 'N/A'}</span>
+                                    <span style="color: #2e263de5">${new Date(action.startDate).toLocaleDateString() || 'N/A'} - ${new Date(action.endDate).toLocaleDateString() || 'N/A'}</span>
                                     </div>
                                     <div class="col-3">
                                     <strong style="font-weight: 500">Evidence</strong><br />
@@ -1020,19 +787,18 @@ export const pdfTemplateforMutiples = async (libraries: CAPALibrary[]) => {
                                     <span style="color: #2e263de5">${action?.cause ? 'Attached' : 'N/A'}</span>
                                     </div>
                             </div>
-        
+                        
     
-                    </div>`
-                            )}
+                    </div>`)}
 
 
                     </div>
             </section>
-            </div>`
-         )}
+            </div>`)}
     </body>
     </html>
 
         `;
-  return htmlContent;
+    return htmlContent;
 };
+exports.pdfTemplateforMutiples = pdfTemplateforMutiples;

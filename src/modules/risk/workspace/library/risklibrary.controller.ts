@@ -120,7 +120,7 @@ export const addMemberToLibraryController = catchAsync(async (req: Request, res:
   res.locals["message"] = "add member to library"
   res.locals["documentId"] = libraryId;
   res.locals["collectionName"] = "Library";
-  res.locals["changes"] = { members: updatedLibrary.members };
+  res.locals["changes"] = { };
   res.locals['logof'] = req.body.workspace || req.params['workspaceId'] || null; 
 
   res.status(200).json({

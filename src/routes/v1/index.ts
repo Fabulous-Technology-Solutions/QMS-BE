@@ -172,6 +172,10 @@ const riskIRoute: IRoute[] = [
     path: '/reports',
     route: risk.riskReport,
   },
+  {
+    path: '/report-history',
+    route: risk.riskReportHistory,
+  }
 ];
 
 // Add webhook route separately (should be public)

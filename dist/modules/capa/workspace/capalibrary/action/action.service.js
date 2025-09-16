@@ -13,14 +13,63 @@ const createAction = async (data) => {
 };
 exports.createAction = createAction;
 const getActionById = async (actionId, userId) => {
-    const match = { _id: actionId, isDeleted: false };
+    const match = { _id: new mongoose_1.default.Types.ObjectId(actionId), isDeleted: false };
     if (userId) {
         match.assignedTo = { $in: [new mongoose_1.default.Types.ObjectId(userId)] };
     }
-    const action = await action_modal_1.default.findOne(match)
-        .populate('createdBy', 'name email profilePicture')
-        .populate('assignedTo', 'name email profilePicture')
-        .populate('library', 'name description');
+    const result = await action_modal_1.default.aggregate([
+        { $match: match },
+        {
+            $lookup: {
+                from: 'users',
+                localField: 'createdBy',
+                foreignField: '_id',
+                as: 'createdBy',
+            },
+        },
+        { $unwind: { path: '$createdBy', preserveNullAndEmptyArrays: true } },
+        {
+            $lookup: {
+                from: 'users',
+                localField: 'assignedTo',
+                foreignField: '_id',
+                as: 'assignedTo',
+                pipeline: [
+                    { $match: { isDeleted: false } }
+                ]
+            },
+        },
+        {
+            $lookup: {
+                from: 'libraries',
+                localField: 'library',
+                foreignField: '_id',
+                as: 'library',
+                pipeline: [
+                    { $match: { isDeleted: false } }
+                ]
+            },
+        },
+        { $unwind: { path: '$library', preserveNullAndEmptyArrays: true } },
+        {
+            $project: {
+                createdBy: { name: 1, email: 1, profilePicture: 1, _id: 1 },
+                assignedTo: { name: 1, email: 1, profilePicture: 1, _id: 1 },
+                library: { name: 1, description: 1, _id: 1 },
+                _id: 1,
+                name: 1,
+                description: 1,
+                priority: 1,
+                type: 1,
+                status: 1,
+                startDate: 1,
+                endDate: 1,
+                docfile: 1,
+                docfileKey: 1,
+            },
+        },
+    ]);
+    const action = result[0];
     if (!action) {
         throw new Error('Action not found');
     }
@@ -48,6 +97,9 @@ const getLibraryMembersByAction = async (actionId = '', search = '', page = 1, l
                 localField: 'library',
                 foreignField: '_id',
                 as: 'library',
+                pipeline: [
+                    { $match: { isDeleted: false } }
+                ]
             },
         },
         { $unwind: '$library' },
@@ -100,6 +152,9 @@ const getActionsByLibrary = async (libraryId, page = 1, limit = 10, search = '')
                 localField: 'library',
                 foreignField: '_id',
                 as: 'library',
+                pipeline: [
+                    { $match: { isDeleted: false } }
+                ]
             },
         },
         { $unwind: '$library' },
@@ -109,6 +164,9 @@ const getActionsByLibrary = async (libraryId, page = 1, limit = 10, search = '')
                 localField: 'createdBy',
                 foreignField: '_id',
                 as: 'createdBy',
+                pipeline: [
+                    { $match: { isDeleted: false } }
+                ]
             },
         },
         { $unwind: { path: '$createdBy', preserveNullAndEmptyArrays: true } },
@@ -118,6 +176,9 @@ const getActionsByLibrary = async (libraryId, page = 1, limit = 10, search = '')
                 localField: 'assignedTo',
                 foreignField: '_id',
                 as: 'assignedTo',
+                pipeline: [
+                    { $match: { isDeleted: false } }
+                ]
             },
         },
         {
@@ -126,6 +187,9 @@ const getActionsByLibrary = async (libraryId, page = 1, limit = 10, search = '')
                 localField: 'cause',
                 foreignField: '_id',
                 as: 'cause',
+                pipeline: [
+                    { $match: { isDeleted: false } }
+                ]
             },
         },
         { $unwind: { path: '$cause', preserveNullAndEmptyArrays: true } },
@@ -284,6 +348,9 @@ const getActionsByAssignedTo = async (userId, page = 1, limit = 10, search = '')
                 localField: 'createdBy',
                 foreignField: '_id',
                 as: 'createdBy',
+                pipeline: [
+                    { $match: { isDeleted: false } }
+                ]
             },
         },
         { $unwind: { path: '$createdBy', preserveNullAndEmptyArrays: true } },
@@ -369,6 +436,9 @@ const getActionsByWorkspace = async (workspaceId, page = 1, limit = 10, search =
                 localField: 'library',
                 foreignField: '_id',
                 as: 'library',
+                pipeline: [
+                    { $match: { isDeleted: false } }
+                ]
             },
         },
         { $unwind: '$library' },
@@ -381,6 +451,9 @@ const getActionsByWorkspace = async (workspaceId, page = 1, limit = 10, search =
                 localField: 'createdBy',
                 foreignField: '_id',
                 as: 'createdBy',
+                pipeline: [
+                    { $match: { isDeleted: false } }
+                ]
             },
         },
         { $unwind: { path: '$createdBy', preserveNullAndEmptyArrays: true } },
@@ -390,6 +463,9 @@ const getActionsByWorkspace = async (workspaceId, page = 1, limit = 10, search =
                 localField: 'assignedTo',
                 foreignField: '_id',
                 as: 'assignedTo',
+                pipeline: [
+                    { $match: { isDeleted: false } }
+                ]
             },
         },
         {

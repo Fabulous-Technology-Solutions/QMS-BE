@@ -6,6 +6,7 @@ import AppiError from '../errors/ApiError';
 
 import { getActionsByWorkspace } from '../capa/workspace/capalibrary/action/action.service';
 import { generateFilterReport, getLibrariesfilterData } from '../capa/workspace/capalibrary/capalibrary.service';
+import { generateFilterReport as generateReports} from '../risk/workspace/library/risklibrary.service';
 
 export const createCapaworkspaceController = catchAsync(async (req: Request, res: Response) => {
   const workspace = await workspaceService.createCapaworkspace({ ...req.body, user: req.user });
@@ -13,7 +14,7 @@ export const createCapaworkspaceController = catchAsync(async (req: Request, res
   res.locals['documentId'] = workspace._id || '';
   res.locals['collectionName'] = 'Workspace';
   res.locals['changes'] = workspace;
-  res.locals['logof'] = req.body.moduleId || null;
+  res.locals['logof'] = req.body.moduleId || null;``
   return res.status(httpStatus.CREATED).send({
     success: true,
     data: workspace,
@@ -129,6 +130,16 @@ export const AttentionController = catchAsync(async (req: Request, res: Response
 export const filterPreviewReportController = catchAsync(async (req: Request, res: Response) => {
   const { site, process, status } = req.query;
   const report = await generateFilterReport(
+    req.params['workspaceId'] as string,
+    site as string,
+    process as string,
+    status as string
+  );
+  res.status(200).json({ report, success: true });
+});
+export const filterPreviewRiskReportController = catchAsync(async (req: Request, res: Response) => {
+  const { site, process, status } = req.query;
+  const report = await generateReports(
     req.params['workspaceId'] as string,
     site as string,
     process as string,

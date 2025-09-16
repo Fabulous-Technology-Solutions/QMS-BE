@@ -44,17 +44,72 @@ export const CreateLibrary = async (body: CreateLibraryRequest) => {
 };
 
 export const getLibraryById = async (libraryId: string) => {
-  const data = await LibraryModel.findOne({ _id: libraryId, isDeleted: false })
-    .populate('members', 'name email profilePicture')
-    .populate('managers', 'name email profilePicture')
-    .populate('containment.responsibles', 'name email profilePicture')
-    .populate('site', 'name')
-    .populate('process', 'name');
+  const data = await LibraryModel.aggregate([
+    { 
+      $match: { 
+        _id: new mongoose.Types.ObjectId(libraryId), 
+        isDeleted: false 
+      } 
+    },
+    {
+      $lookup: {
+        from: 'users',
+        localField: 'members',
+        foreignField: '_id',
+        as: 'members',
+        pipeline: [{
+          $match: { isDeleted: false }
+        },{ $project: { name: 1, email: 1, profilePicture: 1 } }]
+      }
+    },
+    {
+      $lookup: {
+        from: 'users',
+        localField: 'managers',
+        foreignField: '_id',
+        as: 'managers',
+        pipeline: [{ $match: { isDeleted: false } }, { $project: { name: 1, email: 1, profilePicture: 1 } }]
+      }
+    },
+    {
+      $lookup: {
+        from: 'users',
+        localField: 'containment.responsibles',
+        foreignField: '_id',
+        as: 'containment.responsibles',
+        pipeline: [{ $match: { isDeleted: false } }, { $project: { name: 1, email: 1, profilePicture: 1 } }]
+      }
+    },
+    {
+      $lookup: {
+        from: 'sites',
+        localField: 'site',
+        foreignField: '_id',
+        as: 'site',
+        pipeline: [{ $project: { name: 1 } }]
+      }
+    },
+    {
+      $unwind: { path: '$site', preserveNullAndEmptyArrays: true }
+    },
+    {
+      $lookup: {
+        from: 'processes',
+        localField: 'process',
+        foreignField: '_id',
+        as: 'process',
+        pipeline: [{ $project: { name: 1 } }]
+      }
+    },
+    {
+      $unwind: { path: '$process', preserveNullAndEmptyArrays: true }
+    }
+  ]);
 
-  if (!data) {
+  if (!data || data.length === 0) {
     throw new Error('Library not found');
   }
-  return data;
+  return data[0];
 };
 
 export const getLibrariesByWorkspace = async (
@@ -291,7 +346,7 @@ export const addMemberToLibrary = async (libraryId: string, members: ObjectId[])
       library.members.push(memberId);
     }
 
-    return await library.save();
+    return await LibraryModel.updateOne({ _id: library._id }, { members: library.members }, { new: true });
   } catch (error) {
     console.error('Error adding members to library:', error);
     throw new Error('Failed to add members to library');
@@ -393,14 +448,14 @@ export const getLibraryMembers = async (libraryId: string, page = 1, limit = 10,
   };
 };
 
-export const checkAdminBelongsTtoLibrary = async (libraryId: string, userId: ObjectId, dataType?: string) => {
+export const checkAdminBelongsTtoLibrary = async (libraryId: string, userId: ObjectId) => {
   const Querydata: AdminBelongtoLibrary = {
     _id: new mongoose.Types.ObjectId(libraryId),
     isDeleted: false,
   };
-  if (dataType === 'mydocuments') {
-    Querydata['managers'] = { $in: [userId] };
-  }
+  // if (dataType === 'mydocuments') {
+  //   Querydata['managers'] = { $in: [userId] };
+  // }
 
   const library = await LibraryModel.aggregate([
     { $match: Querydata },
