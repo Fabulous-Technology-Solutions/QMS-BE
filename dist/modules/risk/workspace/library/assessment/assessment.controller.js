@@ -22,7 +22,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getByLibrary = exports.deleteObj = exports.update = exports.getById = exports.create = void 0;
+exports.getMonthlyAssessmentData = exports.getByLibrary = exports.deleteObj = exports.update = exports.getById = exports.create = void 0;
 const AssessmentServices = __importStar(require("./assessment.services"));
 const catchAsync_1 = __importDefault(require("../../../../utils/catchAsync"));
 exports.create = (0, catchAsync_1.default)(async (req, res) => {
@@ -64,4 +64,10 @@ exports.getByLibrary = (0, catchAsync_1.default)(async (req, res) => {
     const { search = '', page = 1, limit = 10 } = req.query;
     const assessments = await AssessmentServices.getAssessmentsByLibrary(libraryId, Number(page), Number(limit), search);
     res.status(200).json(assessments);
+});
+exports.getMonthlyAssessmentData = (0, catchAsync_1.default)(async (req, res) => {
+    const { libraryId } = req.params;
+    const year = parseInt(req.query['year']) || new Date().getFullYear();
+    const data = await AssessmentServices.getMonthlyAssessmentData(libraryId, year);
+    res.status(200).json({ success: true, data });
 });

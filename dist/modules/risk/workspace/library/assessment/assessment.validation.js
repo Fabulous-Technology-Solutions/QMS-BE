@@ -36,14 +36,15 @@ const createAssessmentBody = {
     templateKey: joi_1.default.string().messages({
         'string.base': 'TemplateKey must be a string',
     }),
-    severity: joi_1.default.string().valid('low', 'medium', 'high', 'low-medium', 'high-medium').messages({
-        'string.base': 'Severity must be a string',
+    probability: joi_1.default.number().min(1).max(5).messages({
+        'number.base': 'Probability must be a number',
+        'number.min': 'Probability must be at least 1',
+        'number.max': 'Probability must be at most 5',
     }),
-    probability: joi_1.default.string().valid('high-unlikely', 'low-unlikely', 'likely', 'possible', 'high-likely').messages({
-        'string.base': 'Probability must be a string',
-    }),
-    impact: joi_1.default.string().valid('not-significant', 'minor', 'moderate', 'major', 'severe').messages({
-        'string.base': 'Impact must be a string',
+    impact: joi_1.default.number().min(1).max(5).messages({
+        'number.base': 'Impact must be a number',
+        'number.min': 'Impact must be at least 1',
+        'number.max': 'Impact must be at most 5',
     }),
     status: joi_1.default.string().valid('draft', 'reviewed', 'approved', 'rejected', 'pending').messages({
         'string.base': 'Status must be a string',
@@ -52,7 +53,7 @@ const createAssessmentBody = {
         'boolean.base': 'Approval must be a boolean',
     }),
 };
-const createAssessmentSchema = joi_1.default.object().keys(createAssessmentBody).fork(['name', 'library', 'createdBy', 'evaluator', 'template', 'templateKey', 'severity', 'probability', 'impact'], (schema) => schema.required());
+const createAssessmentSchema = joi_1.default.object().keys(createAssessmentBody).fork(['name', 'library', 'createdBy', 'evaluator', 'probability', 'impact'], (schema) => schema.required());
 exports.createAssessmentSchema = createAssessmentSchema;
 const updateAssessmentSchema = joi_1.default.object().keys(createAssessmentBody);
 exports.updateAssessmentSchema = updateAssessmentSchema;

@@ -11,6 +11,7 @@ const risklibrary_middleware_1 = __importDefault(require("../../../modules/risk/
 const activitylogs_middleware_1 = require("../../../modules/activitylogs/activitylogs.middleware");
 const router = express_1.default.Router();
 router.post('/', (0, auth_1.auth)('risk_createAssessment'), risklibrary_middleware_1.default, (0, validate_1.validate)(assessment_1.AssessmentValidation.createAssessmentSchema), activitylogs_middleware_1.activityLoggerMiddleware, assessment_1.AssessmentController.create);
+router.get('/libraries/:libraryId/assessment/monthly-data', (0, auth_1.auth)('risk_getAssessmentsByLibrary'), risklibrary_middleware_1.default, assessment_1.AssessmentController.getMonthlyAssessmentData);
 router.get('/libraries/:libraryId', (0, auth_1.auth)('risk_getAssessmentsByLibrary'), risklibrary_middleware_1.default, assessment_1.AssessmentController.getByLibrary);
 router.get('/libraries/:libraryId/assessment/:assessmentId', (0, auth_1.auth)('risk_getSingleAssessment'), risklibrary_middleware_1.default, assessment_1.AssessmentController.getById);
 router.patch('/libraries/:libraryId/assessment/:assessmentId', (0, auth_1.auth)('risk_updateAssessment'), risklibrary_middleware_1.default, (0, validate_1.validate)(assessment_1.AssessmentValidation.updateAssessmentSchema), activitylogs_middleware_1.activityLoggerMiddleware, assessment_1.AssessmentController.update);

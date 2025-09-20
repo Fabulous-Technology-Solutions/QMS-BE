@@ -8,9 +8,8 @@ export interface AssessmentModal extends Document {
     evaluator: ObjectId;
     template: String;
     templateKey: String;
-    severity: String;
-    probability: String;
-    impact: String;
+    probability: Number;
+    impact: Number;
     status: String;
     approval:boolean;
 }
@@ -22,9 +21,8 @@ export interface CreateAssessmentRequest {
     evaluator: string;
     template: string;
     templateKey: string;
-    severity: string;
-    probability: string;
-    impact: string;
+    probability: number;
+    impact: number;
     status: string;
     approval?:boolean;
 }

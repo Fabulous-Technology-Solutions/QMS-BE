@@ -45,3 +45,9 @@ export const getByLibrary = catchAsync(async (req: Request, res: Response) => {
     const assessments = await AssessmentServices.getAssessmentsByLibrary(libraryId as string, Number(page), Number(limit), search as string);
     res.status(200).json(assessments);
 });
+export const getMonthlyAssessmentData = catchAsync(async (req: Request, res: Response) => {
+    const { libraryId } = req.params;
+    const year = parseInt(req.query['year'] as string) || new Date().getFullYear();
+    const data = await AssessmentServices.getMonthlyAssessmentData(libraryId as string, year);
+    res.status(200).json({ success: true, data });
+});

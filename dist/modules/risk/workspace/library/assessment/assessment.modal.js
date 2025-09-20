@@ -9,9 +9,8 @@ const AssessmentSchema = new mongoose_1.default.Schema({
     library: { type: mongoose_1.default.Schema.Types.ObjectId, ref: 'RiskLibrary', required: true },
     createdBy: { type: mongoose_1.default.Schema.Types.ObjectId, ref: 'User', required: true },
     evaluator: { type: mongoose_1.default.Schema.Types.ObjectId, ref: 'User', required: true },
-    severity: { type: String, enum: ['low', 'medium', 'high', 'low-medium', 'high-medium'], required: true },
-    probability: { type: String, enum: ['high-unlikely', 'low-unlikely', 'likely', 'possible', 'high-likely'], required: true },
-    impact: { type: String, enum: ['not-significant', 'minor', 'moderate', 'major', 'severe'], required: true },
+    probability: { type: Number, enum: [1, 2, 3, 4, 5], required: true },
+    impact: { type: Number, enum: [1, 2, 3, 4, 5], required: true },
     status: { type: String, enum: ['draft', 'reviewed', 'approved', 'rejected', 'pending'], default: 'draft' },
     approval: {
         type: Boolean,

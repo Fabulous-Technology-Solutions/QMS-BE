@@ -32,14 +32,16 @@ const createAssessmentBody: Record<keyof CreateAssessmentRequest, any> = {
     templateKey: Joi.string().messages({
         'string.base': 'TemplateKey must be a string',
     }),
-    severity: Joi.string().valid('low', 'medium', 'high', 'low-medium', 'high-medium').messages({
-        'string.base': 'Severity must be a string',
+
+    probability: Joi.number().min(1).max(5).messages({
+        'number.base': 'Probability must be a number',
+        'number.min': 'Probability must be at least 1',
+        'number.max': 'Probability must be at most 5',
     }),
-    probability: Joi.string().valid('high-unlikely', 'low-unlikely', 'likely', 'possible', 'high-likely').messages({
-        'string.base': 'Probability must be a string',
-    }),
-    impact: Joi.string().valid('not-significant', 'minor', 'moderate', 'major', 'severe').messages({
-        'string.base': 'Impact must be a string',
+    impact: Joi.number().min(1).max(5).messages({
+        'number.base': 'Impact must be a number',
+        'number.min': 'Impact must be at least 1',
+        'number.max': 'Impact must be at most 5',
     }),
     status: Joi.string().valid('draft', 'reviewed', 'approved', 'rejected', 'pending').messages({
         'string.base': 'Status must be a string',
@@ -51,7 +53,7 @@ const createAssessmentBody: Record<keyof CreateAssessmentRequest, any> = {
 
 
 const createAssessmentSchema = Joi.object().keys(createAssessmentBody).fork(
-    ['name', 'library', 'createdBy', 'evaluator', 'template', 'templateKey', 'severity', 'probability', 'impact'],
+    ['name', 'library', 'createdBy', 'evaluator','probability', 'impact'],
     (schema) => schema.required()
 );
 
