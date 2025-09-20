@@ -34,7 +34,8 @@ const sendEmail = async (to, subject, text, html) => {
         text,
         html,
     };
-    await exports.transport.sendMail(msg);
+    const response = await exports.transport.sendMail(msg);
+    console.log('Email sent:', response);
 };
 exports.sendEmail = sendEmail;
 /**

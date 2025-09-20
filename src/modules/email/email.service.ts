@@ -31,7 +31,9 @@ export const sendEmail = async (to: string, subject: string, text: string, html:
     text,
     html,
   };
-  await transport.sendMail(msg);
+ const response = await transport.sendMail(msg);
+ console.log('Email sent:', response);
+
 };
 
 /**

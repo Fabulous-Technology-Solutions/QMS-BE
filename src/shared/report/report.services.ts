@@ -30,7 +30,8 @@ export default class ReportService {
   }
 
   async createReport(data: ICreateReport) {
-    const report = await this.generateFilterReport(data.workspace, data.process, data.site, data.status);
+    const report = await this.generateFilterReport(data.workspace, data.site, data.process, data.status);
+    console.log('Generated report:', report);
     const users = await User.find({ _id: { $in: data.assignUsers } });
     const emailAddresses = users.map(user => user.email);
     console.log('Email addresses:', emailAddresses);
