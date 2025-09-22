@@ -7,6 +7,7 @@ const mongoose_1 = __importDefault(require("mongoose"));
 const app_1 = __importDefault(require("./app"));
 const config_1 = __importDefault(require("./config/config"));
 const logger_1 = __importDefault(require("./modules/logger/logger"));
+const socket_initialize_1 = require("./modules/socket/socket.initialize");
 // import { seedPlans } from './modules/plans';
 let server;
 mongoose_1.default.connect(config_1.default.mongoose.url).then(() => {
@@ -17,6 +18,7 @@ mongoose_1.default.connect(config_1.default.mongoose.url).then(() => {
     server.timeout = 600000; // 10 minutes
     server.keepAliveTimeout = 610000; // 10 minutes + 10 seconds
     server.headersTimeout = 620000; // 10 minutes + 20 seconds
+    (0, socket_initialize_1.initializeSocket)(server);
     logger_1.default.info('Connected to MongoDB database');
     logger_1.default.info('Server timeouts configured for long-running operations');
 });

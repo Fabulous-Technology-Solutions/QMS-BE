@@ -2,6 +2,8 @@ import mongoose from 'mongoose';
 import app from './app';
 import config from './config/config';
 import logger from './modules/logger/logger';
+import { initializeSocket } from './modules/socket/socket.initialize';
+
 // import { seedPlans } from './modules/plans';
 
 let server: any;
@@ -15,7 +17,7 @@ mongoose.connect(config.mongoose.url).then(() => {
   server.timeout = 600000; // 10 minutes
   server.keepAliveTimeout = 610000; // 10 minutes + 10 seconds
   server.headersTimeout = 620000; // 10 minutes + 20 seconds
-  
+  initializeSocket(server);
   logger.info('Connected to MongoDB database');
   logger.info('Server timeouts configured for long-running operations');
 });
