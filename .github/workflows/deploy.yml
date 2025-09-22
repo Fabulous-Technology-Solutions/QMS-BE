@@ -1,0 +1,41 @@
+name: Deploy Backend to Server
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Setup SSH agent
+        uses: webfactory/ssh-agent@v0.5.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: SSH into EC2 Server  and deploy Node.js backend
+        run: |
+          ssh -o StrictHostKeyChecking=no ubuntu@ec2-52-73-65-128.compute-1.amazonaws.com << 'EOF'
+            set -e
+            cd /home/ubuntu/QMS-BE
+
+            echo "Pulling latest code..."
+            git fetch --all
+            git reset --hard origin/main
+
+            echo "Installing dependencies..."
+            npm install
+
+            echo "Building project..."
+            npm run build
+
+            echo "Reloading PM2 with ecosystem file..."
+            pm2 reload ecosystem.config.json --env production || pm2 start ecosystem.config.json --env production
+
+            echo "Deployment complete!"
+          EOF
