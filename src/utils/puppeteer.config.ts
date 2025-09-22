@@ -214,30 +214,30 @@ export async function launchBrowser() {
         
         // Final fallback: throw a comprehensive error with solutions
         throw new Error(`
-All browser launch methods failed on Linux environment.
+                All browser launch methods failed on Linux environment.
 
-Solutions to try:
+                Solutions to try:
 
-1. Install Google Chrome on your server:
-   # For Ubuntu/Debian:
-   wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | sudo apt-key add -
-   echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" | sudo tee /etc/apt/sources.list.d/google-chrome.list
-   sudo apt-get update && sudo apt-get install -y google-chrome-stable
+                1. Install Google Chrome on your server:
+                  # For Ubuntu/Debian:
+                  wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | sudo apt-key add -
+                  echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" | sudo tee /etc/apt/sources.list.d/google-chrome.list
+                  sudo apt-get update && sudo apt-get install -y google-chrome-stable
 
-   # For Amazon Linux/CentOS/RHEL:
-   sudo yum install -y wget
-   wget https://dl.google.com/linux/direct/google-chrome-stable_current_x86_64.rpm
-   sudo yum localinstall -y google-chrome-stable_current_x86_64.rpm
+                  # For Amazon Linux/CentOS/RHEL:
+                  sudo yum install -y wget
+                  wget https://dl.google.com/linux/direct/google-chrome-stable_current_x86_64.rpm
+                  sudo yum localinstall -y google-chrome-stable_current_x86_64.rpm
 
-2. Set environment variables:
-   export PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
-   export PUPPETEER_EXECUTABLE_PATH=/usr/bin/google-chrome-stable
+                2. Set environment variables:
+                  export PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
+                  export PUPPETEER_EXECUTABLE_PATH=/usr/bin/google-chrome-stable
 
-3. Alternative: Use Docker with proper Chrome installation
+                3. Alternative: Use Docker with proper Chrome installation
 
-Last errors:
-- Bundled Puppeteer: ${error instanceof Error ? error.message : String(error)}
-- Sparticuz Chromium: ${chromiumError instanceof Error ? chromiumError.message : String(chromiumError)}
+                Last errors:
+                - Bundled Puppeteer: ${error instanceof Error ? error.message : String(error)}
+                - Sparticuz Chromium: ${chromiumError instanceof Error ? chromiumError.message : String(chromiumError)}
         `);
       }
     }
