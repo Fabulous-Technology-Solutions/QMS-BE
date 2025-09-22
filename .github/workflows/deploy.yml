@@ -16,7 +16,7 @@ jobs:
       - name: Setup SSH agent
         uses: webfactory/ssh-agent@v0.5.0
         with:
-          ssh-private-key: ${{ secrets.QMS_BE }}
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
       - name: SSH into EC2 Server  and deploy Node.js backend
         run: |
