@@ -6,7 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const mongoose_1 = __importDefault(require("mongoose"));
 const controlSchema = new mongoose_1.default.Schema({
     name: { type: String, required: true },
-    library: { type: mongoose_1.default.Schema.Types.ObjectId, ref: 'Library', required: true },
+    library: { type: mongoose_1.default.Schema.Types.ObjectId, ref: 'RiskLibrary', required: true },
     description: { type: String, required: true },
     controlType: { type: String, required: true },
     effectiveness: { type: String, required: true },

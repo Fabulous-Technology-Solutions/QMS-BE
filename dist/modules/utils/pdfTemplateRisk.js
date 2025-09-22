@@ -63,12 +63,6 @@ const pdfTemplate = async (findLibrary) => {
                                     >Name</strong
                                     ><br />${findLibrary?.name}
                             </div>
-                            <div class="col-4">
-                                    <strong
-                                    style="color: #0049b7; font-size: 14px; font-weight: 500"
-                                    >${findLibrary?.priority}</strong
-                                    ><br />High
-                            </div>
                             </div>
                             <div class="row mb-2">
                             <div class="col-4">
@@ -82,20 +76,6 @@ const pdfTemplate = async (findLibrary) => {
                                     style="color: #0049b7; font-size: 14px; font-weight: 500"
                                     >Status</strong
                                     ><br />${findLibrary?.status}
-                            </div>
-                            </div>
-                            <div class="row mb-2">
-                            <div class="col-4">
-                                    <strong
-                                    style="color: #0049b7; font-size: 14px; font-weight: 500"
-                                    >Start Date</strong
-                                    ><br />${findLibrary?.startDate ? new Date(findLibrary?.startDate).toLocaleDateString() : 'N/A'}
-                            </div>
-                            <div class="col-4">
-                                    <strong
-                                    style="color: #0049b7; font-size: 14px; font-weight: 500"
-                                    >End Date</strong
-                                    ><br />${findLibrary?.dueDate ? new Date(findLibrary?.dueDate).toLocaleDateString() : 'N/A'}
                             </div>
                             </div>
                     </div>
@@ -246,7 +226,7 @@ const pdfTemplate = async (findLibrary) => {
 
             <!-- SECTION 2 -->
             <section class="mb-5">
-                    <div class="card shadow-sm">
+                <div class="card shadow-sm">
                     <div class="p-3">
                             <div class="d-flex justify-content-between mb-2">
                             <h6 style="color: #04aeef; font-size: 14px; font-weight: 600">
@@ -318,6 +298,118 @@ const pdfTemplate = async (findLibrary) => {
                             </tbody>
                             </table>
                     </div>
+                    </div>
+            </section>
+            <!-- SECTION  for Controls -->
+            <section class="mb-5">
+                <div class="card shadow-sm">
+                    <div class="p-3">
+                            <div class="d-flex justify-content-between mb-2">
+                            <h6 style="color: #04aeef; font-size: 14px; font-weight: 600">
+                                    Controls
+                            </h6>
+                            <span style="color: #04aeef; font-size: 14px; font-weight: 600"
+                                    >${findLibrary?.controls?.length || 0}</span
+                            >
+                            </div>
+                            <table class="table table-bordered table-sm">
+                            <thead>
+                                    <tr>
+                                    <th
+                                            style="
+                                            background-color: #043b6a;
+                                            color: white;
+                                            font-size: 14px;
+                                            font-weight: 500;
+                                            "
+                                            class="py-2"
+                                    >
+                                            No
+                                    </th>
+                                    <th
+                                            style="
+                                            background-color: #043b6a;
+                                            color: white;
+                                            font-size: 14px;
+                                            font-weight: 500;
+                                            "
+                                            class="py-2"
+                                    >
+                                            Name
+                                    </th>
+                                    <th
+                                            style="
+                                            background-color: #043b6a;
+                                            color: white;
+                                            font-size: 14px;
+                                            font-weight: 500;
+                                            "
+                                            class="py-2"
+                                    >
+                                            Create Date
+                                    </th>
+                                    <th
+                                            style="
+                                            background-color: #043b6a;
+                                            color: white;
+                                            font-size: 14px;
+                                            font-weight: 500;
+                                            "
+                                            class="py-2"
+                                    >
+                                        Description
+                                    </th>
+                                    <th
+                                            style="
+                                            background-color: #043b6a;
+                                            color: white;
+                                            font-size: 14px;
+                                            font-weight: 500;
+                                            "
+                                            class="py-2"
+                                    >
+                                        Control Type
+                                    </th>
+                                    <th
+                                            style="
+                                            background-color: #043b6a;
+                                            color: white;
+                                            font-size: 14px;
+                                            font-weight: 500;
+                                            "
+                                            class="py-2"
+                                    >
+                                       Effectiveness
+                                    </th>
+                                    <th
+                                            style="
+                                            background-color: #043b6a;
+                                            color: white;
+                                            font-size: 14px;
+                                            font-weight: 500;
+                                            "
+                                            class="py-2"
+                                    >
+                                        Owners
+                                    </th>
+                                    </tr>
+                            </thead>
+                            <tbody>
+                                 ${findLibrary?.controls
+        ?.map((control, index) => `
+                                 <tr>
+                                    <td>${index + 1}</td>
+                                    <td>${control.name || 'N/A'}</td>
+                                    <td>${new Date(control.createdAt).toLocaleDateString() || 'N/A'}</td>
+                                    <td>${control.description || 'N/A'}</td>
+                                    <td>${control.controlType || 'N/A'}</td>
+                                    <td>${control.effectiveness || 'N/A'}</td>
+                                    <td>${control.owners?.map((owner) => owner.name).join(', ') || 'N/A'}</td>
+                                    </tr>`)
+        .join('')}
+                            </tbody>
+                            </table>
+                    </div>
                     <div class="p-3 border-bottom">
                             <div class="d-flex justify-content-between mb-2">
                             <h6 style="color: #04aeef; font-size: 14px; font-weight: 600">
@@ -361,16 +453,17 @@ const pdfTemplate = async (findLibrary) => {
 
                     <div class="border-bottom p-3">
                             <h6 style="font-size: 14; font-weight: 600; color: #04aeef">
-                            Progress Tracking <span class="float-end">$${(findLibrary?.closedActions || 0) /
+                            Progress Tracking <span class="float-end">$${((findLibrary?.closedActions || 0) /
         ((findLibrary?.openActions || 0) +
             (findLibrary?.inProgressActions || 0) +
-            (findLibrary?.closedActions || 0)) *
+            (findLibrary?.closedActions || 0))) *
         100 || 0}%</span>
                             </h6>
                     </div>
                     <div class="p-3">
 
-                            ${findLibrary?.actions?.map((action) => `
+                            ${findLibrary?.actions
+        ?.map((action) => `
                             <div
                             class="p-3 mb-2 border rounded"
                             style="background-color: #f1f1f1; border-color: #0049b714"
@@ -399,11 +492,11 @@ const pdfTemplate = async (findLibrary) => {
                                     >
                                     </div>
                                     <div class="col-3">
-                                    <strong style="font-weight: 500">Priority</strong><br />
+                                    <strong style="font-weight: 500">Personnel</strong><br />
                                     <span
                                             class="badge p-2"
                                             style="background-color: #f8cecc; color: #2e263de5"
-                                            >${action.priority || 'N/A'}</span
+                                            >${action.personnel || 'N/A'}</span
                                     >
                                     </div>
                                     <div class="col-3">
@@ -416,13 +509,24 @@ const pdfTemplate = async (findLibrary) => {
                                     <span style="color: #2e263de5">${action?.docfile ? 'Attached' : 'N/A'}</span>
                                     </div>
                                     <div class="col-3">
-                                    <strong style="font-weight: 500">Linked Root Cause</strong><br />
+                                    <strong style="font-weight: 500">Strategy</strong><br />
                                     <span style="color: #2e263de5">${action?.cause ? 'Attached' : 'N/A'}</span>
+                                    </div>
+                            </div>
+                            <div class="row mt-2">
+                                    <div class="col-3">
+                                    <strong style="font-weight: 500">Budget</strong><br />
+                                    <span
+                                            class="badge p-2"
+                                            style="background-color: #f8cecc; color: #2e263de5"
+                                 >${action.budget || 'N/A'}</span
+                                    >
                                     </div>
                             </div>
                            
     
-                    </div>`)}
+                    </div>`)
+        .join('')}
 
 
                     </div>
@@ -728,16 +832,17 @@ const pdfTemplateforMutiples = async (libraries) => {
 
                     <div class="border-bottom p-3">
                             <h6 style="font-size: 14; font-weight: 600; color: #04aeef">
-                            Progress Tracking <span class="float-end">$${(findLibrary?.closedActions || 0) /
+                            Progress Tracking <span class="float-end">$${((findLibrary?.closedActions || 0) /
         ((findLibrary?.inProgressActions || 0) +
             (findLibrary?.openActions || 0) +
-            (findLibrary?.closedActions || 0)) *
+            (findLibrary?.closedActions || 0))) *
         100 || 0}%</span>
                             </h6>
                     </div>
                     <div class="p-3">
 
-                            ${findLibrary?.actions?.map((action) => `
+                            ${findLibrary?.actions
+        ?.map((action) => `
                             <div
                             class="p-3 mb-2 border rounded"
                             style="background-color: #f1f1f1; border-color: #0049b714"
@@ -766,11 +871,11 @@ const pdfTemplateforMutiples = async (libraries) => {
                                     >
                                     </div>
                                     <div class="col-3">
-                                    <strong style="font-weight: 500">Priority</strong><br />
+                                    <strong style="font-weight: 500">Personnel</strong><br />
                                     <span
                                             class="badge p-2"
                                             style="background-color: #f8cecc; color: #2e263de5"
-                                            >${action.priority || 'N/A'}</span
+                                            >${action.personnel || 'N/A'}</span
                                     >
                                     </div>
                                     <div class="col-3">
@@ -787,9 +892,20 @@ const pdfTemplateforMutiples = async (libraries) => {
                                     <span style="color: #2e263de5">${action?.cause ? 'Attached' : 'N/A'}</span>
                                     </div>
                             </div>
+                            <div class="row mt-2">
+                                    <div class="col-3">
+                                    <strong style="font-weight: 500">Budget</strong><br />
+                                    <span
+                                            class="badge p-2"
+                                            style="background-color: #f8cecc; color: #2e263de5"
+                                 >${action.budget || 'N/A'}</span
+                                    >
+                                    </div>
+                            </div>
                         
     
-                    </div>`)}
+                    </div>`)
+        .join('')}
 
 
                     </div>

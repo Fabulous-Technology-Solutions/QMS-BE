@@ -854,17 +854,47 @@ export const generateReport = async (libraryId: string) => {
                 profilePicture: 1,
                 status: 1,
                 createdAt: 1,
-                priority: 1,
                 endDate: 1,
                 startDate: 1,
-                type: 1,
                 assignedTo: 1,
                 cause: 1,
                 docfile: 1,
+                deleteLibrary: 1,
+                personnel: 1,
+                budget: 1
               },
             },
           ],
         },
+      },
+      {
+        $lookup: {
+          from: "controls",
+          localField: "_id",
+          foreignField: "library",
+          as: "controls",
+          pipeline: [
+            {
+              $lookup: {
+                from: "users",
+                localField: "owners",
+                foreignField: "_id",
+                as: "owners",
+                pipeline: [{ $match: { isDeleted: false } },{ $project: { name: 1, email: 1, profilePicture: 1 } }],
+              },
+            },
+            {
+              $project: {
+                name: 1,
+                description: 1,
+                controlType: 1,
+                effectiveness: 1,
+                createdAt: 1,
+                owners: 1,
+              },
+            },
+          ],
+        }
       },
       {
         $addFields: {

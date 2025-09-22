@@ -3,7 +3,7 @@ import mongoose from 'mongoose';
 const controlSchema = new mongoose.Schema<ControlModal>(
   {
     name: { type: String, required: true },
-    library: { type: mongoose.Schema.Types.ObjectId, ref: 'Library', required: true },
+    library: { type: mongoose.Schema.Types.ObjectId, ref: 'RiskLibrary', required: true },
     description: { type: String, required: true },
     controlType: { type: String, required: true },
     effectiveness: { type: String, required: true },

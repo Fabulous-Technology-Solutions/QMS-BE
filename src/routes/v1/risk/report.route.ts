@@ -15,7 +15,7 @@ router.post(
 );
 router.get(
   '/workspace/:workspaceId/report/:reportId',
-  auth('risk-getReport'),
+  auth('risk-getReport'),     
   checkCreateRole,
   reportController.getReportByIdController
 );

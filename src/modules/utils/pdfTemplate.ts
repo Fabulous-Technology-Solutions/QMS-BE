@@ -435,7 +435,7 @@ export const pdfTemplate = async (findLibrary: CAPALibrary) => {
                             </div>
                             <div class="col-3">
                                     <strong
-                                    style="color: #f68d2b; font-size: 14px; font-weight: 500"
+                                    style="color: ##ffd200; font-size: 14px; font-weight: 500"
                                     >Action On Hold</strong
                                     ><br />${findLibrary?.onHoldActions || 0}
                             </div>
@@ -620,7 +620,7 @@ export const pdfTemplate = async (findLibrary: CAPALibrary) => {
                                     margin: 0px;
                                     "
                             >
-                    ${getEffectivenessScore(item?.list).toFixed(2)}%
+                            ${getEffectivenessScore(item?.list).toFixed(2)}%
                             </p>
                             </div>
 
