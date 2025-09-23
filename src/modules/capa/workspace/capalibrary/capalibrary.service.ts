@@ -16,6 +16,7 @@ import { pdfTemplate, pdfTemplateforMutiples } from '../../../../modules/utils/p
 import { uploadSingleFile } from '../../../../modules/upload/upload.middleware';
 import { launchBrowser } from '../../../../utils/puppeteer.config';
 import CapaworkspaceModel from '../../../../modules/workspace/workspace.modal';
+import { createChat } from '../../../../modules/chat/chat.services';
 
 export const CreateLibrary = async (body: CreateLibraryRequest) => {
   const findWorkspace = await CapaworkspaceModel.aggregate([
@@ -36,10 +37,15 @@ export const CreateLibrary = async (body: CreateLibraryRequest) => {
     { $unwind: '$plan' },
   ]);
 
+
   if (!findWorkspace || findWorkspace.length === 0) {
     throw new Error('Workspace not found');
   }
   const library = new LibraryModel(body);
+  await createChat({
+    obj: library._id,
+    chatOf: 'Library'
+  })
   return await library.save();
 };
 

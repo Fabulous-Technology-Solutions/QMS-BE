@@ -12,6 +12,7 @@ const pdfTemplateRisk_1 = require("../../../utils/pdfTemplateRisk");
 const upload_middleware_1 = require("../../../upload/upload.middleware");
 const puppeteer_config_1 = require("../../../../utils/puppeteer.config");
 const workspace_modal_1 = __importDefault(require("../../../../modules/workspace/workspace.modal"));
+const chat_services_1 = require("../../../../modules/chat/chat.services");
 const CreateLibrary = async (body) => {
     const findWorkspace = await workspace_modal_1.default.aggregate([
         { $match: { _id: new mongoose_1.default.Types.ObjectId(body.workspace), isDeleted: false } },
@@ -19,21 +20,58 @@ const CreateLibrary = async (body) => {
         { $unwind: '$module' },
         {
             $lookup: {
-                from: "plans",
-                localField: "module.planId",
-                foreignField: "_id",
-                as: "plan",
-                pipeline: [{
-                        $match: { category: 'risk-management' }
-                    }]
-            }
+                from: 'users',
+                let: { moduleUserId: '$_id' },
+                pipeline: [
+                    {
+                        $match: {
+                            $expr: {
+                                $and: [
+                                    { $ne: ['$adminOF', null] },
+                                    { $isArray: '$adminOF' },
+                                    {
+                                        $anyElementTrue: {
+                                            $map: {
+                                                input: '$adminOF',
+                                                as: 'admin',
+                                                in: { $in: ['$$moduleUserId', '$$admin.workspacePermissions'] },
+                                            },
+                                        },
+                                    },
+                                ],
+                            },
+                        },
+                    },
+                ],
+                as: 'subAdmins',
+            },
+        },
+        { $addFields: { subAdminsIds: { $map: { input: '$subAdmins', as: 'admin', in: '$$admin._id' } } } },
+        {
+            $lookup: {
+                from: 'plans',
+                localField: 'module.planId',
+                foreignField: '_id',
+                as: 'plan',
+                pipeline: [
+                    {
+                        $match: { category: 'risk-management' },
+                    },
+                ],
+            },
         },
         { $unwind: '$plan' },
     ]);
     if (!findWorkspace || findWorkspace.length === 0) {
         throw new Error('Workspace not found');
     }
+    const participants = Array.from(new Set([...(body.managers || []), ...(body.members || []), ...(findWorkspace[0]?.subAdminsIds || []), findWorkspace[0]?.module?.userId])).map((id) => new mongoose_1.default.Types.ObjectId(id));
+    console.log('Participants for chat:', participants);
     const library = new risklibrary_modal_1.LibraryModel(body);
+    await (0, chat_services_1.createChat)({
+        obj: library._id,
+        chatOf: 'RiskLibrary',
+    });
     return await library.save();
 };
 exports.CreateLibrary = CreateLibrary;
@@ -195,7 +233,7 @@ const getLibrariesfilterData = async (workspaceId, page, limit, search) => {
                             pipeline: [{ $match: { isDeleted: false } }, { $project: { name: 1, description: 1 } }],
                         },
                     },
-                    { $unwind: { path: '$cause', preserveNullAndEmptyArrays: true } }
+                    { $unwind: { path: '$cause', preserveNullAndEmptyArrays: true } },
                 ],
             },
         },
@@ -360,7 +398,10 @@ const getLibraryMembers = async (libraryId, page = 1, limit = 10, search = '') =
                 localField: 'managers',
                 foreignField: '_id',
                 as: 'managers',
-                pipeline: [{ $match: { isDeleted: false } }, { $project: { name: 1, email: 1, profilePicture: 1, role: 1, status: 1 } }],
+                pipeline: [
+                    { $match: { isDeleted: false } },
+                    { $project: { name: 1, email: 1, profilePicture: 1, role: 1, status: 1 } },
+                ],
             },
         },
         { $unwind: '$members' },
@@ -434,12 +475,14 @@ const checkAdminBelongsTtoLibrary = async (libraryId, userId) => {
                 localField: 'module.planId',
                 foreignField: '_id',
                 as: 'plan',
-                pipeline: [{
-                        $match: { category: 'risk-management' }
-                    }]
-            }
+                pipeline: [
+                    {
+                        $match: { category: 'risk-management' },
+                    },
+                ],
+            },
         },
-        { $unwind: '$plan' }
+        { $unwind: '$plan' },
     ]);
     console.log('Admin belongs to library:', library, userId, Querydata);
     if (!library || library.length === 0) {
@@ -496,7 +539,7 @@ const checkSubAdminBelongsToLibrary = async (libraryId, userId, dataType) => {
                 localField: 'workspace.moduleId',
                 foreignField: '_id',
                 as: 'module',
-            }
+            },
         },
         { $unwind: '$module' },
         {
@@ -505,10 +548,12 @@ const checkSubAdminBelongsToLibrary = async (libraryId, userId, dataType) => {
                 localField: 'module.planId',
                 foreignField: '_id',
                 as: 'plan',
-                pipeline: [{
-                        $match: { category: 'risk-management' }
-                    }]
-            }
+                pipeline: [
+                    {
+                        $match: { category: 'risk-management' },
+                    },
+                ],
+            },
         },
         { $unwind: '$plan' },
         {
@@ -564,7 +609,7 @@ const checkUserBelongsToLibrary = async (libraryId, user, dataType) => {
                 localField: 'workspace.moduleId',
                 foreignField: '_id',
                 as: 'module',
-            }
+            },
         },
         { $unwind: '$module' },
         {
@@ -573,12 +618,14 @@ const checkUserBelongsToLibrary = async (libraryId, user, dataType) => {
                 localField: 'module.planId',
                 foreignField: '_id',
                 as: 'plan',
-                pipeline: [{
-                        $match: { category: 'risk-management' }
-                    }]
-            }
+                pipeline: [
+                    {
+                        $match: { category: 'risk-management' },
+                    },
+                ],
+            },
         },
-        { $unwind: '$plan' }
+        { $unwind: '$plan' },
     ]);
     if (!result || result.length === 0) {
         throw new Error('User does not belong to this library');
@@ -614,7 +661,8 @@ const getLibrariesByManager = async (workspaceId, managerId, page, limit, search
                             pipeline: [{ $match: { isDeleted: false } }, { $project: { name: 1, email: 1, profilePicture: 1 } }],
                         },
                     },
-                    { $lookup: {
+                    {
+                        $lookup: {
                             from: 'riskcauses',
                             localField: 'cause',
                             foreignField: '_id',
@@ -788,7 +836,7 @@ const generateReport = async (libraryId) => {
                                 docfile: 1,
                                 deleteLibrary: 1,
                                 personnel: 1,
-                                budget: 1
+                                budget: 1,
                             },
                         },
                     ],
@@ -796,17 +844,17 @@ const generateReport = async (libraryId) => {
             },
             {
                 $lookup: {
-                    from: "controls",
-                    localField: "_id",
-                    foreignField: "library",
-                    as: "controls",
+                    from: 'controls',
+                    localField: '_id',
+                    foreignField: 'library',
+                    as: 'controls',
                     pipeline: [
                         {
                             $lookup: {
-                                from: "users",
-                                localField: "owners",
-                                foreignField: "_id",
-                                as: "owners",
+                                from: 'users',
+                                localField: 'owners',
+                                foreignField: '_id',
+                                as: 'owners',
                                 pipeline: [{ $match: { isDeleted: false } }, { $project: { name: 1, email: 1, profilePicture: 1 } }],
                             },
                         },
@@ -821,7 +869,7 @@ const generateReport = async (libraryId) => {
                             },
                         },
                     ],
-                }
+                },
             },
             {
                 $addFields: {

@@ -12,6 +12,7 @@ const pdfTemplate_1 = require("../../../../modules/utils/pdfTemplate");
 const upload_middleware_1 = require("../../../../modules/upload/upload.middleware");
 const puppeteer_config_1 = require("../../../../utils/puppeteer.config");
 const workspace_modal_1 = __importDefault(require("../../../../modules/workspace/workspace.modal"));
+const chat_services_1 = require("../../../../modules/chat/chat.services");
 const CreateLibrary = async (body) => {
     const findWorkspace = await workspace_modal_1.default.aggregate([
         { $match: { _id: new mongoose_1.default.Types.ObjectId(body.workspace), isDeleted: false } },
@@ -34,6 +35,10 @@ const CreateLibrary = async (body) => {
         throw new Error('Workspace not found');
     }
     const library = new capalibrary_modal_1.LibraryModel(body);
+    await (0, chat_services_1.createChat)({
+        obj: library._id,
+        chatOf: 'Library'
+    });
     return await library.save();
 };
 exports.CreateLibrary = CreateLibrary;

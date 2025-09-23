@@ -40,7 +40,7 @@ const verifyCallback = (req, resolve, reject, requiredRights) => async (err, use
     resolve();
 };
 const authMiddleware = (...requiredRights) => async (req, res, next) => new Promise((resolve, reject) => {
-    console.log("Auth middleware triggered", req.headers, ".................headers");
+    // console.log("Auth middleware triggered", req.headers, ".................headers");
     passport_1.default.authenticate('jwt', { session: false }, verifyCallback(req, resolve, reject, requiredRights))(req, res, next);
 })
     .then(() => next())

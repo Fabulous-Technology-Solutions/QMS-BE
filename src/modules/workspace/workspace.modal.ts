@@ -17,4 +17,4 @@ const CapaworkspaceSchema = new mongoose.Schema<ICapaworkspace>({
 
 const CapaworkspaceModel = mongoose.model<ICapaworkspace>('Workspace', CapaworkspaceSchema);
 
-export default CapaworkspaceModel;
+export default CapaworkspaceModel;  
