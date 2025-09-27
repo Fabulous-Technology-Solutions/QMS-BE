@@ -8,6 +8,6 @@ const joi_1 = __importDefault(require("joi"));
 const createChatBody = {
     obj: joi_1.default.string().required(),
     chatOf: joi_1.default.string().required(),
-    participants: joi_1.default.array().items(joi_1.default.string().required()).required()
+    workspace: joi_1.default.string().required()
 };
-exports.createChat = joi_1.default.object().keys(createChatBody);
+exports.createChat = { body: joi_1.default.object().keys(createChatBody) };

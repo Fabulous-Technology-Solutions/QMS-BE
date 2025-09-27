@@ -3,7 +3,9 @@ import authRoute from './auth.route';
 import docsRoute from './swagger.route';
 import userRoute from './user.route';
 import uploadRoute from "./upload.route";
+import invitationRoute from './invitation.route';
 import planRoute from '../../modules/plans/plans.route';
+import accountRoute from './account.route';
 import { subscriptionRoutes, webhookRouter } from '../../modules/subscription';
 import config from '../../config/config';
 import logsRoutes from './logs.route';
@@ -54,6 +56,14 @@ const defaultIRoute: IRoute[] = [
     path: '/processes',
     route: ProcessRoutes,
   },
+  {
+    path: '/invitations',
+    route: invitationRoute,
+  },
+  {
+    path: '/accounts',
+    route: accountRoute,
+  }
 ];
 const capaIRoute: IRoute[] = [
  

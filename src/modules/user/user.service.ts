@@ -135,31 +135,27 @@ export const getme = async (userId: mongoose.Types.ObjectId) => {
     { $match: { _id: userId, isDeleted: false } },
     {
       $lookup: {
-        from: 'workspaces',
-        localField: 'workspace',
-        foreignField: '_id',
-        as: 'workspace',
+        from: 'accounts',
+        localField: '_id',
+        foreignField: 'user',
+        as: 'accountDetails',
+        pipeline: [
+          {
+            $lookup: {
+              from: 'users',
+              localField: 'accountId',
+              foreignField: '_id',
+              as: 'userDetails',
+              pipeline: [{ $project: { _id: 1, orgName: 1 } }],
+            },
+          },
+          {
+            $unwind: '$userDetails',
+          },
+          { $project: { _id: 1, role: 1, status: 1, orgName: '$userDetails.orgName' } }
+        ],
       },
     },
-    { $unwind: { path: '$workspace', preserveNullAndEmptyArrays: true } },
-    {
-      $lookup: {
-        from: 'subscriptions',
-        localField: 'workspace.moduleId',
-        foreignField: '_id',
-        as: 'module',
-      },
-    },
-    { $unwind: { path: '$module', preserveNullAndEmptyArrays: true } },
-    {
-      $lookup: {
-        from: 'plans',
-        localField: 'module.planId',
-        foreignField: '_id',
-        as: 'plan',
-      },
-    },
-    { $unwind: { path: '$plan', preserveNullAndEmptyArrays: true } },
     {
       $lookup: {
         from: 'roles',
@@ -174,19 +170,8 @@ export const getme = async (userId: mongoose.Types.ObjectId) => {
         _id: 1,
         name: 1,
         email: 1,
-        phone: 1,
+        contact: 1,
         permissions: '$roleDetails.permissions',
-        workspace: {
-          _id: '$workspace._id',
-          name: '$workspace.name',
-          description: '$workspace.description',
-          moduleId: '$workspace.moduleId',
-          createdAt: '$workspace.createdAt',
-          updatedAt: '$workspace.updatedAt',
-          isDeleted: '$workspace.isDeleted',
-          imageUrl: '$workspace.imageUrl',
-          category: '$plan.category',
-        },
         profilePicture: 1,
         isEmailVerified: 1,
         status: 1,
@@ -196,7 +181,9 @@ export const getme = async (userId: mongoose.Types.ObjectId) => {
         adminOF: 1,
         createdAt: 1,
         updatedAt: 1,
-        subAdminRole: 1
+        subAdminRole: 1,
+        orgName: 1,
+        accountDetails: 1
       },
     },
   ]);

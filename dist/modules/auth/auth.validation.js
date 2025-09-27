@@ -17,7 +17,8 @@ const registerBody = {
     status: joi_1.default.string().valid('active', 'inactive').default('active'),
     profilePicture: joi_1.default.string().optional(),
     profilePictureKey: joi_1.default.string().optional(),
-    isDeleted: joi_1.default.boolean().default(false)
+    isDeleted: joi_1.default.boolean().default(false),
+    orgName: joi_1.default.string().optional(),
 };
 exports.register = {
     body: joi_1.default.object().keys(registerBody),

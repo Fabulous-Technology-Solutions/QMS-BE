@@ -8,5 +8,5 @@ const ConsequenceBody:Record<keyof ConsequenceInput, any> = {
   createdBy: Joi.string(),
 };
 
-export const createConsequenceValidationSchema = Joi.object().keys(ConsequenceBody).fork(['library', 'name', 'description'], (schema) => schema.required());
-export const updateConsequenceValidationSchema = Joi.object().keys(ConsequenceBody).fork(['library', 'name', 'description'], (schema) => schema.optional());
+export const createConsequenceValidationSchema = { body: Joi.object().keys(ConsequenceBody).fork(['library', 'name', 'description'], (schema) => schema.required()) };
+export const updateConsequenceValidationSchema = { body: Joi.object().keys(ConsequenceBody).fork(['library', 'name', 'description'], (schema) => schema.optional()) };

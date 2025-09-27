@@ -6,7 +6,8 @@ import AppiError from '../errors/ApiError';
 
 import { getActionsByWorkspace } from '../capa/workspace/capalibrary/action/action.service';
 import { generateFilterReport, getLibrariesfilterData } from '../capa/workspace/capalibrary/capalibrary.service';
-import { generateFilterReport as generateReports} from '../risk/workspace/library/risklibrary.service';
+import { generateFilterReport as generateReports } from '../risk/workspace/library/risklibrary.service';
+import { accountServices } from '../account';
 
 export const createCapaworkspaceController = catchAsync(async (req: Request, res: Response) => {
   const workspace = await workspaceService.createCapaworkspace({ ...req.body, user: req.user });
@@ -14,7 +15,8 @@ export const createCapaworkspaceController = catchAsync(async (req: Request, res
   res.locals['documentId'] = workspace._id || '';
   res.locals['collectionName'] = 'Workspace';
   res.locals['changes'] = workspace;
-  res.locals['logof'] = req.body.moduleId || null;``
+  res.locals['logof'] = req.body.moduleId || null;
+  
   return res.status(httpStatus.CREATED).send({
     success: true,
     data: workspace,
@@ -23,12 +25,16 @@ export const createCapaworkspaceController = catchAsync(async (req: Request, res
 
 export const getAllCapaworkspacesController = catchAsync(async (req: Request, res: Response) => {
   // Authorization logic
-  if (req.user && req.user.role === 'admin') {
-    // Admin can see workspaces they created
-  } else if (req.user && req.user.role === 'sub-admin') {
-    // Sub-admin can see workspaces created by their admin
-  } else {
-    throw new Error('Unauthorized');
+  if (req.headers['accountId']) {
+    const workspaces = await accountServices.getModuleWorkspaces(
+      req.headers['accountId'] as string,
+      req.params['moduleId'] as string,
+      req.user._id
+    );
+    return res.status(httpStatus.OK).send({
+      success: true,
+      data: workspaces,
+    });
   }
 
   const { page = 1, limit = 10, search } = req.query;

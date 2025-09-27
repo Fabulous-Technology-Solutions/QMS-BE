@@ -100,6 +100,10 @@ const userSchema = new mongoose_1.default.Schema({
         type: Boolean,
         default: false,
     },
+    orgName: {
+        type: String,
+        trim: true,
+    },
     stripeCustomerId: {
         type: String,
         unique: true,

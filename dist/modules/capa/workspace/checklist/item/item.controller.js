@@ -30,7 +30,7 @@ const item_validation_1 = require("./item.validation");
 const JoiError_1 = __importDefault(require("../../../../errors/JoiError"));
 exports.createChecklistItem = (0, catchAsync_1.default)(async (req, res) => {
     const checklistItemsArray = req.body.checklistItems;
-    const { error } = item_validation_1.CreateItemsArraySchema.validate(checklistItemsArray);
+    const { error } = item_validation_1.CreateItemsArraySchema.body.validate(checklistItemsArray);
     if (error) {
         const errorFields = (0, JoiError_1.default)(error);
         throw new ApiError_1.default('Invalid request', 400, errorFields);
@@ -50,7 +50,7 @@ exports.createChecklistItem = (0, catchAsync_1.default)(async (req, res) => {
 });
 exports.updateChecklistItem = (0, catchAsync_1.default)(async (req, res) => {
     const updateItemsArray = req.body.checklistItems;
-    const { error } = item_validation_1.UpdateItemsArraySchema.validate(updateItemsArray, { abortEarly: false, allowUnknown: true });
+    const { error } = item_validation_1.UpdateItemsArraySchema.body.validate(updateItemsArray, { abortEarly: false, allowUnknown: true });
     if (error) {
         const errorFields = (0, JoiError_1.default)(error);
         throw new ApiError_1.default('Invalid request', 400, errorFields);

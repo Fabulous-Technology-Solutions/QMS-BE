@@ -7,4 +7,4 @@ const createChatBody: Record<keyof ICreateChat, Joi.Schema> = {
   workspace: Joi.string().required()
 };
 
-export const createChat = Joi.object().keys(createChatBody);
+export const createChat = { body: Joi.object().keys(createChatBody) };

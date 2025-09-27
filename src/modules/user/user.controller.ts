@@ -110,6 +110,19 @@ export const updateUser = catchAsync(async (req: Request, res: Response) => {
     res.send(user);
   }
 });
+export const updateMe = catchAsync(async (req: Request, res: Response) => {
+  const user = await userService.updateUserById(req.user._id, req.body);
+  if (!user) {
+    throw new ApiError('User not found', httpStatus.NOT_FOUND);
+  }
+  res.locals["message"] = "update user";
+  res.locals["documentId"] = user._id;
+  res.locals["collectionName"] = "User";
+  res.locals["changes"] = user;
+  res.locals['logof'] = req.user._id || null;
+  res.send(user);
+});
+
 export const deleteUser = catchAsync(async (req: Request, res: Response) => {
   if (typeof req.params['userId'] === 'string') {
     const user = await userService.deleteUserById(new mongoose.Types.ObjectId(req.params['userId']));

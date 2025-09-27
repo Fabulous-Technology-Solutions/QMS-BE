@@ -22,7 +22,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getMe = exports.deleteUser = exports.updateUser = exports.getUser = exports.getAllUsers = exports.getUsers = exports.createUser = void 0;
+exports.getMe = exports.deleteUser = exports.updateMe = exports.updateUser = exports.getUser = exports.getAllUsers = exports.getUsers = exports.createUser = void 0;
 const http_status_1 = __importDefault(require("http-status"));
 const mongoose_1 = __importDefault(require("mongoose"));
 const catchAsync_1 = __importDefault(require("../utils/catchAsync"));
@@ -117,6 +117,18 @@ exports.updateUser = (0, catchAsync_1.default)(async (req, res) => {
         res.locals['logof'] = req.user._id || null;
         res.send(user);
     }
+});
+exports.updateMe = (0, catchAsync_1.default)(async (req, res) => {
+    const user = await userService.updateUserById(req.user._id, req.body);
+    if (!user) {
+        throw new ApiError_1.default('User not found', http_status_1.default.NOT_FOUND);
+    }
+    res.locals["message"] = "update user";
+    res.locals["documentId"] = user._id;
+    res.locals["collectionName"] = "User";
+    res.locals["changes"] = user;
+    res.locals['logof'] = req.user._id || null;
+    res.send(user);
 });
 exports.deleteUser = (0, catchAsync_1.default)(async (req, res) => {
     if (typeof req.params['userId'] === 'string') {

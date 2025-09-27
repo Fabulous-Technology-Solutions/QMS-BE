@@ -14,7 +14,7 @@ router
     .post((0, auth_1.auth)('manageUsers'), (0, validate_1.validate)(user_1.userValidation.createUser), activitylogs_middleware_1.activityLoggerMiddleware, user_1.userController.createUser)
     .get((0, auth_1.auth)('manageUsers'), (0, validate_1.validate)(user_1.userValidation.getUsers), user_1.userController.getAllUsers);
 // .get(auth('getUsers'), validate(userValidation.getUsers), userController.getUsers);
-router.get('/me', (0, auth_1.auth)(), user_1.userController.getMe);
+router.route('/me').get((0, auth_1.auth)(), user_1.userController.getMe).patch((0, auth_1.auth)(), user_1.userController.updateMe);
 router
     .route('/:userId')
     .get((0, auth_1.auth)('manageUsers'), (0, validate_1.validate)(user_1.userValidation.getUser), user_1.userController.getUser)

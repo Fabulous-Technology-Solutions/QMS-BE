@@ -41,17 +41,6 @@ const getAllCapaworkspaces = async (body) => {
     if (search) {
         query.name = { $regex: search, $options: 'i' };
     }
-    if (user.role !== 'admin') {
-        const adminData = user.adminOF?.find((admin) => admin.method.equals(moduleId));
-        if (adminData?.workspacePermissions &&
-            Array.isArray(adminData.workspacePermissions) &&
-            adminData.workspacePermissions.length > 0) {
-            query._id = { $in: adminData?.workspacePermissions || [] };
-        }
-        else {
-            return { results: [], total: 0 };
-        }
-    }
     const [results, totalCountArr] = await Promise.all([
         workspace_modal_1.default.aggregate([
             { $match: query },
@@ -61,6 +50,7 @@ const getAllCapaworkspaces = async (body) => {
                     localField: 'moduleId',
                     foreignField: '_id',
                     as: 'module',
+                    pipeline: [{ $match: { userId: new mongoose_1.default.Types.ObjectId(user._id) } }],
                 },
             },
             {

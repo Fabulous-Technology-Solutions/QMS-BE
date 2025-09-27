@@ -13,7 +13,8 @@ const registerBody: Record<keyof NewRegisteredUser, any> = {
   status: Joi.string().valid('active', 'inactive').default('active'),
   profilePicture: Joi.string().optional(),
   profilePictureKey: Joi.string().optional(),
-  isDeleted: Joi.boolean().default(false)
+  isDeleted: Joi.boolean().default(false),
+  orgName: Joi.string().optional(),
 };
 
 export const register = {

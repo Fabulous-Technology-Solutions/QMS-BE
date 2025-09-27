@@ -24,6 +24,7 @@ const createUserBody = {
     profilePicture: joi_1.default.string().optional(),
     profilePictureKey: joi_1.default.string().optional(),
     isDeleted: joi_1.default.boolean().default(false),
+    orgName: joi_1.default.string().optional(),
 };
 exports.createUser = {
     body: joi_1.default.object().keys(createUserBody).fork(['email', 'name', "subAdminRole", "adminOF", "profilePicture", "profilePictureKey"], (schema) => schema.required()),

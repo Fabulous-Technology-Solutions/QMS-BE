@@ -13,5 +13,5 @@ const createControlBody = {
     owners: joi_1.default.array().items(joi_1.default.string().required()),
     name: joi_1.default.string()
 };
-exports.createControlSchema = joi_1.default.object().keys(createControlBody).fork(['library', 'name', 'description', 'effectiveness', 'owners'], (schema) => schema.required());
-exports.updateControlSchema = joi_1.default.object().keys(createControlBody);
+exports.createControlSchema = { body: joi_1.default.object().keys(createControlBody).fork(['library', 'name', 'description', 'effectiveness', 'owners'], (schema) => schema.required()) };
+exports.updateControlSchema = { body: joi_1.default.object().keys(createControlBody) };

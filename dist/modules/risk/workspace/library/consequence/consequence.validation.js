@@ -11,5 +11,5 @@ const ConsequenceBody = {
     description: joi_1.default.string(),
     createdBy: joi_1.default.string(),
 };
-exports.createConsequenceValidationSchema = joi_1.default.object().keys(ConsequenceBody).fork(['library', 'name', 'description'], (schema) => schema.required());
-exports.updateConsequenceValidationSchema = joi_1.default.object().keys(ConsequenceBody).fork(['library', 'name', 'description'], (schema) => schema.optional());
+exports.createConsequenceValidationSchema = { body: joi_1.default.object().keys(ConsequenceBody).fork(['library', 'name', 'description'], (schema) => schema.required()) };
+exports.updateConsequenceValidationSchema = { body: joi_1.default.object().keys(ConsequenceBody).fork(['library', 'name', 'description'], (schema) => schema.optional()) };

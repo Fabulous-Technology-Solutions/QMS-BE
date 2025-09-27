@@ -95,6 +95,10 @@ const userSchema = new mongoose.Schema<IUserDoc, IUserModel>(
       type: Boolean,
       default: false,
     },
+    orgName: {
+      type: String,
+      trim: true,
+    },
     stripeCustomerId: {
       type: String,
       unique: true,

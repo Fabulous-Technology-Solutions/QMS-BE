@@ -1,18 +1,21 @@
 import catchAsync from '../../../utils/catchAsync';
 import { NextFunction, Request } from 'express';
 
-import { checkSubAdminBelongsToLibrary,checkAdminBelongsTtoLibrary, checkUserBelongsToLibrary } from './risklibrary.service';
+import { checkAdminBelongsTtoLibrary} from './risklibrary.service';
+import { accountServices } from '../../../account';
 const checkValidation = catchAsync(async (req: Request, _: Response, next: NextFunction) => {
   const { user } = req;
-  if (user.role === 'admin') {
+  if(req.headers['accountId']){
+    await accountServices.findUserBelongToRiskLibrary(
+      user._id.toString(),
+      req.headers['accountId'] as string,
+      req.params['libraryId'] || req.body.library
+    );
+  }else{
     await checkAdminBelongsTtoLibrary(req.params['libraryId'] || req.body.library,user._id);
-  } else if (user.role === 'subadmin') {  
-    await checkSubAdminBelongsToLibrary(req.params['libraryId'] || req.body.library,user._id,req.headers["datatype"] as string);
-  } else if (user.role === 'workspaceUser') {
-     await checkUserBelongsToLibrary(req.params['libraryId'] || req.body.library, user, req.headers["datatype"] as string);
-  } else {
-    throw new Error('Unauthorized role for creating a role');
   }
+
+
   next();
 });
 

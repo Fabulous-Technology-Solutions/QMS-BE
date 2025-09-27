@@ -17,4 +17,4 @@ export const createMessageBody: Partial<Record<keyof IMessageDoc, Joi.Schema>> =
     deletedAt: Joi.date().allow(null)
   })).allow(null)
 };
-export const createMessage = Joi.object().keys(createMessageBody);
+export const createMessage = { body: Joi.object().keys(createMessageBody) };

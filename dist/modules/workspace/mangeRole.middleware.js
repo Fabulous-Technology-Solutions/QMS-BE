@@ -5,32 +5,14 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const catchAsync_1 = __importDefault(require("../utils/catchAsync"));
 const manageRole_service_1 = require("./manageRole/manageRole.service");
-const workspace_modal_1 = __importDefault(require("./workspace.modal"));
-const ApiError_1 = __importDefault(require("../errors/ApiError"));
-const http_status_1 = __importDefault(require("http-status"));
+const account_1 = require("../account");
 const checkCreateRole = (0, catchAsync_1.default)(async (req, _, next) => {
     const { user } = req;
-    if (user.role === 'admin') {
-        await (0, manageRole_service_1.checkAdminBelongsToWorkspace)(user._id, req.params['workspaceId'] || req.body.workspace);
-    }
-    else if (user.role === 'subadmin') {
-        await (0, manageRole_service_1.checkWorkSubadminBelongsToWorkspace)(user._id, req.params['workspaceId'] || req.body.workspace);
-    }
-    else if (user.role === 'workspaceUser') {
-        console.log(req.params['workspaceId'], "well....................");
-        if ((req.params['workspaceId'] || req.body.workspace) !== user['workspace']?.toString()) {
-            throw new Error('Unauthorized role for performing this action');
-        }
-        const findworkspace = await workspace_modal_1.default.findOne({
-            _id: req.params['workspaceId'] || req.body.workspace,
-            isDeleted: false,
-        });
-        if (!findworkspace) {
-            throw new ApiError_1.default('Workspace not found', http_status_1.default.NOT_FOUND);
-        }
+    if (req.headers['accountId']) {
+        await account_1.accountServices.checkUserBelongsToAccount(user._id.toString(), req.headers['accountId'], req.params['workspaceId'] || req.body.workspace);
     }
     else {
-        throw new Error('Unauthorized role for creating a role');
+        await (0, manageRole_service_1.checkAdminBelongsToWorkspace)(user._id, req.params['workspaceId'] || req.body.workspace);
     }
     next();
 });

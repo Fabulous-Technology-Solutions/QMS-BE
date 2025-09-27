@@ -11,6 +11,7 @@ const ApiError_1 = __importDefault(require("../errors/ApiError"));
 const action_service_1 = require("../capa/workspace/capalibrary/action/action.service");
 const capalibrary_service_1 = require("../capa/workspace/capalibrary/capalibrary.service");
 const risklibrary_service_1 = require("../risk/workspace/library/risklibrary.service");
+const account_1 = require("../account");
 exports.createCapaworkspaceController = (0, catchAsync_1.default)(async (req, res) => {
     const workspace = await index_1.workspaceService.createCapaworkspace({ ...req.body, user: req.user });
     res.locals['message'] = 'create workspace';
@@ -18,7 +19,6 @@ exports.createCapaworkspaceController = (0, catchAsync_1.default)(async (req, re
     res.locals['collectionName'] = 'Workspace';
     res.locals['changes'] = workspace;
     res.locals['logof'] = req.body.moduleId || null;
-    ``;
     return res.status(http_status_1.default.CREATED).send({
         success: true,
         data: workspace,
@@ -26,14 +26,12 @@ exports.createCapaworkspaceController = (0, catchAsync_1.default)(async (req, re
 });
 exports.getAllCapaworkspacesController = (0, catchAsync_1.default)(async (req, res) => {
     // Authorization logic
-    if (req.user && req.user.role === 'admin') {
-        // Admin can see workspaces they created
-    }
-    else if (req.user && req.user.role === 'sub-admin') {
-        // Sub-admin can see workspaces created by their admin
-    }
-    else {
-        throw new Error('Unauthorized');
+    if (req.headers['accountId']) {
+        const workspaces = await account_1.accountServices.getModuleWorkspaces(req.headers['accountId'], req.params['moduleId'], req.user._id);
+        return res.status(http_status_1.default.OK).send({
+            success: true,
+            data: workspaces,
+        });
     }
     const { page = 1, limit = 10, search } = req.query;
     const workspaces = await index_1.workspaceService.getAllCapaworkspaces({

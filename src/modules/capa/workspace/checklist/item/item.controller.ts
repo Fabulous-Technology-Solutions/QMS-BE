@@ -9,7 +9,7 @@ import JoiError from '../../../../errors/JoiError';
 export const createChecklistItem = catchAsync(async (req: Request, res: Response) => {
   const checklistItemsArray = req.body.checklistItems;
 
-  const { error } = CreateItemsArraySchema.validate(checklistItemsArray);
+  const { error } = CreateItemsArraySchema.body.validate(checklistItemsArray);
 
   if (error) {
     const errorFields = JoiError(error);
@@ -37,7 +37,7 @@ export const createChecklistItem = catchAsync(async (req: Request, res: Response
 
 export const updateChecklistItem = catchAsync(async (req: Request, res: Response) => {
   const updateItemsArray = req.body.checklistItems;
-  const { error } = UpdateItemsArraySchema.validate(updateItemsArray, { abortEarly: false ,allowUnknown: true});
+  const { error } = UpdateItemsArraySchema.body.validate(updateItemsArray, { abortEarly: false ,allowUnknown: true});
 
   if (error) {
     const errorFields = JoiError(error);

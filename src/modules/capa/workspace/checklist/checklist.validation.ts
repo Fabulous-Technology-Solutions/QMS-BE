@@ -7,6 +7,6 @@ const checkListBody: Record<keyof CreateChecklistRequest, Joi.Schema> = {
     workspace: Joi.string().required()
 };
 
-export const checkListValidationSchema = Joi.object().keys(checkListBody).fork(['name', 'description', 'workspace'], (schema) => schema.required());   
+export const checkListValidationSchema = { body: Joi.object().keys(checkListBody).fork(['name', 'description', 'workspace'], (schema) => schema.required()) };
 
-export const checkListUpdateValidationSchema = Joi.object().keys(checkListBody).min(1)
+export const checkListUpdateValidationSchema = { body: Joi.object().keys(checkListBody).min(1) };

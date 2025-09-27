@@ -52,12 +52,12 @@ const createAssessmentBody: Record<keyof CreateAssessmentRequest, any> = {
 };
 
 
-const createAssessmentSchema = Joi.object().keys(createAssessmentBody).fork(
+const createAssessmentSchema = { body: Joi.object().keys(createAssessmentBody).fork(
     ['name', 'library', 'createdBy', 'evaluator','probability', 'impact'],
     (schema) => schema.required()
-);
+)};
 
-const updateAssessmentSchema = Joi.object().keys(createAssessmentBody);
+const updateAssessmentSchema = { body: Joi.object().keys(createAssessmentBody) };
 export {
     createAssessmentSchema,
     updateAssessmentSchema

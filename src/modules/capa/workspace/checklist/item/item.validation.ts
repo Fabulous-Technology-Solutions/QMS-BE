@@ -16,10 +16,10 @@ export const CreateItem = Joi.object()
       'any.required': 'This field is required',
     })
   );
-export const CreateItemsArraySchema = Joi.array().items(CreateItem).min(1).messages({
+export const CreateItemsArraySchema = { body: Joi.array().items(CreateItem).min(1).messages({
   'array.min': 'At least one checklist item must be provided',
   'array.base': 'Checklist items must be an array',
-});
+})};
 
 export const UpdateItem = Joi.object()
   .keys({
@@ -30,7 +30,7 @@ export const UpdateItem = Joi.object()
     'object.min': 'At least one field must be provided for update',
   });
 
-export const UpdateItemsArraySchema = Joi.array().items(UpdateItem).min(1).messages({
+export const UpdateItemsArraySchema = { body: Joi.array().items(UpdateItem).min(1).messages({
   'array.min': 'At least one checklist item must be provided for update',
   'array.base': 'Checklist items must be an array',
-});
+})};

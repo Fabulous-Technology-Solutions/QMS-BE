@@ -10,5 +10,5 @@ const checkListBody = {
     description: joi_1.default.string().required(),
     workspace: joi_1.default.string().required()
 };
-exports.checkListValidationSchema = joi_1.default.object().keys(checkListBody).fork(['name', 'description', 'workspace'], (schema) => schema.required());
-exports.checkListUpdateValidationSchema = joi_1.default.object().keys(checkListBody).min(1);
+exports.checkListValidationSchema = { body: joi_1.default.object().keys(checkListBody).fork(['name', 'description', 'workspace'], (schema) => schema.required()) };
+exports.checkListUpdateValidationSchema = { body: joi_1.default.object().keys(checkListBody).min(1) };

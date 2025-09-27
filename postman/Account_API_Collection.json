@@ -1,0 +1,568 @@
+{
+  "info": {
+    "name": "QMS - Account API",
+    "description": "Postman collection for QMS Account API endpoints",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_postman_id": "account-api-collection-2025"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000",
+      "type": "string"
+    },
+    {
+      "key": "authToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "accountId",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{authToken}}",
+        "type": "string"
+      }
+    ]
+  },
+  "item": [
+    {
+      "name": "Get All Accounts",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{authToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/accounts?page=1&limit=10&search=",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "v1", "accounts"],
+          "query": [
+            {
+              "key": "page",
+              "value": "1",
+              "description": "Page number for pagination"
+            },
+            {
+              "key": "limit",
+              "value": "10",
+              "description": "Number of accounts per page"
+            },
+            {
+              "key": "search",
+              "value": "",
+              "description": "Search term to filter accounts"
+            }
+          ]
+        },
+        "description": "Get all accounts with pagination and search functionality."
+      },
+      "response": [
+        {
+          "name": "Success Response",
+          "originalRequest": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/accounts?page=1&limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "accounts"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                }
+              ]
+            }
+          },
+          "status": "OK",
+          "code": 200,
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "body": "{\n  \"status\": \"success\",\n  \"data\": {\n    \"accounts\": [\n      {\n        \"_id\": \"60d5f4847d5c2b001f5e4a24\",\n        \"role\": \"workspaceUser\",\n        \"workspaceRole\": \"edit\",\n        \"status\": \"active\",\n        \"user\": {\n          \"_id\": \"60d5f4847d5c2b001f5e4a22\",\n          \"name\": \"John Doe\",\n          \"email\": \"john@example.com\"\n        },\n        \"accountId\": \"60d5f4847d5c2b001f5e4a23\",\n        \"createdAt\": \"2025-09-25T10:00:00.000Z\",\n        \"updatedAt\": \"2025-09-25T10:00:00.000Z\"\n      }\n    ]\n  }\n}"
+        }
+      ],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test(\"Response contains accounts array\", function () {",
+              "    const jsonData = pm.response.json();",
+              "    pm.expect(jsonData).to.have.property('status', 'success');",
+              "    pm.expect(jsonData.data).to.have.property('accounts');",
+              "    pm.expect(jsonData.data.accounts).to.be.an('array');",
+              "    ",
+              "    // Store first account ID for other requests",
+              "    if (jsonData.data.accounts.length > 0) {",
+              "        pm.collectionVariables.set('accountId', jsonData.data.accounts[0]._id);",
+              "    }",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Get Global Accounts",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{authToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/accounts/globalaccounts/{{accountId}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "v1", "accounts", "globalaccounts", "{{accountId}}"]
+        },
+        "description": "Get global accounts for a specific account ID."
+      },
+      "response": [
+        {
+          "name": "Success Response",
+          "originalRequest": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/accounts/globalaccounts/60d5f4847d5c2b001f5e4a24",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "accounts", "globalaccounts", "60d5f4847d5c2b001f5e4a24"]
+            }
+          },
+          "status": "OK",
+          "code": 200,
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "body": "{\n  \"status\": \"success\",\n  \"data\": {\n    \"accounts\": [\n      {\n        \"_id\": \"60d5f4847d5c2b001f5e4a25\",\n        \"role\": \"admin\",\n        \"adminOF\": [\n          {\n            \"method\": \"60d5f4847d5c2b001f5e4a26\",\n            \"workspacePermissions\": [\"60d5f4847d5c2b001f5e4a27\"]\n          }\n        ],\n        \"status\": \"active\",\n        \"user\": {\n          \"_id\": \"60d5f4847d5c2b001f5e4a28\",\n          \"name\": \"Admin User\",\n          \"email\": \"admin@example.com\"\n        },\n        \"createdAt\": \"2025-09-25T10:00:00.000Z\",\n        \"updatedAt\": \"2025-09-25T10:00:00.000Z\"\n      }\n    ]\n  }\n}"
+        }
+      ]
+    },
+    {
+      "name": "Get Account by ID",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{authToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/accounts/{{accountId}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "v1", "accounts", "{{accountId}}"]
+        },
+        "description": "Get a specific account by its ID."
+      },
+      "response": [
+        {
+          "name": "Success Response",
+          "originalRequest": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/accounts/60d5f4847d5c2b001f5e4a24",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "accounts", "60d5f4847d5c2b001f5e4a24"]
+            }
+          },
+          "status": "OK",
+          "code": 200,
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "body": "{\n  \"status\": \"success\",\n  \"data\": {\n    \"account\": {\n      \"_id\": \"60d5f4847d5c2b001f5e4a24\",\n      \"role\": \"workspaceUser\",\n      \"workspaceRole\": \"edit\",\n      \"status\": \"active\",\n      \"user\": {\n        \"_id\": \"60d5f4847d5c2b001f5e4a22\",\n        \"name\": \"John Doe\",\n        \"email\": \"john@example.com\"\n      },\n      \"accountId\": \"60d5f4847d5c2b001f5e4a23\",\n      \"createdAt\": \"2025-09-25T10:00:00.000Z\",\n      \"updatedAt\": \"2025-09-25T10:00:00.000Z\"\n    }\n  }\n}"
+        },
+        {
+          "name": "Not Found Response",
+          "originalRequest": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/accounts/invalid-id",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "accounts", "invalid-id"]
+            }
+          },
+          "status": "Not Found",
+          "code": 404,
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "body": "{\n  \"code\": 404,\n  \"message\": \"Account not found\"\n}"
+        }
+      ],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 200 or 404\", function () {",
+              "    pm.expect(pm.response.code).to.be.oneOf([200, 404]);",
+              "});",
+              "",
+              "if (pm.response.code === 200) {",
+              "    pm.test(\"Response contains account data\", function () {",
+              "        const jsonData = pm.response.json();",
+              "        pm.expect(jsonData).to.have.property('status', 'success');",
+              "        pm.expect(jsonData.data).to.have.property('account');",
+              "        pm.expect(jsonData.data.account).to.have.property('_id');",
+              "    });",
+              "}"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Update Account - Workspace User",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{authToken}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"role\": \"workspaceUser\",\n  \"workspaceRole\": \"admin\",\n  \"status\": \"active\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/accounts/{{accountId}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "v1", "accounts", "{{accountId}}"]
+        },
+        "description": "Update account details for a workspace user."
+      },
+      "response": [
+        {
+          "name": "Success Response",
+          "originalRequest": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"role\": \"workspaceUser\",\n  \"workspaceRole\": \"admin\",\n  \"status\": \"active\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/accounts/60d5f4847d5c2b001f5e4a24",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "accounts", "60d5f4847d5c2b001f5e4a24"]
+            }
+          },
+          "status": "OK",
+          "code": 200,
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "body": "{\n  \"status\": \"success\",\n  \"data\": {\n    \"account\": {\n      \"_id\": \"60d5f4847d5c2b001f5e4a24\",\n      \"role\": \"workspaceUser\",\n      \"workspaceRole\": \"admin\",\n      \"status\": \"active\",\n      \"user\": \"60d5f4847d5c2b001f5e4a22\",\n      \"accountId\": \"60d5f4847d5c2b001f5e4a23\",\n      \"createdAt\": \"2025-09-25T10:00:00.000Z\",\n      \"updatedAt\": \"2025-09-26T10:00:00.000Z\"\n    }\n  }\n}"
+        }
+      ]
+    },
+    {
+      "name": "Update Account - Admin Role",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{authToken}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"role\": \"admin\",\n  \"adminOF\": [\n    {\n      \"method\": \"60d5f4847d5c2b001f5e4a25\",\n      \"workspacePermissions\": [\"60d5f4847d5c2b001f5e4a26\", \"60d5f4847d5c2b001f5e4a27\"]\n    }\n  ],\n  \"status\": \"active\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/accounts/{{accountId}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "v1", "accounts", "{{accountId}}"]
+        },
+        "description": "Update account to admin role with admin permissions."
+      },
+      "response": []
+    },
+    {
+      "name": "Update Account - Standard User",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{authToken}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"role\": \"standardUser\",\n  \"status\": \"active\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/accounts/{{accountId}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "v1", "accounts", "{{accountId}}"]
+        },
+        "description": "Update account to standard user role."
+      },
+      "response": []
+    },
+    {
+      "name": "Update Account Status - Inactive",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{authToken}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"status\": \"inactive\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/accounts/{{accountId}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "v1", "accounts", "{{accountId}}"]
+        },
+        "description": "Deactivate an account by setting status to inactive."
+      },
+      "response": []
+    },
+    {
+      "name": "Delete Account",
+      "request": {
+        "method": "DELETE",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{authToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/accounts/{{accountId}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "v1", "accounts", "{{accountId}}"]
+        },
+        "description": "Delete an account by its ID."
+      },
+      "response": [
+        {
+          "name": "Success Response",
+          "originalRequest": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/accounts/60d5f4847d5c2b001f5e4a24",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "accounts", "60d5f4847d5c2b001f5e4a24"]
+            }
+          },
+          "status": "No Content",
+          "code": 204,
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "body": "{\n  \"status\": \"success\",\n  \"data\": null\n}"
+        },
+        {
+          "name": "Not Found Response",
+          "originalRequest": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/accounts/invalid-id",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "accounts", "invalid-id"]
+            }
+          },
+          "status": "Not Found",
+          "code": 404,
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "body": "{\n  \"code\": 404,\n  \"message\": \"Account not found\"\n}"
+        }
+      ],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 204 or 404\", function () {",
+              "    pm.expect(pm.response.code).to.be.oneOf([204, 404]);",
+              "});",
+              "",
+              "if (pm.response.code === 204) {",
+              "    pm.test(\"Account deleted successfully\", function () {",
+              "        const jsonData = pm.response.json();",
+              "        pm.expect(jsonData.status).to.equal('success');",
+              "        pm.expect(jsonData.data).to.be.null;",
+              "    });",
+              "}"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ]
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "exec": [
+          "// Set default values if not already set",
+          "if (!pm.collectionVariables.get('baseUrl')) {",
+          "    pm.collectionVariables.set('baseUrl', 'http://localhost:3000');",
+          "}",
+          "",
+          "// Generate sample account ID if not set",
+          "if (!pm.collectionVariables.get('accountId')) {",
+          "    pm.collectionVariables.set('accountId', '60d5f4847d5c2b001f5e4a24');",
+          "}"
+        ],
+        "type": "text/javascript"
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "exec": [
+          "// Global test for all requests",
+          "pm.test(\"Response time is less than 2000ms\", function () {",
+          "    pm.expect(pm.response.responseTime).to.be.below(2000);",
+          "});",
+          "",
+          "if (pm.response.headers.get('Content-Type')) {",
+          "    pm.test(\"Content-Type header is present\", function () {",
+          "        pm.expect(pm.response.headers.get('Content-Type')).to.include('application/json');",
+          "    });",
+          "}"
+        ],
+        "type": "text/javascript"
+      }
+    }
+  ]
+}

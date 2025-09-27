@@ -21,6 +21,7 @@ const createUserBody: Record<keyof NewCreatedUser, any> = {
   profilePicture: Joi.string().optional(),
   profilePictureKey: Joi.string().optional(),
   isDeleted: Joi.boolean().default(false),
+  orgName: Joi.string().optional(),
 };
 
 export const createUser = {

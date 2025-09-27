@@ -48,18 +48,6 @@ export const getAllCapaworkspaces = async (body: getworkspacesofuserRequest) => 
     query.name = { $regex: search, $options: 'i' };
   }
 
-  if (user.role !== 'admin') {
-    const adminData = (user.adminOF as IMAP[] | undefined)?.find((admin) => admin.method.equals(moduleId));
-    if (
-      adminData?.workspacePermissions &&
-      Array.isArray(adminData.workspacePermissions) &&
-      adminData.workspacePermissions.length > 0
-    ) {
-      query._id = { $in: adminData?.workspacePermissions || [] };
-    } else {
-      return { results: [], total: 0 };
-    }
-  }
 
   const [results, totalCountArr] = await Promise.all([
     CapaworkspaceModel.aggregate([
@@ -70,6 +58,7 @@ export const getAllCapaworkspaces = async (body: getworkspacesofuserRequest) => 
           localField: 'moduleId',
           foreignField: '_id',
           as: 'module',
+          pipeline: [{ $match: { userId: new mongoose.Types.ObjectId(user._id) } }],
         },
       },
       {
@@ -78,6 +67,7 @@ export const getAllCapaworkspaces = async (body: getworkspacesofuserRequest) => 
           preserveNullAndEmptyArrays: true,
         },
       },
+
       { $skip: skip },
       { $limit: limit },
     ]),

@@ -16,10 +16,10 @@ exports.CreateItem = joi_1.default.object()
     .fork(['checklist', 'question'], (schema) => schema.required().messages({
     'any.required': 'This field is required',
 }));
-exports.CreateItemsArraySchema = joi_1.default.array().items(exports.CreateItem).min(1).messages({
-    'array.min': 'At least one checklist item must be provided',
-    'array.base': 'Checklist items must be an array',
-});
+exports.CreateItemsArraySchema = { body: joi_1.default.array().items(exports.CreateItem).min(1).messages({
+        'array.min': 'At least one checklist item must be provided',
+        'array.base': 'Checklist items must be an array',
+    }) };
 exports.UpdateItem = joi_1.default.object()
     .keys({
     ...checklistitemBody,
@@ -28,7 +28,7 @@ exports.UpdateItem = joi_1.default.object()
     .messages({
     'object.min': 'At least one field must be provided for update',
 });
-exports.UpdateItemsArraySchema = joi_1.default.array().items(exports.UpdateItem).min(1).messages({
-    'array.min': 'At least one checklist item must be provided for update',
-    'array.base': 'Checklist items must be an array',
-});
+exports.UpdateItemsArraySchema = { body: joi_1.default.array().items(exports.UpdateItem).min(1).messages({
+        'array.min': 'At least one checklist item must be provided for update',
+        'array.base': 'Checklist items must be an array',
+    }) };

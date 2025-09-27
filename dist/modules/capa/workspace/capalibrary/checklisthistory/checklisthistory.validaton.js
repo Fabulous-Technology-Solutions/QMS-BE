@@ -22,7 +22,7 @@ const historyBody = {
     }))
         .required(),
 };
-exports.createChecklistHistoryValidation = joi_1.default.object()
-    .keys(historyBody)
-    .fork(['checklistId', 'library', 'list'], (field) => field.required());
-exports.updateChecklistHistoryValidation = joi_1.default.object().keys(historyBody).min(1);
+exports.createChecklistHistoryValidation = { body: joi_1.default.object()
+        .keys(historyBody)
+        .fork(['checklistId', 'library', 'list'], (field) => field.required()) };
+exports.updateChecklistHistoryValidation = { body: joi_1.default.object().keys(historyBody).min(1) };

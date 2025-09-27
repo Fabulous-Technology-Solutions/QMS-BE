@@ -11,7 +11,7 @@ router
   .get(auth('manageUsers'), validate(userValidation.getUsers), userController.getAllUsers);
   // .get(auth('getUsers'), validate(userValidation.getUsers), userController.getUsers);
 
-router.get('/me', auth(), userController.getMe);
+router.route('/me').get(auth(), userController.getMe).patch(auth(), userController.updateMe);
 
 
 router

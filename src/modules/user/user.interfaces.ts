@@ -4,7 +4,7 @@ import { AccessAndRefreshTokens } from '../token/token.interfaces';
 
 
 export interface IUser {
-
+  
   name: string;
   email: string;  
   password: string;
@@ -18,6 +18,7 @@ export interface IUser {
   profilePicture?: string;
   profilePictureKey?: string;
   isDeleted?: boolean;
+orgName?: string;
  
 }
 

@@ -9,6 +9,6 @@ const createControlBody:Record<keyof CreateControl, Joi.Schema> = {
   owners: Joi.array().items(Joi.string().required()),
   name: Joi.string()
 };
-export const createControlSchema = Joi.object().keys(createControlBody).fork(['library', 'name','description','effectiveness','owners'], (schema) => schema.required());
+export const createControlSchema = { body: Joi.object().keys(createControlBody).fork(['library', 'name','description','effectiveness','owners'], (schema) => schema.required()) };
 
-export const updateControlSchema = Joi.object().keys(createControlBody)
+export const updateControlSchema = { body: Joi.object().keys(createControlBody) };

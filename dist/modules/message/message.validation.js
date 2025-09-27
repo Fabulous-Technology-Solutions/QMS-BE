@@ -21,4 +21,4 @@ exports.createMessageBody = {
         deletedAt: joi_1.default.date().allow(null)
     })).allow(null)
 };
-exports.createMessage = joi_1.default.object().keys(exports.createMessageBody);
+exports.createMessage = { body: joi_1.default.object().keys(exports.createMessageBody) };

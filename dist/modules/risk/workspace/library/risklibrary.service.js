@@ -20,35 +20,6 @@ const CreateLibrary = async (body) => {
         { $unwind: '$module' },
         {
             $lookup: {
-                from: 'users',
-                let: { moduleUserId: '$_id' },
-                pipeline: [
-                    {
-                        $match: {
-                            $expr: {
-                                $and: [
-                                    { $ne: ['$adminOF', null] },
-                                    { $isArray: '$adminOF' },
-                                    {
-                                        $anyElementTrue: {
-                                            $map: {
-                                                input: '$adminOF',
-                                                as: 'admin',
-                                                in: { $in: ['$$moduleUserId', '$$admin.workspacePermissions'] },
-                                            },
-                                        },
-                                    },
-                                ],
-                            },
-                        },
-                    },
-                ],
-                as: 'subAdmins',
-            },
-        },
-        { $addFields: { subAdminsIds: { $map: { input: '$subAdmins', as: 'admin', in: '$$admin._id' } } } },
-        {
-            $lookup: {
                 from: 'plans',
                 localField: 'module.planId',
                 foreignField: '_id',
@@ -65,12 +36,11 @@ const CreateLibrary = async (body) => {
     if (!findWorkspace || findWorkspace.length === 0) {
         throw new Error('Workspace not found');
     }
-    const participants = Array.from(new Set([...(body.managers || []), ...(body.members || []), ...(findWorkspace[0]?.subAdminsIds || []), findWorkspace[0]?.module?.userId])).map((id) => new mongoose_1.default.Types.ObjectId(id));
-    console.log('Participants for chat:', participants);
     const library = new risklibrary_modal_1.LibraryModel(body);
     await (0, chat_services_1.createChat)({
         obj: library._id,
         chatOf: 'RiskLibrary',
+        workspace: body.workspace,
     });
     return await library.save();
 };

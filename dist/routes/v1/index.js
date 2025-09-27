@@ -27,7 +27,9 @@ const auth_route_1 = __importDefault(require("./auth.route"));
 const swagger_route_1 = __importDefault(require("./swagger.route"));
 const user_route_1 = __importDefault(require("./user.route"));
 const upload_route_1 = __importDefault(require("./upload.route"));
+const invitation_route_1 = __importDefault(require("./invitation.route"));
 const plans_route_1 = __importDefault(require("../../modules/plans/plans.route"));
+const account_route_1 = __importDefault(require("./account.route"));
 const subscription_1 = require("../../modules/subscription");
 const config_1 = __importDefault(require("../../config/config"));
 const logs_route_1 = __importDefault(require("./logs.route"));
@@ -73,6 +75,14 @@ const defaultIRoute = [
         path: '/processes',
         route: process_route_1.default,
     },
+    {
+        path: '/invitations',
+        route: invitation_route_1.default,
+    },
+    {
+        path: '/accounts',
+        route: account_route_1.default,
+    }
 ];
 const capaIRoute = [
     {
