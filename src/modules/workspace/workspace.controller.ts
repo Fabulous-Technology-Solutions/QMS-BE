@@ -8,6 +8,7 @@ import { getActionsByWorkspace } from '../capa/workspace/capalibrary/action/acti
 import { generateFilterReport, getLibrariesfilterData } from '../capa/workspace/capalibrary/capalibrary.service';
 import { generateFilterReport as generateReports } from '../risk/workspace/library/risklibrary.service';
 import { accountServices } from '../account';
+import { getSingleWorkspaceWithAccount } from '../account/account.services';
 
 export const createCapaworkspaceController = catchAsync(async (req: Request, res: Response) => {
   const workspace = await workspaceService.createCapaworkspace({ ...req.body, user: req.user });
@@ -16,7 +17,7 @@ export const createCapaworkspaceController = catchAsync(async (req: Request, res
   res.locals['collectionName'] = 'Workspace';
   res.locals['changes'] = workspace;
   res.locals['logof'] = req.body.moduleId || null;
-  
+
   return res.status(httpStatus.CREATED).send({
     success: true,
     data: workspace,
@@ -24,12 +25,17 @@ export const createCapaworkspaceController = catchAsync(async (req: Request, res
 });
 
 export const getAllCapaworkspacesController = catchAsync(async (req: Request, res: Response) => {
+  const { page = 1, limit = 10, search } = req.query;
+  console.log('Account ID:', req.headers['accountid']);
   // Authorization logic
-  if (req.headers['accountId']) {
+  if (req.headers['subid']) {
     const workspaces = await accountServices.getModuleWorkspaces(
-      req.headers['accountId'] as string,
+      req.headers['subid'] as string,
       req.params['moduleId'] as string,
-      req.user._id
+      req.user._id,
+      Number(page),
+      Number(limit),
+      req.query['search'] as string
     );
     return res.status(httpStatus.OK).send({
       success: true,
@@ -37,7 +43,6 @@ export const getAllCapaworkspacesController = catchAsync(async (req: Request, re
     });
   }
 
-  const { page = 1, limit = 10, search } = req.query;
   const workspaces = await workspaceService.getAllCapaworkspaces({
     moduleId: req.params['moduleId'] as string,
     user: req.user,
@@ -53,7 +58,15 @@ export const getAllCapaworkspacesController = catchAsync(async (req: Request, re
 });
 
 export const getCapaworkspaceByIdController = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
-  const workspace = await workspaceService.getCapaworkspaceById(req.params['workspaceId'] as string);
+  let workspace;
+
+  if (req.headers['accountid']) {
+    workspace = await getSingleWorkspaceWithAccount(req.headers['accountid'] as string, req.params['workspaceId'] as string);
+  }else{
+    workspace = await workspaceService.getCapaworkspaceById(req.params['workspaceId'] as string);
+
+  }
+
   if (!workspace) {
     return next(new AppiError('Workspace not found', httpStatus.NOT_FOUND));
   }

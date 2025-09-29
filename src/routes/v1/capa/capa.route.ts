@@ -40,6 +40,7 @@ router.delete(
 router.get(
   "/module/:workspaceId",
   auth('manageCapa'),
+  checkCreateRole,
   workspaceController.getCapaworkspaceByIdController
 );
 router.get(

@@ -25,7 +25,8 @@ const accountSchema = new mongoose_1.Schema({
     Permissions: [
         {
             workspace: { type: mongoose_1.default.Schema.Types.ObjectId, ref: 'Workspace', required: true },
-            permission: { type: String, enum: ['admin', 'view', 'edit'], required: true },
+            permission: { type: String, enum: ['admin', 'view', 'edit'], default: 'view' },
+            roleId: { type: mongoose_1.default.Schema.Types.ObjectId, ref: 'Role', required: false },
         },
     ],
     status: { type: String, enum: ['active', 'inactive'], required: true },
@@ -33,8 +34,8 @@ const accountSchema = new mongoose_1.Schema({
     user: {
         type: mongoose_1.default.Schema.Types.ObjectId,
         ref: 'User',
-        required: true,
-    },
+        required: true
+    }
 }, { timestamps: true });
 const AccountModel = (0, mongoose_1.model)('Account', accountSchema);
 exports.default = AccountModel;

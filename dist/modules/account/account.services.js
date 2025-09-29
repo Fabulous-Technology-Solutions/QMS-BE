@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.findUserBelongToCapaLibrary = exports.findUserBelongToRiskLibrary = exports.checkUserBelongsToAccount = exports.updateAccountById = exports.getModuleWorkspaces = exports.switchAccount = exports.getAccountById = exports.deleteAccountById = exports.getAllAccounts = void 0;
+exports.getSingleWorkspaceWithAccount = exports.findUserBelongToCapaLibrary = exports.findUserBelongToRiskLibrary = exports.checkUserBelongsToAccount = exports.updateAccountById = exports.getModuleWorkspaces = exports.switchAccount = exports.getAccountById = exports.deleteAccountById = exports.getAllAccounts = void 0;
 const mongoose_1 = __importDefault(require("mongoose"));
 const account_modal_1 = __importDefault(require("./account.modal"));
 const getAllAccounts = async (accountId, page = 1, limit = 10, searchUsername) => {
@@ -225,8 +225,8 @@ const getModuleWorkspaces = async (accountId, moduleId, userId, page = 1, limit 
     const pipeline = [
         {
             $match: {
-                _id: new mongoose_1.default.Types.ObjectId(accountId),
-                user: new mongoose_1.default.Types.ObjectId(userId),
+                accountId: new mongoose_1.default.Types.ObjectId(accountId),
+                user: new mongoose_1.default.Types.ObjectId(userId)
             },
         },
         {
@@ -238,13 +238,42 @@ const getModuleWorkspaces = async (accountId, moduleId, userId, page = 1, limit 
                 pipeline: [
                     {
                         $match: {
-                            'moduleId': new mongoose_1.default.Types.ObjectId(moduleId),
+                            moduleId: new mongoose_1.default.Types.ObjectId(moduleId),
+                        },
+                    },
+                    {
+                        $project: {
+                            _id: 1,
+                            name: 1,
+                            description: 1,
+                            moduleId: 1,
                         },
                     },
                 ],
             },
         },
         { $unwind: '$workspaceDetails' },
+        {
+            $addFields: {
+                'workspaceDetails.account': {
+                    _id: '$_id',
+                    role: '$role',
+                    status: '$status',
+                    user: '$user',
+                    permission: {
+                        $arrayElemAt: [
+                            {
+                                $filter: {
+                                    input: '$Permissions',
+                                    cond: { $eq: ['$$this.workspace', '$workspaceDetails._id'] }
+                                }
+                            },
+                            0
+                        ]
+                    }
+                },
+            },
+        },
     ];
     // Add search filter if searchWorkspace is provided
     if (searchWorkspace) {
@@ -268,7 +297,7 @@ const getModuleWorkspaces = async (accountId, moduleId, userId, page = 1, limit 
     const totalResult = await account_modal_1.default.aggregate(totalPipeline);
     const total = totalResult[0]?.total || 0;
     return {
-        results: workspaces.map(w => w.workspace),
+        results: workspaces.map((w) => w.workspace),
         page,
         limit,
         total,
@@ -282,11 +311,9 @@ const updateAccountById = async (Id, updateBody) => {
 };
 exports.updateAccountById = updateAccountById;
 const checkUserBelongsToAccount = async (userId, accountId, workspaceId) => {
+    console.log('Checking if user belongs to account with userId:', userId, 'accountId:', accountId, 'workspaceId:', workspaceId);
     const account = await account_modal_1.default.findOne({ _id: accountId, user: userId, 'Permissions.workspace': workspaceId });
-    if (!account) {
-        throw new Error('Account not found or does not belong to the user');
-    }
-    return !!account; // returns true if account exists, false otherwise
+    return account; // returns true if account exists, false otherwise
 };
 exports.checkUserBelongsToAccount = checkUserBelongsToAccount;
 const findUserBelongToRiskLibrary = async (userId, accountId, libraryId) => {
@@ -373,3 +400,62 @@ const findUserBelongToCapaLibrary = async (userId, accountId, libraryId) => {
     return !!account; // returns true if account exists, false otherwise
 };
 exports.findUserBelongToCapaLibrary = findUserBelongToCapaLibrary;
+const getSingleWorkspaceWithAccount = async (accountId, workspaceId) => {
+    const result = await account_modal_1.default.aggregate([
+        {
+            $match: {
+                _id: new mongoose_1.default.Types.ObjectId(accountId),
+            }
+        },
+        {
+            $lookup: {
+                from: 'workspaces',
+                localField: 'Permissions.workspace',
+                foreignField: '_id',
+                as: 'workspaceDetails',
+                pipeline: [
+                    {
+                        $match: {
+                            _id: new mongoose_1.default.Types.ObjectId(workspaceId)
+                        }
+                    },
+                    {
+                        $project: {
+                            _id: 1,
+                            name: 1,
+                            description: 1,
+                            moduleId: 1
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            $unwind: '$workspaceDetails'
+        }, {
+            $addFields: {
+                'workspaceDetails.permission': {
+                    $arrayElemAt: [
+                        {
+                            $filter: {
+                                input: '$Permissions',
+                                as: 'perm',
+                                cond: {
+                                    $eq: ['$$perm.workspace', '$workspaceDetails._id']
+                                }
+                            }
+                        },
+                        0
+                    ]
+                }
+            }
+        },
+        {
+            $project: {
+                workspace: '$workspaceDetails'
+            }
+        }
+    ]);
+    return result[0].workspace || null;
+};
+exports.getSingleWorkspaceWithAccount = getSingleWorkspaceWithAccount;

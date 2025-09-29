@@ -31,6 +31,7 @@ const tokenService = __importStar(require("../../token/token.service"));
 const email_service_1 = require("../../email/email.service");
 const mongoose_1 = __importDefault(require("mongoose"));
 const upload_middleware_1 = require("../../upload/upload.middleware");
+const account_modal_1 = __importDefault(require("../../account/account.modal"));
 const createWorkspaceUser = async (data) => {
     if (await user_model_1.default.isEmailTaken(data.email)) {
         throw new ApiError_1.default('Email already taken', http_status_1.default.BAD_REQUEST);
@@ -83,8 +84,7 @@ const updateWorkspaceUser = async (id, data) => {
 };
 exports.updateWorkspaceUser = updateWorkspaceUser;
 const getworkspaceusersnames = async (workspaceId) => {
-    const users = await workspaceUser_modal_1.default.find({ workspace: workspaceId, isDeleted: false }).
-        select('name profilePicture');
+    const users = await workspaceUser_modal_1.default.find({ workspace: workspaceId, isDeleted: false }).select('name profilePicture');
     return users;
 };
 exports.getworkspaceusersnames = getworkspaceusersnames;
@@ -97,46 +97,80 @@ const deleteWorkspaceUser = async (id) => {
 };
 exports.deleteWorkspaceUser = deleteWorkspaceUser;
 const getWorkspaceUsers = async (workspaceId, page, limit, search) => {
-    const match = { workspace: new mongoose_1.default.Types.ObjectId(workspaceId), isDeleted: false };
-    if (search && search.trim()) {
-        const regex = new RegExp(search.trim(), 'i');
-        match.$or = [{ name: regex }, { email: regex }];
-    }
-    const users = await workspaceUser_modal_1.default.aggregate([
-        { $match: match },
+    console.log('Fetching users for workspace:', workspaceId, 'Page:', page, 'Limit:', limit, 'Search:', search);
+    const users = await account_modal_1.default.aggregate([
+        {
+            $match: {
+                'Permissions.workspace': new mongoose_1.default.Types.ObjectId(workspaceId),
+            },
+        },
+        {
+            $addFields: {
+                permission: {
+                    $arrayElemAt: [
+                        {
+                            $filter: {
+                                input: '$Permissions',
+                                cond: { $eq: ['$$this.workspace', new mongoose_1.default.Types.ObjectId(workspaceId)] }
+                            }
+                        },
+                        0
+                    ]
+                }
+            },
+        },
+        {
+            $addFields: {
+                roleId: '$permission.roleId',
+                workspace: '$permission.workspace'
+            },
+        },
+        {
+            $lookup: {
+                from: 'users',
+                localField: 'user',
+                foreignField: '_id',
+                as: 'user',
+                pipeline: [{ $project: { name: 1, email: 1, profilePicture: 1 } }],
+            },
+        },
+        {
+            $unwind: {
+                path: '$user',
+                preserveNullAndEmptyArrays: true,
+            },
+        },
         {
             $lookup: {
                 from: 'roles',
                 localField: 'roleId',
                 foreignField: '_id',
-                as: 'role',
+                as: 'workspaceRole',
             },
         },
         {
             $unwind: {
-                path: '$role',
+                path: '$workspaceRole',
                 preserveNullAndEmptyArrays: true,
             },
         },
         {
             $project: {
                 _id: 1,
-                name: 1,
-                email: 1,
+                name: '$user.name',
+                email: '$user.email',
                 status: 1,
-                profilePicture: 1,
-                role: {
-                    _id: '$role._id',
-                    name: '$role.name',
-                },
+                workspaceRole: '$permission.permission',
+                workspace: 1,
+                profilePicture: '$user.profilePicture',
+                Accountrole: '$role',
             },
         },
         { $sort: { name: 1 } },
         { $skip: (page - 1) * limit },
         { $limit: limit },
     ]);
-    const total = await workspaceUser_modal_1.default.countDocuments(match);
-    return { users, total, page, limit };
+    return { users, page, limit };
 };
 exports.getWorkspaceUsers = getWorkspaceUsers;
 const getSingleWorkspaceUser = async (userId) => {

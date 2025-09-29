@@ -6,7 +6,8 @@ const accountSchema = new Schema<IaccountDoc>(
     Permissions: [
       {
         workspace: { type: mongoose.Schema.Types.ObjectId, ref: 'Workspace', required: true },
-        permission: { type: String, enum: ['admin', 'view', 'edit'], required: true },
+        permission: { type: String, enum: ['admin', 'view', 'edit'], default: 'view' },
+        roleId: { type: mongoose.Schema.Types.ObjectId, ref: 'Role', required: false },
       },
     ],
     status: { type: String, enum: ['active', 'inactive'], required: true },
@@ -14,8 +15,8 @@ const accountSchema = new Schema<IaccountDoc>(
     user: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',
-      required: true,
-    },
+      required: true  
+    }
   },
   { timestamps: true }
 );

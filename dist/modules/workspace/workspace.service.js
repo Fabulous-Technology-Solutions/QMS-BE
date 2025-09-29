@@ -41,22 +41,29 @@ const getAllCapaworkspaces = async (body) => {
     if (search) {
         query.name = { $regex: search, $options: 'i' };
     }
+    console.log('body:', body);
     const [results, totalCountArr] = await Promise.all([
         workspace_modal_1.default.aggregate([
             { $match: query },
             {
                 $lookup: {
-                    from: 'modules',
+                    from: 'subscriptions',
                     localField: 'moduleId',
                     foreignField: '_id',
                     as: 'module',
-                    pipeline: [{ $match: { userId: new mongoose_1.default.Types.ObjectId(user._id) } }],
+                    pipeline: [{ $match: { userId: user._id } }],
                 },
             },
             {
                 $unwind: {
                     path: '$module',
-                    preserveNullAndEmptyArrays: true,
+                },
+            },
+            { $sort: { createdAt: -1 } },
+            {
+                $project: {
+                    module: 0,
+                    __v: 0,
                 },
             },
             { $skip: skip },

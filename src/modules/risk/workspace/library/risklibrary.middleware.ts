@@ -5,10 +5,10 @@ import { checkAdminBelongsTtoLibrary} from './risklibrary.service';
 import { accountServices } from '../../../account';
 const checkValidation = catchAsync(async (req: Request, _: Response, next: NextFunction) => {
   const { user } = req;
-  if(req.headers['accountId']){
+  if(req.headers['accountid']){
     await accountServices.findUserBelongToRiskLibrary(
       user._id.toString(),
-      req.headers['accountId'] as string,
+      req.headers['accountid'] as string,
       req.params['libraryId'] || req.body.library
     );
   }else{

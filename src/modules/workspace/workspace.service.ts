@@ -8,7 +8,6 @@ import {
 } from './workspace.interfaces';
 import CapaworkspaceModel from './workspace.modal';
 
-
 import { LibraryModel } from '../capa/workspace/capalibrary/capalibrary.modal';
 import Action from '../capa/workspace/capalibrary/action/action.modal';
 
@@ -47,24 +46,30 @@ export const getAllCapaworkspaces = async (body: getworkspacesofuserRequest) => 
   if (search) {
     query.name = { $regex: search, $options: 'i' };
   }
-
+  console.log('body:', body);
 
   const [results, totalCountArr] = await Promise.all([
     CapaworkspaceModel.aggregate([
       { $match: query },
       {
         $lookup: {
-          from: 'modules',
+          from: 'subscriptions',
           localField: 'moduleId',
           foreignField: '_id',
           as: 'module',
-          pipeline: [{ $match: { userId: new mongoose.Types.ObjectId(user._id) } }],
+          pipeline: [{ $match: { userId: user._id } }],
         },
       },
       {
         $unwind: {
           path: '$module',
-          preserveNullAndEmptyArrays: true,
+        },
+      },
+      { $sort: { createdAt: -1 } },
+      {
+        $project: {
+          module: 0,
+          __v: 0,
         },
       },
 
@@ -96,7 +101,7 @@ export const deleteCapaworkspace = async (workspaceId: string) => {
 };
 
 export const dashboardAnalytics = async (workspaceId: string) => {
-  const result = await LibraryModel.aggregate([   
+  const result = await LibraryModel.aggregate([
     {
       $match: {
         workspace: new mongoose.Types.ObjectId(workspaceId),
@@ -111,8 +116,6 @@ export const dashboardAnalytics = async (workspaceId: string) => {
       },
     },
   ]);
-
-
 
   // First, get all library IDs for the workspace
   const libraries = await LibraryModel.find({
@@ -161,4 +164,3 @@ export const dashboardAnalytics = async (workspaceId: string) => {
     actionAnalytics: actionAnalytics,
   };
 };
-

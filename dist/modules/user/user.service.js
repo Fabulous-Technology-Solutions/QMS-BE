@@ -138,7 +138,15 @@ const getme = async (userId) => {
                     {
                         $unwind: '$userDetails',
                     },
-                    { $project: { _id: 1, role: 1, status: 1, orgName: '$userDetails.orgName' } }
+                    {
+                        $group: {
+                            _id: '$accountId',
+                            role: { $first: '$role' },
+                            status: { $first: '$status' },
+                            orgName: { $first: '$userDetails.orgName' }
+                        }
+                    },
+                    { $project: { _id: 1, role: 1, status: 1, orgName: 1 } },
                 ],
             },
         },
@@ -169,7 +177,7 @@ const getme = async (userId) => {
                 updatedAt: 1,
                 subAdminRole: 1,
                 orgName: 1,
-                accountDetails: 1
+                accountDetails: 1,
             },
         },
     ]);

@@ -7,28 +7,26 @@ const passport_1 = __importDefault(require("passport"));
 const http_status_1 = __importDefault(require("http-status"));
 const ApiError_1 = __importDefault(require("../errors/ApiError"));
 const roles_1 = require("../../config/roles");
-const manageRole_service_1 = require("../workspace/manageRole/manageRole.service");
+const account_services_1 = require("../account/account.services");
 const verifyCallback = (req, resolve, reject, requiredRights) => async (err, user, info) => {
     console.log('Authentication attempt:', req.headers.authorization);
     if (err || info || !user) {
         return reject(new ApiError_1.default('Please authenticate', http_status_1.default.UNAUTHORIZED));
     }
     req.user = user;
-    if (req.headers["datatype"] && (req.headers["datatype"] === "mydocuments" || req.headers["datatype"] === "mytasks")) {
+    if (req.headers['datatype'] && (req.headers['datatype'] === 'mydocuments' || req.headers['datatype'] === 'mytasks')) {
         resolve();
         return true;
     }
-    if (requiredRights.length) {
+    if (requiredRights.length && req.headers['accountid']) {
+        const findrole = await (0, account_services_1.checkUserBelongsToAccount)(user.id, req.headers['accountid'], req.params['workspaceId'] || req.body.workspace || null);
+        if (!findrole)
+            return reject(new ApiError_1.default('you do not have access to this account', http_status_1.default.FORBIDDEN));
+        const role = findrole?.Permissions?.find((role) => role.workspace.toString() === (req.params['workspaceId'] || req.body.workspace))?.permission || null;
+        console.log('Role Permissions:', role);
         let userRights = [];
-        if (user.role === 'admin') {
-            userRights = roles_1.roleRights.get(user.role) || [];
-        }
-        else if (user.role === 'subAdmin') {
-            userRights = roles_1.roleRights.get(user?.subAdminRole) || [];
-        }
-        else if (user.role === 'workspaceUser') {
-            const workspaceUserRole = await (0, manageRole_service_1.getRoleById)(user['roleId']?.toString() || '');
-            userRights = roles_1.roleRights.get(workspaceUserRole?.permissions) || [];
+        if (role) {
+            userRights = roles_1.roleRights.get(role) || [];
         }
         if (!userRights)
             return reject(new ApiError_1.default('you do not have permission to perform this action', http_status_1.default.FORBIDDEN));

@@ -12,6 +12,7 @@ const action_service_1 = require("../capa/workspace/capalibrary/action/action.se
 const capalibrary_service_1 = require("../capa/workspace/capalibrary/capalibrary.service");
 const risklibrary_service_1 = require("../risk/workspace/library/risklibrary.service");
 const account_1 = require("../account");
+const account_services_1 = require("../account/account.services");
 exports.createCapaworkspaceController = (0, catchAsync_1.default)(async (req, res) => {
     const workspace = await index_1.workspaceService.createCapaworkspace({ ...req.body, user: req.user });
     res.locals['message'] = 'create workspace';
@@ -25,15 +26,16 @@ exports.createCapaworkspaceController = (0, catchAsync_1.default)(async (req, re
     });
 });
 exports.getAllCapaworkspacesController = (0, catchAsync_1.default)(async (req, res) => {
+    const { page = 1, limit = 10, search } = req.query;
+    console.log('Account ID:', req.headers['accountid']);
     // Authorization logic
-    if (req.headers['accountId']) {
-        const workspaces = await account_1.accountServices.getModuleWorkspaces(req.headers['accountId'], req.params['moduleId'], req.user._id);
+    if (req.headers['subid']) {
+        const workspaces = await account_1.accountServices.getModuleWorkspaces(req.headers['subid'], req.params['moduleId'], req.user._id, Number(page), Number(limit), req.query['search']);
         return res.status(http_status_1.default.OK).send({
             success: true,
             data: workspaces,
         });
     }
-    const { page = 1, limit = 10, search } = req.query;
     const workspaces = await index_1.workspaceService.getAllCapaworkspaces({
         moduleId: req.params['moduleId'],
         user: req.user,
@@ -47,7 +49,13 @@ exports.getAllCapaworkspacesController = (0, catchAsync_1.default)(async (req, r
     });
 });
 exports.getCapaworkspaceByIdController = (0, catchAsync_1.default)(async (req, res, next) => {
-    const workspace = await index_1.workspaceService.getCapaworkspaceById(req.params['workspaceId']);
+    let workspace;
+    if (req.headers['accountid']) {
+        workspace = await (0, account_services_1.getSingleWorkspaceWithAccount)(req.headers['accountid'], req.params['workspaceId']);
+    }
+    else {
+        workspace = await index_1.workspaceService.getCapaworkspaceById(req.params['workspaceId']);
+    }
     if (!workspace) {
         return next(new ApiError_1.default('Workspace not found', http_status_1.default.NOT_FOUND));
     }

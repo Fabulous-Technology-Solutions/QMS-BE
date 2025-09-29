@@ -14,7 +14,7 @@ router.post("/", (0, auth_1.auth)('manageCapa'), (0, validate_1.validate)(worksp
 router.get("/:moduleId", (0, auth_1.auth)('manageCapa'), workspace_1.workspaceController.getAllCapaworkspacesController);
 router.patch("/module/:workspaceId", (0, auth_1.auth)('manageCapa'), mangeRole_middleware_1.default, (0, validate_1.validate)(workspace_1.workspaceValidation.updateCapa), activitylogs_middleware_1.activityLoggerMiddleware, workspace_1.workspaceController.updateCapaworkspaceController);
 router.delete("/module/:workspaceId", (0, auth_1.auth)('manageCapa'), mangeRole_middleware_1.default, activitylogs_middleware_1.activityLoggerMiddleware, workspace_1.workspaceController.deleteCapaworkspaceController);
-router.get("/module/:workspaceId", (0, auth_1.auth)('manageCapa'), workspace_1.workspaceController.getCapaworkspaceByIdController);
+router.get("/module/:workspaceId", (0, auth_1.auth)('manageCapa'), mangeRole_middleware_1.default, workspace_1.workspaceController.getCapaworkspaceByIdController);
 router.get("/module/:workspaceId/analytics", (0, auth_1.auth)('manageCapa'), workspace_1.workspaceController.getCapaworkspaceAnalyticsController);
 router.get("/module/:workspaceId/attention", (0, auth_1.auth)('needAttention'), workspace_1.workspaceController.AttentionController);
 router.get("/module/:workspaceId/filter", (0, auth_1.auth)('manageCapa'), workspace_1.workspaceController.filterPreviewReportController);
