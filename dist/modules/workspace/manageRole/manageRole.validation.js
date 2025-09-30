@@ -18,8 +18,8 @@ const roleBody = {
         'string.min': 'Description must be at least 5 characters long',
         'string.max': 'Description must not exceed 500 characters'
     }),
-    permissions: joi_1.default.valid('view', 'edit', 'w_admin').messages({
-        'any.only': 'Permissions must be one of [view, edit, w_admin]'
+    permissions: joi_1.default.valid('view', 'edit', 'admin').messages({
+        'any.only': 'Permissions must be one of [view, edit, admin]'
     }),
     workspace: joi_1.default.string().messages({
         'string.empty': 'Workspace is required',

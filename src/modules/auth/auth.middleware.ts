@@ -22,13 +22,13 @@ const verifyCallback =
     }
 
     if (requiredRights.length && req.headers['accountid']) {
-      const findrole = await checkUserBelongsToAccount(
+      const findrole: any = await checkUserBelongsToAccount(
         user.id,
         req.headers['accountid'] as string,
         req.params['workspaceId'] || req.body.workspace || null
       );
       if (!findrole) return reject(new ApiError('you do not have access to this account', httpStatus.FORBIDDEN));
-      const role=findrole?.Permissions?.find((role) => role.workspace.toString() === (req.params['workspaceId'] || req.body.workspace))?.permission || null;
+      const role: string | null = findrole?.Permissions?.find((role: any) => role.workspace.toString() === (req.params['workspaceId'] || req.body.workspace))?.permission||findrole?.Permissions?.find((role: any) => role.workspace.toString() === (req.params['workspaceId'] || req.body.workspace))?.roleId?.permissions || null;
 
       console.log('Role Permissions:', role);
 

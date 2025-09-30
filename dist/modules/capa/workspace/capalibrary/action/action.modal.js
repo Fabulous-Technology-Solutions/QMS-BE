@@ -8,7 +8,7 @@ const actionSchema = new mongoose_1.default.Schema({
     name: { type: String, required: true },
     description: { type: String, required: true },
     createdBy: { type: mongoose_1.default.Schema.Types.ObjectId, ref: 'User', required: true },
-    assignedTo: [{ type: mongoose_1.default.Schema.Types.ObjectId, ref: 'User', required: true }],
+    assignedTo: [{ type: mongoose_1.default.Schema.Types.ObjectId, ref: 'Account', required: true }],
     library: { type: mongoose_1.default.Schema.Types.ObjectId, ref: 'Library', required: true },
     priority: { type: String, enum: ['low', 'medium', 'high'], default: 'medium' },
     type: { type: String, enum: ['preventive', 'corrective'], default: 'preventive' },

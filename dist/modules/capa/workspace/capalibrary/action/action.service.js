@@ -30,13 +30,25 @@ const getActionById = async (actionId, userId) => {
         { $unwind: { path: '$createdBy', preserveNullAndEmptyArrays: true } },
         {
             $lookup: {
-                from: 'users',
+                from: 'accounts',
                 localField: 'assignedTo',
                 foreignField: '_id',
                 as: 'assignedTo',
                 pipeline: [
-                    { $match: { isDeleted: false } }
-                ]
+                    {
+                        $lookup: {
+                            from: 'users',
+                            localField: 'user',
+                            foreignField: '_id',
+                            as: 'user',
+                            pipeline: [{ $project: { name: 1, email: 1, profilePicture: 1 } }],
+                        },
+                    },
+                    { $unwind: { path: '$user' } },
+                    {
+                        $project: { name: '$user.name', email: '$user.email', profilePicture: '$user.profilePicture', _id: 1 },
+                    },
+                ],
             },
         },
         {
@@ -45,9 +57,7 @@ const getActionById = async (actionId, userId) => {
                 localField: 'library',
                 foreignField: '_id',
                 as: 'library',
-                pipeline: [
-                    { $match: { isDeleted: false } }
-                ]
+                pipeline: [{ $match: { isDeleted: false } }],
             },
         },
         { $unwind: { path: '$library', preserveNullAndEmptyArrays: true } },
@@ -97,9 +107,7 @@ const getLibraryMembersByAction = async (actionId = '', search = '', page = 1, l
                 localField: 'library',
                 foreignField: '_id',
                 as: 'library',
-                pipeline: [
-                    { $match: { isDeleted: false } }
-                ]
+                pipeline: [{ $match: { isDeleted: false } }],
             },
         },
         { $unwind: '$library' },
@@ -152,9 +160,7 @@ const getActionsByLibrary = async (libraryId, page = 1, limit = 10, search = '')
                 localField: 'library',
                 foreignField: '_id',
                 as: 'library',
-                pipeline: [
-                    { $match: { isDeleted: false } }
-                ]
+                pipeline: [{ $match: { isDeleted: false } }],
             },
         },
         { $unwind: '$library' },
@@ -164,21 +170,31 @@ const getActionsByLibrary = async (libraryId, page = 1, limit = 10, search = '')
                 localField: 'createdBy',
                 foreignField: '_id',
                 as: 'createdBy',
-                pipeline: [
-                    { $match: { isDeleted: false } }
-                ]
+                pipeline: [{ $match: { isDeleted: false } }],
             },
         },
         { $unwind: { path: '$createdBy', preserveNullAndEmptyArrays: true } },
         {
             $lookup: {
-                from: 'users',
+                from: 'accounts',
                 localField: 'assignedTo',
                 foreignField: '_id',
                 as: 'assignedTo',
                 pipeline: [
-                    { $match: { isDeleted: false } }
-                ]
+                    {
+                        $lookup: {
+                            from: 'users',
+                            localField: 'user',
+                            foreignField: '_id',
+                            as: 'user',
+                            pipeline: [{ $project: { name: 1, email: 1, profilePicture: 1 } }],
+                        },
+                    },
+                    { $unwind: { path: '$user' } },
+                    {
+                        $project: { name: '$user.name', email: '$user.email', profilePicture: '$user.profilePicture', _id: 1 },
+                    },
+                ],
             },
         },
         {
@@ -187,9 +203,7 @@ const getActionsByLibrary = async (libraryId, page = 1, limit = 10, search = '')
                 localField: 'cause',
                 foreignField: '_id',
                 as: 'cause',
-                pipeline: [
-                    { $match: { isDeleted: false } }
-                ]
+                pipeline: [{ $match: { isDeleted: false } }],
             },
         },
         { $unwind: { path: '$cause', preserveNullAndEmptyArrays: true } },
@@ -331,10 +345,7 @@ const getActionsByAssignedTo = async (userId, page = 1, limit = 10, search = '')
         ? [
             {
                 $match: {
-                    $or: [
-                        { name: { $regex: search, $options: 'i' } },
-                        { description: { $regex: search, $options: 'i' } },
-                    ],
+                    $or: [{ name: { $regex: search, $options: 'i' } }, { description: { $regex: search, $options: 'i' } }],
                 },
             },
         ]
@@ -348,9 +359,7 @@ const getActionsByAssignedTo = async (userId, page = 1, limit = 10, search = '')
                 localField: 'createdBy',
                 foreignField: '_id',
                 as: 'createdBy',
-                pipeline: [
-                    { $match: { isDeleted: false } }
-                ]
+                pipeline: [{ $match: { isDeleted: false } }],
             },
         },
         { $unwind: { path: '$createdBy', preserveNullAndEmptyArrays: true } },
@@ -364,10 +373,7 @@ const getActionsByAssignedTo = async (userId, page = 1, limit = 10, search = '')
                     {
                         $match: {
                             $expr: {
-                                $and: [
-                                    { $eq: ['$_id', '$$libraryId'] },
-                                    { $eq: ['$isDeleted', false] }
-                                ]
+                                $and: [{ $eq: ['$_id', '$$libraryId'] }, { $eq: ['$isDeleted', false] }],
                             },
                         },
                     },
@@ -378,10 +384,25 @@ const getActionsByAssignedTo = async (userId, page = 1, limit = 10, search = '')
         { $unwind: { path: '$library' } },
         {
             $lookup: {
-                from: 'users',
+                from: 'accounts',
                 localField: 'assignedTo',
                 foreignField: '_id',
                 as: 'assignedTo',
+                pipeline: [
+                    {
+                        $lookup: {
+                            from: 'users',
+                            localField: 'user',
+                            foreignField: '_id',
+                            as: 'user',
+                            pipeline: [{ $project: { name: 1, email: 1, profilePicture: 1 } }],
+                        },
+                    },
+                    { $unwind: { path: '$user' } },
+                    {
+                        $project: { name: '$user.name', email: '$user.email', profilePicture: '$user.profilePicture', _id: 1 },
+                    },
+                ],
             },
         },
         {
@@ -436,9 +457,7 @@ const getActionsByWorkspace = async (workspaceId, page = 1, limit = 10, search =
                 localField: 'library',
                 foreignField: '_id',
                 as: 'library',
-                pipeline: [
-                    { $match: { isDeleted: false } }
-                ]
+                pipeline: [{ $match: { isDeleted: false } }],
             },
         },
         { $unwind: '$library' },
@@ -451,21 +470,31 @@ const getActionsByWorkspace = async (workspaceId, page = 1, limit = 10, search =
                 localField: 'createdBy',
                 foreignField: '_id',
                 as: 'createdBy',
-                pipeline: [
-                    { $match: { isDeleted: false } }
-                ]
+                pipeline: [{ $match: { isDeleted: false } }],
             },
         },
         { $unwind: { path: '$createdBy', preserveNullAndEmptyArrays: true } },
         {
             $lookup: {
-                from: 'users',
+                from: 'accounts',
                 localField: 'assignedTo',
                 foreignField: '_id',
                 as: 'assignedTo',
                 pipeline: [
-                    { $match: { isDeleted: false } }
-                ]
+                    {
+                        $lookup: {
+                            from: 'users',
+                            localField: 'user',
+                            foreignField: '_id',
+                            as: 'user',
+                            pipeline: [{ $project: { name: 1, email: 1, profilePicture: 1 } }],
+                        },
+                    },
+                    { $unwind: { path: '$user' } },
+                    {
+                        $project: { name: '$user.name', email: '$user.email', profilePicture: '$user.profilePicture', _id: 1 },
+                    },
+                ],
             },
         },
         {

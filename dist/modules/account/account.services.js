@@ -154,7 +154,7 @@ const switchAccount = async (userId, accountId) => {
     const pipeline = [
         {
             $match: {
-                _id: new mongoose_1.default.Types.ObjectId(accountId),
+                accountId: new mongoose_1.default.Types.ObjectId(accountId),
                 user: new mongoose_1.default.Types.ObjectId(userId),
             },
         },
@@ -247,6 +247,12 @@ const getModuleWorkspaces = async (accountId, moduleId, userId, page = 1, limit 
                             name: 1,
                             description: 1,
                             moduleId: 1,
+                            updatedAt: 1,
+                            createdAt: 1,
+                            isDeleted: 1,
+                            imageUrl: 1,
+                            imagekey: 1,
+                            createdBy: 1,
                         },
                     },
                 ],
@@ -312,7 +318,7 @@ const updateAccountById = async (Id, updateBody) => {
 exports.updateAccountById = updateAccountById;
 const checkUserBelongsToAccount = async (userId, accountId, workspaceId) => {
     console.log('Checking if user belongs to account with userId:', userId, 'accountId:', accountId, 'workspaceId:', workspaceId);
-    const account = await account_modal_1.default.findOne({ _id: accountId, user: userId, 'Permissions.workspace': workspaceId });
+    const account = await account_modal_1.default.findOne({ _id: accountId, user: userId, 'Permissions.workspace': workspaceId }).populate('Permissions.roleId', 'name permissions');
     return account; // returns true if account exists, false otherwise
 };
 exports.checkUserBelongsToAccount = checkUserBelongsToAccount;
@@ -424,7 +430,13 @@ const getSingleWorkspaceWithAccount = async (accountId, workspaceId) => {
                             _id: 1,
                             name: 1,
                             description: 1,
-                            moduleId: 1
+                            moduleId: 1,
+                            updatedAt: 1,
+                            createdAt: 1,
+                            isDeleted: 1,
+                            imageUrl: 1,
+                            imagekey: 1,
+                            createdBy: 1,
                         }
                     }
                 ]

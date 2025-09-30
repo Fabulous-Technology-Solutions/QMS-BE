@@ -5,7 +5,7 @@ const actionSchema = new mongoose.Schema<ActionModel>({
     name: { type: String, required: true },
     description: { type: String, required: true },
     createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-    assignedTo: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true }],
+    assignedTo: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Account', required: true }],
     library: { type: mongoose.Schema.Types.ObjectId, ref: 'Library', required: true },
     priority: { type: String, enum: ['low', 'medium', 'high'], default: 'medium' },
     type: { type: String, enum: ['preventive', 'corrective'], default: 'preventive' },

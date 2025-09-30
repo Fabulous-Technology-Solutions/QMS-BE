@@ -25,18 +25,19 @@ export const CreateLibrary = async (body: CreateLibraryRequest) => {
     { $unwind: '$module' },
     {
       $lookup: {
-        from: "plans",
-        localField: "module.planId",
-        foreignField: "_id",
-        as: "plan",
-        pipeline:[{
-          $match: {  category:'capa-management' }
-        }]
-      }
+        from: 'plans',
+        localField: 'module.planId',
+        foreignField: '_id',
+        as: 'plan',
+        pipeline: [
+          {
+            $match: { category: 'capa-management' },
+          },
+        ],
+      },
     },
     { $unwind: '$plan' },
   ]);
-
 
   if (!findWorkspace || findWorkspace.length === 0) {
     throw new Error('Workspace not found');
@@ -44,47 +45,87 @@ export const CreateLibrary = async (body: CreateLibraryRequest) => {
   const library = new LibraryModel(body);
   await createChat({
     obj: library._id,
-    chatOf: 'Library'
-  })
+    chatOf: 'Library',
+  });
   return await library.save();
 };
 
 export const getLibraryById = async (libraryId: string) => {
   const data = await LibraryModel.aggregate([
-    { 
-      $match: { 
-        _id: new mongoose.Types.ObjectId(libraryId), 
-        isDeleted: false 
-      } 
+    {
+      $match: {
+        _id: new mongoose.Types.ObjectId(libraryId),
+        isDeleted: false,
+      },
     },
     {
       $lookup: {
-        from: 'users',
+        from: 'accounts',
         localField: 'members',
         foreignField: '_id',
         as: 'members',
-        pipeline: [{
-          $match: { isDeleted: false }
-        },{ $project: { name: 1, email: 1, profilePicture: 1 } }]
-      }
+        pipeline: [
+          {
+            $lookup: {
+              from: 'users',
+              localField: 'user',
+              foreignField: '_id',
+              as: 'user',
+              pipeline: [{ $project: { name: 1, email: 1, profilePicture: 1 } }],
+            },
+          },
+          { $unwind: { path: '$user' } },
+          {
+            $project: { name: '$user.name', email: '$user.email', profilePicture: '$user.profilePicture', _id: 1 },
+          },
+        ],
+      },
     },
     {
       $lookup: {
-        from: 'users',
+        from: 'accounts',
         localField: 'managers',
         foreignField: '_id',
         as: 'managers',
-        pipeline: [{ $match: { isDeleted: false } }, { $project: { name: 1, email: 1, profilePicture: 1 } }]
-      }
+        pipeline: [
+          {
+            $lookup: {
+              from: 'users',
+              localField: 'user',
+              foreignField: '_id',
+              as: 'user',
+              pipeline: [{ $project: { name: 1, email: 1, profilePicture: 1 } }],
+            },
+          },
+          { $unwind: { path: '$user' } },
+          {
+            $project: { name: '$user.name', email: '$user.email', profilePicture: '$user.profilePicture', _id: 1 },
+          },
+        ],
+      },
     },
     {
       $lookup: {
-        from: 'users',
+        from: 'accounts',
         localField: 'containment.responsibles',
         foreignField: '_id',
         as: 'containment.responsibles',
-        pipeline: [{ $match: { isDeleted: false } }, { $project: { name: 1, email: 1, profilePicture: 1 } }]
-      }
+        pipeline: [
+          {
+            $lookup: {
+              from: 'users',
+              localField: 'user',
+              foreignField: '_id',
+              as: 'user',
+              pipeline: [{ $project: { name: 1, email: 1, profilePicture: 1 } }],
+            },
+          },
+          { $unwind: { path: '$user' } },
+          {
+            $project: { name: '$user.name', email: '$user.email', profilePicture: '$user.profilePicture', _id: 1 },
+          },
+        ],
+      },
     },
     {
       $lookup: {
@@ -92,11 +133,11 @@ export const getLibraryById = async (libraryId: string) => {
         localField: 'site',
         foreignField: '_id',
         as: 'site',
-        pipeline: [{ $project: { name: 1 } }]
-      }
+        pipeline: [{ $project: { name: 1 } }],
+      },
     },
     {
-      $unwind: { path: '$site', preserveNullAndEmptyArrays: true }
+      $unwind: { path: '$site', preserveNullAndEmptyArrays: true },
     },
     {
       $lookup: {
@@ -104,12 +145,12 @@ export const getLibraryById = async (libraryId: string) => {
         localField: 'process',
         foreignField: '_id',
         as: 'process',
-        pipeline: [{ $project: { name: 1 } }]
-      }
+        pipeline: [{ $project: { name: 1 } }],
+      },
     },
     {
-      $unwind: { path: '$process', preserveNullAndEmptyArrays: true }
-    }
+      $unwind: { path: '$process', preserveNullAndEmptyArrays: true },
+    },
   ]);
 
   if (!data || data.length === 0) {
@@ -164,20 +205,48 @@ export const getLibrariesByWorkspace = async (
     { $unwind: { path: '$deletedBy', preserveNullAndEmptyArrays: true } },
     {
       $lookup: {
-        from: 'users',
+        from: 'accounts',
         localField: 'members',
         foreignField: '_id',
         as: 'members',
-        pipeline: [{ $project: { name: 1, email: 1, profilePicture: 1 } }],
+        pipeline: [
+          {
+            $lookup: {
+              from: 'users',
+              localField: 'user',
+              foreignField: '_id',
+              as: 'user',
+              pipeline: [{ $project: { name: 1, email: 1, profilePicture: 1 } }],
+            },
+          },
+          { $unwind: { path: '$user' } },
+          {
+            $project: { name: '$user.name', email: '$user.email', profilePicture: '$user.profilePicture', _id: 1 },
+          },
+        ],
       },
     },
     {
       $lookup: {
-        from: 'users',
+        from: 'accounts',
         localField: 'managers',
         foreignField: '_id',
         as: 'managers',
-        pipeline: [{ $project: { name: 1, email: 1, profilePicture: 1 } }],
+        pipeline: [
+          {
+            $lookup: {
+              from: 'users',
+              localField: 'user',
+              foreignField: '_id',
+              as: 'user',
+              pipeline: [{ $project: { name: 1, email: 1, profilePicture: 1 } }],
+            },
+          },
+          { $unwind: { path: '$user' } },
+          {
+            $project: { name: '$user.name', email: '$user.email', profilePicture: '$user.profilePicture', _id: 1 },
+          },
+        ],
       },
     },
     {
@@ -251,11 +320,25 @@ export const getLibrariesfilterData = async (workspaceId: string, page: number, 
         pipeline: [
           {
             $lookup: {
-              from: 'users',
+              from: 'accounts',
               localField: 'assignedTo',
               foreignField: '_id',
               as: 'assignedTo',
-              pipeline: [{ $project: { name: 1, email: 1, profilePicture: 1 } }],
+              pipeline: [
+                {
+                  $lookup: {
+                    from: 'users',
+                    localField: 'user',
+                    foreignField: '_id',
+                    as: 'user',
+                    pipeline: [{ $project: { name: 1, email: 1, profilePicture: 1 } }],
+                  },
+                },
+                { $unwind: { path: '$user' } },
+                {
+                  $project: { name: '$user.name', email: '$user.email', profilePicture: '$user.profilePicture', _id: 1 },
+                },
+              ],
             },
           },
         ],
@@ -263,20 +346,48 @@ export const getLibrariesfilterData = async (workspaceId: string, page: number, 
     },
     {
       $lookup: {
-        from: 'users',
+        from: 'accounts',
         localField: 'members',
         foreignField: '_id',
         as: 'members',
-        pipeline: [{ $project: { name: 1, email: 1, profilePicture: 1 } }],
+        pipeline: [
+          {
+            $lookup: {
+              from: 'users',
+              localField: 'user',
+              foreignField: '_id',
+              as: 'user',
+              pipeline: [{ $project: { name: 1, email: 1, profilePicture: 1 } }],
+            },
+          },
+          { $unwind: { path: '$user' } },
+          {
+            $project: { name: '$user.name', email: '$user.email', profilePicture: '$user.profilePicture', _id: 1 },
+          },
+        ],
       },
     },
     {
       $lookup: {
-        from: 'users',
+        from: 'accounts',
         localField: 'managers',
         foreignField: '_id',
         as: 'managers',
-        pipeline: [{ $project: { name: 1, email: 1, profilePicture: 1 } }],
+        pipeline: [
+          {
+            $lookup: {
+              from: 'users',
+              localField: 'user',
+              foreignField: '_id',
+              as: 'user',
+              pipeline: [{ $project: { name: 1, email: 1, profilePicture: 1 } }],
+            },
+          },
+          { $unwind: { path: '$user' } },
+          {
+            $project: { name: '$user.name', email: '$user.email', profilePicture: '$user.profilePicture', _id: 1 },
+          },
+        ],
       },
     },
     { $skip: (page - 1) * limit },
@@ -296,7 +407,7 @@ export const getLibrariesfilterData = async (workspaceId: string, page: number, 
     page,
     limit,
     success: true,
-    message: 'Libraries retrieved successfully'
+    message: 'Libraries retrieved successfully',
   };
 };
 
@@ -391,32 +502,58 @@ export const getLibraryMembers = async (libraryId: string, page = 1, limit = 10,
     // isDeleted: false,
   };
 
-  const memberMatch: { name: Record<string, string | RegExp> } = { name: {} };
+  const memberMatch: any = {};
   if (search) {
-    memberMatch['name'] = { $regex: search, $options: 'i' };
+    memberMatch['user.name'] = { $regex: search, $options: 'i' };
   }
 
   const pipeline = [
     { $match: matchStage },
     {
       $lookup: {
-        from: 'users',
+        from: 'accounts',
         localField: 'members',
         foreignField: '_id',
         as: 'members',
         pipeline: [
+          {
+            $lookup: {
+              from: 'users',
+              localField: 'user',
+              foreignField: '_id',
+              as: 'user',
+              pipeline: [{ $project: { name: 1, email: 1, profilePicture: 1 } }],
+            },
+          },
+          { $unwind: { path: '$user' } },
           ...(search ? [{ $match: memberMatch }] : []),
-          { $project: { name: 1, email: 1, profilePicture: 1, role: 1, status: 1 } },
+          {
+            $project: { name: '$user.name', email: '$user.email', profilePicture: '$user.profilePicture', _id: 1 },
+          },
         ],
       },
     },
     {
       $lookup: {
-        from: 'users',
+        from: 'accounts',
         localField: 'managers',
         foreignField: '_id',
         as: 'managers',
-        pipeline: [{ $project: { name: 1, email: 1, profilePicture: 1, role: 1, status: 1 } }],
+        pipeline: [
+          {
+            $lookup: {
+              from: 'users',
+              localField: 'user',
+              foreignField: '_id',
+              as: 'user',
+              pipeline: [{ $project: { name: 1, email: 1, profilePicture: 1 } }],
+            },
+          },
+          { $unwind: { path: '$user' } },
+          {
+            $project: { name: '$user.name', email: '$user.email', profilePicture: '$user.profilePicture', _id: 1 },
+          },
+        ],
       },
     },
     { $unwind: '$members' },
@@ -431,11 +568,22 @@ export const getLibraryMembers = async (libraryId: string, page = 1, limit = 10,
     { $match: matchStage },
     {
       $lookup: {
-        from: 'users',
+        from: 'accounts',
         localField: 'members',
         foreignField: '_id',
         as: 'members',
-        pipeline: [...(search ? [{ $match: memberMatch }] : [])],
+        pipeline: [
+          {
+            $lookup: {
+              from: 'users',
+              localField: 'user',
+              foreignField: '_id',
+              as: 'user',
+              pipeline: [{ $project: { name: 1, email: 1, profilePicture: 1 } }],
+            },
+          },
+          ...(search ? [{ $match: memberMatch }] : []),
+        ],
       },
     },
     { $unwind: '$members' },
@@ -485,17 +633,19 @@ export const checkAdminBelongsTtoLibrary = async (libraryId: string, userId: Obj
     { $unwind: '$module' },
     {
       $lookup: {
-        from:'plans',
+        from: 'plans',
         localField: 'module.planId',
         foreignField: '_id',
-        as: 'plan', 
-        pipeline:[{
-          $match: {  category:'capa-management' }
-        }]
-      }
+        as: 'plan',
+        pipeline: [
+          {
+            $match: { category: 'capa-management' },
+          },
+        ],
+      },
     },
     {
-      $unwind: '$plan'
+      $unwind: '$plan',
     },
     {
       $match: {
@@ -560,28 +710,30 @@ export const checkSubAdminBelongsToLibrary = async (
     { $unwind: '$workspace' },
     {
       $lookup: {
-        from:'modules',
+        from: 'modules',
         localField: 'workspace.moduleId',
         foreignField: '_id',
         as: 'module',
-      }
+      },
     },
     {
-      $unwind: '$module'
+      $unwind: '$module',
     },
     {
       $lookup: {
-        from:'plans',
+        from: 'plans',
         localField: 'module.planId',
         foreignField: '_id',
-        as: 'plan', 
-        pipeline:[{
-          $match: {  category:'capa-management' }
-        }]
-      }
+        as: 'plan',
+        pipeline: [
+          {
+            $match: { category: 'capa-management' },
+          },
+        ],
+      },
     },
     {
-      $unwind: '$plan'
+      $unwind: '$plan',
     },
     {
       $lookup: {
@@ -635,27 +787,29 @@ export const checkUserBelongsToLibrary = async (libraryId: string, user: IUserDo
     },
     {
       $lookup: {
-        from:'subscriptions',
+        from: 'subscriptions',
         localField: 'workspace.moduleId',
         foreignField: '_id',
-        as: 'module', 
-      }
+        as: 'module',
+      },
     },
     { $unwind: '$module' },
     {
       $lookup: {
-        from:'plans',
+        from: 'plans',
         localField: 'module.planId',
         foreignField: '_id',
-        as: 'plan', 
-        pipeline:[{
-          $match: {  category:'capa-management' }
-        }]
-      }
+        as: 'plan',
+        pipeline: [
+          {
+            $match: { category: 'capa-management' },
+          },
+        ],
+      },
     },
     {
-      $unwind: '$plan'
-    }
+      $unwind: '$plan',
+    },
   ]);
   if (!result || result.length === 0) {
     throw new Error('User does not belong to this library');
@@ -715,11 +869,25 @@ export const getLibrariesByManager = async (
         pipeline: [
           {
             $lookup: {
-              from: 'users',
+              from: 'accounts',
               localField: 'assignedTo',
               foreignField: '_id',
               as: 'assignedTo',
-              pipeline: [{ $project: { name: 1, email: 1, profilePicture: 1 } }],
+              pipeline: [
+                {
+                  $lookup: {
+                    from: 'users',
+                    localField: 'user',
+                    foreignField: '_id',
+                    as: 'user',
+                    pipeline: [{ $project: { name: 1, email: 1, profilePicture: 1 } }],
+                  },
+                },
+                { $unwind: { path: '$user' } },
+                {
+                  $project: { name: '$user.name', email: '$user.email', profilePicture: '$user.profilePicture', _id: 1 },
+                },
+              ],
             },
           },
         ],
@@ -727,11 +895,25 @@ export const getLibrariesByManager = async (
     },
     {
       $lookup: {
-        from: 'users',
+        from: 'accounts',
         localField: 'members',
         foreignField: '_id',
-        as: 'members',
-        pipeline: [{ $project: { name: 1, email: 1, profilePicture: 1 } }],
+        as: 'assignedTo',
+        pipeline: [
+          {
+            $lookup: {
+              from: 'members',
+              localField: 'user',
+              foreignField: '_id',
+              as: 'user',
+              pipeline: [{ $project: { name: 1, email: 1, profilePicture: 1 } }],
+            },
+          },
+          { $unwind: { path: '$user' } },
+          {
+            $project: { name: '$user.name', email: '$user.email', profilePicture: '$user.profilePicture', _id: 1 },
+          },
+        ],
       },
     },
     {
@@ -760,11 +942,25 @@ export const getLibrariesByManager = async (
     },
     {
       $lookup: {
-        from: 'users',
+        from: 'accounts',
         localField: 'managers',
         foreignField: '_id',
         as: 'managers',
-        pipeline: [{ $project: { name: 1, email: 1, profilePicture: 1 } }],
+        pipeline: [
+          {
+            $lookup: {
+              from: 'users',
+              localField: 'user',
+              foreignField: '_id',
+              as: 'user',
+              pipeline: [{ $project: { name: 1, email: 1, profilePicture: 1 } }],
+            },
+          },
+          { $unwind: { path: '$user' } },
+          {
+            $project: { name: '$user.name', email: '$user.email', profilePicture: '$user.profilePicture', _id: 1 },
+          },
+        ],
       },
     },
     { $skip: (page - 1) * limit },
@@ -844,20 +1040,48 @@ export const generateReport = async (libraryId: string) => {
       { $match: { _id: new mongoose.Types.ObjectId(libraryId) } },
       {
         $lookup: {
-          from: 'users',
+          from: 'accounts',
           localField: 'members',
           foreignField: '_id',
-          as: 'members',
-          pipeline: [{ $project: { name: 1, email: 1, profilePicture: 1, role: 1 } }],
+          as: 'assignedTo',
+          pipeline: [
+            {
+              $lookup: {
+                from: 'members',
+                localField: 'user',
+                foreignField: '_id',
+                as: 'user',
+                pipeline: [{ $project: { name: 1, email: 1, profilePicture: 1 } }],
+              },
+            },
+            { $unwind: { path: '$user' } },
+            {
+              $project: { name: '$user.name', email: '$user.email', profilePicture: '$user.profilePicture', _id: 1 },
+            },
+          ],
         },
       },
       {
         $lookup: {
-          from: 'users',
+          from: 'accounts',
           localField: 'managers',
           foreignField: '_id',
           as: 'managers',
-          pipeline: [{ $project: { name: 1, email: 1, profilePicture: 1, role: 1 } }],
+          pipeline: [
+            {
+              $lookup: {
+                from: 'users',
+                localField: 'user',
+                foreignField: '_id',
+                as: 'user',
+                pipeline: [{ $project: { name: 1, email: 1, profilePicture: 1 } }],
+              },
+            },
+            { $unwind: { path: '$user' } },
+            {
+              $project: { name: '$user.name', email: '$user.email', profilePicture: '$user.profilePicture', _id: 1 },
+            },
+          ],
         },
       },
       {
@@ -878,11 +1102,25 @@ export const generateReport = async (libraryId: string) => {
           pipeline: [
             {
               $lookup: {
-                from: 'users',
+                from: 'accounts',
                 localField: 'assignedTo',
                 foreignField: '_id',
                 as: 'assignedTo',
-                pipeline: [{ $project: { name: 1, email: 1, profilePicture: 1 } }],
+                pipeline: [
+                  {
+                    $lookup: {
+                      from: 'users',
+                      localField: 'user',
+                      foreignField: '_id',
+                      as: 'user',
+                      pipeline: [{ $project: { name: 1, email: 1, profilePicture: 1 } }],
+                    },
+                  },
+                  { $unwind: { path: '$user' } },
+                  {
+                    $project: { name: '$user.name', email: '$user.email', profilePicture: '$user.profilePicture', _id: 1 },
+                  },
+                ],
               },
             },
             {
@@ -1077,20 +1315,48 @@ export const generateFilterReport = async (workspaceId: string, site?: string, p
       { $match: query },
       {
         $lookup: {
-          from: 'users',
+          from: 'accounts',
           localField: 'members',
           foreignField: '_id',
-          as: 'members',
-          pipeline: [{ $project: { name: 1, email: 1, profilePicture: 1, role: 1 } }],
+          as: 'assignedTo',
+          pipeline: [
+            {
+              $lookup: {
+                from: 'members',
+                localField: 'user',
+                foreignField: '_id',
+                as: 'user',
+                pipeline: [{ $project: { name: 1, email: 1, profilePicture: 1 } }],
+              },
+            },
+            { $unwind: { path: '$user' } },
+            {
+              $project: { name: '$user.name', email: '$user.email', profilePicture: '$user.profilePicture', _id: 1 },
+            },
+          ],
         },
       },
       {
         $lookup: {
-          from: 'users',
+          from: 'accounts',
           localField: 'managers',
           foreignField: '_id',
           as: 'managers',
-          pipeline: [{ $project: { name: 1, email: 1, profilePicture: 1, role: 1 } }],
+          pipeline: [
+            {
+              $lookup: {
+                from: 'users',
+                localField: 'user',
+                foreignField: '_id',
+                as: 'user',
+                pipeline: [{ $project: { name: 1, email: 1, profilePicture: 1 } }],
+              },
+            },
+            { $unwind: { path: '$user' } },
+            {
+              $project: { name: '$user.name', email: '$user.email', profilePicture: '$user.profilePicture', _id: 1 },
+            },
+          ],
         },
       },
       {
@@ -1111,11 +1377,25 @@ export const generateFilterReport = async (workspaceId: string, site?: string, p
           pipeline: [
             {
               $lookup: {
-                from: 'users',
+                from: 'accounts',
                 localField: 'assignedTo',
                 foreignField: '_id',
                 as: 'assignedTo',
-                pipeline: [{ $project: { name: 1, email: 1, profilePicture: 1 } }],
+                pipeline: [
+                  {
+                    $lookup: {
+                      from: 'users',
+                      localField: 'user',
+                      foreignField: '_id',
+                      as: 'user',
+                      pipeline: [{ $project: { name: 1, email: 1, profilePicture: 1 } }],
+                    },
+                  },
+                  { $unwind: { path: '$user' } },
+                  {
+                    $project: { name: '$user.name', email: '$user.email', profilePicture: '$user.profilePicture', _id: 1 },
+                  },
+                ],
               },
             },
             {
@@ -1172,11 +1452,11 @@ export const generateFilterReport = async (workspaceId: string, site?: string, p
     console.log(findLibraries, 'Filtered libraries for report:');
 
     if (findLibraries.length === 0) {
-      console.log('No libraries found for report'); 
+      console.log('No libraries found for report');
       return null;
     }
     browser = await launchBrowser();
-    page = await browser?.newPage(); 
+    page = await browser?.newPage();
     const pdfContent = await pdfTemplateforMutiples(findLibraries);
     console.log('PDF content generated', pdfContent);
     await page.setContent(pdfContent, {

@@ -19,8 +19,8 @@ const LibrarySchema = new mongoose_1.default.Schema({
     deletedBy: { type: mongoose_1.default.Schema.Types.ObjectId, ref: 'User' },
     deletedAt: { type: Date },
     status: { type: String, enum: ['pending', 'completed', 'in-progress'], default: 'pending' },
-    members: [{ type: mongoose_1.default.Schema.Types.ObjectId, ref: 'User' }],
-    managers: [{ type: mongoose_1.default.Schema.Types.ObjectId, ref: 'User' }],
+    members: [{ type: mongoose_1.default.Schema.Types.ObjectId, ref: 'Account' }],
+    managers: [{ type: mongoose_1.default.Schema.Types.ObjectId, ref: 'Account' }],
     site: {
         type: mongoose_1.default.Schema.Types.ObjectId,
         ref: 'Site'
@@ -34,7 +34,7 @@ const LibrarySchema = new mongoose_1.default.Schema({
         responsibles: [
             {
                 type: mongoose_1.default.Schema.Types.ObjectId,
-                ref: 'User',
+                ref: 'Account',
             },
         ],
         description: {

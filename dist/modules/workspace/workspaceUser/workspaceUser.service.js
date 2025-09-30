@@ -84,20 +84,6 @@ const updateWorkspaceUser = async (id, data) => {
 };
 exports.updateWorkspaceUser = updateWorkspaceUser;
 const getworkspaceusersnames = async (workspaceId) => {
-    const users = await workspaceUser_modal_1.default.find({ workspace: workspaceId, isDeleted: false }).select('name profilePicture');
-    return users;
-};
-exports.getworkspaceusersnames = getworkspaceusersnames;
-const deleteWorkspaceUser = async (id) => {
-    const user = await workspaceUser_modal_1.default.findByIdAndUpdate(id, { isDeleted: true }, { new: true });
-    if (!user) {
-        throw new Error('User not found');
-    }
-    return user.save();
-};
-exports.deleteWorkspaceUser = deleteWorkspaceUser;
-const getWorkspaceUsers = async (workspaceId, page, limit, search) => {
-    console.log('Fetching users for workspace:', workspaceId, 'Page:', page, 'Limit:', limit, 'Search:', search);
     const users = await account_modal_1.default.aggregate([
         {
             $match: {
@@ -111,18 +97,96 @@ const getWorkspaceUsers = async (workspaceId, page, limit, search) => {
                         {
                             $filter: {
                                 input: '$Permissions',
-                                cond: { $eq: ['$$this.workspace', new mongoose_1.default.Types.ObjectId(workspaceId)] }
-                            }
+                                cond: { $eq: ['$$this.workspace', new mongoose_1.default.Types.ObjectId(workspaceId)] },
+                            },
                         },
-                        0
-                    ]
-                }
+                        0,
+                    ],
+                },
             },
         },
         {
             $addFields: {
                 roleId: '$permission.roleId',
-                workspace: '$permission.workspace'
+                workspace: '$permission.workspace',
+            },
+        },
+        {
+            $lookup: {
+                from: 'users',
+                localField: 'user',
+                foreignField: '_id',
+                as: 'user',
+                pipeline: [{ $project: { name: 1, email: 1, profilePicture: 1 } }],
+            },
+        },
+        {
+            $unwind: {
+                path: '$user',
+                preserveNullAndEmptyArrays: true,
+            },
+        },
+        {
+            $lookup: {
+                from: 'roles',
+                localField: 'roleId',
+                foreignField: '_id',
+                as: 'workspaceRole',
+            },
+        },
+        {
+            $unwind: {
+                path: '$workspaceRole',
+                preserveNullAndEmptyArrays: true,
+            },
+        },
+        {
+            $project: {
+                _id: 1,
+                name: '$user.name',
+                profilePicture: '$user.profilePicture'
+            },
+        },
+    ]);
+    return users;
+};
+exports.getworkspaceusersnames = getworkspaceusersnames;
+const deleteWorkspaceUser = async (id) => {
+    const user = await workspaceUser_modal_1.default.findByIdAndUpdate(id, { isDeleted: true }, { new: true });
+    if (!user) {
+        throw new Error('User not found');
+    }
+    return user.save();
+};
+exports.deleteWorkspaceUser = deleteWorkspaceUser;
+const getWorkspaceUsers = async (workspaceId, page, limit, search) => {
+    console.log('Fetching users for workspace:', workspaceId, 'Page:', page, 'Limit:', limit, 'Search:', search);
+    const matchStage = {
+        $match: {
+            'Permissions.workspace': new mongoose_1.default.Types.ObjectId(workspaceId),
+        },
+    };
+    const pipeline = [
+        matchStage,
+        {
+            $addFields: {
+                permission: {
+                    $arrayElemAt: [
+                        {
+                            $filter: {
+                                input: '$Permissions',
+                                cond: { $eq: ['$$this.workspace', new mongoose_1.default.Types.ObjectId(workspaceId)] },
+                            },
+                        },
+                        0,
+                    ],
+                },
+            },
+        },
+        {
+            $addFields: {
+                roleId: '$permission.roleId',
+                workspace: '$permission.workspace',
             },
         },
         {
@@ -166,11 +230,20 @@ const getWorkspaceUsers = async (workspaceId, page, limit, search) => {
                 Accountrole: '$role',
             },
         },
-        { $sort: { name: 1 } },
-        { $skip: (page - 1) * limit },
-        { $limit: limit },
+    ];
+    const [users, totalCount] = await Promise.all([
+        account_modal_1.default.aggregate([
+            ...pipeline,
+            { $sort: { name: 1 } },
+            { $skip: (page - 1) * limit },
+            { $limit: limit },
+        ]),
+        account_modal_1.default.aggregate([
+            ...pipeline,
+            { $count: 'total' }
+        ]).then(result => result[0]?.total || 0)
     ]);
-    return { users, page, limit };
+    return { users, page, limit, total: totalCount };
 };
 exports.getWorkspaceUsers = getWorkspaceUsers;
 const getSingleWorkspaceUser = async (userId) => {

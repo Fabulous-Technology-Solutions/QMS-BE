@@ -163,7 +163,7 @@ export const switchAccount = async (userId: string, accountId: string) => {
   const pipeline = [
     {
       $match: {
-        _id: new mongoose.Types.ObjectId(accountId),
+        accountId: new mongoose.Types.ObjectId(accountId),
         user: new mongoose.Types.ObjectId(userId),
       },
     },
@@ -267,6 +267,12 @@ export const getModuleWorkspaces = async (
               name: 1,
               description: 1,
               moduleId: 1,
+              updatedAt: 1,
+              createdAt: 1,
+              isDeleted: 1,
+              imageUrl: 1,
+              imagekey: 1,
+              createdBy: 1,
             },
           },
         ],
@@ -342,7 +348,7 @@ export const updateAccountById = async (Id: string, updateBody: Iaccount) => {
 
 export const checkUserBelongsToAccount = async (userId: string, accountId: string, workspaceId: string) => {
   console.log('Checking if user belongs to account with userId:', userId, 'accountId:', accountId, 'workspaceId:', workspaceId);
-  const account = await AccountModel.findOne({ _id: accountId, user: userId, 'Permissions.workspace': workspaceId });
+  const account = await AccountModel.findOne({ _id: accountId, user: userId, 'Permissions.workspace': workspaceId }).populate('Permissions.roleId', 'name permissions');
   return account; // returns true if account exists, false otherwise
 };
 
@@ -455,7 +461,13 @@ export const getSingleWorkspaceWithAccount = async (accountId: string, workspace
               _id: 1,
               name: 1,
               description: 1,
-              moduleId: 1
+              moduleId: 1,
+              updatedAt: 1,
+              createdAt: 1,
+              isDeleted: 1,
+              imageUrl: 1,
+              imagekey: 1,
+              createdBy: 1,
             }
           }
         ]

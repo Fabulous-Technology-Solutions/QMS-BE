@@ -74,20 +74,6 @@ export const updateWorkspaceUser = async (id: string, data: Partial<CreateWorksp
 };
 
 export const getworkspaceusersnames = async (workspaceId: string) => {
-  const users = await workspaceUser.find({ workspace: workspaceId, isDeleted: false }).select('name profilePicture');
-  return users;
-};
-
-export const deleteWorkspaceUser = async (id: string) => {
-  const user = await workspaceUser.findByIdAndUpdate(id, { isDeleted: true }, { new: true });
-  if (!user) {
-    throw new Error('User not found');
-  }
-  return user.save();
-};
-
-export const getWorkspaceUsers = async (workspaceId: string, page: number, limit: number, search: string) => {
-  console.log('Fetching users for workspace:', workspaceId, 'Page:', page, 'Limit:', limit, 'Search:', search);
   const users = await AccountModel.aggregate([
     {
       $match: {
@@ -101,18 +87,18 @@ export const getWorkspaceUsers = async (workspaceId: string, page: number, limit
             {
               $filter: {
                 input: '$Permissions',
-                cond: { $eq: ['$$this.workspace', new mongoose.Types.ObjectId(workspaceId)] }
-              }
+                cond: { $eq: ['$$this.workspace', new mongoose.Types.ObjectId(workspaceId)] },
+              },
             },
-            0
-          ]
-        }
+            0,
+          ],
+        },
       },
     },
     {
       $addFields: {
         roleId: '$permission.roleId',
-        workspace: '$permission.workspace'
+        workspace: '$permission.workspace',
       },
     },
     {
@@ -121,7 +107,87 @@ export const getWorkspaceUsers = async (workspaceId: string, page: number, limit
         localField: 'user',
         foreignField: '_id',
         as: 'user',
-        pipeline: [{$project: { name: 1, email: 1, profilePicture: 1 }}],
+        pipeline: [{ $project: { name: 1, email: 1, profilePicture: 1 } }],
+      },
+    },
+    {
+      $unwind: {
+        path: '$user',
+        preserveNullAndEmptyArrays: true,
+      },
+    },
+    {
+      $lookup: {
+        from: 'roles',
+        localField: 'roleId',
+        foreignField: '_id',
+        as: 'workspaceRole',
+      },
+    },
+    {
+      $unwind: {
+        path: '$workspaceRole',
+        preserveNullAndEmptyArrays: true,
+      },
+    },
+    {
+      $project: {
+        _id: 1,
+        name: '$user.name',
+        profilePicture: '$user.profilePicture',
+      },
+    },
+  ]);
+  return users;
+};
+
+export const deleteWorkspaceUser = async (id: string) => {
+  const user = await workspaceUser.findByIdAndUpdate(id, { isDeleted: true }, { new: true });
+  if (!user) {
+    throw new Error('User not found');
+  }
+  return user.save();
+};
+
+export const getWorkspaceUsers = async (workspaceId: string, page: number, limit: number, search: string) => {
+  console.log('Fetching users for workspace:', workspaceId, 'Page:', page, 'Limit:', limit, 'Search:', search);
+
+  const matchStage = {
+    $match: {
+      'Permissions.workspace': new mongoose.Types.ObjectId(workspaceId),
+    },
+  };
+
+  const pipeline = [
+    matchStage,
+    {
+      $addFields: {
+        permission: {
+          $arrayElemAt: [
+            {
+              $filter: {
+                input: '$Permissions',
+                cond: { $eq: ['$$this.workspace', new mongoose.Types.ObjectId(workspaceId)] },
+              },
+            },
+            0,
+          ],
+        },
+      },
+    },
+    {
+      $addFields: {
+        roleId: '$permission.roleId',
+        workspace: '$permission.workspace',
+      },
+    },
+    {
+      $lookup: {
+        from: 'users',
+        localField: 'user',
+        foreignField: '_id',
+        as: 'user',
+        pipeline: [{ $project: { name: 1, email: 1, profilePicture: 1 } }],
       },
     },
     {
@@ -156,12 +222,14 @@ export const getWorkspaceUsers = async (workspaceId: string, page: number, limit
         Accountrole: '$role',
       },
     },
-    { $sort: { name: 1 } },
-    { $skip: (page - 1) * limit },
-    { $limit: limit },
+  ];
+
+  const [users, totalCount] = await Promise.all([
+    AccountModel.aggregate([...pipeline, { $sort: { name: 1 } }, { $skip: (page - 1) * limit }, { $limit: limit }]),
+    AccountModel.aggregate([...pipeline, { $count: 'total' }]).then((result) => result[0]?.total || 0),
   ]);
 
-  return { users, page, limit };
+  return { users, page, limit, total: totalCount };
 };
 
 export const getSingleWorkspaceUser = async (userId: string) => {

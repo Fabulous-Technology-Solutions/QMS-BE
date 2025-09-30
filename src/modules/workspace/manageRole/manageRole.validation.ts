@@ -14,8 +14,8 @@ const roleBody:Record<keyof CreateRoleRequest, any> = {
         'string.min': 'Description must be at least 5 characters long',
         'string.max': 'Description must not exceed 500 characters'
     }),
-    permissions: Joi.valid('view', 'edit', 'w_admin').messages({
-        'any.only': 'Permissions must be one of [view, edit, w_admin]'
+    permissions: Joi.valid('view', 'edit', 'admin').messages({
+        'any.only': 'Permissions must be one of [view, edit, admin]'
     }),
     workspace: Joi.string().messages({
         'string.empty': 'Workspace is required',
