@@ -6,6 +6,7 @@ import { validate } from '../../modules/validate';
 const router = Router();
 router.post('/accept', auth(),  invitationController.acceptInvitation);
 router.post('/', auth(), validate(invitationValidation.invitationValidationSchema),invitationController.createInvitation).get('/', auth(), invitationController.getInvitations);
+router.get('/workspace/:workspaceId', auth(), invitationController.getInvitationsByWorkspace);
 router.get('/:token', auth(), invitationController.getInvitationByToken);
 router.delete('/:token', auth(), invitationController.deleteInvitation);
 

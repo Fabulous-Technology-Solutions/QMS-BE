@@ -5,6 +5,8 @@ const causesBody: Record<keyof CreateCausesRequest, Joi.Schema> = {
     name: Joi.string().required(),
     description: Joi.string().required(),
     library: Joi.string().required(),
+    fileUrl: Joi.string().uri().optional(),
+    fileKey: Joi.string().optional()
 };
 
 export const createCausesSchema = Joi.object().keys(causesBody).fork(['name', 'description', 'library'], (schema) => schema.required())

@@ -142,14 +142,14 @@ export const getLibraryById = async (libraryId: string) => {
     {
       $lookup: {
         from: 'processes',
-        localField: 'process',
+        localField: 'processdata.process',
         foreignField: '_id',
-        as: 'process',
+        as: 'processdata.process',
         pipeline: [{ $project: { name: 1 } }],
       },
     },
     {
-      $unwind: { path: '$process', preserveNullAndEmptyArrays: true },
+      $unwind: { path: '$processdata.process', preserveNullAndEmptyArrays: true },
     },
   ]);
 
@@ -264,14 +264,14 @@ export const getLibrariesByWorkspace = async (
     {
       $lookup: {
         from: 'processes',
-        localField: 'process',
+        localField: 'processdata.process',
         foreignField: '_id',
-        as: 'process',
+        as: 'processdata.process',
         pipeline: [{ $project: { name: 1 } }],
       },
     },
     {
-      $unwind: { path: '$process', preserveNullAndEmptyArrays: true },
+      $unwind: { path: '$processdata.process', preserveNullAndEmptyArrays: true },
     },
     { $skip: (page - 1) * limit },
     { $limit: limit },
@@ -412,6 +412,11 @@ export const getLibrariesfilterData = async (workspaceId: string, page: number, 
 };
 
 export const updateLibrary = async (libraryId: string, updateData: Partial<CreateLibraryRequest>) => {
+  if (updateData.status === 'completed') {
+    updateData['endDate'] = new Date();
+  } else if (updateData.status === 'pending' || updateData.status === 'in-progress') {
+    updateData['endDate'] = null;
+  }
   const library = await LibraryModel.findOneAndUpdate({ _id: libraryId, isDeleted: false }, updateData, { new: true })
     .populate('members', 'name email profilePicture')
     .populate('managers', 'name email profilePicture');
@@ -484,7 +489,7 @@ export const removeMemberFromLibrary = async (libraryId: string, memberId: strin
     throw new Error('Member is not in the library');
   }
 
-  library.members = library.members.filter((member: any) => member['_id'].toString() !== memberId.toString());
+  library.members = library.members?.filter((member: any) => member['_id'].toString() !== memberId.toString());
 
   console.log('Member removed from library:', memberId, library);
   return await library.save();
@@ -898,7 +903,7 @@ export const getLibrariesByManager = async (
         from: 'accounts',
         localField: 'members',
         foreignField: '_id',
-        as: 'assignedTo',
+        as: 'members',
         pipeline: [
           {
             $lookup: {
@@ -931,14 +936,14 @@ export const getLibrariesByManager = async (
     {
       $lookup: {
         from: 'processes',
-        localField: 'process',
+        localField: 'processdata.process',
         foreignField: '_id',
-        as: 'process',
+        as: 'processdata.process',
         pipeline: [{ $project: { name: 1 } }],
       },
     },
     {
-      $unwind: { path: '$process', preserveNullAndEmptyArrays: true },
+      $unwind: { path: '$processdata.process', preserveNullAndEmptyArrays: true },
     },
     {
       $lookup: {
@@ -1043,11 +1048,11 @@ export const generateReport = async (libraryId: string) => {
           from: 'accounts',
           localField: 'members',
           foreignField: '_id',
-          as: 'assignedTo',
+          as: 'members',
           pipeline: [
             {
               $lookup: {
-                from: 'members',
+                from: 'users',
                 localField: 'user',
                 foreignField: '_id',
                 as: 'user',
@@ -1307,7 +1312,7 @@ export const generateFilterReport = async (workspaceId: string, site?: string, p
     const query = {
       workspace: new mongoose.Types.ObjectId(workspaceId),
       ...(site && { site: new mongoose.Types.ObjectId(site) }),
-      ...(process && { process: new mongoose.Types.ObjectId(process) }),
+      ...(process && { 'processdata.process': new mongoose.Types.ObjectId(process) } ),
       ...(status && { status }),
     };
 

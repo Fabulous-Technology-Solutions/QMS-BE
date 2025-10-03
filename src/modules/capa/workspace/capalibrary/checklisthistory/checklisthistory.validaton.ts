@@ -5,7 +5,7 @@ const historyBody: Record<keyof createChecklistHistory, Joi.Schema> = {
   checklistId: Joi.string().required(),
   library: Joi.string().required(),
   comment: Joi.string().required(),
-  createdBy: Joi.string().required(),
+  createdBy: Joi.string(),
   list: Joi.array()
     .items(
       Joi.object({
@@ -19,7 +19,7 @@ const historyBody: Record<keyof createChecklistHistory, Joi.Schema> = {
       })
     )
     .required(),
-};
+};  
 
 export const createChecklistHistoryValidation = { body: Joi.object()
   .keys(historyBody)

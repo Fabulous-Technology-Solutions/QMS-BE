@@ -23,10 +23,14 @@ const LibrarySchema = new mongoose.Schema<LibraryModal>(
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Site'
     },
-    process:{
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'Process'
+    processdata:{
+      process: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Process'
+      },
+      subProcess: [{ type: String }]
     },
+    endDate: { type: Date, default: null },
     priority: { type: String, enum: ['low', 'medium', 'high'], default: 'medium' },
     containment: {
       responsibles: [

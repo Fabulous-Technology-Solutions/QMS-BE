@@ -116,8 +116,8 @@ const getProcessByModuleIdService = async (
   };
 };
 
-const getProcessNamesByModuleService = async (moduleId: string) => {
-  return await ProcessModel.find({ modules: { $in: [moduleId] } }).select('name');
+const getProcessNamesByModuleService = async (moduleId: string): Promise<Pick<IProcessModal, 'name' | 'subProcesses'>[]> => {
+  return await ProcessModel.find({ modules: { $in: [moduleId] } }).select('name subProcesses');
 };
 
 const getProcessesBySiteService = async (

@@ -1,7 +1,7 @@
 import mongoose, { ObjectId } from 'mongoose';
 import { CreateGroupRequest, GetGroupsParams, GetGroupsQuery } from './group.interfaces';
 import GroupModel from './group.modal';
-import User from '../../user/user.model';
+import { AccountModel } from '../../account';
 
 export const CreateGroup = async (groupData: CreateGroupRequest) => {
   const group = new GroupModel(groupData);
@@ -9,7 +9,33 @@ export const CreateGroup = async (groupData: CreateGroupRequest) => {
 };
 
 export const getGroupById = async (groupId: string) => {
-  return await GroupModel.findById(groupId).populate('members', 'name email profilePicture');
+  const result = await GroupModel.aggregate([
+    { $match: { _id: new mongoose.Types.ObjectId(groupId) } },
+    {
+      $lookup: {
+        from: 'accounts',
+        localField: 'members',
+        foreignField: '_id',
+        as: 'members',
+        pipeline: [
+          {
+            $lookup: {
+              from: 'members',
+              localField: 'user',
+              foreignField: '_id',
+              as: 'user',
+              pipeline: [{ $project: { name: 1, email: 1, profilePicture: 1 } }],
+            },
+          },
+          { $unwind: { path: '$user' } },
+          {
+            $project: { name: '$user.name', email: '$user.email', profilePicture: '$user.profilePicture', _id: 1 },
+          },
+        ],
+      },
+    },
+  ]);
+  return result[0] || null;
 };
 
 export const getGroupsByWorkspace = async (body: GetGroupsParams) => {
@@ -59,10 +85,7 @@ export const addMemberToGroup = async (groupId: string, memberId: ObjectId) => {
     throw new Error('Member is already in the group');
   }
 
-  return await GroupModel.findByIdAndUpdate(groupId, { $addToSet: { members: memberId } }, { new: true }).populate(
-    'members',
-    'name email profilePicture'
-  );
+  return await GroupModel.findByIdAndUpdate(groupId, { $addToSet: { members: memberId } }, { new: true });
 };
 
 export const removeMemberFromGroup = async (groupId: string, memberId: string) => {
@@ -72,31 +95,34 @@ export const removeMemberFromGroup = async (groupId: string, memberId: string) =
   }
 
   console.log('Group members:', group.members);
-  console.log('Member ID to remove:', new mongoose.Types.ObjectId(memberId));  
+  console.log('Member ID to remove:', new mongoose.Types.ObjectId(memberId));
 
   const memberObjectId = new mongoose.Types.ObjectId(memberId);
   console.log('Members in groups:', group.members);
 
   // Compare ObjectIds as strings
-  const memberExists = group.members.some((m: any) =>
-    m["_id"].toString() === memberObjectId.toString()
-  );
+  const memberExists = group.members.some((m: any) => m['_id'].toString() === memberObjectId.toString());
 
   if (!memberExists) {
     throw new Error('Member is not in the group');
   }
 
-  return await GroupModel.findByIdAndUpdate(
-    groupId,
-    { $pull: { members: memberObjectId } },
-    { new: true }
-  ).populate('members', 'name email profilePicture');
+  return await GroupModel.findByIdAndUpdate(groupId, { $pull: { members: memberObjectId } }, { new: true }).populate(
+    'members',
+    'name email profilePicture'
+  );
 };
 
-export const getGroupUsers = async (groupId: string, search: string = '', page: number = 1, limit: number = 10) => {
+export const getGroupUsers = async (
+  groupId: string,
+  search: string = '',
+  page: number = 1,
+  limit: number = 10
+) => {
   const skip = (page - 1) * limit;
   const matchRegex = new RegExp(search, 'i');
 
+  // Find the group
   const group = await GroupModel.findById(groupId).lean();
   if (!group) {
     throw new Error('Group not found');
@@ -105,9 +131,37 @@ export const getGroupUsers = async (groupId: string, search: string = '', page: 
   const pipeline: any[] = [
     {
       $match: {
-        _id: { $in: group.members },
+        _id: { $in: group.members }, // group.members must be Account IDs
+      },
+    },
+    {
+      $lookup: {
+        from: 'users',
+        localField: 'user',        // field inside AccountModel
+        foreignField: '_id',
+        as: 'user',
+        pipeline: [
+          { $project: { name: 1, email: 1, profilePicture: 1 } },
+        ],
+      },
+    },
+    { $unwind: '$user' },
+    {
+      $project: {
+        _id: 1,  
+        status:1,                   // account id
+        name: '$user.name',
+        email: '$user.email',
+        profilePicture: '$user.profilePicture',
+      },
+    },
+    {
+      $match: {
         ...(search && {
-          $or: [{ name: { $regex: matchRegex } }, { email: { $regex: matchRegex } }],
+          $or: [
+            { name: { $regex: matchRegex } },
+            { email: { $regex: matchRegex } },
+          ],
         }),
       },
     },
@@ -119,7 +173,8 @@ export const getGroupUsers = async (groupId: string, search: string = '', page: 
     },
   ];
 
-  const result = await User.aggregate(pipeline);
+  const result = await AccountModel.aggregate(pipeline);
+
   const members = result[0]?.members || [];
   const total = result[0]?.total[0]?.count || 0;
 

@@ -13,7 +13,15 @@ const CausesSchema = new mongoose.Schema<CausesModal>({
     isDeleted: {
         type: Boolean,
         default: false
-    }
+    },
+    fileUrl: {
+        type: String,
+        required: false,
+    },
+    fileKey: {
+        type: String,
+        required: false
+    },
 }, {
     timestamps: true,
     versionKey: false

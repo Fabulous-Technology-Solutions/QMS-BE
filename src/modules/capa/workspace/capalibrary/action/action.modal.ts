@@ -3,13 +3,13 @@ import { ActionModel } from "./action.interfaces";
 
 const actionSchema = new mongoose.Schema<ActionModel>({
     name: { type: String, required: true },
-    description: { type: String, required: true },
+    description: { type: String },
     createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
     assignedTo: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Account', required: true }],
     library: { type: mongoose.Schema.Types.ObjectId, ref: 'Library', required: true },
     priority: { type: String, enum: ['low', 'medium', 'high'], default: 'medium' },
     type: { type: String, enum: ['preventive', 'corrective'], default: 'preventive' },
-    endDate: { type: Date, required: true },
+    endDate: { type: Date },
     startDate: { type: Date, required: true },
     status: { type: String, enum: ['pending', 'in-progress', 'completed', 'on-hold'], default: 'pending' },
     docfile: { type: String, required: false },

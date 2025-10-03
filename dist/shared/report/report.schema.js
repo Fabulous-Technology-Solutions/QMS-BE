@@ -9,7 +9,7 @@ const reportSchema = new mongoose_1.default.Schema({
     schedule: { type: Boolean, default: false },
     scheduleFrequency: { type: String, enum: ['daily', 'weekly', 'monthly'] },
     status: { type: String },
-    assignUsers: { type: [mongoose_1.default.Schema.Types.ObjectId], ref: 'User' },
+    assignUsers: { type: [mongoose_1.default.Schema.Types.ObjectId], ref: 'Account' },
     nextSchedule: { type: Date },
     lastSchedule: { type: Date },
     site: { type: mongoose_1.default.Schema.Types.ObjectId, ref: 'Site' },

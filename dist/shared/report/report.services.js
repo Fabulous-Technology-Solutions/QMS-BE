@@ -5,8 +5,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getNextScheduleDate = void 0;
 const mongoose_1 = __importDefault(require("mongoose"));
-const user_model_1 = __importDefault(require("../../modules/user/user.model"));
 const email_service_1 = require("../../modules/email/email.service");
+const account_1 = require("../../modules/account");
 class ReportService {
     constructor(reportModel, generateFilterReports) {
         this.reportModel = reportModel;
@@ -31,11 +31,24 @@ class ReportService {
     async createReport(data) {
         const report = await this.generateFilterReport(data.workspace, data.site, data.process, data.status);
         console.log('Generated report:', report);
-        const users = await user_model_1.default.find({ _id: { $in: data.assignUsers } });
-        const emailAddresses = users.map(user => user.email);
+        const users = await account_1.AccountModel.aggregate([
+            { $match: { _id: { $in: data?.assignUsers?.map((id) => new mongoose_1.default.Types.ObjectId(id)) } } },
+            {
+                $lookup: {
+                    from: 'users',
+                    localField: 'user',
+                    foreignField: '_id',
+                    as: 'user',
+                    pipeline: [{ $project: { email: 1, name: 1, profilePicture: 1 } }],
+                },
+            },
+            { $unwind: '$user' },
+            { $project: { email: '$user.email', name: '$user.name', profilePicture: '$user.profilePicture', _id: 1 } },
+        ]);
+        const emailAddresses = users.map((user) => user.email);
         console.log('Email addresses:', emailAddresses);
         if (emailAddresses && emailAddresses.length > 0 && report?.Location) {
-            await (0, email_service_1.sendEmail)(emailAddresses.join(',') || "<default_email@example.com>", `Report Generated: ${data.name}`, '', `<p>Dear User,</p>
+            await (0, email_service_1.sendEmail)(emailAddresses.join(',') || '<default_email@example.com>', `Report Generated: ${data.name}`, '', `<p>Dear User,</p>
         <p>The report has been successfully generated.</p>
         <p>You can download the report using the link below:</p>
         <p><a href="${report?.Location}">Download Report</a></p>
@@ -58,36 +71,133 @@ class ReportService {
         return await newReport.save();
     }
     async getReportById(reportId) {
-        const report = await this.reportModel
-            .findById(reportId)
-            .populate("process")
-            .populate('site')
-            .populate("assignUsers", "name email profilePicture")
-            .populate('createdBy', 'name email profilePicture');
-        if (!report) {
+        const report = await this.reportModel.aggregate([
+            { $match: { _id: new mongoose_1.default.Types.ObjectId(reportId) } },
+            {
+                $lookup: {
+                    from: 'processes',
+                    localField: 'process',
+                    foreignField: '_id',
+                    as: 'process',
+                },
+            },
+            { $unwind: { path: '$process', preserveNullAndEmptyArrays: true } },
+            {
+                $lookup: {
+                    from: 'sites',
+                    localField: 'site',
+                    foreignField: '_id',
+                    as: 'site',
+                },
+            },
+            { $unwind: { path: '$site', preserveNullAndEmptyArrays: true } },
+            {
+                $lookup: {
+                    from: 'accounts',
+                    localField: 'assignUsers',
+                    foreignField: '_id',
+                    as: 'assignUsers',
+                    pipeline: [
+                        {
+                            $lookup: {
+                                from: 'users',
+                                localField: 'user',
+                                foreignField: '_id',
+                                as: 'user',
+                                pipeline: [{ $project: { email: 1, name: 1, profilePicture: 1 } }],
+                            },
+                        },
+                        { $unwind: '$user' },
+                        { $project: { name: '$user.name', email: '$user.email', profilePicture: '$user.profilePicture' } },
+                    ],
+                },
+            },
+            {
+                $lookup: {
+                    from: 'users',
+                    localField: 'createdBy',
+                    foreignField: '_id',
+                    as: 'createdBy',
+                    pipeline: [{ $project: { name: 1, email: 1, profilePicture: 1 } }],
+                },
+            },
+            { $unwind: { path: '$createdBy', preserveNullAndEmptyArrays: true } },
+        ]);
+        if (!report || report.length === 0) {
             throw new Error('Report not found');
         }
-        return report;
+        return report[0];
     }
     async getReportsByWorkspace(workspaceId, page = 1, limit = 10) {
-        const match = { workspace: new mongoose_1.default.Types.ObjectId(workspaceId), isDeleted: { $ne: true } };
-        const total = await this.reportModel.countDocuments(match);
-        const data = await this.reportModel
-            .find(match)
-            .populate("process", "name")
-            .populate('site', 'name')
-            .populate("assignUsers", "name email profilePicture")
-            .populate('createdBy', 'name email profilePicture')
-            .sort({ createdAt: -1 })
-            .skip((page - 1) * limit)
-            .limit(limit);
+        const skip = (page - 1) * limit;
+        const result = await this.reportModel.aggregate([
+            { $match: { workspace: new mongoose_1.default.Types.ObjectId(workspaceId), isDeleted: { $ne: true } } },
+            {
+                $lookup: {
+                    from: 'processes',
+                    localField: 'process',
+                    foreignField: '_id',
+                    as: 'process',
+                },
+            },
+            { $unwind: { path: '$process', preserveNullAndEmptyArrays: true } },
+            {
+                $lookup: {
+                    from: 'sites',
+                    localField: 'site',
+                    foreignField: '_id',
+                    as: 'site',
+                },
+            },
+            { $unwind: { path: '$site', preserveNullAndEmptyArrays: true } },
+            {
+                $lookup: {
+                    from: 'accounts',
+                    localField: 'assignUsers',
+                    foreignField: '_id',
+                    as: 'assignUsers',
+                    pipeline: [
+                        {
+                            $lookup: {
+                                from: 'users',
+                                localField: 'user',
+                                foreignField: '_id',
+                                as: 'user',
+                                pipeline: [{ $project: { email: 1, name: 1, profilePicture: 1 } }],
+                            },
+                        },
+                        { $unwind: '$user' },
+                        { $project: { name: '$user.name', email: '$user.email', profilePicture: '$user.profilePicture' } },
+                    ],
+                },
+            },
+            {
+                $lookup: {
+                    from: 'users',
+                    localField: 'createdBy',
+                    foreignField: '_id',
+                    as: 'createdBy',
+                    pipeline: [{ $project: { name: 1, email: 1, profilePicture: 1 } }],
+                },
+            },
+            { $unwind: { path: '$createdBy', preserveNullAndEmptyArrays: true } },
+            { $sort: { createdAt: -1 } },
+            {
+                $facet: {
+                    data: [{ $skip: skip }, { $limit: limit }],
+                    total: [{ $count: 'count' }],
+                },
+            },
+        ]);
+        const data = result[0].data;
+        const total = result[0].total.length > 0 ? result[0].total[0].count : 0;
         return {
             data,
             total,
             page,
             limit,
             success: true,
-            message: 'Reports retrieved successfully'
+            message: 'Reports retrieved successfully',
         };
     }
     async updateReport(reportId, data) {
@@ -131,29 +241,120 @@ class ReportService {
         return report;
     }
     async getReportsByStatus(status, page = 1, limit = 10) {
-        const match = { status, isDeleted: { $ne: true } };
-        const total = await this.reportModel.countDocuments(match);
-        const data = await this.reportModel
-            .find(match)
-            .populate("process", "name")
-            .populate('site', 'name')
-            .populate("assignUsers", "name email profilePicture")
-            .populate('createdBy', 'name email profilePicture')
-            .sort({ createdAt: -1 })
-            .skip((page - 1) * limit)
-            .limit(limit);
-        return { data, total, page, limit };
+        const skip = (page - 1) * limit;
+        const result = await this.reportModel.aggregate([
+            { $match: { status, isDeleted: { $ne: true } } },
+            {
+                $lookup: {
+                    from: 'processes',
+                    localField: 'process',
+                    foreignField: '_id',
+                    as: 'process',
+                },
+            },
+            { $unwind: { path: '$process', preserveNullAndEmptyArrays: true } },
+            {
+                $lookup: {
+                    from: 'sites',
+                    localField: 'site',
+                    foreignField: '_id',
+                    as: 'site',
+                },
+            },
+            { $unwind: { path: '$site', preserveNullAndEmptyArrays: true } },
+            {
+                $lookup: {
+                    from: 'accounts',
+                    localField: 'assignUsers',
+                    foreignField: '_id',
+                    as: 'assignUsers',
+                    pipeline: [
+                        {
+                            $lookup: {
+                                from: 'users',
+                                localField: 'user',
+                                foreignField: '_id',
+                                as: 'user',
+                                pipeline: [{ $project: { email: 1, name: 1, profilePicture: 1 } }],
+                            },
+                        },
+                        { $unwind: '$user' },
+                        { $project: { name: '$user.name', email: '$user.email', profilePicture: '$user.profilePicture' } },
+                    ],
+                },
+            },
+            {
+                $lookup: {
+                    from: 'users',
+                    localField: 'createdBy',
+                    foreignField: '_id',
+                    as: 'createdBy',
+                    pipeline: [{ $project: { name: 1, email: 1, profilePicture: 1 } }],
+                },
+            },
+            { $unwind: { path: '$createdBy', preserveNullAndEmptyArrays: true } },
+            { $sort: { createdAt: -1 } },
+            {
+                $facet: {
+                    data: [{ $skip: skip }, { $limit: limit }],
+                    total: [{ $count: 'count' }],
+                },
+            },
+        ]);
+        const data = result[0].data;
+        const total = result[0].total.length > 0 ? result[0].total[0].count : 0;
+        return {
+            data,
+            total,
+            page,
+            limit,
+            success: true,
+            message: 'Reports retrieved successfully',
+        };
     }
     async getScheduledReports() {
         const now = new Date();
-        return await this.reportModel
-            .find({
-            schedule: true,
-            nextSchedule: { $lte: now },
-            isDeleted: { $ne: true }
-        })
-            .populate("assignUsers", "name email")
-            .populate('createdBy', 'name email');
+        const result = await this.reportModel.aggregate([
+            {
+                $match: {
+                    schedule: true,
+                    nextSchedule: { $lte: now },
+                    isDeleted: { $ne: true },
+                },
+            },
+            {
+                $lookup: {
+                    from: 'accounts',
+                    localField: 'assignUsers',
+                    foreignField: '_id',
+                    as: 'assignUsers',
+                    pipeline: [
+                        {
+                            $lookup: {
+                                from: 'users',
+                                localField: 'user',
+                                foreignField: '_id',
+                                as: 'user',
+                                pipeline: [{ $project: { email: 1, name: 1, profilePicture: 1 } }],
+                            },
+                        },
+                        { $unwind: '$user' },
+                        { $project: { name: '$user.name', email: '$user.email', profilePicture: '$user.profilePicture' } },
+                    ],
+                },
+            },
+            {
+                $lookup: {
+                    from: 'users',
+                    localField: 'createdBy',
+                    foreignField: '_id',
+                    as: 'createdBy',
+                    pipeline: [{ $project: { name: 1, email: 1 } }],
+                },
+            },
+            { $unwind: { path: '$createdBy', preserveNullAndEmptyArrays: true } },
+        ]);
+        return result;
     }
 }
 exports.default = ReportService;

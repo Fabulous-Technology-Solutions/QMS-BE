@@ -26,7 +26,8 @@ const invitationSchema = new mongoose_1.Schema({
     Permissions: [
         {
             workspace: { type: mongoose_1.default.Schema.Types.ObjectId, ref: 'Workspace', required: true },
-            permission: { type: String, enum: ['admin', 'view', 'edit'], required: true },
+            roleId: { type: mongoose_1.default.Schema.Types.ObjectId, ref: 'Role' },
+            permission: { type: String, enum: ['admin', 'view', 'edit'], default: 'view' },
         },
     ],
     status: { type: String, enum: ['pending', 'accepted'], required: true },

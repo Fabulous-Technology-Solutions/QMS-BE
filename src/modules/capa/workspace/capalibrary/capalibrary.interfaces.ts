@@ -4,7 +4,11 @@ export interface LibraryModal extends Document {
   name: string;
   description: string;
   site: ObjectId;
-  process: ObjectId;
+  processdata: {
+    process: ObjectId;
+    subProcess: string[];
+  };
+  endDate: Date | null;
   workspace: ObjectId;
   createdBy: ObjectId;
   isDeleted: boolean;
@@ -48,9 +52,13 @@ export interface UpdateContainmentRequest {
 
 export interface CreateLibraryRequest {
   name: string;
+  endDate: Date | null;
   description: string;
   site: string;
-  process: string;
+  processdata: {
+    process: string;
+    subProcess: string[];
+  };
   workspace: string;
   createdBy: string;
   status: string;

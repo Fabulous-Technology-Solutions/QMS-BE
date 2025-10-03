@@ -10,7 +10,7 @@ const controlSchema = new mongoose_1.default.Schema({
     description: { type: String, required: true },
     controlType: { type: String, required: true },
     effectiveness: { type: String, required: true },
-    owners: [{ type: mongoose_1.default.Schema.Types.ObjectId, ref: 'User', required: true }],
+    owners: [{ type: mongoose_1.default.Schema.Types.ObjectId, ref: 'Account', required: true }],
     createdBy: { type: mongoose_1.default.Schema.Types.ObjectId, ref: 'User', required: true }
 }, { timestamps: true });
 const ControlModel = mongoose_1.default.model('Control', controlSchema);

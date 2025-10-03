@@ -28,9 +28,9 @@ const verifyCallback =
         req.params['workspaceId'] || req.body.workspace || null
       );
       if (!findrole) return reject(new ApiError('you do not have access to this account', httpStatus.FORBIDDEN));
-      const role: string | null = findrole?.Permissions?.find((role: any) => role.workspace.toString() === (req.params['workspaceId'] || req.body.workspace))?.permission||findrole?.Permissions?.find((role: any) => role.workspace.toString() === (req.params['workspaceId'] || req.body.workspace))?.roleId?.permissions || null;
+      const role: string | null = findrole?.Permissions[0]?.roleId?.permissions || findrole?.Permissions[0]?.permission || null;
 
-      console.log('Role Permissions:', role);
+      console.log('Role Permissions:', role,findrole?.Permissions[0]?.roleId?.permissions,findrole?.Permissions[0]?.roleId);
 
       let userRights: string[] = [];
       if (role) {

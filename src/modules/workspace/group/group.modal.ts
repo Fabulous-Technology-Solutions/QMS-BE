@@ -7,7 +7,7 @@ const GroupSchema = new mongoose.Schema<IGroupModal>({
     workspace: { type: mongoose.Schema.Types.ObjectId, ref: 'Workspace', required: true },
     createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
     isDeleted: { type: Boolean, default: false },
-    members: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }]
+    members: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Account' }]
 }, {
     timestamps: true
 });

@@ -26,7 +26,7 @@ export const createCapaworkspaceController = catchAsync(async (req: Request, res
 
 export const getAllCapaworkspacesController = catchAsync(async (req: Request, res: Response) => {
   const { page = 1, limit = 10, search } = req.query;
-  console.log('Account ID:', req.headers['accountid']);
+  console.log('Account ID:', req.headers['subid']);
   // Authorization logic
   if (req.headers['subid']) {
     const workspaces = await accountServices.getModuleWorkspaces(

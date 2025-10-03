@@ -15,10 +15,67 @@ const createAssessment = async (data) => {
 };
 exports.createAssessment = createAssessment;
 const getAssessmentById = async (id) => {
-    const assessment = await assessment_modal_1.default.findById(id)
-        .where({ isDeleted: false })
-        .populate('createdBy', 'name email profilePicture')
-        .populate('evaluator', 'name email profilePicture');
+    const assessments = await assessment_modal_1.default.aggregate([
+        {
+            $match: {
+                _id: new mongoose_1.default.Types.ObjectId(id),
+                isDeleted: false
+            }
+        },
+        {
+            $lookup: {
+                from: 'users',
+                localField: 'createdBy',
+                foreignField: '_id',
+                as: 'createdBy',
+                pipeline: [
+                    {
+                        $project: {
+                            name: 1,
+                            email: 1,
+                            profilePicture: 1
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            $lookup: {
+                from: 'accounts',
+                localField: 'avaluator',
+                foreignField: '_id',
+                as: 'evaluator',
+                pipeline: [
+                    {
+                        $lookup: {
+                            from: 'users',
+                            localField: 'user',
+                            foreignField: '_id',
+                            as: 'user',
+                            pipeline: [{ $project: { name: 1, email: 1, profilePicture: 1 } }],
+                        },
+                    },
+                    { $unwind: { path: '$user' } },
+                    {
+                        $project: { name: '$user.name', email: '$user.email', profilePicture: '$user.profilePicture', _id: 1 },
+                    },
+                ],
+            },
+        },
+        {
+            $unwind: {
+                path: '$createdBy',
+                preserveNullAndEmptyArrays: true
+            }
+        },
+        {
+            $unwind: {
+                path: '$evaluator',
+                preserveNullAndEmptyArrays: true
+            }
+        }
+    ]);
+    const assessment = assessments[0];
     if (!assessment) {
         throw new ApiError_1.default('Assessment not found', 404);
     }
@@ -49,17 +106,81 @@ const deleteAssessment = async (id) => {
 };
 exports.deleteAssessment = deleteAssessment;
 const getAssessmentsByLibrary = async (libraryId, page, limit, search) => {
-    const query = {
-        library: libraryId,
-        isDeleted: false,
-        name: { $regex: search, $options: 'i' },
-    };
-    const assessments = await assessment_modal_1.default.find(query)
-        .skip((page - 1) * limit)
-        .limit(limit)
-        .populate('createdBy', 'name email profilePicture')
-        .populate('evaluator', 'name email profilePicture');
-    const total = await assessment_modal_1.default.countDocuments(query);
+    const pipeline = [
+        {
+            $match: {
+                library: new mongoose_1.default.Types.ObjectId(libraryId),
+                isDeleted: false,
+                name: { $regex: search, $options: 'i' },
+            }
+        },
+        {
+            $lookup: {
+                from: 'users',
+                localField: 'createdBy',
+                foreignField: '_id',
+                as: 'createdBy',
+                pipeline: [
+                    {
+                        $project: {
+                            name: 1,
+                            email: 1,
+                            profilePicture: 1
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            $lookup: {
+                from: 'accounts',
+                localField: 'evaluator',
+                foreignField: '_id',
+                as: 'evaluator',
+                pipeline: [
+                    {
+                        $lookup: {
+                            from: 'users',
+                            localField: 'user',
+                            foreignField: '_id',
+                            as: 'user',
+                            pipeline: [{ $project: { name: 1, email: 1, profilePicture: 1 } }],
+                        },
+                    },
+                    { $unwind: { path: '$user' } },
+                    {
+                        $project: { name: '$user.name', email: '$user.email', profilePicture: '$user.profilePicture', _id: 1 },
+                    },
+                ],
+            },
+        },
+        {
+            $unwind: {
+                path: '$createdBy',
+                preserveNullAndEmptyArrays: true
+            }
+        },
+        {
+            $unwind: {
+                path: '$evaluator',
+                preserveNullAndEmptyArrays: true
+            }
+        },
+        {
+            $facet: {
+                data: [
+                    { $skip: (page - 1) * limit },
+                    { $limit: limit }
+                ],
+                total: [
+                    { $count: 'count' }
+                ]
+            }
+        }
+    ];
+    const result = await assessment_modal_1.default.aggregate(pipeline);
+    const assessments = result[0].data;
+    const total = result[0].total[0]?.count || 0;
     return {
         data: assessments,
         total,

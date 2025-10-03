@@ -1,5 +1,5 @@
 import ControlModel from './control.modal';
-import { CreateControl, GetControlQuery } from './control.interfaces';
+import { CreateControl } from './control.interfaces';
 import ApiError from '../../../../errors/ApiError';
 
 const createActionService = async (data: CreateControl) => {
@@ -10,36 +10,99 @@ const createActionService = async (data: CreateControl) => {
 const getAllControlService = async (libraryId: string, page: number = 1, limit: number = 10, search?: string) => {
   const skip = (page - 1) * limit;
 
-  const query:GetControlQuery = { library: libraryId };
+  const matchStage: any = { library: libraryId };
 
   if (search) {
-      query.$or = [
-          { name: { $regex: search, $options: 'i' } },
-          { description: { $regex: search, $options: 'i' } }
-      ];
+    matchStage.$or = [
+      { name: { $regex: search, $options: 'i' } },
+      { description: { $regex: search, $options: 'i' } }
+    ];
   }
 
-  const controls = await ControlModel.find(query).populate('owners', 'name profilePicture')
-      .skip(skip)
-      .limit(limit)
-      .sort({ createdAt: -1 });
+  
 
-  const total = await ControlModel.countDocuments(query);
+  const result = await ControlModel.aggregate([
+    { $match: matchStage },
+     {
+        $lookup: {
+          from: 'accounts',
+          localField: 'owners',
+          foreignField: '_id',
+          as: 'owners',
+          pipeline: [
+            {
+              $lookup: {
+                from: 'users',
+                localField: 'user',
+                foreignField: '_id',
+                as: 'user',
+                pipeline: [{ $project: { name: 1, email: 1, profilePicture: 1 } }],
+              },
+            },
+            { $unwind: { path: '$user' } },
+            {
+              $project: { name: '$user.name', email: '$user.email', profilePicture: '$user.profilePicture', _id: 1 },
+            },
+          ],
+        },
+      },
+    { $sort: { createdAt: -1 } },
+    {
+      $facet: {
+        controls: [
+          { $skip: skip },
+          { $limit: limit }
+        ],
+        totalCount: [
+          { $count: "total" }
+        ]
+      }
+    }
+  ]);
+  const controls = result[0].controls;
+  const total = result[0].totalCount[0]?.total || 0;
 
   return {
-      controls,
-        total,
-        page,
-        limit
+    controls,
+    total,
+    page,
+    limit
   };
 }
 
 const getControlByIdService = async (id: string) => {
-  const control = await ControlModel.findById(id).populate('owners', 'name profilePicture');
+  const result = await ControlModel.aggregate([
+    { $match: { _id: new (require('mongoose')).Types.ObjectId(id) } },
+    {
+      $lookup: {
+        from: 'accounts',
+        localField: 'owners',
+        foreignField: '_id',
+        as: 'owners',
+        pipeline: [
+          {
+            $lookup: {
+              from: 'users',
+              localField: 'user',
+              foreignField: '_id',
+              as: 'user',
+              pipeline: [{ $project: { name: 1, email: 1, profilePicture: 1 } }],
+            },
+          },
+          { $unwind: { path: '$user' } },
+          {
+            $project: { name: '$user.name', email: '$user.email', profilePicture: '$user.profilePicture', _id: 1 },
+          },
+        ],
+      },
+    }
+  ]);
+
+  const control = result[0];
   if (!control) {
     throw new ApiError('Control not found', 404);
   }
-    return control;
+  return control;
 }
 const updateControlService = async (id: string, data: Partial<CreateControl>) => {
   const control = await ControlModel.findByIdAndUpdate(id, data, { new: true });

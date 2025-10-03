@@ -10,7 +10,7 @@ const invitationBodySchema = {
     role: joi_1.default.string().valid('admin', 'workspaceUser', 'standardUser').required(),
     Permissions: joi_1.default.array()
         .items(joi_1.default.object({
-        permission: joi_1.default.string().required(),
+        permission: joi_1.default.string().default('view').valid('admin', 'view', 'edit'),
         workspace: joi_1.default.string().required(),
     }))
         .optional(),

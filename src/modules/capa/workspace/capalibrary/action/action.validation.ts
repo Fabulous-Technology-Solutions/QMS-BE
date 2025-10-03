@@ -46,7 +46,7 @@ const createActionBody: Record<keyof CreateActionRequest, any> = {
 };
 
 export const createAction = {
-  body: Joi.object().keys(createActionBody).fork(['name', 'description', 'library', 'startDate', 'endDate', 'type', 'priority'], (schema) => schema.required()),
+  body: Joi.object().keys(createActionBody).fork(['name', 'library', 'startDate', 'type', 'priority'], (schema) => schema.required()),
 };
 
 export const updateAction = {

@@ -7,6 +7,7 @@ const validate_1 = require("../../modules/validate");
 const router = (0, express_1.Router)();
 router.post('/accept', (0, auth_1.auth)(), invitation_1.invitationController.acceptInvitation);
 router.post('/', (0, auth_1.auth)(), (0, validate_1.validate)(invitation_1.invitationValidation.invitationValidationSchema), invitation_1.invitationController.createInvitation).get('/', (0, auth_1.auth)(), invitation_1.invitationController.getInvitations);
+router.get('/workspace/:workspaceId', (0, auth_1.auth)(), invitation_1.invitationController.getInvitationsByWorkspace);
 router.get('/:token', (0, auth_1.auth)(), invitation_1.invitationController.getInvitationByToken);
 router.delete('/:token', (0, auth_1.auth)(), invitation_1.invitationController.deleteInvitation);
 exports.default = router;

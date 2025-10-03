@@ -48,7 +48,7 @@ const createActionBody = {
     }),
 };
 exports.createAction = {
-    body: joi_1.default.object().keys(createActionBody).fork(['name', 'description', 'library', 'startDate', 'endDate', 'type', 'priority'], (schema) => schema.required()),
+    body: joi_1.default.object().keys(createActionBody).fork(['name', 'library', 'startDate', 'type', 'priority'], (schema) => schema.required()),
 };
 exports.updateAction = {
     body: joi_1.default.object().keys(createActionBody),

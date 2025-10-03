@@ -16,7 +16,15 @@ const CausesSchema = new mongoose_1.default.Schema({
     isDeleted: {
         type: Boolean,
         default: false
-    }
+    },
+    fileUrl: {
+        type: String,
+        required: false,
+    },
+    fileKey: {
+        type: String,
+        required: false
+    },
 }, {
     timestamps: true,
     versionKey: false

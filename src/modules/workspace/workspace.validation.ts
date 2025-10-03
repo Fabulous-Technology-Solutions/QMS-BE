@@ -9,7 +9,7 @@ const capaworkspaceBody: Record<keyof CreateCapaworkspaceRequest, any> = {
 }
 
 export const createCapa = {
-    body: Joi.object().keys(capaworkspaceBody).fork(['moduleId',"name","imageUrl","imagekey","description"], (schema) => schema.required()),
+    body: Joi.object().keys(capaworkspaceBody).fork(['moduleId',"imagekey","description"], (schema) => schema.required()),
 };
 
 export const updateCapa = {

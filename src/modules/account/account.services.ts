@@ -246,7 +246,7 @@ export const getModuleWorkspaces = async (
     {
       $match: {
         accountId: new mongoose.Types.ObjectId(accountId),
-        user: new mongoose.Types.ObjectId(userId)
+        user: new mongoose.Types.ObjectId(userId),
       },
     },
     {
@@ -291,12 +291,52 @@ export const getModuleWorkspaces = async (
               {
                 $filter: {
                   input: '$Permissions',
-                  cond: { $eq: ['$$this.workspace', '$workspaceDetails._id'] }
-                }
+                  cond: { $eq: ['$$this.workspace', '$workspaceDetails._id'] },
+                },
               },
-              0
-            ]
-          }
+              0,
+            ],
+          },
+        },
+      },
+    },
+    {
+      $lookup: {
+        from: 'roles',
+        localField: 'workspaceDetails.account.permission.roleId',
+        foreignField: '_id',
+        as: 'workspaceDetails.account.permission.roleId',
+      },
+    },
+    {
+      $unwind: {
+        path: '$workspaceDetails.account.permission.roleId',
+        preserveNullAndEmptyArrays: true,
+      },
+    },
+    {
+      $project: {
+        _id: 0,
+        workspaceDetails: {
+          _id: 1,
+          name: 1,
+          description: 1,
+          moduleId: 1,
+          updatedAt: 1,
+          createdAt: 1,
+          isDeleted: 1,
+          imageUrl: 1,
+          imagekey: 1,
+          createdBy: 1,
+          account: {
+            _id: 1,
+            role: 1,
+            status: 1,
+            user: 1,
+            permission: {
+              $ifNull: ['$workspaceDetails.account.permission.roleId.permissions', '$workspaceDetails.account.permission'],
+            },
+          },
         },
       },
     },
@@ -347,8 +387,20 @@ export const updateAccountById = async (Id: string, updateBody: Iaccount) => {
 };
 
 export const checkUserBelongsToAccount = async (userId: string, accountId: string, workspaceId: string) => {
-  console.log('Checking if user belongs to account with userId:', userId, 'accountId:', accountId, 'workspaceId:', workspaceId);
-  const account = await AccountModel.findOne({ _id: accountId, user: userId, 'Permissions.workspace': workspaceId }).populate('Permissions.roleId', 'name permissions');
+  const query = {
+    _id: accountId,
+    user: userId,
+    ...(workspaceId && { 'Permissions.workspace': workspaceId }),
+  };
+  console.log(
+    'Checking if user belongs to account with userId:',
+    userId,
+    'accountId:',
+    accountId,
+    'workspaceId:',
+    workspaceId
+  );
+  const account = await AccountModel.findOne(query).populate('Permissions.roleId', 'name permissions');
   return account; // returns true if account exists, false otherwise
 };
 
@@ -431,7 +483,7 @@ export const findUserBelongToCapaLibrary = async (userId: string, accountId: str
     { $unwind: '$workspaceDetails' },
   ]);
 
-  if (!account ) {
+  if (!account) {
     throw new Error('Account not found or does not belong to the user');
   }
   return !!account; // returns true if account exists, false otherwise
@@ -442,19 +494,19 @@ export const getSingleWorkspaceWithAccount = async (accountId: string, workspace
     {
       $match: {
         _id: new mongoose.Types.ObjectId(accountId),
-      }
+      },
     },
     {
       $lookup: {
         from: 'workspaces',
         localField: 'Permissions.workspace',
         foreignField: '_id',
-        as: 'workspaceDetails',
+        as: 'workspace',
         pipeline: [
           {
             $match: {
-              _id: new mongoose.Types.ObjectId(workspaceId)
-            }
+              _id: new mongoose.Types.ObjectId(workspaceId),
+            },
           },
           {
             $project: {
@@ -468,35 +520,74 @@ export const getSingleWorkspaceWithAccount = async (accountId: string, workspace
               imageUrl: 1,
               imagekey: 1,
               createdBy: 1,
-            }
-          }
-        ]
-      }
+            },
+          },
+        ],
+      },
     },
     {
-      $unwind: '$workspaceDetails'
-    },{
+      $unwind: '$workspace',
+    },
+    {
       $addFields: {
-        'workspaceDetails.permission': {
-          $arrayElemAt: [
-            {
-              $filter: {
-                input: '$Permissions',
-                as: 'perm',
-                cond: {
-                  $eq: ['$$perm.workspace', '$workspaceDetails._id']
-                }
-              }
-            },
-            0
-          ]
-        }
-    }},
+        'workspace.account': {
+          _id: '$_id',
+          role: '$role',
+          status: '$status',
+          user: '$user',
+          permission: {
+            $arrayElemAt: [
+              {
+                $filter: {
+                  input: '$Permissions',
+                  cond: { $eq: ['$$this.workspace', '$workspace._id'] },
+                },
+              },
+              0,
+            ],
+          },
+        },
+      },
+    },
+    {
+      $lookup: {
+        from: 'roles',
+        localField: 'workspace.account.permission.roleId',
+        foreignField: '_id',
+        as: 'workspace.account.permission.roleId',
+      },
+    },
+    {
+      $unwind: {
+        path: '$workspace.account.permission.roleId',
+        preserveNullAndEmptyArrays: true,
+      },
+    },
     {
       $project: {
-        workspace: '$workspaceDetails'
-      }
-    }
+        workspace: {
+          _id: 1,
+          name: 1,
+          description: 1,
+          moduleId: 1,
+          updatedAt: 1,
+          createdAt: 1,
+          isDeleted: 1,
+          imageUrl: 1,
+          imagekey: 1,
+          createdBy: 1,
+          account: {
+            _id: 1,
+            role: 1,
+            status: 1,
+            user: 1,
+            permission: {
+              $ifNull: ['$workspace.account.permission.roleId.permissions', '$workspace.account.permission'],
+            },
+          },
+        },
+      },
+    },
   ]);
 
   return result[0].workspace || null;

@@ -83,7 +83,7 @@ export const deleteActionController = catchAsync(async (req: Request, res: Respo
 export const getTasksByUserController = catchAsync(async (req: Request, res: Response) => { 
   const userId = req.user._id as string;
   const { page = 1, limit = 10, search = '' } = req.query;
-  const tasks = await actionService.getActionsByAssignedTo(userId, Number(page), Number(limit), search as string);
+  const tasks = await actionService.getActionsByAssignedTo(req.headers['accountid']?.toString() || userId, Number(page), Number(limit), search as string);
   res.status(200).json({                                                                   
     success: true,
     message: 'Tasks retrieved successfully',

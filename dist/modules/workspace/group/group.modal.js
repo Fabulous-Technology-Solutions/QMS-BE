@@ -10,7 +10,7 @@ const GroupSchema = new mongoose_1.default.Schema({
     workspace: { type: mongoose_1.default.Schema.Types.ObjectId, ref: 'Workspace', required: true },
     createdBy: { type: mongoose_1.default.Schema.Types.ObjectId, ref: 'User', required: true },
     isDeleted: { type: Boolean, default: false },
-    members: [{ type: mongoose_1.default.Schema.Types.ObjectId, ref: 'User' }]
+    members: [{ type: mongoose_1.default.Schema.Types.ObjectId, ref: 'Account' }]
 }, {
     timestamps: true
 });

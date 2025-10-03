@@ -22,7 +22,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.acceptInvitation = exports.deleteInvitation = exports.getInvitationByToken = exports.getInvitations = exports.createInvitation = void 0;
+exports.acceptInvitation = exports.deleteInvitation = exports.getInvitationByToken = exports.getInvitationsByWorkspace = exports.getInvitations = exports.createInvitation = void 0;
 const invitationService = __importStar(require("./invitation.services"));
 const utils_1 = require("../utils");
 const ApiError_1 = __importDefault(require("../errors/ApiError"));
@@ -50,6 +50,10 @@ exports.createInvitation = (0, utils_1.catchAsync)(async (req, res) => {
 });
 exports.getInvitations = (0, utils_1.catchAsync)(async (req, res) => {
     const invitations = await invitationService.getInvitationsByInvitedBy(req.user?._id, Number(req.query['page']) || 1, Number(req.query['limit']) || 10, req.query['search']);
+    res.status(200).json({ message: 'Invitations fetched successfully', data: invitations });
+});
+exports.getInvitationsByWorkspace = (0, utils_1.catchAsync)(async (req, res) => {
+    const invitations = await invitationService.getInvitationsByWorkspace(req.params['workspaceId'], Number(req.query['page']) || 1, Number(req.query['limit']) || 10, req.query['search']);
     res.status(200).json({ message: 'Invitations fetched successfully', data: invitations });
 });
 exports.getInvitationByToken = (0, utils_1.catchAsync)(async (req, res) => {

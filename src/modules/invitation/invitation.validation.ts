@@ -7,7 +7,7 @@ const invitationBodySchema: Record<keyof Invitation, Joi.Schema> = {
   Permissions: Joi.array()
     .items(
       Joi.object({
-        permission: Joi.string().required(),
+        permission: Joi.string().default('view').valid('admin', 'view', 'edit'),
         workspace: Joi.string().required(),
       })
     )

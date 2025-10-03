@@ -1,7 +1,6 @@
 interface User {
   name: string;
   email: string;
-  role?: string;
   profilePicture?: string;
 }
 
@@ -57,19 +56,20 @@ interface CAPALibrary {
   inProgressActions?: number;
   pendingActions?: number;
   onHoldActions?: number;
+  endDate?: string | Date;
   checklisthistory: ChecklistHistory[];
 }
 
 const getEffectivenessScore = (list: ChecklistItem[]) => {
-  const totalSelected = list.filter((item) => item.yes || item.no || item.partial).length;
+  const totalSelected = list?.filter((item) => item.yes || item.no || item.partial).length;
   const score = (totalSelected / (list.length * 3)) * 100;
   return score || 0;
 };
 
 const calculateEffectiveness = (list: ChecklistItem[]) => {
-  const no = list.filter((i) => i.no).length;
-  const partial = list.filter((i) => i.partial).length;
-  const yes = list.filter((i) => i.yes).length;
+  const no = list?.filter((i) => i.no).length;
+  const partial = list?.filter((i) => i.partial).length;
+  const yes = list?.filter((i) => i.yes).length;
   return {
     no,
     partial,
@@ -169,7 +169,7 @@ export const pdfTemplate = async (findLibrary: CAPALibrary) => {
                                     style="color: #0049b7; font-size: 14px; font-weight: 500"
                                     >Start Date</strong
                                     ><br />${
-                                      findLibrary?.startDate ? new Date(findLibrary?.startDate).toLocaleDateString() : 'N/A'
+                                      findLibrary?.createdAt ? new Date(findLibrary?.createdAt).toLocaleDateString() : 'N/A'
                                     }
                             </div>
                             <div class="col-4">
@@ -177,7 +177,7 @@ export const pdfTemplate = async (findLibrary: CAPALibrary) => {
                                     style="color: #0049b7; font-size: 14px; font-weight: 500"
                                     >End Date</strong
                                     ><br />${
-                                      findLibrary?.dueDate ? new Date(findLibrary?.dueDate).toLocaleDateString() : 'N/A'
+                                      findLibrary?.endDate ? new Date(findLibrary?.endDate).toLocaleDateString() : 'N/A'
                                     }
                             </div>
                             </div>
@@ -224,17 +224,6 @@ export const pdfTemplate = async (findLibrary: CAPALibrary) => {
                                             "
                                             class="py-2"
                                     >
-                                            Role
-                                    </th>
-                                    <th
-                                            style="
-                                            background-color: #043b6a;
-                                            color: white;
-                                            font-size: 14px;
-                                            font-weight: 500;
-                                            "
-                                            class="py-2"
-                                    >
                                             Email
                                     </th>
                                     </tr>
@@ -252,7 +241,6 @@ export const pdfTemplate = async (findLibrary: CAPALibrary) => {
                                             />
                                             ${member.name || 'N/A'}
                                     </td>
-                                    <td>${member?.role || 'N/A'}</td>
                                     <td>${member.email || 'N/A'}</td>
                                     </tr>`
                                    )
@@ -283,17 +271,7 @@ export const pdfTemplate = async (findLibrary: CAPALibrary) => {
                                     >
                                             Name
                                     </th>
-                                    <th
-                                            style="
-                                            background-color: #043b6a;
-                                            color: white;
-                                            font-size: 14px;
-                                            font-weight: 500;
-                                            "
-                                            class="py-2"
-                                    >
-                                            Role
-                                    </th>
+     
                                     <th
                                             style="
                                             background-color: #043b6a;
@@ -320,7 +298,7 @@ export const pdfTemplate = async (findLibrary: CAPALibrary) => {
                                             />
                                             ${member.name || 'N/A'}
                                     </td>
-                                    <td>${member?.role || 'N/A'}</td>
+                                    
                                     <td>${member.email || 'N/A'}</td>
                                     </tr>`
                                    )
@@ -739,7 +717,7 @@ export const pdfTemplateforMutiples = async (libraries: CAPALibrary[]) => {
                                     style="color: #0049b7; font-size: 14px; font-weight: 500"
                                     >Start Date</strong
                                     ><br />${
-                                      findLibrary?.startDate ? new Date(findLibrary?.startDate).toLocaleDateString() : 'N/A'
+                                      findLibrary?.createdAt ? new Date(findLibrary?.createdAt).toLocaleDateString() : 'N/A'
                                     }
                             </div>
                             <div class="col-4">
@@ -747,7 +725,7 @@ export const pdfTemplateforMutiples = async (libraries: CAPALibrary[]) => {
                                     style="color: #0049b7; font-size: 14px; font-weight: 500"
                                     >End Date</strong
                                     ><br />${
-                                      findLibrary?.dueDate ? new Date(findLibrary?.dueDate).toLocaleDateString() : 'N/A'
+                                      findLibrary?.endDate ? new Date(findLibrary?.endDate).toLocaleDateString() : 'N/A'
                                     }
                             </div>
                             </div>
@@ -785,17 +763,7 @@ export const pdfTemplateforMutiples = async (libraries: CAPALibrary[]) => {
                                     >
                                             Name
                                     </th>
-                                    <th
-                                            style="
-                                            background-color: #043b6a;
-                                            color: white;
-                                            font-size: 14px;
-                                            font-weight: 500;
-                                            "
-                                            class="py-2"
-                                    >
-                                            Role
-                                    </th>
+      
                                     <th
                                             style="
                                             background-color: #043b6a;
@@ -822,7 +790,7 @@ export const pdfTemplateforMutiples = async (libraries: CAPALibrary[]) => {
                                             />
                                             ${member.name || 'N/A'}
                                     </td>
-                                    <td>${member?.role || 'N/A'}</td>
+                                  
                                     <td>${member.email || 'N/A'}</td>
                                     </tr>`
                                    )
@@ -853,17 +821,7 @@ export const pdfTemplateforMutiples = async (libraries: CAPALibrary[]) => {
                                     >
                                             Name
                                     </th>
-                                    <th
-                                            style="
-                                            background-color: #043b6a;
-                                            color: white;
-                                            font-size: 14px;
-                                            font-weight: 500;
-                                            "
-                                            class="py-2"
-                                    >
-                                            Role
-                                    </th>
+              
                                     <th
                                             style="
                                             background-color: #043b6a;
@@ -890,7 +848,7 @@ export const pdfTemplateforMutiples = async (libraries: CAPALibrary[]) => {
                                             />
                                             ${member.name || 'N/A'}
                                     </td>
-                                    <td>${member?.role || 'N/A'}</td>
+                            
                                     <td>${member.email || 'N/A'}</td>
                                     </tr>`
                                    )

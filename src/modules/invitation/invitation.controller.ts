@@ -32,6 +32,11 @@ export const getInvitations = catchAsync(async (req: Request, res: Response) => 
   const invitations = await invitationService.getInvitationsByInvitedBy(req.user?._id as string,Number(req.query['page']) || 1, Number(req.query['limit']) || 10, req.query['search'] as string);
   res.status(200).json({ message: 'Invitations fetched successfully', data: invitations });
 });
+ 
+export const getInvitationsByWorkspace = catchAsync(async (req: Request, res: Response) => {
+  const invitations = await invitationService.getInvitationsByWorkspace(req.params['workspaceId'] as string, Number(req.query['page']) || 1, Number(req.query['limit']) || 10, req.query['search'] as string);
+  res.status(200).json({ message: 'Invitations fetched successfully', data: invitations });
+});
 
 export const getInvitationByToken = catchAsync(async (req: Request, res: Response) => {
   const invitation = await invitationService.getInvitationByToken(req.params['token'] as string);

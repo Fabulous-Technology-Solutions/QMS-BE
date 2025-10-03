@@ -9,7 +9,7 @@ const historyBody = {
     checklistId: joi_1.default.string().required(),
     library: joi_1.default.string().required(),
     comment: joi_1.default.string().required(),
-    createdBy: joi_1.default.string().required(),
+    createdBy: joi_1.default.string(),
     list: joi_1.default.array()
         .items(joi_1.default.object({
         item: joi_1.default.string().required(),

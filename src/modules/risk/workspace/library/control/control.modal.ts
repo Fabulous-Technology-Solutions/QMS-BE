@@ -7,7 +7,7 @@ const controlSchema = new mongoose.Schema<ControlModal>(
     description: { type: String, required: true },
     controlType: { type: String, required: true },
     effectiveness: { type: String, required: true },
-    owners: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true }],
+    owners: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Account', required: true }],
     createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true }
   },
   { timestamps: true }

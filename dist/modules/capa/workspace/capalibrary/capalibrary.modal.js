@@ -25,10 +25,14 @@ const LibrarySchema = new mongoose_1.default.Schema({
         type: mongoose_1.default.Schema.Types.ObjectId,
         ref: 'Site'
     },
-    process: {
-        type: mongoose_1.default.Schema.Types.ObjectId,
-        ref: 'Process'
+    processdata: {
+        process: {
+            type: mongoose_1.default.Schema.Types.ObjectId,
+            ref: 'Process'
+        },
+        subProcess: [{ type: String }]
     },
+    endDate: { type: Date, default: null },
     priority: { type: String, enum: ['low', 'medium', 'high'], default: 'medium' },
     containment: {
         responsibles: [

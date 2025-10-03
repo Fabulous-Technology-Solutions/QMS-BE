@@ -7,7 +7,8 @@ const invitationSchema = new Schema<InvitationDoc>(
     Permissions: [
       {
         workspace: { type: mongoose.Schema.Types.ObjectId, ref: 'Workspace', required: true },
-        permission: { type: String, enum: ['admin', 'view', 'edit'], required: true },
+        roleId: { type: mongoose.Schema.Types.ObjectId, ref: 'Role' },
+        permission: { type: String, enum: ['admin', 'view', 'edit'], default: 'view' },
       },
     ],
     status: { type: String, enum: ['pending', 'accepted'], required: true },

@@ -107,7 +107,7 @@ exports.addMemberToLibraryController = (0, catchAsync_1.default)(async (req, res
 exports.getLibrariesForUser = (0, catchAsync_1.default)(async (req, res) => {
     const userId = req.user._id;
     const { page = 1, limit = 10, search = '' } = req.query;
-    const libraries = await (0, risklibrary_service_1.getLibrariesByManager)(req.params["workspaceId"], userId || '', Number(page), Number(limit), search);
+    const libraries = await (0, risklibrary_service_1.getLibrariesByManager)(req.params["workspaceId"], req.headers['accountid'] || userId || '', Number(page), Number(limit), search);
     res.status(200).json(libraries);
 });
 exports.RestoreLibrary = (0, catchAsync_1.default)(async (req, res) => {

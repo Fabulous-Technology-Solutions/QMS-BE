@@ -8,7 +8,7 @@ const ChecklistHistorySchema = new mongoose_1.default.Schema({
     checklistId: { type: mongoose_1.default.Schema.Types.ObjectId, ref: 'Checklist', required: true },
     library: { type: mongoose_1.default.Schema.Types.ObjectId, ref: 'Library', required: true },
     comment: { type: String, required: true },
-    createdBy: { type: mongoose_1.default.Schema.Types.ObjectId, ref: 'User', required: true },
+    createdBy: { type: mongoose_1.default.Schema.Types.ObjectId, ref: 'User' },
     list: [
         {
             item: { type: mongoose_1.default.Schema.Types.ObjectId, ref: 'CheckListItem', required: true },

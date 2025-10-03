@@ -94,7 +94,7 @@ const getProcessByModuleIdService = async (moduleId, options) => {
     };
 };
 const getProcessNamesByModuleService = async (moduleId) => {
-    return await process_modal_1.default.find({ modules: { $in: [moduleId] } }).select('name');
+    return await process_modal_1.default.find({ modules: { $in: [moduleId] } }).select('name subProcesses');
 };
 const getProcessesBySiteService = async (siteId, options) => {
     const { page = 1, limit = 10, search = '' } = options || {};

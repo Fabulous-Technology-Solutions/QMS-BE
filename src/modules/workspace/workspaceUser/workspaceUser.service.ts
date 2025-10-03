@@ -216,6 +216,7 @@ export const getWorkspaceUsers = async (workspaceId: string, page: number, limit
         name: '$user.name',
         email: '$user.email',
         status: 1,
+        role:'$workspaceRole',
         workspaceRole: '$permission.permission',
         workspace: 1,
         profilePicture: '$user.profilePicture',

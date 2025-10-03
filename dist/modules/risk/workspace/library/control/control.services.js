@@ -13,18 +13,53 @@ const createActionService = async (data) => {
 exports.createActionService = createActionService;
 const getAllControlService = async (libraryId, page = 1, limit = 10, search) => {
     const skip = (page - 1) * limit;
-    const query = { library: libraryId };
+    const matchStage = { library: libraryId };
     if (search) {
-        query.$or = [
+        matchStage.$or = [
             { name: { $regex: search, $options: 'i' } },
             { description: { $regex: search, $options: 'i' } }
         ];
     }
-    const controls = await control_modal_1.default.find(query).populate('owners', 'name profilePicture')
-        .skip(skip)
-        .limit(limit)
-        .sort({ createdAt: -1 });
-    const total = await control_modal_1.default.countDocuments(query);
+    const result = await control_modal_1.default.aggregate([
+        { $match: matchStage },
+        {
+            $lookup: {
+                from: 'accounts',
+                localField: 'owners',
+                foreignField: '_id',
+                as: 'owners',
+                pipeline: [
+                    {
+                        $lookup: {
+                            from: 'users',
+                            localField: 'user',
+                            foreignField: '_id',
+                            as: 'user',
+                            pipeline: [{ $project: { name: 1, email: 1, profilePicture: 1 } }],
+                        },
+                    },
+                    { $unwind: { path: '$user' } },
+                    {
+                        $project: { name: '$user.name', email: '$user.email', profilePicture: '$user.profilePicture', _id: 1 },
+                    },
+                ],
+            },
+        },
+        { $sort: { createdAt: -1 } },
+        {
+            $facet: {
+                controls: [
+                    { $skip: skip },
+                    { $limit: limit }
+                ],
+                totalCount: [
+                    { $count: "total" }
+                ]
+            }
+        }
+    ]);
+    const controls = result[0].controls;
+    const total = result[0].totalCount[0]?.total || 0;
     return {
         controls,
         total,
@@ -34,7 +69,33 @@ const getAllControlService = async (libraryId, page = 1, limit = 10, search) => 
 };
 exports.getAllControlService = getAllControlService;
 const getControlByIdService = async (id) => {
-    const control = await control_modal_1.default.findById(id).populate('owners', 'name profilePicture');
+    const result = await control_modal_1.default.aggregate([
+        { $match: { _id: new (require('mongoose')).Types.ObjectId(id) } },
+        {
+            $lookup: {
+                from: 'accounts',
+                localField: 'owners',
+                foreignField: '_id',
+                as: 'owners',
+                pipeline: [
+                    {
+                        $lookup: {
+                            from: 'users',
+                            localField: 'user',
+                            foreignField: '_id',
+                            as: 'user',
+                            pipeline: [{ $project: { name: 1, email: 1, profilePicture: 1 } }],
+                        },
+                    },
+                    { $unwind: { path: '$user' } },
+                    {
+                        $project: { name: '$user.name', email: '$user.email', profilePicture: '$user.profilePicture', _id: 1 },
+                    },
+                ],
+            },
+        }
+    ]);
+    const control = result[0];
     if (!control) {
         throw new ApiError_1.default('Control not found', 404);
     }

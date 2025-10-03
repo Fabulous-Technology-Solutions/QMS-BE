@@ -144,7 +144,7 @@ const getworkspaceusersnames = async (workspaceId) => {
             $project: {
                 _id: 1,
                 name: '$user.name',
-                profilePicture: '$user.profilePicture'
+                profilePicture: '$user.profilePicture',
             },
         },
     ]);
@@ -224,6 +224,7 @@ const getWorkspaceUsers = async (workspaceId, page, limit, search) => {
                 name: '$user.name',
                 email: '$user.email',
                 status: 1,
+                role: '$workspaceRole',
                 workspaceRole: '$permission.permission',
                 workspace: 1,
                 profilePicture: '$user.profilePicture',
@@ -232,16 +233,8 @@ const getWorkspaceUsers = async (workspaceId, page, limit, search) => {
         },
     ];
     const [users, totalCount] = await Promise.all([
-        account_modal_1.default.aggregate([
-            ...pipeline,
-            { $sort: { name: 1 } },
-            { $skip: (page - 1) * limit },
-            { $limit: limit },
-        ]),
-        account_modal_1.default.aggregate([
-            ...pipeline,
-            { $count: 'total' }
-        ]).then(result => result[0]?.total || 0)
+        account_modal_1.default.aggregate([...pipeline, { $sort: { name: 1 } }, { $skip: (page - 1) * limit }, { $limit: limit }]),
+        account_modal_1.default.aggregate([...pipeline, { $count: 'total' }]).then((result) => result[0]?.total || 0),
     ]);
     return { users, page, limit, total: totalCount };
 };

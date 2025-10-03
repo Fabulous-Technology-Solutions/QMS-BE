@@ -221,6 +221,8 @@ const getActionsByLibrary = async (libraryId, page = 1, limit = 10, search = '')
                 createdBy: { name: 1, email: 1, profilePicture: 1, _id: 1 },
                 assignedTo: { name: 1, email: 1, profilePicture: 1, _id: 1 },
                 library: { name: 1, description: 1, _id: 1 },
+                docfile: 1,
+                docfileKey: 1
             },
         },
         {

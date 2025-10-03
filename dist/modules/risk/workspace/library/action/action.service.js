@@ -161,10 +161,25 @@ const getActionsByLibrary = async (libraryId, page = 1, limit = 10, search = '')
         { $unwind: { path: '$createdBy', preserveNullAndEmptyArrays: true } },
         {
             $lookup: {
-                from: 'users',
+                from: 'accounts',
                 localField: 'assignedTo',
                 foreignField: '_id',
                 as: 'assignedTo',
+                pipeline: [
+                    {
+                        $lookup: {
+                            from: 'users',
+                            localField: 'user',
+                            foreignField: '_id',
+                            as: 'user',
+                            pipeline: [{ $project: { name: 1, email: 1, profilePicture: 1 } }],
+                        },
+                    },
+                    { $unwind: { path: '$user' } },
+                    {
+                        $project: { name: '$user.name', email: '$user.email', profilePicture: '$user.profilePicture', _id: 1 },
+                    },
+                ],
             },
         },
         {
@@ -359,10 +374,25 @@ const getActionsByAssignedTo = async (userId, page = 1, limit = 10, search = '')
         { $unwind: { path: '$library' } },
         {
             $lookup: {
-                from: 'users',
+                from: 'accounts',
                 localField: 'assignedTo',
                 foreignField: '_id',
                 as: 'assignedTo',
+                pipeline: [
+                    {
+                        $lookup: {
+                            from: 'users',
+                            localField: 'user',
+                            foreignField: '_id',
+                            as: 'user',
+                            pipeline: [{ $project: { name: 1, email: 1, profilePicture: 1 } }],
+                        },
+                    },
+                    { $unwind: { path: '$user' } },
+                    {
+                        $project: { name: '$user.name', email: '$user.email', profilePicture: '$user.profilePicture', _id: 1 },
+                    },
+                ],
             },
         },
         {
@@ -456,10 +486,25 @@ const getActionsByWorkspace = async (workspaceId, page = 1, limit = 10, search =
         { $unwind: { path: '$createdBy', preserveNullAndEmptyArrays: true } },
         {
             $lookup: {
-                from: 'users',
+                from: 'accounts',
                 localField: 'assignedTo',
                 foreignField: '_id',
                 as: 'assignedTo',
+                pipeline: [
+                    {
+                        $lookup: {
+                            from: 'users',
+                            localField: 'user',
+                            foreignField: '_id',
+                            as: 'user',
+                            pipeline: [{ $project: { name: 1, email: 1, profilePicture: 1 } }],
+                        },
+                    },
+                    { $unwind: { path: '$user' } },
+                    {
+                        $project: { name: '$user.name', email: '$user.email', profilePicture: '$user.profilePicture', _id: 1 },
+                    },
+                ],
             },
         },
         {

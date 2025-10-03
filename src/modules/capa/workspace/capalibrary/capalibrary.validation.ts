@@ -21,10 +21,21 @@ const libraryBody: Record<keyof CreateLibraryRequest, any> = {
     "string.empty": `"site" cannot be an empty field`,
     "any.required": `"site" is a required field`
   }),
-  process: Joi.string().messages({
-    "string.base": `"process" should be a type of 'text'`,
-    "string.empty": `"process" cannot be an empty field`,
-    "any.required": `"process" is a required field`
+  processdata: Joi.object({
+    process: Joi.string().messages({
+      "string.base": `"process" should be a type of 'text'`,
+      "string.empty": `"process" cannot be an empty field`,
+      "any.required": `"process" is a required field`
+    }),
+    subProcess: Joi.array().items(Joi.string()).messages({
+      "array.base": `"subProcess" should be an array of 'text'`,
+    }).optional()
+  }).messages({
+    "object.base": `"processdata" should be a type of 'object'`,
+    "any.required": `"processdata" is a required field`
+  }),
+  endDate: Joi.date().allow(null).optional().messages({
+    "date.base": `"endDate" should be a valid date`,
   }),
   workspace: Joi.string().messages({
     "string.base": `"workspace" should be a type of 'text'`,

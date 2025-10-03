@@ -136,14 +136,14 @@ const getLibraryById = async (libraryId) => {
         {
             $lookup: {
                 from: 'processes',
-                localField: 'process',
+                localField: 'processdata.process',
                 foreignField: '_id',
-                as: 'process',
+                as: 'processdata.process',
                 pipeline: [{ $project: { name: 1 } }],
             },
         },
         {
-            $unwind: { path: '$process', preserveNullAndEmptyArrays: true },
+            $unwind: { path: '$processdata.process', preserveNullAndEmptyArrays: true },
         },
     ]);
     if (!data || data.length === 0) {
@@ -250,14 +250,14 @@ const getLibrariesByWorkspace = async (workspaceId, page, limit, search, isDelet
         {
             $lookup: {
                 from: 'processes',
-                localField: 'process',
+                localField: 'processdata.process',
                 foreignField: '_id',
-                as: 'process',
+                as: 'processdata.process',
                 pipeline: [{ $project: { name: 1 } }],
             },
         },
         {
-            $unwind: { path: '$process', preserveNullAndEmptyArrays: true },
+            $unwind: { path: '$processdata.process', preserveNullAndEmptyArrays: true },
         },
         { $skip: (page - 1) * limit },
         { $limit: limit },
@@ -389,6 +389,12 @@ const getLibrariesfilterData = async (workspaceId, page, limit, search) => {
 };
 exports.getLibrariesfilterData = getLibrariesfilterData;
 const updateLibrary = async (libraryId, updateData) => {
+    if (updateData.status === 'completed') {
+        updateData['endDate'] = new Date();
+    }
+    else if (updateData.status === 'pending' || updateData.status === 'in-progress') {
+        updateData['endDate'] = null;
+    }
     const library = await capalibrary_modal_1.LibraryModel.findOneAndUpdate({ _id: libraryId, isDeleted: false }, updateData, { new: true })
         .populate('members', 'name email profilePicture')
         .populate('managers', 'name email profilePicture');
@@ -447,7 +453,7 @@ const removeMemberFromLibrary = async (libraryId, memberId) => {
     if (!library.members.some((member) => member && member['_id'] && member['_id'].toString() === memberId.toString())) {
         throw new Error('Member is not in the library');
     }
-    library.members = library.members.filter((member) => member['_id'].toString() !== memberId.toString());
+    library.members = library.members?.filter((member) => member['_id'].toString() !== memberId.toString());
     console.log('Member removed from library:', memberId, library);
     return await library.save();
 };
@@ -830,7 +836,7 @@ const getLibrariesByManager = async (workspaceId, managerId, page, limit, search
                 from: 'accounts',
                 localField: 'members',
                 foreignField: '_id',
-                as: 'assignedTo',
+                as: 'members',
                 pipeline: [
                     {
                         $lookup: {
@@ -863,14 +869,14 @@ const getLibrariesByManager = async (workspaceId, managerId, page, limit, search
         {
             $lookup: {
                 from: 'processes',
-                localField: 'process',
+                localField: 'processdata.process',
                 foreignField: '_id',
-                as: 'process',
+                as: 'processdata.process',
                 pipeline: [{ $project: { name: 1 } }],
             },
         },
         {
-            $unwind: { path: '$process', preserveNullAndEmptyArrays: true },
+            $unwind: { path: '$processdata.process', preserveNullAndEmptyArrays: true },
         },
         {
             $lookup: {
@@ -963,11 +969,11 @@ const generateReport = async (libraryId) => {
                     from: 'accounts',
                     localField: 'members',
                     foreignField: '_id',
-                    as: 'assignedTo',
+                    as: 'members',
                     pipeline: [
                         {
                             $lookup: {
-                                from: 'members',
+                                from: 'users',
                                 localField: 'user',
                                 foreignField: '_id',
                                 as: 'user',
@@ -1225,7 +1231,7 @@ const generateFilterReport = async (workspaceId, site, process, status) => {
         const query = {
             workspace: new mongoose_1.default.Types.ObjectId(workspaceId),
             ...(site && { site: new mongoose_1.default.Types.ObjectId(site) }),
-            ...(process && { process: new mongoose_1.default.Types.ObjectId(process) }),
+            ...(process && { 'processdata.process': new mongoose_1.default.Types.ObjectId(process) }),
             ...(status && { status }),
         };
         const findLibraries = await capalibrary_modal_1.LibraryModel.aggregate([

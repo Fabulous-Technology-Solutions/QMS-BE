@@ -6,13 +6,13 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const mongoose_1 = __importDefault(require("mongoose"));
 const actionSchema = new mongoose_1.default.Schema({
     name: { type: String, required: true },
-    description: { type: String, required: true },
+    description: { type: String },
     createdBy: { type: mongoose_1.default.Schema.Types.ObjectId, ref: 'User', required: true },
     assignedTo: [{ type: mongoose_1.default.Schema.Types.ObjectId, ref: 'Account', required: true }],
     library: { type: mongoose_1.default.Schema.Types.ObjectId, ref: 'Library', required: true },
     priority: { type: String, enum: ['low', 'medium', 'high'], default: 'medium' },
     type: { type: String, enum: ['preventive', 'corrective'], default: 'preventive' },
-    endDate: { type: Date, required: true },
+    endDate: { type: Date },
     startDate: { type: Date, required: true },
     status: { type: String, enum: ['pending', 'in-progress', 'completed', 'on-hold'], default: 'pending' },
     docfile: { type: String, required: false },

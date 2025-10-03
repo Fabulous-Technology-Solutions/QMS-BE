@@ -25,10 +25,21 @@ const libraryBody = {
         "string.empty": `"site" cannot be an empty field`,
         "any.required": `"site" is a required field`
     }),
-    process: joi_1.default.string().messages({
-        "string.base": `"process" should be a type of 'text'`,
-        "string.empty": `"process" cannot be an empty field`,
-        "any.required": `"process" is a required field`
+    processdata: joi_1.default.object({
+        process: joi_1.default.string().messages({
+            "string.base": `"process" should be a type of 'text'`,
+            "string.empty": `"process" cannot be an empty field`,
+            "any.required": `"process" is a required field`
+        }),
+        subProcess: joi_1.default.array().items(joi_1.default.string()).messages({
+            "array.base": `"subProcess" should be an array of 'text'`,
+        }).optional()
+    }).messages({
+        "object.base": `"processdata" should be a type of 'object'`,
+        "any.required": `"processdata" is a required field`
+    }),
+    endDate: joi_1.default.date().allow(null).optional().messages({
+        "date.base": `"endDate" should be a valid date`,
     }),
     workspace: joi_1.default.string().messages({
         "string.base": `"workspace" should be a type of 'text'`,

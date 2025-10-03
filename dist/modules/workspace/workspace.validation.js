@@ -13,7 +13,7 @@ const capaworkspaceBody = {
     description: joi_1.default.string().optional(),
 };
 exports.createCapa = {
-    body: joi_1.default.object().keys(capaworkspaceBody).fork(['moduleId', "name", "imageUrl", "imagekey", "description"], (schema) => schema.required()),
+    body: joi_1.default.object().keys(capaworkspaceBody).fork(['moduleId', "imagekey", "description"], (schema) => schema.required()),
 };
 exports.updateCapa = {
     body: joi_1.default.object().keys(capaworkspaceBody).min(1),

@@ -180,7 +180,7 @@ export const updateContainmentController = catchAsync(async (req: Request, res: 
 export const getLibrariesForUser = catchAsync(async (req: Request, res: Response) => {
   const userId = req.user._id as string;
   const { page = 1, limit = 10, search = '' } = req.query;
-  const libraries = await getLibrariesByManager(req.params["workspaceId"] as string, userId || '', Number(page), Number(limit), search as string);
+  const libraries = await getLibrariesByManager(req.params["workspaceId"] as string, req.headers['accountid']?.toString() || userId, Number(page), Number(limit), search as string);
   res.status(200).json(libraries);
 });
 

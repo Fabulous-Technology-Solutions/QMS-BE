@@ -9,6 +9,8 @@ const causesBody = {
     name: joi_1.default.string().required(),
     description: joi_1.default.string().required(),
     library: joi_1.default.string().required(),
+    fileUrl: joi_1.default.string().uri().optional(),
+    fileKey: joi_1.default.string().optional()
 };
 exports.createCausesSchema = joi_1.default.object().keys(causesBody).fork(['name', 'description', 'library'], (schema) => schema.required());
 exports.updateCausesSchema = joi_1.default.object().keys(causesBody).min(1).messages({

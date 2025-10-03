@@ -11,7 +11,7 @@ export const createInvitation = async (invitation: Invitation) => {
     status: 'pending',
     role: invitation.role,
     ...(invitation.role === 'workspaceUser' && {
-      'Permissions.permission': { $in: invitation?.Permissions?.flatMap((item) => item.permission) || [] },
+      'Permissions.workspace': { $in: invitation?.Permissions?.flatMap((item) => item.workspace) || [] },
     }),
   }).lean();
 
@@ -35,6 +35,9 @@ export const createInvitation = async (invitation: Invitation) => {
         $and: [
           {
             role: invitation.role === 'workspaceUser' ? 'workspaceUser' : 'admin',
+            ...(invitation.role === 'workspaceUser' && {
+              'Permissions.workspace': { $in: invitation?.Permissions?.flatMap((item) => item.workspace) || [] },
+            }),
           },
         ],
       },
@@ -76,6 +79,39 @@ export const getInvitationsByInvitedBy = async (invitedBy: string, page: number,
     role: { $in: ['admin', 'standardUser'] },
     status: 'pending',
   };
+
+  if (search) {
+    query.$or = [
+      { email: { $regex: search, $options: 'i' } },
+      { role: { $regex: search, $options: 'i' } },
+      { status: { $regex: search, $options: 'i' } },
+    ];
+  }
+
+  const [invitations, total] = await Promise.all([
+    InvitationModal.find(query).skip(skip).limit(limit).lean(),
+    InvitationModal.countDocuments(query),
+  ]);
+
+  return {
+    invitations,
+    total,
+    page,
+    limit,
+    totalPages: Math.ceil(total / limit),
+  };
+};
+
+export const getInvitationsByWorkspace = async (workspaceId: string, page: number, limit: number, search?: string) => {
+  const skip = (page - 1) * limit;
+
+  const query: any = {
+    'Permissions.workspace': workspaceId,
+    role: { $in: ['workspaceUser'] },
+    status: 'pending',
+  };
+   
+  
 
   if (search) {
     query.$or = [

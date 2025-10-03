@@ -1,41 +1,44 @@
-import {capaEdit, capaWAdmin, capaView,capaSubadminRoles,capaadminRoles ,capastandardUser} from './modulesRole/capa.role';
-import { RiskadminRoles ,RiskstandardUser,RiskSubadminRoles,RiskEditer,RiskViewer,RiskWAdmin} from './modulesRole/risk.role';
+import {capaEdit, capaWAdmin, capaView,capaadminRoles} from './modulesRole/capa.role';
+import { RiskadminRoles ,RiskEditer,RiskViewer,RiskWAdmin} from './modulesRole/risk.role';
 
 const allRoles = {
-  admin: ['getUsers', 'manageCapa', 'buySubscription', 'getSubscriptions', 'manageUsers', 'manageSites', 'manageProcesses',
+  admin: ['getUsers', 'manageCapa', 'buySubscription', 'getSubscriptions', 'manageUsers', 'manageSites', 'manageProcesses','getWorkspaceById',
     ...capaadminRoles,
     ...RiskadminRoles
   ],
-  subAdmin: {
-    subAdmin: [
-      'getUsers',
-      'manageCapa',
-      'getSubscriptions',
-      'manageUsers',
-      'manageSites',
-      'manageProcesses',
-      ...capaSubadminRoles,
-      ...RiskSubadminRoles
-    ],
-    standardUser: [
-      'getSubscriptions',
-      'manageCapa',
-      'getWorkspaceUsers',
-      ...capastandardUser,
-      ...RiskstandardUser
-    ],
-  },
+  // subAdmin: {
+  //   subAdmin: [
+  //     'getUsers',
+  //     'manageCapa',
+  //     'getSubscriptions',
+  //     'manageUsers',
+  //     'manageSites',
+  //     'manageProcesses',
+  //     ...capaSubadminRoles,
+  //     ...RiskSubadminRoles
+  //   ],
+  //   standardUser: [
+  //     'getSubscriptions',
+  //     'manageCapa',
+  //     'getWorkspaceUsers',
+  //     ...capastandardUser,
+  //     ...RiskstandardUser
+  //   ],
+  // },
 
   workspaceUser: {
     view: [
+      'getWorkspaceById',
       ...capaView,
       ...RiskViewer
     ],
     edit: [
+      'getWorkspaceById',
       ...capaEdit,
       ...RiskEditer
     ],
-    w_admin: [
+    admin: [
+      'getWorkspaceById',
       ...capaWAdmin,
       ...RiskWAdmin
     ],

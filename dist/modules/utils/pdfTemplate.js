@@ -2,14 +2,14 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.pdfTemplateforMutiples = exports.pdfTemplate = void 0;
 const getEffectivenessScore = (list) => {
-    const totalSelected = list.filter((item) => item.yes || item.no || item.partial).length;
+    const totalSelected = list?.filter((item) => item.yes || item.no || item.partial).length;
     const score = (totalSelected / (list.length * 3)) * 100;
     return score || 0;
 };
 const calculateEffectiveness = (list) => {
-    const no = list.filter((i) => i.no).length;
-    const partial = list.filter((i) => i.partial).length;
-    const yes = list.filter((i) => i.yes).length;
+    const no = list?.filter((i) => i.no).length;
+    const partial = list?.filter((i) => i.partial).length;
+    const yes = list?.filter((i) => i.yes).length;
     return {
         no,
         partial,
@@ -104,13 +104,13 @@ const pdfTemplate = async (findLibrary) => {
                                     <strong
                                     style="color: #0049b7; font-size: 14px; font-weight: 500"
                                     >Start Date</strong
-                                    ><br />${findLibrary?.startDate ? new Date(findLibrary?.startDate).toLocaleDateString() : 'N/A'}
+                                    ><br />${findLibrary?.createdAt ? new Date(findLibrary?.createdAt).toLocaleDateString() : 'N/A'}
                             </div>
                             <div class="col-4">
                                     <strong
                                     style="color: #0049b7; font-size: 14px; font-weight: 500"
                                     >End Date</strong
-                                    ><br />${findLibrary?.dueDate ? new Date(findLibrary?.dueDate).toLocaleDateString() : 'N/A'}
+                                    ><br />${findLibrary?.endDate ? new Date(findLibrary?.endDate).toLocaleDateString() : 'N/A'}
                             </div>
                             </div>
                     </div>
@@ -156,17 +156,6 @@ const pdfTemplate = async (findLibrary) => {
                                             "
                                             class="py-2"
                                     >
-                                            Role
-                                    </th>
-                                    <th
-                                            style="
-                                            background-color: #043b6a;
-                                            color: white;
-                                            font-size: 14px;
-                                            font-weight: 500;
-                                            "
-                                            class="py-2"
-                                    >
                                             Email
                                     </th>
                                     </tr>
@@ -183,7 +172,6 @@ const pdfTemplate = async (findLibrary) => {
                                             />
                                             ${member.name || 'N/A'}
                                     </td>
-                                    <td>${member?.role || 'N/A'}</td>
                                     <td>${member.email || 'N/A'}</td>
                                     </tr>`)
         .join('')}
@@ -213,17 +201,7 @@ const pdfTemplate = async (findLibrary) => {
                                     >
                                             Name
                                     </th>
-                                    <th
-                                            style="
-                                            background-color: #043b6a;
-                                            color: white;
-                                            font-size: 14px;
-                                            font-weight: 500;
-                                            "
-                                            class="py-2"
-                                    >
-                                            Role
-                                    </th>
+     
                                     <th
                                             style="
                                             background-color: #043b6a;
@@ -249,7 +227,7 @@ const pdfTemplate = async (findLibrary) => {
                                             />
                                             ${member.name || 'N/A'}
                                     </td>
-                                    <td>${member?.role || 'N/A'}</td>
+                                    
                                     <td>${member.email || 'N/A'}</td>
                                     </tr>`)
         .join('')}
@@ -649,13 +627,13 @@ const pdfTemplateforMutiples = async (libraries) => {
                                     <strong
                                     style="color: #0049b7; font-size: 14px; font-weight: 500"
                                     >Start Date</strong
-                                    ><br />${findLibrary?.startDate ? new Date(findLibrary?.startDate).toLocaleDateString() : 'N/A'}
+                                    ><br />${findLibrary?.createdAt ? new Date(findLibrary?.createdAt).toLocaleDateString() : 'N/A'}
                             </div>
                             <div class="col-4">
                                     <strong
                                     style="color: #0049b7; font-size: 14px; font-weight: 500"
                                     >End Date</strong
-                                    ><br />${findLibrary?.dueDate ? new Date(findLibrary?.dueDate).toLocaleDateString() : 'N/A'}
+                                    ><br />${findLibrary?.endDate ? new Date(findLibrary?.endDate).toLocaleDateString() : 'N/A'}
                             </div>
                             </div>
                     </div>
@@ -692,17 +670,7 @@ const pdfTemplateforMutiples = async (libraries) => {
                                     >
                                             Name
                                     </th>
-                                    <th
-                                            style="
-                                            background-color: #043b6a;
-                                            color: white;
-                                            font-size: 14px;
-                                            font-weight: 500;
-                                            "
-                                            class="py-2"
-                                    >
-                                            Role
-                                    </th>
+      
                                     <th
                                             style="
                                             background-color: #043b6a;
@@ -728,7 +696,7 @@ const pdfTemplateforMutiples = async (libraries) => {
                                             />
                                             ${member.name || 'N/A'}
                                     </td>
-                                    <td>${member?.role || 'N/A'}</td>
+                                  
                                     <td>${member.email || 'N/A'}</td>
                                     </tr>`)
         .join('')}
@@ -758,17 +726,7 @@ const pdfTemplateforMutiples = async (libraries) => {
                                     >
                                             Name
                                     </th>
-                                    <th
-                                            style="
-                                            background-color: #043b6a;
-                                            color: white;
-                                            font-size: 14px;
-                                            font-weight: 500;
-                                            "
-                                            class="py-2"
-                                    >
-                                            Role
-                                    </th>
+              
                                     <th
                                             style="
                                             background-color: #043b6a;
@@ -794,7 +752,7 @@ const pdfTemplateforMutiples = async (libraries) => {
                                             />
                                             ${member.name || 'N/A'}
                                     </td>
-                                    <td>${member?.role || 'N/A'}</td>
+                            
                                     <td>${member.email || 'N/A'}</td>
                                     </tr>`)
         .join('')}
