@@ -37,12 +37,7 @@ const allRoles = {
             'getWorkspaceById',
             ...capa_role_1.capaEdit,
             ...risk_role_1.RiskEditer
-        ],
-        admin: [
-            'getWorkspaceById',
-            ...capa_role_1.capaWAdmin,
-            ...risk_role_1.RiskWAdmin
-        ],
+        ]
     },
 };
 exports.roles = Object.keys(allRoles);

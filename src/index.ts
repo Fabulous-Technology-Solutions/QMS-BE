@@ -20,6 +20,9 @@ mongoose.connect(config.mongoose.url).then(() => {
   initializeSocket(server);
   logger.info('Connected to MongoDB database');
   logger.info('Server timeouts configured for long-running operations');
+  // seedPlans();
+
+
 });
 
 

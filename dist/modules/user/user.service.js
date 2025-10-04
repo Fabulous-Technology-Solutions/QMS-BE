@@ -143,10 +143,14 @@ const getme = async (userId) => {
                             _id: '$accountId',
                             role: { $first: '$role' },
                             status: { $first: '$status' },
-                            orgName: { $first: '$userDetails.orgName' }
+                            orgName: { $first: '$userDetails.orgName' },
+                            createdAt: { $first: '$createdAt' }
                         }
                     },
-                    { $project: { _id: 1, role: 1, status: 1, orgName: 1 } },
+                    {
+                        $sort: { createdAt: 1 }
+                    },
+                    { $project: { _id: 1, role: 1, status: 1, orgName: 1, createdAt: 1 } },
                 ],
             },
         },

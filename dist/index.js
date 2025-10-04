@@ -21,6 +21,7 @@ mongoose_1.default.connect(config_1.default.mongoose.url).then(() => {
     (0, socket_initialize_1.initializeSocket)(server);
     logger_1.default.info('Connected to MongoDB database');
     logger_1.default.info('Server timeouts configured for long-running operations');
+    // seedPlans();
 });
 const exitHandler = () => {
     if (server) {
