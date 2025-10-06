@@ -5,7 +5,6 @@ const SiteBody: Record<keyof createSite, Joi.Schema> = {
   name: Joi.string().max(100).required(),
   location: Joi.string().max(100).required(),
   timeZone: Joi.string().max(100).required(),
-  siteCode: Joi.string().max(100),
   note: Joi.string().max(500).required(),
   createdBy: Joi.string(),
   modules: Joi.array().items(Joi.string()).optional(),

@@ -175,6 +175,11 @@ export const switchAccount = async (userId: string, accountId: string) => {
         as: 'workspaceDetails',
         pipeline: [
           {
+            $match: {
+              isDeleted: false,
+            },
+          },
+          {
             $lookup: {
               from: 'subscriptions',
               localField: 'moduleId',
@@ -259,6 +264,7 @@ export const getModuleWorkspaces = async (
           {
             $match: {
               moduleId: new mongoose.Types.ObjectId(moduleId),
+              isDeleted: false,
             },
           },
           {

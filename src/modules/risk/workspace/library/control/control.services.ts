@@ -1,6 +1,7 @@
 import ControlModel from './control.modal';
 import { CreateControl } from './control.interfaces';
 import ApiError from '../../../../errors/ApiError';
+import mongoose from 'mongoose';
 
 const createActionService = async (data: CreateControl) => {
   const control = new ControlModel(data);
@@ -10,7 +11,7 @@ const createActionService = async (data: CreateControl) => {
 const getAllControlService = async (libraryId: string, page: number = 1, limit: number = 10, search?: string) => {
   const skip = (page - 1) * limit;
 
-  const matchStage: any = { library: libraryId };
+  const matchStage: any = { library: new mongoose.Types.ObjectId(libraryId) };
 
   if (search) {
     matchStage.$or = [

@@ -31,11 +31,25 @@ const getActionById = async (actionId, userId) => {
         { $unwind: { path: '$createdBy', preserveNullAndEmptyArrays: true } },
         {
             $lookup: {
-                from: 'users',
+                from: 'accounts',
                 localField: 'assignedTo',
                 foreignField: '_id',
                 as: 'assignedTo',
-                // pipeline: [{ $match: { isDeleted: false } }]
+                pipeline: [
+                    {
+                        $lookup: {
+                            from: 'users',
+                            localField: 'user',
+                            foreignField: '_id',
+                            as: 'user',
+                            pipeline: [{ $project: { name: 1, email: 1, profilePicture: 1 } }],
+                        },
+                    },
+                    { $unwind: { path: '$user' } },
+                    {
+                        $project: { name: '$user.name', email: '$user.email', profilePicture: '$user.profilePicture', _id: 1 },
+                    },
+                ],
             },
         },
         {
@@ -322,6 +336,7 @@ const deleteAction = async (actionId, userId) => {
 exports.deleteAction = deleteAction;
 const getActionsByAssignedTo = async (userId, page = 1, limit = 10, search = '') => {
     const userObjectId = new mongoose_1.default.Types.ObjectId(userId);
+    console.log('userObjectId', userObjectId);
     const matchStage = {
         assignedTo: { $in: [userObjectId] },
         isDeleted: false,
@@ -330,10 +345,7 @@ const getActionsByAssignedTo = async (userId, page = 1, limit = 10, search = '')
         ? [
             {
                 $match: {
-                    $or: [
-                        { name: { $regex: search, $options: 'i' } },
-                        { description: { $regex: search, $options: 'i' } },
-                    ],
+                    $or: [{ name: { $regex: search, $options: 'i' } }, { description: { $regex: search, $options: 'i' } }],
                 },
             },
         ]
@@ -360,10 +372,7 @@ const getActionsByAssignedTo = async (userId, page = 1, limit = 10, search = '')
                     {
                         $match: {
                             $expr: {
-                                $and: [
-                                    { $eq: ['$_id', '$$libraryId'] },
-                                    { $eq: ['$isDeleted', false] }
-                                ]
+                                $and: [{ $eq: ['$_id', '$$libraryId'] }, { $eq: ['$isDeleted', false] }],
                             },
                         },
                     },
@@ -388,7 +397,7 @@ const getActionsByAssignedTo = async (userId, page = 1, limit = 10, search = '')
                             pipeline: [{ $project: { name: 1, email: 1, profilePicture: 1 } }],
                         },
                     },
-                    { $unwind: { path: '$user' } },
+                    { $unwind: { path: '$user', preserveNullAndEmptyArrays: true } },
                     {
                         $project: { name: '$user.name', email: '$user.email', profilePicture: '$user.profilePicture', _id: 1 },
                     },
@@ -429,6 +438,7 @@ const getActionsByAssignedTo = async (userId, page = 1, limit = 10, search = '')
             },
         },
     ]);
+    console.log('actions...', result);
     const actions = result[0]?.data || [];
     const total = result[0]?.totalCount[0]?.count || 0;
     return {

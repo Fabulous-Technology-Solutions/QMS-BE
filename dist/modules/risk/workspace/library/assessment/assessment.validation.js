@@ -53,7 +53,7 @@ const createAssessmentBody = {
         'boolean.base': 'Approval must be a boolean',
     }),
 };
-const createAssessmentSchema = { body: joi_1.default.object().keys(createAssessmentBody).fork(['name', 'library', 'createdBy', 'evaluator', 'probability', 'impact'], (schema) => schema.required()) };
+const createAssessmentSchema = { body: joi_1.default.object().keys(createAssessmentBody).fork(['name', 'library', 'evaluator', 'probability', 'impact'], (schema) => schema.required()) };
 exports.createAssessmentSchema = createAssessmentSchema;
 const updateAssessmentSchema = { body: joi_1.default.object().keys(createAssessmentBody) };
 exports.updateAssessmentSchema = updateAssessmentSchema;

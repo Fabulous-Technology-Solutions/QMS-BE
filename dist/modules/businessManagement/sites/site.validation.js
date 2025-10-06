@@ -9,7 +9,6 @@ const SiteBody = {
     name: joi_1.default.string().max(100).required(),
     location: joi_1.default.string().max(100).required(),
     timeZone: joi_1.default.string().max(100).required(),
-    siteCode: joi_1.default.string().max(100),
     note: joi_1.default.string().max(500).required(),
     createdBy: joi_1.default.string(),
     modules: joi_1.default.array().items(joi_1.default.string()).optional(),

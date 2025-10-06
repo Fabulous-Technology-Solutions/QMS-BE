@@ -28,11 +28,25 @@ export const getActionById = async (actionId: string, userId: string | undefined
     { $unwind: { path: '$createdBy', preserveNullAndEmptyArrays: true } },
     {
       $lookup: {
-        from: 'users',
+        from: 'accounts',
         localField: 'assignedTo',
         foreignField: '_id',
         as: 'assignedTo',
-        // pipeline: [{ $match: { isDeleted: false } }]
+        pipeline: [
+          {
+            $lookup: {
+              from: 'users',
+              localField: 'user',
+              foreignField: '_id',
+              as: 'user',
+              pipeline: [{ $project: { name: 1, email: 1, profilePicture: 1 } }],
+            },
+          },
+          { $unwind: { path: '$user' } },
+          {
+            $project: { name: '$user.name', email: '$user.email', profilePicture: '$user.profilePicture', _id: 1 },
+          },
+        ],
       },
     },
     {
@@ -165,29 +179,29 @@ export const getActionsByLibrary = async (libraryId: string, page: number = 1, l
       },
     },
     { $unwind: { path: '$createdBy', preserveNullAndEmptyArrays: true } },
-     {
-        $lookup: {
-          from: 'accounts',
-          localField: 'assignedTo',
-          foreignField: '_id',
-          as: 'assignedTo',
-          pipeline: [
-            {
-              $lookup: {
-                from: 'users',
-                localField: 'user',
-                foreignField: '_id',
-                as: 'user',
-                pipeline: [{ $project: { name: 1, email: 1, profilePicture: 1 } }],
-              },
+    {
+      $lookup: {
+        from: 'accounts',
+        localField: 'assignedTo',
+        foreignField: '_id',
+        as: 'assignedTo',
+        pipeline: [
+          {
+            $lookup: {
+              from: 'users',
+              localField: 'user',
+              foreignField: '_id',
+              as: 'user',
+              pipeline: [{ $project: { name: 1, email: 1, profilePicture: 1 } }],
             },
-            { $unwind: { path: '$user' } },
-            {
-              $project: { name: '$user.name', email: '$user.email', profilePicture: '$user.profilePicture', _id: 1 },
-            },
-          ],
-        },
+          },
+          { $unwind: { path: '$user' } },
+          {
+            $project: { name: '$user.name', email: '$user.email', profilePicture: '$user.profilePicture', _id: 1 },
+          },
+        ],
       },
+    },
     {
       $lookup: {
         from: 'riskcauses',
@@ -210,7 +224,7 @@ export const getActionsByLibrary = async (libraryId: string, page: number = 1, l
         cause: { name: 1, description: 1, _id: 1 },
         createdBy: { name: 1, email: 1, profilePicture: 1, _id: 1 },
         assignedTo: { name: 1, email: 1, profilePicture: 1, _id: 1 },
-        library: { name: 1, description: 1 ,_id: 1},
+        library: { name: 1, description: 1, _id: 1 },
         personnel: 1,
         budget: 1,
       },
@@ -237,7 +251,7 @@ export const getActionsByLibrary = async (libraryId: string, page: number = 1, l
             $addFields: {
               counts: {
                 $map: {
-                  input: ['open', 'in-progress','closed'],
+                  input: ['open', 'in-progress', 'closed'],
                   as: 'status',
                   in: {
                     status: '$$status',
@@ -333,13 +347,10 @@ export const deleteAction = async (actionId: string, userId: string | undefined)
   return action;
 };
 
-export const getActionsByAssignedTo = async (
-  userId: string,
-  page: number = 1,
-  limit: number = 10,
-  search: string = ''
-) => {
+export const getActionsByAssignedTo = async (userId: string, page: number = 1, limit: number = 10, search: string = '') => {
   const userObjectId = new mongoose.Types.ObjectId(userId);
+
+  console.log('userObjectId', userObjectId);
 
   const matchStage = {
     assignedTo: { $in: [userObjectId] },
@@ -350,10 +361,7 @@ export const getActionsByAssignedTo = async (
     ? [
         {
           $match: {
-            $or: [
-              { name: { $regex: search, $options: 'i' } },
-              { description: { $regex: search, $options: 'i' } },
-            ],
+            $or: [{ name: { $regex: search, $options: 'i' } }, { description: { $regex: search, $options: 'i' } }],
           },
         },
       ]
@@ -381,10 +389,7 @@ export const getActionsByAssignedTo = async (
           {
             $match: {
               $expr: {
-                $and: [
-                  { $eq: ['$_id', '$$libraryId'] },
-                  { $eq: ['$isDeleted', false] }
-                ]
+                $and: [{ $eq: ['$_id', '$$libraryId'] }, { $eq: ['$isDeleted', false] }],
               },
             },
           },
@@ -393,29 +398,29 @@ export const getActionsByAssignedTo = async (
       },
     },
     { $unwind: { path: '$library' } },
-     {
-        $lookup: {
-          from: 'accounts',
-          localField: 'assignedTo',
-          foreignField: '_id',
-          as: 'assignedTo',
-          pipeline: [
-            {
-              $lookup: {
-                from: 'users',
-                localField: 'user',
-                foreignField: '_id',
-                as: 'user',
-                pipeline: [{ $project: { name: 1, email: 1, profilePicture: 1 } }],
-              },
+    {
+      $lookup: {
+        from: 'accounts',
+        localField: 'assignedTo',
+        foreignField: '_id',
+        as: 'assignedTo',
+        pipeline: [
+          {
+            $lookup: {
+              from: 'users',
+              localField: 'user',
+              foreignField: '_id',
+              as: 'user',
+              pipeline: [{ $project: { name: 1, email: 1, profilePicture: 1 } }],
             },
-            { $unwind: { path: '$user' } },
-            {
-              $project: { name: '$user.name', email: '$user.email', profilePicture: '$user.profilePicture', _id: 1 },
-            },
-          ],
-        },
+          },
+          { $unwind: { path: '$user', preserveNullAndEmptyArrays: true } },
+          {
+            $project: { name: '$user.name', email: '$user.email', profilePicture: '$user.profilePicture', _id: 1 },
+          },
+        ],
       },
+    },
     {
       $lookup: {
         from: 'riskcauses',
@@ -450,7 +455,7 @@ export const getActionsByAssignedTo = async (
       },
     },
   ]);
-
+  console.log('actions...', result);
   const actions = result[0]?.data || [];
   const total = result[0]?.totalCount[0]?.count || 0;
 
@@ -514,28 +519,28 @@ export const getActionsByWorkspace = async (
     },
     { $unwind: { path: '$createdBy', preserveNullAndEmptyArrays: true } },
     {
-        $lookup: {
-          from: 'accounts',
-          localField: 'assignedTo',
-          foreignField: '_id',
-          as: 'assignedTo',
-          pipeline: [
-            {
-              $lookup: {
-                from: 'users',
-                localField: 'user',
-                foreignField: '_id',
-                as: 'user',
-                pipeline: [{ $project: { name: 1, email: 1, profilePicture: 1 } }],
-              },
+      $lookup: {
+        from: 'accounts',
+        localField: 'assignedTo',
+        foreignField: '_id',
+        as: 'assignedTo',
+        pipeline: [
+          {
+            $lookup: {
+              from: 'users',
+              localField: 'user',
+              foreignField: '_id',
+              as: 'user',
+              pipeline: [{ $project: { name: 1, email: 1, profilePicture: 1 } }],
             },
-            { $unwind: { path: '$user' } },
-            {
-              $project: { name: '$user.name', email: '$user.email', profilePicture: '$user.profilePicture', _id: 1 },
-            },
-          ],
-        },
+          },
+          { $unwind: { path: '$user' } },
+          {
+            $project: { name: '$user.name', email: '$user.email', profilePicture: '$user.profilePicture', _id: 1 },
+          },
+        ],
       },
+    },
 
     {
       $project: {

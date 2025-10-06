@@ -1,10 +1,9 @@
-import { Document, ObjectId } from "mongoose";
+import { Document, ObjectId } from 'mongoose';
 
 export interface ProcessModal extends Document {
   name: string;
   location: string;
-  parentSite: ObjectId; 
-  processCode: string;
+  parentSite: ObjectId[];
   note: string;
   createdBy: ObjectId;
   createdAt: Date;
@@ -15,19 +14,15 @@ export interface ProcessModal extends Document {
   modules?: ObjectId[];
   subProcesses?: string[];
   status?: boolean;
-  acrossMultipleSites?: boolean;
 }
-
 export interface createProcess {
   name?: string;
   location?: string;
-  parentSite?: string;
-  processCode?: string;
+  parentSite?: string[];
   note?: string;
   createdBy?: ObjectId;
   modules?: string[];
   status?: boolean;
-  acrossMultipleSites?: boolean;
 }
 
 export interface ProcessQuery {

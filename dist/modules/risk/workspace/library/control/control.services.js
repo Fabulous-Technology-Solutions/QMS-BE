@@ -6,6 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.deleteControlService = exports.updateControlService = exports.getControlByIdService = exports.getAllControlService = exports.createActionService = void 0;
 const control_modal_1 = __importDefault(require("./control.modal"));
 const ApiError_1 = __importDefault(require("../../../../errors/ApiError"));
+const mongoose_1 = __importDefault(require("mongoose"));
 const createActionService = async (data) => {
     const control = new control_modal_1.default(data);
     return control.save();
@@ -13,7 +14,7 @@ const createActionService = async (data) => {
 exports.createActionService = createActionService;
 const getAllControlService = async (libraryId, page = 1, limit = 10, search) => {
     const skip = (page - 1) * limit;
-    const matchStage = { library: libraryId };
+    const matchStage = { library: new mongoose_1.default.Types.ObjectId(libraryId) };
     if (search) {
         matchStage.$or = [
             { name: { $regex: search, $options: 'i' } },

@@ -4,7 +4,7 @@ import mongoose from "mongoose";
 const AssessmentSchema = new mongoose.Schema<AssessmentModal>({
     name: { type: String, required: true },
     library: { type: mongoose.Schema.Types.ObjectId, ref: 'RiskLibrary', required: true },
-    createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+    createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User'},
     evaluator: { type: mongoose.Schema.Types.ObjectId, ref: 'Account', required: true },
     probability: { type: Number, enum: [1,2,3,4,5], required: true },
     impact: { type: Number, enum: [1,2,3,4,5], required: true },

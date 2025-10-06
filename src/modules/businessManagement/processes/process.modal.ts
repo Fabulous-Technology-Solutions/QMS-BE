@@ -3,8 +3,7 @@ import {ProcessModal} from "./process.interfaces"
 const processSchema = new mongoose.Schema<ProcessModal>({
   name: { type: String, required: true, maxlength: 100 },
   location: { type: String, required: true, maxlength: 100 },
-  parentSite: { type: mongoose.Schema.Types.ObjectId, ref: "Site" },
-  processCode: { type: String, required: true, maxlength: 100 },
+  parentSite: [{ type: mongoose.Schema.Types.ObjectId, ref: "Site" }],
   note: { type: String, required: true, maxlength: 500 },
   createdBy: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
   createdAt: { type: Date, default: Date.now },
@@ -15,7 +14,7 @@ const processSchema = new mongoose.Schema<ProcessModal>({
   modules: [{ type: mongoose.Schema.Types.ObjectId, ref: "Subscription" }],
   subProcesses: [{ type: String }],
   status: { type: Boolean, default: true },
-  acrossMultipleSites: { type: Boolean, default: false },
+
 });
 
 const ProcessModel = mongoose.model<ProcessModal>("Process", processSchema);

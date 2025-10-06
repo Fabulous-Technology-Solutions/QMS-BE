@@ -26,6 +26,7 @@ exports.getMonthlyAssessmentData = exports.getByLibrary = exports.deleteObj = ex
 const AssessmentServices = __importStar(require("./assessment.services"));
 const catchAsync_1 = __importDefault(require("../../../../utils/catchAsync"));
 exports.create = (0, catchAsync_1.default)(async (req, res) => {
+    console.log("req.user", req.user);
     const assessment = await AssessmentServices.createAssessment({
         ...req.body,
         createdBy: req.user._id

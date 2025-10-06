@@ -53,7 +53,7 @@ const createAssessmentBody: Record<keyof CreateAssessmentRequest, any> = {
 
 
 const createAssessmentSchema = { body: Joi.object().keys(createAssessmentBody).fork(
-    ['name', 'library', 'createdBy', 'evaluator','probability', 'impact'],
+    ['name', 'library',  'evaluator','probability', 'impact'],
     (schema) => schema.required()
 )};
 

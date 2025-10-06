@@ -3,6 +3,7 @@ import { Request, Response } from "express";
 import  catchAsync  from "../../../../utils/catchAsync";
 
 export const create = catchAsync(async (req: Request, res: Response) => {
+    console.log("req.user", req.user);
     const assessment = await AssessmentServices.createAssessment({
         ...req.body,
         createdBy: req.user._id

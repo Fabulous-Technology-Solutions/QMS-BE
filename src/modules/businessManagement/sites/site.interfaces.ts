@@ -4,7 +4,6 @@ export interface SiteModal extends Document {
   name: string;
   location: string;
   timeZone: string; 
-  siteCode: string;
   note: string;
   createdBy: ObjectId;
   createdAt: Date;
@@ -20,7 +19,6 @@ export interface createSite {
   name?: string;
   location?: string;
   timeZone?: string;
-  siteCode?: string;
   note?: string;
   createdBy?: ObjectId;
   modules?: string[];

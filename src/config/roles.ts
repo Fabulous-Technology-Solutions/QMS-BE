@@ -6,26 +6,6 @@ const allRoles = {
     ...capaadminRoles,
     ...RiskadminRoles
   ],
-  // subAdmin: {
-  //   subAdmin: [
-  //     'getUsers',
-  //     'manageCapa',
-  //     'getSubscriptions',
-  //     'manageUsers',
-  //     'manageSites',
-  //     'manageProcesses',
-  //     ...capaSubadminRoles,
-  //     ...RiskSubadminRoles
-  //   ],
-  //   standardUser: [
-  //     'getSubscriptions',
-  //     'manageCapa',
-  //     'getWorkspaceUsers',
-  //     ...capastandardUser,
-  //     ...RiskstandardUser
-  //   ],
-  // },
-
   workspaceUser: {
     view: [
       'getWorkspaceById',
