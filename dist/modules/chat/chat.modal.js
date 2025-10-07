@@ -7,7 +7,6 @@ const mongoose_1 = __importDefault(require("mongoose"));
 const chatSchema = new mongoose_1.default.Schema({
     chatOf: { type: String, required: true },
     obj: { type: mongoose_1.default.Schema.Types.ObjectId, refPath: 'chatOf' },
-    workspace: { type: mongoose_1.default.Schema.Types.ObjectId, ref: 'Workspace' },
 }, { timestamps: true });
 const ChatModel = mongoose_1.default.model('Chat', chatSchema);
 exports.default = ChatModel;

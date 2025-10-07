@@ -7,7 +7,8 @@ const user_1 = require("../user");
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const authMiddleWareSocket = async (socket, next) => {
     try {
-        const authorization = socket.handshake.auth['token'];
+        const authorization = socket.handshake.auth['token'] || socket.handshake.headers['token'];
+        console.log('Socket Authorization Header:', authorization, socket.handshake.headers);
         if (!authorization) {
             return next(new Error('You must be logged in'));
         }

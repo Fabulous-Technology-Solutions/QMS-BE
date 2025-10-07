@@ -18,7 +18,7 @@ const LibrarySchema = new mongoose.Schema<LibraryModal>(
     deletedAt: { type: Date },
     status: { type: String, enum: ['pending', 'completed', 'in-progress'], default: 'pending' },
     members: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Account' }],
-    managers: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Account' }],
+    managers: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Account' } ],
     site:{
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Site'

@@ -8,7 +8,8 @@ export interface AuthenticatedSocket extends Socket {
 
 const authMiddleWareSocket = async (socket: AuthenticatedSocket, next: (err?: Error) => void) => {
   try {
-    const authorization = socket.handshake.auth['token'];
+    const authorization = socket.handshake.auth['token'] || socket.handshake.headers['token'];
+    console.log('Socket Authorization Header:', authorization, socket.handshake.headers);
     if (!authorization) {
       return next(new Error('You must be logged in'));
     }

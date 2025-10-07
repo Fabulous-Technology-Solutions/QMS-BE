@@ -17,7 +17,7 @@ const chatEvent = async (io, socket) => {
         const userChats = await chat_modal_1.default.aggregate([
             {
                 $lookup: {
-                    from: 'risklibraries',
+                    from: 'libraries',
                     let: { objId: '$obj' },
                     pipeline: [
                         {
@@ -187,12 +187,8 @@ const chatEvent = async (io, socket) => {
         try {
             let receiverId = data?.receiverId;
             const senderData = user; ////////////////////// this is required for process /////////////////////////
-            if (!data?.chatType) {
-                socket.emit('socket-error', { message: 'chatType is required.' });
-                return;
-            }
-            if (!receiverId && !data?.chatId && data?.chatType !== 'contact') {
-                socket.emit('socket-error', { message: 'Receiver id or chat id is required.' });
+            if (!data?.chatId) {
+                socket.emit('socket-error', { message: 'chatId is required.' });
                 return;
             }
             let allParticipants = [];
@@ -210,14 +206,46 @@ const chatEvent = async (io, socket) => {
                             pipeline: [
                                 {
                                     $match: {
-                                        $expr: { $eq: ['$_id', '$$objId'] }
-                                    }
-                                },
-                                {
-                                    $project: {
-                                        members: 1,
-                                        managers: 1,
-                                        participants: { $setUnion: ['$members', '$managers'] }
+                                        $expr: {
+                                            $and: [
+                                                { $eq: ['$_id', '$$objId'] }
+                                            ]
+                                        }
+                                    },
+                                    $lookup: {
+                                        from: 'workspaces',
+                                        localField: 'workspace',
+                                        foreignField: '_id',
+                                        as: 'workspaceDetails',
+                                        pipeline: [
+                                            {
+                                                $lookup: {
+                                                    from: 'accounts',
+                                                    localField: '_id',
+                                                    foreignField: 'Permissions.workspace',
+                                                    as: 'accountDetails',
+                                                    pipeline: [
+                                                        {
+                                                            $lookup: {
+                                                                from: 'users',
+                                                                localField: 'user',
+                                                                foreignField: '_id',
+                                                                as: 'userDetails',
+                                                                pipeline: [{
+                                                                        $project: { name: 1, profilePicture: 1, email: 1 }
+                                                                    }]
+                                                            }
+                                                        },
+                                                        {
+                                                            $unwind: {
+                                                                path: '$userDetails',
+                                                                preserveNullAndEmptyArrays: true
+                                                            }
+                                                        }
+                                                    ]
+                                                }
+                                            }
+                                        ]
                                     }
                                 }
                             ],
@@ -411,6 +439,23 @@ const chatEvent = async (io, socket) => {
             console.log(error);
             socket.emit('socket-error', { message: 'Failed to send message' });
             return;
+        }
+    });
+    socket.on('get-library-singlechat', async (data) => {
+        try {
+            if (!data?.libraryId) {
+                socket.emit('socket-error', { message: 'Library ID is required' });
+                return;
+            }
+            let libraryChat = await chat_modal_1.default.findOne({ libraryId: data.libraryId });
+            if (!libraryChat) {
+                libraryChat = await chat_modal_1.default.create({ libraryId: data.libraryId, chatOf: 'Library' });
+            }
+            socket.emit('library-singlechat-response', { success: true, chat: libraryChat });
+        }
+        catch (error) {
+            console.log(error);
+            socket.emit('socket-error', { message: 'Failed to retrieve library chats' });
         }
     });
     socket.on('chat message', (msg) => {
