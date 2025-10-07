@@ -20,6 +20,9 @@ const ApiError_2 = __importDefault(require("../errors/ApiError"));
  */
 const loginUserWithEmailAndPassword = async (email, password) => {
     const user = await (0, user_service_1.getUserByEmail)(email);
+    if (user && user.providers.includes('google') && !user.password) {
+        throw new ApiError_1.default('Please login using Google Sign-In', http_status_1.default.BAD_REQUEST);
+    }
     if (!user || !(await user.isPasswordMatch(password))) {
         throw new ApiError_1.default('Incorrect email or password', http_status_1.default.UNAUTHORIZED);
     }

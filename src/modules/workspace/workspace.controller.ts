@@ -118,6 +118,14 @@ export const getCapaworkspaceAnalyticsController = catchAsync(async (req: Reques
     data: analytics,
   });
 });
+
+export const getRiskworkspaceAnalyticsController = catchAsync(async (req: Request, res: Response) => {
+  const analytics = await workspaceService.RiskdashboardAnalytics(req.params['workspaceId'] as string);
+  return res.status(httpStatus.OK).send({
+    success: true,
+    data: analytics,
+  });
+});
 export const AttentionController = catchAsync(async (req: Request, res: Response) => {
   const { page = 1, limit = 10, search = '', filterData } = req.query;
 

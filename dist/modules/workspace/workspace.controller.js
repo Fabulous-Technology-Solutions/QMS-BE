@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.filterPreviewRiskReportController = exports.filterPreviewReportController = exports.AttentionController = exports.getCapaworkspaceAnalyticsController = exports.deleteCapaworkspaceController = exports.updateCapaworkspaceController = exports.getCapaworkspaceByIdController = exports.getAllCapaworkspacesController = exports.createCapaworkspaceController = void 0;
+exports.filterPreviewRiskReportController = exports.filterPreviewReportController = exports.AttentionController = exports.getRiskworkspaceAnalyticsController = exports.getCapaworkspaceAnalyticsController = exports.deleteCapaworkspaceController = exports.updateCapaworkspaceController = exports.getCapaworkspaceByIdController = exports.getAllCapaworkspacesController = exports.createCapaworkspaceController = void 0;
 const index_1 = require("./index");
 const http_status_1 = __importDefault(require("http-status"));
 const catchAsync_1 = __importDefault(require("../utils/catchAsync"));
@@ -96,6 +96,13 @@ exports.deleteCapaworkspaceController = (0, catchAsync_1.default)(async (req, re
 });
 exports.getCapaworkspaceAnalyticsController = (0, catchAsync_1.default)(async (req, res) => {
     const analytics = await index_1.workspaceService.dashboardAnalytics(req.params['workspaceId']);
+    return res.status(http_status_1.default.OK).send({
+        success: true,
+        data: analytics,
+    });
+});
+exports.getRiskworkspaceAnalyticsController = (0, catchAsync_1.default)(async (req, res) => {
+    const analytics = await index_1.workspaceService.RiskdashboardAnalytics(req.params['workspaceId']);
     return res.status(http_status_1.default.OK).send({
         success: true,
         data: analytics,

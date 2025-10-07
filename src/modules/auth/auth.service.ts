@@ -16,6 +16,10 @@ import AppiError from '../errors/ApiError';
  */
 export const loginUserWithEmailAndPassword = async (email: string, password: string): Promise<IUserDoc> => {
   const user = await getUserByEmail(email);
+  if (user && user.providers.includes('google') && !user.password) {
+    throw new ApiError('Please login using Google Sign-In', httpStatus.BAD_REQUEST);
+  }
+
   if (!user || !(await user.isPasswordMatch(password))) {
     throw new ApiError('Incorrect email or password', httpStatus.UNAUTHORIZED);
   }
@@ -55,8 +59,7 @@ export const refreshAuth = async (refreshToken: string): Promise<IUserWithTokens
   }
 };
 
-
-export const AcceptInvitation=async(body:Iinvitation): Promise<IUserDoc> =>{
+export const AcceptInvitation = async (body: Iinvitation): Promise<IUserDoc> => {
   try {
     const { token, password, access_token } = body;
     const refreshTokenDoc = await verifyToken(token, tokenTypes.INVITE);
@@ -65,21 +68,21 @@ export const AcceptInvitation=async(body:Iinvitation): Promise<IUserDoc> =>{
     if (!user) {
       throw new ApiError('User not found', httpStatus.NOT_FOUND);
     }
-    if(user.googleId || user.password){
+    if (user.googleId || user.password) {
       throw new ApiError('User already has credentials', httpStatus.BAD_REQUEST);
     }
-    if(!access_token && !token){
+    if (!access_token && !token) {
       throw new ApiError('access_token or token is required', httpStatus.BAD_REQUEST);
     }
-    if(password){
+    if (password) {
       user.password = password;
       user.providers = ['local'];
     }
 
-    if(access_token){
+    if (access_token) {
       const userData = await googleprofiledata(access_token);
       user.googleId = userData?.sub;
-      if(userData?.email!== user.email){
+      if (userData?.email !== user.email) {
         throw new ApiError('Email mismatch with Google account', httpStatus.BAD_REQUEST);
       }
       user.providers.push('google');
@@ -92,8 +95,7 @@ export const AcceptInvitation=async(body:Iinvitation): Promise<IUserDoc> =>{
     console.error('Error accepting invitation:', error);
     throw new AppiError('Invitation acceptance failed', httpStatus.UNAUTHORIZED);
   }
-
-}
+};
 /**
  * Reset password
  * @param {string} resetPasswordToken
@@ -113,8 +115,6 @@ export const resetPassword = async (resetPasswordToken: any, newPassword: string
     throw new ApiError('Password reset failed', httpStatus.UNAUTHORIZED);
   }
 };
-
-
 
 /**
  * Verify email

@@ -49,6 +49,11 @@ router.get(
   workspaceController.getCapaworkspaceAnalyticsController
 );
 router.get(
+  "/module/:workspaceId/riskanalytics",                                                   
+  auth('manageCapa'),
+  workspaceController.getRiskworkspaceAnalyticsController
+);
+router.get(
   "/module/:workspaceId/attention",
   auth('needAttention'),
   workspaceController.AttentionController

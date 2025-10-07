@@ -158,11 +158,11 @@ export const getme = async (userId: mongoose.Types.ObjectId) => {
               role: { $first: '$role' },
               status: { $first: '$status' },
               orgName: { $first: '$userDetails.orgName' },
-              createdAt: { $first: '$createdAt' }
-            }
+              createdAt: { $first: '$createdAt' },
+            },
           },
           {
-            $sort: { createdAt: 1 }
+            $sort: { createdAt: 1 },
           },
           { $project: { _id: 1, role: 1, status: 1, orgName: 1, createdAt: 1 } },
         ],
@@ -320,6 +320,7 @@ export const getUserByEmail = async (email: string): Promise<IUserDoc | null> =>
   if (!user) {
     throw new ApiError('User not found', httpStatus.NOT_FOUND);
   }
+
   return user;
 };
 

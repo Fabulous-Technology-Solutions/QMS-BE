@@ -22,10 +22,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.checkValidation = exports.libraryController = exports.libraryValidationSchema = void 0;
+exports.RiskLibraryModel = exports.checkValidation = exports.libraryController = exports.libraryValidationSchema = void 0;
 const libraryValidationSchema = __importStar(require("./risklibrary.validation"));
 exports.libraryValidationSchema = libraryValidationSchema;
 const libraryController = __importStar(require("./risklibrary.controller"));
 exports.libraryController = libraryController;
 const risklibrary_middleware_1 = __importDefault(require("./risklibrary.middleware"));
 exports.checkValidation = risklibrary_middleware_1.default;
+const risklibrary_modal_1 = require("./risklibrary.modal");
+Object.defineProperty(exports, "RiskLibraryModel", { enumerable: true, get: function () { return risklibrary_modal_1.LibraryModel; } });

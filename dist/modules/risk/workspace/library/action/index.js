@@ -18,11 +18,16 @@ var __importStar = (this && this.__importStar) || function (mod) {
     __setModuleDefault(result, mod);
     return result;
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.ActionService = exports.ActionValidation = exports.ActionController = void 0;
+exports.RiskActionModel = exports.ActionService = exports.ActionValidation = exports.ActionController = void 0;
 const ActionController = __importStar(require("./action.controller"));
 exports.ActionController = ActionController;
 const ActionValidation = __importStar(require("./action.validation"));
 exports.ActionValidation = ActionValidation;
 const ActionService = __importStar(require("./action.service"));
 exports.ActionService = ActionService;
+const action_modal_1 = __importDefault(require("./action.modal"));
+exports.RiskActionModel = action_modal_1.default;

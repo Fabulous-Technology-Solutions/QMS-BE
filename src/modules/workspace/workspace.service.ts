@@ -10,6 +10,8 @@ import CapaworkspaceModel from './workspace.modal';
 
 import { LibraryModel } from '../capa/workspace/capalibrary/capalibrary.modal';
 import Action from '../capa/workspace/capalibrary/action/action.modal';
+import { RiskLibraryModel } from '../risk/workspace/library';
+import { RiskActionModel } from '../risk/workspace/library/action';
 
 export const createCapaworkspace = async (data: CreateCapaworkspaceServiceFunction) => {
   const { moduleId, name, imageUrl, imagekey, description, user } = data;
@@ -156,6 +158,72 @@ export const dashboardAnalytics = async (workspaceId: string) => {
     if (item._id === 'pending') analytics.pending = item.count;
     if (item._id === 'completed') analytics.complete = item.count;
     if (item._id === 'in-progress') analytics.inProgress = item.count;
+    analytics.total += item.count;
+  });
+
+  return {
+    libraryAnalytics: analytics,
+    actionAnalytics: actionAnalytics,
+  };
+};
+
+
+
+export const RiskdashboardAnalytics = async (workspaceId: string) => {
+  const result = await RiskLibraryModel.aggregate([
+    {
+      $match: {
+        workspace: new mongoose.Types.ObjectId(workspaceId),
+        isDeleted: false,
+        status: { $in: ['pending', 'completed', 'in-progress'] },
+      },
+    },
+    {
+      $group: {
+        _id: '$status',
+        count: { $sum: 1 },
+      },
+    },
+  ]);
+
+  // First, get all library IDs for the workspace
+  const libraries = await RiskLibraryModel.find({
+    workspace: new mongoose.Types.ObjectId(workspaceId),
+    isDeleted: false,
+  }).select('_id');
+
+  const libraryIds = libraries.map((lib) => lib._id);
+
+  // Now, aggregate actions by libraryId
+  const actionresult = await RiskActionModel.aggregate([
+    {
+      $match: {
+        library: { $in: libraryIds },
+        isDeleted: false,
+        status: { $in: ['open', 'in-progress','closed'] },
+      },
+    },
+    {
+      $group: {
+        _id: '$status',
+        count: { $sum: 1 },
+      },
+    },
+  ]);
+
+  const actionAnalytics = { open: 0, inProgress: 0, closed: 0, total: 0 };
+  actionresult.forEach((item) => {
+    if (item._id === 'open') actionAnalytics.open = item.count;
+    if (item._id === 'in-progress') actionAnalytics.inProgress = item.count;
+    if (item._id === 'closed') actionAnalytics.closed = item.count;
+    actionAnalytics.total += item.count;
+  });
+
+  const analytics = { pending: 0, inprogress: 0, completed: 0, total: 0 };
+  result.forEach((item) => {
+    if (item._id === 'pending') analytics.pending = item.count;
+    if (item._id === 'in-progress') analytics.inprogress = item.count;
+    if (item._id === 'completed') analytics.completed = item.count;
     analytics.total += item.count;
   });
 
