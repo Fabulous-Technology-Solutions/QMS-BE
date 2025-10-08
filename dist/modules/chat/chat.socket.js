@@ -8,7 +8,7 @@ const chat_modal_1 = __importDefault(require("./chat.modal"));
 const mongoose_1 = __importDefault(require("mongoose"));
 const message_modal_1 = __importDefault(require("../message/message.modal"));
 const chat_services_1 = require("./chat.services");
-const user_1 = require("../user");
+const chat_queries_1 = require("./chat.queries");
 const chatEvent = async (io, socket) => {
     const user = socket?.user;
     const userId = socket?.user?._id.toString();
@@ -32,23 +32,23 @@ const chatEvent = async (io, socket) => {
                                             from: 'subscriptions',
                                             localField: 'moduleId',
                                             foreignField: '_id',
-                                            as: 'subscription'
-                                        }
+                                            as: 'subscription',
+                                        },
                                     },
                                     {
                                         $unwind: {
                                             path: '$subscription',
-                                            preserveNullAndEmptyArrays: false
-                                        }
-                                    }
+                                            preserveNullAndEmptyArrays: false,
+                                        },
+                                    },
                                 ],
-                            }
+                            },
                         },
                         {
                             $unwind: {
                                 path: '$workspace',
-                                preserveNullAndEmptyArrays: false
-                            }
+                                preserveNullAndEmptyArrays: false,
+                            },
                         },
                         {
                             $match: {
@@ -84,7 +84,7 @@ const chatEvent = async (io, socket) => {
                 $project: {
                     _id: 1,
                     chatOf: 1,
-                    obj: 1
+                    obj: 1,
                 },
             },
         ]);
@@ -185,8 +185,8 @@ const chatEvent = async (io, socket) => {
     // send message to specific user
     socket.on('send-message', async (data) => {
         try {
-            let receiverId = data?.receiverId;
-            const senderData = user; ////////////////////// this is required for process /////////////////////////
+            const senderData = user;
+            console.log('Sender Data........:', senderData);
             if (!data?.chatId) {
                 socket.emit('socket-error', { message: 'chatId is required.' });
                 return;
@@ -197,148 +197,41 @@ const chatEvent = async (io, socket) => {
                     {
                         $match: {
                             _id: new mongoose_1.default.Types.ObjectId(data?.chatId),
-                        }
+                        },
                     },
-                    {
-                        $lookup: {
-                            from: 'risklibraries',
-                            let: { objId: '$obj' },
-                            pipeline: [
-                                {
-                                    $match: {
-                                        $expr: {
-                                            $and: [
-                                                { $eq: ['$_id', '$$objId'] }
-                                            ]
-                                        }
-                                    },
-                                    $lookup: {
-                                        from: 'workspaces',
-                                        localField: 'workspace',
-                                        foreignField: '_id',
-                                        as: 'workspaceDetails',
-                                        pipeline: [
-                                            {
-                                                $lookup: {
-                                                    from: 'accounts',
-                                                    localField: '_id',
-                                                    foreignField: 'Permissions.workspace',
-                                                    as: 'accountDetails',
-                                                    pipeline: [
-                                                        {
-                                                            $lookup: {
-                                                                from: 'users',
-                                                                localField: 'user',
-                                                                foreignField: '_id',
-                                                                as: 'userDetails',
-                                                                pipeline: [{
-                                                                        $project: { name: 1, profilePicture: 1, email: 1 }
-                                                                    }]
-                                                            }
-                                                        },
-                                                        {
-                                                            $unwind: {
-                                                                path: '$userDetails',
-                                                                preserveNullAndEmptyArrays: true
-                                                            }
-                                                        }
-                                                    ]
-                                                }
-                                            }
-                                        ]
-                                    }
-                                }
-                            ],
-                            as: 'riskLibrary'
-                        }
-                    },
-                    {
-                        $unwind: {
-                            path: '$riskLibrary',
-                            preserveNullAndEmptyArrays: true
-                        }
-                    },
-                    {
-                        $project: {
-                            _id: 1,
-                            participants: '$riskLibrary.participants',
-                            chatType: 1,
-                            isGroup: 1
-                        }
-                    }
-                ]).then(result => result[0]);
+                    ...chat_queries_1.chatQuery
+                ]).then((result) => result[0]);
+                console.log('validateUserChat', validateUserChat?.participants);
                 if (!validateUserChat) {
                     socket.emit('socket-error', { message: 'No chat found against chat id and user.' });
                     return;
                 }
-                if (receiverId && !validateUserChat?.participants?.includes(receiverId)) {
-                    socket.emit('socket-error', {
-                        message: `You can't send message to user who is not part of chat.`
-                    });
-                    return;
-                }
-                else {
-                    allParticipants = validateUserChat?.participants?.filter((participant) => participant.toString?.() !== userId?.toString());
-                }
+                allParticipants =
+                    validateUserChat?.participants?.filter((participant) => participant._id.toString?.() !== userId?.toString()) || [];
             }
-            let receiversData;
-            if (data?.chatType === 'contact' && allParticipants.length === 0) {
-                receiversData = await user_1.User.find({ adminRole: 'admin' });
-                receiverId = receiversData[0]?._id;
-                allParticipants.push(receiverId);
-            }
-            else {
-                receiversData = await user_1.User.find({ _id: { $in: allParticipants } });
-            }
-            if (receiversData?.length === 0) {
+            let receiversData = Array.isArray(allParticipants) ? allParticipants : [];
+            if (!receiversData || receiversData?.length === 0) {
                 socket.emit('socket-error', { message: `Invalid receiver data.` });
                 return;
             }
             let chatId = data?.chatId;
-            if (!chatId) {
-                let chat;
-                chat = await chat_modal_1.default.findOne({
-                    chatType: data?.chatType,
-                    isGroup: false,
-                    participants: { $all: [userId, receiverId], $size: 2 }
-                });
-                if (!chat) {
-                    chat = await chat_modal_1.default.create({
-                        participants: [userId, receiverId],
-                        chatType: data?.chatType,
-                        isGroup: false
-                    });
-                }
-                chatId = chat._id;
-            }
-            const chatDetailsQuery = {
-                ...(chatId ? { _id: chatId } : { participants: { $all: [userId, receiverId] } })
-            };
-            const chatDetails = await chat_modal_1.default.findOne(chatDetailsQuery).populate('participants');
-            if (!chatDetails) {
-                socket.emit('socket-error', {
-                    message: 'No chat found against chat id and participants.'
-                });
-                return;
-            }
             const userSettingsBody = [
                 {
                     userId,
                     deliveredAt: new Date(),
-                    readAt: new Date()
-                }
+                    readAt: new Date(),
+                },
             ];
             const messageBody = {
                 chat: chatId,
                 sender: userId,
                 contentTitle: data?.contentTitle,
                 fileSize: data?.fileSize,
-                content: data?.content,
+                content: data?.content || '',
                 contentDescription: data?.contentDescription,
-                contentType: data?.contentType,
+                contentType: data?.contentType || 'text',
                 contentDescriptionType: data?.contentDescriptionType,
                 userSettings: userSettingsBody,
-                alert_result: data?.alert_result
             };
             const addMessage = await message_modal_1.default.create(messageBody);
             const messageEmitBody = {
@@ -348,92 +241,83 @@ const chatEvent = async (io, socket) => {
                     sender: {
                         _id: userId,
                         name: senderData?.name,
-                        profilePicture: senderData?.profilePicture ?? ''
+                        profilePicture: senderData?.profilePicture ?? '',
                     },
                     content: addMessage?.content,
                     contentTitle: addMessage?.contentTitle,
                     contentDescription: addMessage?.contentDescription,
                     contentType: addMessage?.contentType,
                     contentDescriptionType: addMessage?.contentDescriptionType ?? 'text',
-                }
+                    createdAt: addMessage?.createdAt,
+                },
             };
-            const messageDeliveryStatus = 
-            // msgDeliveryStatus({ userId, chat: { lastMessage: latestMessageData } }) || {};
-            // for (const receiver of receiversData) {
-            //   const receiverID = receiver?._id; // Ensure you have the ID from receiver object
-            //   const receiverSocketId = io.sockets.adapter.rooms.get(receiverID?.toString?.());
-            //   // if (receiverSocketId) {
-            //   //   userSettingsBody.push({
-            //   //     userId: receiverID,
-            //   //     deliveredAt: new Date()
-            //   //   });
-            //   // }
-            //   const unreadCount = await Message.countDocuments({
-            //     chat: { $in: chatId },
-            //     $or: [
-            //       { userSettings: { $size: 0 } },
-            //       { 'userSettings.userId': { $ne: receiverID } },
-            //       {
-            //         userSettings: {
-            //           $elemMatch: {
-            //             userId: userId,
-            //             $or: [{ readAt: null }, { readAt: { $exists: false } }]
-            //           }
-            //         }
-            //       }
-            //     ]
-            //   });
-            //   if (receiverID.toString() !== userId.toString()) {
-            //     if (receiverSocketId) {
-            //       io.to(receiverID.toString()).emit('receive-message', {
-            //         ...messageEmitBody,
-            //         unreadCounts: unreadCount,
-            //         chatScreenBody: {
-            //           // ...messageEmitBody.chatScreenBody,
-            //           // chatName: chatNameForUser(chatDetails, receiverID),
-            //           // displayPicture: chatProfileForUser(chatDetails, receiverID)
-            //         }
-            //       });
-            //       io.to(userId?.toString?.()).emit('mark-message-deliver-response', {
-            //         success: true,
-            //         chatId,
-            //         allMsgsDelivered: true
-            //       });
-            //     } 
-            //   }
-            // }
+            // const messageDeliveryStatus =
+            //   msgDeliveryStatus({ userId, chat: { lastMessage: latestMessageData } }) || {};
+            for (const receiver of receiversData) {
+                const receiverID = receiver?._id; // Ensure you have the ID from receiver object
+                const receiverSocketId = io.sockets.adapter.rooms.get(receiverID?.toString?.());
+                if (receiverSocketId) {
+                    userSettingsBody?.push({
+                        userId: receiverID,
+                        deliveredAt: new Date(),
+                    });
+                }
+                const unreadCount = await message_modal_1.default.countDocuments({
+                    chat: { $in: chatId },
+                    $or: [
+                        { userSettings: { $size: 0 } },
+                        { 'userSettings.userId': { $ne: receiverID } },
+                        {
+                            userSettings: {
+                                $elemMatch: {
+                                    userId: userId,
+                                    $or: [{ readAt: null }, { readAt: { $exists: false } }],
+                                },
+                            },
+                        },
+                    ],
+                });
+                if (receiverID.toString() !== userId.toString()) {
+                    if (receiverSocketId) {
+                        io.to(receiverID.toString()).emit('receive-message', {
+                            ...messageEmitBody,
+                            unreadCounts: unreadCount,
+                        });
+                        io.to(userId?.toString?.()).emit('mark-message-deliver-response', {
+                            success: true,
+                            chatId,
+                            allMsgsDelivered: true,
+                        });
+                    }
+                }
+            }
             await message_modal_1.default.updateOne({ _id: addMessage._id }, { userSettings: userSettingsBody }, {
-                multi: true
+                multi: true,
             });
             io.to(userId.toString()).emit('receive-message', {
                 ...messageEmitBody,
-                chatScreenBody: {
-                    // ...messageEmitBody.chatScreenBody,
-                    unreadCount: 0,
-                    // chatName: chatNameForUser(chatDetails, userId), // Set chatName for the sender
-                    // displayPicture: chatProfileForUser(chatDetails, userId), // Set displayPicture for the sender,
-                    ...(Object.keys(messageDeliveryStatus || {})?.length && {
-                        ...messageDeliveryStatus
-                    })
-                }
             });
-            const updateChatBody = {
-                lastMessage: addMessage?._id,
-                lastMessageSentAt: new Date(),
-                'userSettings.$[elem].hasUserDeletedChat': false
-            };
-            const objectChatId = new mongoose_1.default.Types.ObjectId(chatId);
-            const objectUserId = new mongoose_1.default.Types.ObjectId(userId);
-            await chat_modal_1.default.updateOne({ _id: objectChatId }, { $set: updateChatBody }, {
-                arrayFilters: [{ 'elem.userId': objectUserId }]
-            });
+            // const updateChatBody = {
+            //   lastMessage: addMessage?._id,
+            //   lastMessageSentAt: new Date(),
+            //   'userSettings.$[elem].hasUserDeletedChat': false,
+            // };
+            // const objectChatId = new mongoose.Types.ObjectId(chatId);
+            // const objectUserId = new mongoose.Types.ObjectId(userId);
+            // await ChatModel.updateOne(
+            //   { _id: objectChatId },
+            //   { $set: updateChatBody },
+            //   {
+            //     arrayFilters: [{ 'elem.userId': objectUserId }],
+            //   }
+            // );
             // const allChatMessages = await Message.find({ chat: chatId }).distinct('_id');
             // await updateReadAt({
             //   userId,
             //   chatId,
             //   messageIds: allChatMessages
             // });
-            chatDetails.markModified('userSettings');
+            // chatDetails?.markModified('userSettings');
         }
         catch (error) {
             console.log(error);
@@ -447,15 +331,53 @@ const chatEvent = async (io, socket) => {
                 socket.emit('socket-error', { message: 'Library ID is required' });
                 return;
             }
-            let libraryChat = await chat_modal_1.default.findOne({ libraryId: data.libraryId });
+            let libraryChat = await chat_modal_1.default.findOne({ obj: data.libraryId });
             if (!libraryChat) {
-                libraryChat = await chat_modal_1.default.create({ libraryId: data.libraryId, chatOf: 'Library' });
+                libraryChat = await chat_modal_1.default.create({ obj: data.libraryId, chatOf: 'Library' });
             }
             socket.emit('library-singlechat-response', { success: true, chat: libraryChat });
         }
         catch (error) {
             console.log(error);
             socket.emit('socket-error', { message: 'Failed to retrieve library chats' });
+        }
+    });
+    socket.on('fetch-user-chat-messages', async (data) => {
+        try {
+            // console.log(`fetch-user-chat-messages event received for socket ${socketId} and user ${userId} with data: ${JSON.stringify(data)}`);
+            const { chatId } = data;
+            if (!chatId) {
+                socket.emit('socket-error', { message: 'Chat id is required.' });
+                return;
+            }
+            const response = await (0, chat_services_1.fetchChatMessages)({ ...data, userId });
+            console.log('fetch-user-chat-messages response:', response);
+            socket.emit('user-chat-messages', response);
+            const chatDetails = await chat_modal_1.default.aggregate([
+                {
+                    $match: {
+                        _id: new mongoose_1.default.Types.ObjectId(data?.chatId),
+                    },
+                },
+                ...chat_queries_1.chatQuery
+            ]).then((result) => result[0]);
+            if (chatDetails) {
+                const otherParticipant = chatDetails?.participants?.find((participant) => participant._id.toString() !== userId.toString());
+                console.log('Other participant:', otherParticipant);
+                const otherParticipantId = otherParticipant?._id?.toString?.();
+                const otherParticipantSocketId = io.sockets.adapter.rooms.get(otherParticipantId);
+                if (otherParticipantSocketId) {
+                    io.to(otherParticipantId).emit('mark-message-read-response', {
+                        success: true,
+                        chatId,
+                        allMsgsRead: true,
+                    });
+                }
+            }
+        }
+        catch (error) {
+            console.log(error);
+            socket.emit('socket-error', { message: 'Error in fetching unseen chats.' });
         }
     });
     socket.on('chat message', (msg) => {

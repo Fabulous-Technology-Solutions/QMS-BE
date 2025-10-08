@@ -11,14 +11,15 @@ const messageSchema = new mongoose_1.default.Schema({
     content: { type: String, required: true },
     contentDescription: { type: String },
     contentDescriptionType: { type: String },
-    contentType: { type: String },
+    contentType: { type: String,
+        enum: ['text', 'image', 'video', 'file', 'audio', 'contact', 'link']
+    },
     reactionsCount: { type: Map, of: Number, default: {} },
     userSettings: [
         {
             userId: { type: mongoose_1.default.Schema.Types.ObjectId, ref: 'User', required: true },
             deliveredAt: { type: Date },
-            isDeletedFrom2Reply: { type: Boolean, default: false },
-            hasUserDeletedChat: { type: Boolean, default: false },
+            readAt: { type: Date },
         },
     ],
 }, { timestamps: true });
