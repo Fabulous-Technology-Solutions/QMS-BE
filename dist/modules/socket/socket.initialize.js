@@ -15,11 +15,26 @@ exports.getSocketInstance = getSocketInstance;
 function initializeSocket(server) {
     if (!io) {
         console.log('Initializing Socket.io...');
-        io = new socket_io_1.Server(server, { cors: { origin: '*' } });
+        io = new socket_io_1.Server(server, {
+            cors: {
+                origin: '*',
+                methods: ['GET', 'POST'],
+                credentials: true
+            },
+            transports: ['websocket', 'polling'],
+            allowEIO3: true,
+            pingTimeout: 60000,
+            pingInterval: 25000
+        });
     }
     // Now io is guaranteed to be defined
     const socketServer = io;
-    socketServer.use(socket_middleware_1.default);
+    socketServer.use((socket, next) => {
+        (0, socket_middleware_1.default)(socket, next).catch((error) => {
+            console.error('Socket middleware error:', error);
+            next(error);
+        });
+    });
     socketServer.on('connection', async (socket) => {
         const username = socket?.user?.name ?? socket?.user?.name;
         const userId = socket?.user?._id.toString();

@@ -10,9 +10,11 @@ const messageSchema = new mongoose_1.default.Schema({
     contentTitle: { type: String },
     content: { type: String, required: true },
     contentDescription: { type: String },
-    contentDescriptionType: { type: String },
-    contentType: { type: String,
-        enum: ['text', 'image', 'video', 'file', 'audio', 'contact', 'link']
+    contentDescriptionType: { type: String, enum: ['text', 'link'], default: 'text' },
+    reply: { type: mongoose_1.default.Schema.Types.ObjectId, ref: 'Message' },
+    contentType: {
+        type: String,
+        enum: ['text', 'image', 'video', 'file', 'audio', 'contact', 'link'],
     },
     reactionsCount: { type: Map, of: Number, default: {} },
     userSettings: [

@@ -199,7 +199,7 @@ const chatEvent = async (io, socket) => {
                             _id: new mongoose_1.default.Types.ObjectId(data?.chatId),
                         },
                     },
-                    ...chat_queries_1.chatQuery
+                    ...chat_queries_1.chatQuery,
                 ]).then((result) => result[0]);
                 console.log('validateUserChat', validateUserChat?.participants);
                 if (!validateUserChat) {
@@ -359,7 +359,7 @@ const chatEvent = async (io, socket) => {
                         _id: new mongoose_1.default.Types.ObjectId(data?.chatId),
                     },
                 },
-                ...chat_queries_1.chatQuery
+                ...chat_queries_1.chatQuery,
             ]).then((result) => result[0]);
             if (chatDetails) {
                 const otherParticipant = chatDetails?.participants?.find((participant) => participant._id.toString() !== userId.toString());
