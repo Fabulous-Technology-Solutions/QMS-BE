@@ -155,22 +155,25 @@ export const AttentionController = catchAsync(async (req: Request, res: Response
 });
 
 export const filterPreviewReportController = catchAsync(async (req: Request, res: Response) => {
-  const { site, process, status } = req.query;
+  const { statuses, processes, sites } = req.query;
+  console.log('Filter Preview Report - Sites:', sites);
+  console.log('Filter Preview Report - Processes:', processes);
+  console.log('Filter Preview Report - Statuses:', statuses);
   const report = await generateFilterReport(
     req.params['workspaceId'] as string,
-    site as string,
-    process as string,
-    status as string
+    sites as string[],
+    processes as string[],
+    statuses as string[]
   );
   res.status(200).json({ report, success: true });
 });
 export const filterPreviewRiskReportController = catchAsync(async (req: Request, res: Response) => {
-  const { site, process, status } = req.query;
+  const { sites, processes, statuses } = req.query;
   const report = await generateReports(
     req.params['workspaceId'] as string,
-    site as string,
-    process as string,
-    status as string
+    sites as string[],
+    processes as string[],
+    statuses as string[]
   );
   res.status(200).json({ report, success: true });
 });

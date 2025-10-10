@@ -6,9 +6,9 @@ const reportSchemaBody:Record<keyof ICreateReport, Joi.Schema> = {
   schedule: Joi.boolean(),
   scheduleFrequency: Joi.string().valid('daily', 'weekly', 'monthly'),
   assignUsers: Joi.array().items(Joi.string()),
-  site: Joi.string(),
-  process: Joi.string(),
-  status: Joi.string(),
+  sites: Joi.array().items(Joi.string().length(24)),
+  processes: Joi.array().items(Joi.string().length(24)),
+  statuses: Joi.array().items(Joi.string().length(24)),
   createdBy: Joi.string(),
   workspace: Joi.string(),
   isDeleted: Joi.boolean().default(false)

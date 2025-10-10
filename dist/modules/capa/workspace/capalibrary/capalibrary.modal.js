@@ -21,10 +21,10 @@ const LibrarySchema = new mongoose_1.default.Schema({
     status: { type: String, enum: ['pending', 'completed', 'in-progress'], default: 'pending' },
     members: [{ type: mongoose_1.default.Schema.Types.ObjectId, ref: 'Account' }],
     managers: [{ type: mongoose_1.default.Schema.Types.ObjectId, ref: 'Account' }],
-    site: {
-        type: mongoose_1.default.Schema.Types.ObjectId,
-        ref: 'Site'
-    },
+    site: [{
+            type: mongoose_1.default.Schema.Types.ObjectId,
+            ref: 'Site'
+        }],
     processdata: {
         process: {
             type: mongoose_1.default.Schema.Types.ObjectId,

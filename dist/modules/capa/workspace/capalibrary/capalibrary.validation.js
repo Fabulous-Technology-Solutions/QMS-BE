@@ -20,9 +20,9 @@ const libraryBody = {
         "string.max": `"description" should have a maximum length of {#limit}`,
         "any.required": `"description" is a required field`
     }),
-    site: joi_1.default.string().messages({
-        "string.base": `"site" should be a type of 'text'`,
-        "string.empty": `"site" cannot be an empty field`,
+    site: joi_1.default.array().items(joi_1.default.string().length(24)).messages({
+        "array.base": `"site" should be an array of 'text'`,
+        "string.length": `"site" must be a valid ID with length of {#limit}`,
         "any.required": `"site" is a required field`
     }),
     processdata: joi_1.default.object({

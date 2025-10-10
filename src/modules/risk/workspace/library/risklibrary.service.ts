@@ -1231,19 +1231,19 @@ export const generateReport = async (libraryId: string) => {
   }
 };
 
-export const generateFilterReport = async (workspaceId: string, site?: string, process?: string, status?: string) => {
+export const generateFilterReport = async (workspaceId: string, sites?: string[], processes?: string[], statuses?: string[]) => {
   let browser;
   let page;
 
   try {
     // 1. Launch headless browser
-    console.log('Generating filtered report with:', { workspaceId, site, process, status });
+    console.log('Generating filtered report with:', { workspaceId, sites, processes, statuses });
 
     const query = {
       workspace: new mongoose.Types.ObjectId(workspaceId),
-      ...(site && { site: new mongoose.Types.ObjectId(site) }),
-      ...(process && { process: new mongoose.Types.ObjectId(process) }),
-      ...(status && { status }),
+      ...(sites && { sites: { $in: sites.map((site) => new mongoose.Types.ObjectId(site)) } }),
+      ...(processes && { processes: { $in: processes.map((process) => new mongoose.Types.ObjectId(process)) } }),
+      ...(statuses && { statuses: { $in: statuses } }),
     };
 
     const findLibraries = await LibraryModel.aggregate([

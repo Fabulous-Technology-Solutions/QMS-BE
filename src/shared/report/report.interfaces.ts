@@ -7,9 +7,9 @@ export interface ReportModal extends Document {
   assignUsers?: mongoose.Schema.Types.ObjectId[];
   createdBy: mongoose.Schema.Types.ObjectId;
   workspace: mongoose.Schema.Types.ObjectId;
-  process: mongoose.Schema.Types.ObjectId;
-  site: mongoose.Schema.Types.ObjectId;
-  status: string;
+  processes: mongoose.Schema.Types.ObjectId[];
+  sites: mongoose.Schema.Types.ObjectId[];
+  statuses: string[];
   isDeleted?: boolean;
   lastSchedule: Date;
   nextSchedule: Date;
@@ -23,7 +23,7 @@ export interface ICreateReport {
   createdBy: string;
   workspace: string;
   isDeleted?: boolean;
-  process?: string;
-  status?: string;
-  site?: string;
+  processes?: string[];
+  statuses?: string[];
+  sites?: string[];
 }

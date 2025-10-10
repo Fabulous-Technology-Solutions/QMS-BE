@@ -9,8 +9,8 @@ const RoleSchema = new mongoose_1.default.Schema({
     description: { type: String, required: true },
     permissions: { type: String, enum: ['view', 'edit', 'admin'] },
     workspace: { type: mongoose_1.default.Schema.Types.ObjectId, ref: 'Workspace', required: true },
-    process: { type: mongoose_1.default.Schema.Types.ObjectId, ref: 'Process' },
-    site: { type: mongoose_1.default.Schema.Types.ObjectId, ref: 'Site' },
+    processes: [{ type: mongoose_1.default.Schema.Types.ObjectId, ref: 'Process' }],
+    sites: [{ type: mongoose_1.default.Schema.Types.ObjectId, ref: 'Site' }],
     isDeleted: { type: Boolean, default: false }
 }, {
     timestamps: true

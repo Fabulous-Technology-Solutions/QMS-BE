@@ -137,9 +137,6 @@ export const getLibraryById = async (libraryId: string) => {
       },
     },
     {
-      $unwind: { path: '$site', preserveNullAndEmptyArrays: true },
-    },
-    {
       $lookup: {
         from: 'processes',
         localField: 'processdata.process',
@@ -257,9 +254,6 @@ export const getLibrariesByWorkspace = async (
         as: 'site',
         pipeline: [{ $project: { name: 1 } }],
       },
-    },
-    {
-      $unwind: { path: '$site', preserveNullAndEmptyArrays: true },
     },
     {
       $lookup: {
@@ -931,9 +925,6 @@ export const getLibrariesByManager = async (
       },
     },
     {
-      $unwind: { path: '$site', preserveNullAndEmptyArrays: true },
-    },
-    {
       $lookup: {
         from: 'processes',
         localField: 'processdata.process',
@@ -1301,21 +1292,22 @@ export const generateReport = async (libraryId: string) => {
   }
 };
 
-export const generateFilterReport = async (workspaceId: string, site?: string, process?: string, status?: string) => {
+export const generateFilterReport = async (workspaceId: string, sites?: string[], processes?: string[], statuses?: string[]) => {
   let browser;
   let page;
 
   try {
     // 1. Launch headless browser
-    console.log('Generating filtered report with:', { workspaceId, site, process, status });
+    console.log('Generating filtered report with:', { workspaceId, sites, processes, statuses });
 
     const query = {
       workspace: new mongoose.Types.ObjectId(workspaceId),
-      ...(site && { site: new mongoose.Types.ObjectId(site) }),
-      ...(process && { 'processdata.process': new mongoose.Types.ObjectId(process) } ),
-      ...(status && { status }),
+      ...(sites && { site: { $in: sites.map((site) => new mongoose.Types.ObjectId(site)) } }),
+      ...(processes && { "processdata.process": { $in: processes.map((process) => new mongoose.Types.ObjectId(process)) } }),
+      ...(statuses && { status: { $in: statuses } }),
     };
 
+    console.log('Aggregation query:', query);
     const findLibraries = await LibraryModel.aggregate([
       { $match: query },
       {

@@ -5,8 +5,8 @@ const RoleSchema = new mongoose.Schema<IRoleModal>({
     description: { type: String, required: true },
     permissions: { type: String, enum: ['view', 'edit', 'admin'] },
     workspace: { type: mongoose.Schema.Types.ObjectId, ref: 'Workspace', required: true },
-    process:{ type: mongoose.Schema.Types.ObjectId, ref: 'Process' },
-    site:{ type: mongoose.Schema.Types.ObjectId, ref: 'Site' },
+    processes:[{ type: mongoose.Schema.Types.ObjectId, ref: 'Process' }],
+    sites:[{ type: mongoose.Schema.Types.ObjectId, ref: 'Site' }],
     isDeleted: { type: Boolean, default: false }
 }, {
     timestamps: true

@@ -10,9 +10,9 @@ const reportSchemaBody = {
     schedule: joi_1.default.boolean(),
     scheduleFrequency: joi_1.default.string().valid('daily', 'weekly', 'monthly'),
     assignUsers: joi_1.default.array().items(joi_1.default.string()),
-    site: joi_1.default.string(),
-    process: joi_1.default.string(),
-    status: joi_1.default.string(),
+    sites: joi_1.default.array().items(joi_1.default.string().length(24)),
+    processes: joi_1.default.array().items(joi_1.default.string().length(24)),
+    statuses: joi_1.default.array().items(joi_1.default.string().length(24)),
     createdBy: joi_1.default.string(),
     workspace: joi_1.default.string(),
     isDeleted: joi_1.default.boolean().default(false)

@@ -127,12 +127,15 @@ exports.AttentionController = (0, catchAsync_1.default)(async (req, res) => {
     }
 });
 exports.filterPreviewReportController = (0, catchAsync_1.default)(async (req, res) => {
-    const { site, process, status } = req.query;
-    const report = await (0, capalibrary_service_1.generateFilterReport)(req.params['workspaceId'], site, process, status);
+    const { statuses, processes, sites } = req.query;
+    console.log('Filter Preview Report - Sites:', sites);
+    console.log('Filter Preview Report - Processes:', processes);
+    console.log('Filter Preview Report - Statuses:', statuses);
+    const report = await (0, capalibrary_service_1.generateFilterReport)(req.params['workspaceId'], sites, processes, statuses);
     res.status(200).json({ report, success: true });
 });
 exports.filterPreviewRiskReportController = (0, catchAsync_1.default)(async (req, res) => {
-    const { site, process, status } = req.query;
-    const report = await (0, risklibrary_service_1.generateFilterReport)(req.params['workspaceId'], site, process, status);
+    const { sites, processes, statuses } = req.query;
+    const report = await (0, risklibrary_service_1.generateFilterReport)(req.params['workspaceId'], sites, processes, statuses);
     res.status(200).json({ report, success: true });
 });

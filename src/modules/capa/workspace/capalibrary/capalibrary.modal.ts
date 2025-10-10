@@ -19,10 +19,10 @@ const LibrarySchema = new mongoose.Schema<LibraryModal>(
     status: { type: String, enum: ['pending', 'completed', 'in-progress'], default: 'pending' },
     members: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Account' }],
     managers: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Account' } ],
-    site:{
+    site:[{
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Site'
-    },
+    }],
     processdata:{
       process: {
         type: mongoose.Schema.Types.ObjectId,

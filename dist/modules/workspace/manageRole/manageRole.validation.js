@@ -25,17 +25,19 @@ const roleBody = {
         'string.empty': 'Workspace is required',
         'string.base': 'Workspace must be a string'
     }),
-    process: joi_1.default.string().messages({
+    processes: joi_1.default.array().items(joi_1.default.string()).messages({
+        'array.base': 'Processes must be an array',
         'string.empty': 'Process is required',
         'string.base': 'Process must be a string'
     }),
-    site: joi_1.default.string().messages({
+    sites: joi_1.default.array().items(joi_1.default.string()).messages({
+        'array.base': 'Sites must be an array',
         'string.empty': 'Site is required',
         'string.base': 'Site must be a string'
     })
 };
 exports.createRole = {
-    body: joi_1.default.object().keys(roleBody).fork(['name', 'description', 'permissions', 'workspace', 'site', 'process'], (schema) => schema.required()),
+    body: joi_1.default.object().keys(roleBody).fork(['name', 'description', 'permissions', 'workspace'], (schema) => schema.required()),
 };
 exports.updateRole = {
     body: joi_1.default.object().keys(roleBody).min(1)

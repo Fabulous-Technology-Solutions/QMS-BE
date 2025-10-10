@@ -24,7 +24,7 @@ node_cron_1.default.schedule("0 0 * * *", async () => {
         for (const report of dueReports) {
             console.log(`📊 Generating report: ${report.name}`);
             // Generate report
-            const generated = await (0, capalibrary_service_1.generateFilterReport)(report?.workspace?.toString(), report?.process?.toString(), report?.site?.toString(), report?.status);
+            const generated = await (0, capalibrary_service_1.generateFilterReport)(report?.workspace?.toString(), report?.sites?.map(site => site.toString()) || [], report?.processes?.map(process => process.toString()) || [], report?.statuses?.map(status => status.toString()) || []);
             const emailAddresses = report?.assignUsers?.map(user => user.email) || [];
             // Send email if needed
             if ((emailAddresses?.length ?? 0) > 0 && generated?.Location) {

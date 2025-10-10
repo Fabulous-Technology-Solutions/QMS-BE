@@ -12,8 +12,8 @@ export const createRole = (data: CreateRoleRequest) => {
     description: data.description,
     permissions: data.permissions,
     workspace: data.workspace,
-    process: data.process,
-    site: data.site
+    processes: data.processes,
+    sites: data.sites
   });
   return role.save();
 };
@@ -36,7 +36,7 @@ export const deleteRole = async (id: string) => {
 };
 
 export const getRoleById = async (id: string) => {
-  const role = await RoleModal.findOne({ _id: id, isDeleted: false }).populate('workspace').populate('process','name').populate('site','name');
+  const role = await RoleModal.findOne({ _id: id, isDeleted: false }).populate('workspace').populate('processes','name').populate('sites','name');
   if (!role) {
     throw new AppiError('Role not found', httpStatus.NOT_FOUND);
   } 
@@ -49,7 +49,7 @@ export const  getworkspaceRoles = async (data: getParams) => {
   if (search) {
     query.name = { $regex: search, $options: 'i' };
   }
-  const roles = await RoleModal.find(query).populate('process','name').populate('site','name').skip((page - 1) * limit).limit(limit);
+  const roles = await RoleModal.find(query).populate('processes','name').populate('sites','name').skip((page - 1) * limit).limit(limit);
   const total = await RoleModal.countDocuments(query);
   return {
     total,

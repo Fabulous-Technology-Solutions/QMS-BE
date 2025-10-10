@@ -131,9 +131,6 @@ const getLibraryById = async (libraryId) => {
             },
         },
         {
-            $unwind: { path: '$site', preserveNullAndEmptyArrays: true },
-        },
-        {
             $lookup: {
                 from: 'processes',
                 localField: 'processdata.process',
@@ -243,9 +240,6 @@ const getLibrariesByWorkspace = async (workspaceId, page, limit, search, isDelet
                 as: 'site',
                 pipeline: [{ $project: { name: 1 } }],
             },
-        },
-        {
-            $unwind: { path: '$site', preserveNullAndEmptyArrays: true },
         },
         {
             $lookup: {
@@ -864,9 +858,6 @@ const getLibrariesByManager = async (workspaceId, managerId, page, limit, search
             },
         },
         {
-            $unwind: { path: '$site', preserveNullAndEmptyArrays: true },
-        },
-        {
             $lookup: {
                 from: 'processes',
                 localField: 'processdata.process',
@@ -1222,18 +1213,19 @@ const generateReport = async (libraryId) => {
     }
 };
 exports.generateReport = generateReport;
-const generateFilterReport = async (workspaceId, site, process, status) => {
+const generateFilterReport = async (workspaceId, sites, processes, statuses) => {
     let browser;
     let page;
     try {
         // 1. Launch headless browser
-        console.log('Generating filtered report with:', { workspaceId, site, process, status });
+        console.log('Generating filtered report with:', { workspaceId, sites, processes, statuses });
         const query = {
             workspace: new mongoose_1.default.Types.ObjectId(workspaceId),
-            ...(site && { site: new mongoose_1.default.Types.ObjectId(site) }),
-            ...(process && { 'processdata.process': new mongoose_1.default.Types.ObjectId(process) }),
-            ...(status && { status }),
+            ...(sites && { site: { $in: sites.map((site) => new mongoose_1.default.Types.ObjectId(site)) } }),
+            ...(processes && { "processdata.process": { $in: processes.map((process) => new mongoose_1.default.Types.ObjectId(process)) } }),
+            ...(statuses && { status: { $in: statuses } }),
         };
+        console.log('Aggregation query:', query);
         const findLibraries = await capalibrary_modal_1.LibraryModel.aggregate([
             { $match: query },
             {

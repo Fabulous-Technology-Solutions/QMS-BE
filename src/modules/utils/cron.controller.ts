@@ -39,9 +39,9 @@ export const executeScheduledReports = catchAsync(async (_: Request, res: Respon
         // Generate report
         const generated = await generateFilterReport(
           report?.workspace?.toString(), 
-          report?.process?.toString(), 
-          report?.site?.toString(), 
-          report?.status
+          report?.sites?.map(site => site.toString()) || [], 
+          report?.processes?.map(process => process.toString()) || [], 
+          report?.statuses
         );
         
         const emailAddresses = ((report?.assignUsers as unknown) as IUserDoc[])?.map(user => user.email) || [];

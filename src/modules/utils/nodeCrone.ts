@@ -25,7 +25,12 @@ cron.schedule("0 0 * * *", async (): Promise<void> => {
       console.log(`📊 Generating report: ${report.name}`);
 
       // Generate report
-      const generated = await generateFilterReport(report?.workspace?.toString(), report?.process?.toString(), report?.site?.toString(), report?.status);
+      const generated = await generateFilterReport(
+        report?.workspace?.toString(), 
+        report?.sites?.map(site => site.toString()) || [], 
+        report?.processes?.map(process => process.toString()) || [], 
+        report?.statuses?.map(status => status.toString()) || []
+      );
       const emailAddresses = ((report?.assignUsers as unknown) as IUserDoc[])?.map(user => user.email) || [];
 
       // Send email if needed

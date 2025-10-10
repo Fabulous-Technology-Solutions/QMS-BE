@@ -6,7 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.UpdateItemsArraySchema = exports.UpdateItem = exports.CreateItemsArraySchema = exports.CreateItem = void 0;
 const joi_1 = __importDefault(require("joi"));
 const checklistitemBody = {
-    question: joi_1.default.string().min(2).max(100),
+    question: joi_1.default.string(),
     checklist: joi_1.default.string().length(24),
 };
 exports.CreateItem = joi_1.default.object()

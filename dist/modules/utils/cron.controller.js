@@ -26,7 +26,7 @@ exports.executeScheduledReports = (0, catchAsync_1.default)(async (_, res) => {
             console.log(`📊 Generating report: ${report.name}`);
             try {
                 // Generate report
-                const generated = await (0, capalibrary_service_1.generateFilterReport)(report?.workspace?.toString(), report?.process?.toString(), report?.site?.toString(), report?.status);
+                const generated = await (0, capalibrary_service_1.generateFilterReport)(report?.workspace?.toString(), report?.sites?.map(site => site.toString()) || [], report?.processes?.map(process => process.toString()) || [], report?.statuses);
                 const emailAddresses = report?.assignUsers?.map(user => user.email) || [];
                 // Send email if needed
                 if ((emailAddresses?.length ?? 0) > 0 && generated?.Location) {

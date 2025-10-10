@@ -2,7 +2,7 @@ import { CreateCheckListItemRequest } from './item.interface';
 import Joi from 'joi';
 
 const checklistitemBody: Record<keyof CreateCheckListItemRequest, Joi.Schema> = {
-  question: Joi.string().min(2).max(100),
+  question: Joi.string(),
   checklist: Joi.string().length(24),
 
 };

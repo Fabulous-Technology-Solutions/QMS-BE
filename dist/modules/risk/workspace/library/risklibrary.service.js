@@ -1158,17 +1158,17 @@ const generateReport = async (libraryId) => {
     }
 };
 exports.generateReport = generateReport;
-const generateFilterReport = async (workspaceId, site, process, status) => {
+const generateFilterReport = async (workspaceId, sites, processes, statuses) => {
     let browser;
     let page;
     try {
         // 1. Launch headless browser
-        console.log('Generating filtered report with:', { workspaceId, site, process, status });
+        console.log('Generating filtered report with:', { workspaceId, sites, processes, statuses });
         const query = {
             workspace: new mongoose_1.default.Types.ObjectId(workspaceId),
-            ...(site && { site: new mongoose_1.default.Types.ObjectId(site) }),
-            ...(process && { process: new mongoose_1.default.Types.ObjectId(process) }),
-            ...(status && { status }),
+            ...(sites && { sites: { $in: sites.map((site) => new mongoose_1.default.Types.ObjectId(site)) } }),
+            ...(processes && { processes: { $in: processes.map((process) => new mongoose_1.default.Types.ObjectId(process)) } }),
+            ...(statuses && { statuses: { $in: statuses } }),
         };
         const findLibraries = await risklibrary_modal_1.LibraryModel.aggregate([
             { $match: query },

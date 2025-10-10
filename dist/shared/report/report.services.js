@@ -29,7 +29,7 @@ class ReportService {
         }
     }
     async createReport(data) {
-        const report = await this.generateFilterReport(data.workspace, data.site, data.process, data.status);
+        const report = await this.generateFilterReport(data.workspace, data.sites, data.processes, data.statuses);
         console.log('Generated report:', report);
         const users = await account_1.AccountModel.aggregate([
             { $match: { _id: { $in: data?.assignUsers?.map((id) => new mongoose_1.default.Types.ObjectId(id)) } } },
@@ -62,9 +62,9 @@ class ReportService {
             assignUsers: data.assignUsers,
             createdBy: new mongoose_1.default.Types.ObjectId(data.createdBy),
             workspace: new mongoose_1.default.Types.ObjectId(data.workspace),
-            process: new mongoose_1.default.Types.ObjectId(data.process),
-            site: new mongoose_1.default.Types.ObjectId(data.site),
-            status: data.status || 'pending',
+            processes: data?.processes?.map((process) => new mongoose_1.default.Types.ObjectId(process)),
+            sites: data?.sites?.map((site) => new mongoose_1.default.Types.ObjectId(site)),
+            statuses: data?.statuses || ['pending'],
             lastSchedule: new Date(),
             nextSchedule: nextScheduleDate,
         });
@@ -135,21 +135,21 @@ class ReportService {
             {
                 $lookup: {
                     from: 'processes',
-                    localField: 'process',
+                    localField: 'processes',
                     foreignField: '_id',
-                    as: 'process',
+                    as: 'processes',
+                    pipeline: [{ $project: { _id: 1, name: 1 } }],
                 },
             },
-            { $unwind: { path: '$process', preserveNullAndEmptyArrays: true } },
             {
                 $lookup: {
                     from: 'sites',
-                    localField: 'site',
+                    localField: 'sites',
                     foreignField: '_id',
-                    as: 'site',
+                    as: 'sites',
+                    pipeline: [{ $project: { _id: 1, name: 1 } }],
                 },
             },
-            { $unwind: { path: '$site', preserveNullAndEmptyArrays: true } },
             {
                 $lookup: {
                     from: 'accounts',
@@ -210,11 +210,11 @@ class ReportService {
         if (data.workspace) {
             updateData.workspace = new mongoose_1.default.Types.ObjectId(data.workspace);
         }
-        if (data.process) {
-            updateData.process = new mongoose_1.default.Types.ObjectId(data.process);
+        if (data?.processes) {
+            updateData.processes = data.processes.map((process) => new mongoose_1.default.Types.ObjectId(process));
         }
-        if (data.site) {
-            updateData.site = new mongoose_1.default.Types.ObjectId(data.site);
+        if (data?.sites) {
+            updateData.sites = data.sites.map((site) => new mongoose_1.default.Types.ObjectId(site));
         }
         // Update next schedule if frequency changed
         if (data.scheduleFrequency) {

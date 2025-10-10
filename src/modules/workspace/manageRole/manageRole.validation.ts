@@ -21,11 +21,13 @@ const roleBody:Record<keyof CreateRoleRequest, any> = {
         'string.empty': 'Workspace is required',
         'string.base': 'Workspace must be a string'
     }),
-    process: Joi.string().messages({
+    processes: Joi.array().items(Joi.string()).messages({
+        'array.base': 'Processes must be an array',
         'string.empty': 'Process is required',
         'string.base': 'Process must be a string'
     }),
-    site: Joi.string().messages({
+    sites: Joi.array().items(Joi.string()).messages({
+        'array.base': 'Sites must be an array',
         'string.empty': 'Site is required',
         'string.base': 'Site must be a string'
     })
@@ -33,7 +35,7 @@ const roleBody:Record<keyof CreateRoleRequest, any> = {
 
 
 export const createRole = {
-    body: Joi.object().keys(roleBody).fork(['name', 'description', 'permissions', 'workspace','site','process'], (schema) => schema.required()),
+    body: Joi.object().keys(roleBody).fork(['name', 'description', 'permissions', 'workspace'], (schema) => schema.required()),
 };
 
 export const updateRole = {

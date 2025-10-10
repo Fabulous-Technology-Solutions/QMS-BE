@@ -3,7 +3,7 @@ import mongoose, { Document, ObjectId } from 'mongoose';
 export interface LibraryModal extends Document {
   name: string;
   description: string;
-  site: ObjectId;
+  site: ObjectId[];
   processdata: {
     process: ObjectId;
     subProcess: string[];
@@ -54,7 +54,7 @@ export interface CreateLibraryRequest {
   name: string;
   endDate: Date | null;
   description: string;
-  site: string;
+  site: string[];
   processdata: {
     process: string;
     subProcess: string[];
