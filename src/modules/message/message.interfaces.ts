@@ -1,4 +1,5 @@
 import mongoose, { Document } from 'mongoose';
+import { IUserDoc } from '../user/user.interfaces';
 
 export interface IMessageDoc extends Document {
   chat: mongoose.Schema.Types.ObjectId;
@@ -18,6 +19,12 @@ export interface IMessageDoc extends Document {
   }>;
   createdAt?: Date;
   updatedAt?: Date;
+  editedAt?: Date;
+}
+
+export interface IgetMessageResponse extends Omit<IMessageDoc, 'sender' | 'reply'> {
+  sender: IUserDoc;
+  reply?: IMessageDoc | null;
 }
 
 
@@ -37,4 +44,5 @@ export interface ICreateMessage {
     deliveredAt?: Date;
     deletedAt?: Date;
   }>;
+  editedAt?: Date;
 }

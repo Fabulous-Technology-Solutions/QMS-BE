@@ -3,7 +3,7 @@ import { AuthenticatedSocket } from '../socket/socket.middleware';
 import ChatModel from './chat.modal';
 import mongoose, { ObjectId } from 'mongoose';
 import Message from '../message/message.modal';
-import { fetchChatMessages, updateDeliveredAt } from './chat.services';
+import { editMessage, fetchChatMessages, updateDeliveredAt } from './chat.services';
 import { chatQuery } from './chat.queries';
 
 export const chatEvent = async (io: Server, socket: AuthenticatedSocket) => {
@@ -252,7 +252,7 @@ export const chatEvent = async (io: Server, socket: AuthenticatedSocket) => {
       if (data?.reply) {
         replymessage = await Message.findOne({ _id: data?.reply }).populate('sender', '_id name profilePicture');
       }
-     
+
       const addMessage = await Message.create(messageBody);
 
       const messageEmitBody = {
@@ -276,8 +276,9 @@ export const chatEvent = async (io: Server, socket: AuthenticatedSocket) => {
             contentTitle: replymessage?.contentTitle,
             contentDescription: replymessage?.contentDescription,
             contentType: replymessage?.contentType,
-            contentDescriptionType: replymessage?.contentDescriptionType ?? 'text'
-          }}
+            contentDescriptionType: replymessage?.contentDescriptionType ?? 'text',
+          },
+        },
       };
 
       // const messageDeliveryStatus =
@@ -335,31 +336,6 @@ export const chatEvent = async (io: Server, socket: AuthenticatedSocket) => {
       io.to(userId.toString()).emit('receive-message', {
         ...messageEmitBody,
       });
-
-      // const updateChatBody = {
-      //   lastMessage: addMessage?._id,
-      //   lastMessageSentAt: new Date(),
-      //   'userSettings.$[elem].hasUserDeletedChat': false,
-      // };
-
-      // const objectChatId = new mongoose.Types.ObjectId(chatId);
-      // const objectUserId = new mongoose.Types.ObjectId(userId);
-      // await ChatModel.updateOne(
-      //   { _id: objectChatId },
-      //   { $set: updateChatBody },
-      //   {
-      //     arrayFilters: [{ 'elem.userId': objectUserId }],
-      //   }
-      // );
-
-      // const allChatMessages = await Message.find({ chat: chatId }).distinct('_id');
-      // await updateReadAt({
-      //   userId,
-      //   chatId,
-      //   messageIds: allChatMessages
-      // });
-
-      // chatDetails?.markModified('userSettings');
     } catch (error) {
       console.log(error);
 
@@ -423,6 +399,111 @@ export const chatEvent = async (io: Server, socket: AuthenticatedSocket) => {
     } catch (error) {
       console.log(error);
       socket.emit('socket-error', { message: 'Error in fetching unseen chats.' });
+    }
+  });
+
+  socket.on('edit-message', async (data) => {
+    try {
+      const response = await editMessage({ ...data, userId });
+      if (!response?.success) {
+        socket.emit('socket-error', { message: response?.message });
+        return;
+      }
+      let allParticipants = [];
+
+      if (response?.data?.chat) {
+        const validateUserChat = await ChatModel.aggregate([
+          {
+            $match: {
+              _id: response?.data?.chat,
+            },
+          },
+          ...chatQuery,
+        ]).then((result) => result[0]);
+
+        console.log('validateUserChat', validateUserChat?.participants);
+
+        if (!validateUserChat) {
+          socket.emit('socket-error', { message: 'No chat found against chat id and user.' });
+          return;
+        }
+
+        allParticipants =
+          validateUserChat?.participants?.filter(
+            (participant: any) => participant._id.toString?.() !== userId?.toString()
+          ) || [];
+      }
+      let receiversData = Array.isArray(allParticipants) ? allParticipants : [];
+
+      if (!receiversData || receiversData?.length === 0) {
+        socket.emit('socket-error', { message: `Invalid receiver data.` });
+        return;
+      }
+
+      let chatId = response?.data?.chat;
+
+      const messageEmitBody = {
+        messageScreenBody: {
+          chatId,
+          messageId: response?.data?._id,
+          sender: {
+            _id: userId,
+            name: user?.name,
+            profilePicture: user?.profilePicture ?? '',
+          },
+          content: response?.data?.content,
+          contentTitle: response?.data?.contentTitle,
+          contentDescription: response?.data?.contentDescription,
+          contentType: response?.data?.contentType,
+          contentDescriptionType: response?.data?.contentDescriptionType ?? 'text',
+          createdAt: response?.data?.createdAt,
+          reply: response?.data?.reply && {
+            _id: response?.data?.reply?._id,
+            content: response?.data?.reply?.content,
+            contentTitle: response?.data?.reply?.contentTitle,
+            contentDescription: response?.data?.reply?.contentDescription,
+            contentType: response?.data?.reply?.contentType,
+            contentDescriptionType: response?.data?.reply?.contentDescriptionType ?? 'text',
+          },
+        },
+      };
+
+      for (const receiver of receiversData) {
+        const receiverID = receiver?._id; // Ensure you have the ID from receiver object
+        const receiverSocketId = io.sockets.adapter.rooms.get(receiverID?.toString?.());
+
+        const unreadCount = await Message.countDocuments({
+          chat: { $in: chatId },
+          $or: [
+            { userSettings: { $size: 0 } },
+            { 'userSettings.userId': { $ne: receiverID } },
+            {
+              userSettings: {
+                $elemMatch: {
+                  userId: userId,
+                  $or: [{ readAt: null }, { readAt: { $exists: false } }],
+                },
+              },
+            },
+          ],
+        });
+
+        if (receiverID.toString() !== userId.toString()) {
+          if (receiverSocketId) {
+            io.to(receiverID.toString()).emit('receive-edit-message', {
+              ...messageEmitBody,
+              unreadCounts: unreadCount,
+            });
+          }
+        }
+      }
+
+      io.to(userId.toString()).emit('receive-edit-message', {
+        ...messageEmitBody,
+      });
+    } catch (error) {
+      console.log(error);
+      socket.emit('socket-error', { message: 'Failed to edit message' });
     }
   });
 

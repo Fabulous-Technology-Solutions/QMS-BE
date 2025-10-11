@@ -15,6 +15,7 @@ const messageSchema = new mongoose.Schema(
       enum: ['text', 'image', 'video', 'file', 'audio', 'contact', 'link'],
     },
     reactionsCount: { type: Map, of: Number, default: {} },
+    editedAt: { type: Date },
     userSettings: [
       {
         userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },

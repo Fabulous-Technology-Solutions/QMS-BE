@@ -1,6 +1,7 @@
 import Messages from "../message/message.modal";
 import {DeliveredMessage, ICreateChat, IGetMessages, IMessageIds} from "./chat.interfaces";
 import ChatModel from "./chat.modal";
+import { IgetMessageResponse } from './../message/message.interfaces';
 
 export const createChat = async (data: ICreateChat) => {
   const chat = new ChatModel(data);
@@ -192,5 +193,41 @@ export const updateReadAt = async (params:IMessageIds) => {
                 success: false
             }
         }
+}
 
+export const editMessage = async (params: { messageId: string; userId: string; content: string }) => {
+        try {
+            console.log(`editMessage util called with params ${JSON.stringify(params)}`);
+            const { messageId, userId, content } = params;
+            const message: IgetMessageResponse | null = await Messages.findById(messageId).populate('reply').populate('sender');
+            if (!message) {
+                console.log(`Message with ID ${messageId} not found`);
+                return {
+                    success: false,
+                    message: `Message with ID ${messageId} not found`
+                }
+            }
+            if (message?.sender?._id?.toString?.() !== userId?.toString?.()) {
+                console.log(`User ${userId} is not the sender of message ${messageId}`);
+                return {
+                    success: false,
+                    message: `User ${userId} is not the sender of message ${messageId}`
+                }
+            }
+            message.content = content;
+            message.editedAt = new Date();
+            await message.save();
+            console.log(`Message ${messageId} edited successfully and new data is ${JSON.stringify(message)}`);
+            return {
+                success: true,
+                data: message
+            }
+        } catch (error) {
+            console.error(`Error editing message: ${error}`);
+            return {
+                success: false
+            };
+        }
     }
+
+
