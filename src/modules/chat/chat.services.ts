@@ -111,7 +111,9 @@ export const updateDeliveredAt = async (params: DeliveredMessage) => {
                    
                     isRead: otherUserSettings?.readAt ? true : false,
                     isDelivered: otherUserSettings?.deliveredAt ? true : false,
+                    editedAt: message?.editedAt,
                     createdAt: message?.createdAt,
+                  
                     reply: message?.reply ? {
                         _id: message?.reply?._id,
                         content: message?.reply?.content,

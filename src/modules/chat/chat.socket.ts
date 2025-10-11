@@ -457,6 +457,7 @@ export const chatEvent = async (io: Server, socket: AuthenticatedSocket) => {
           contentType: response?.data?.contentType,
           contentDescriptionType: response?.data?.contentDescriptionType ?? 'text',
           createdAt: response?.data?.createdAt,
+          editedAt: response?.data?.editedAt,
           reply: response?.data?.reply && {
             _id: response?.data?.reply?._id,
             content: response?.data?.reply?.content,
