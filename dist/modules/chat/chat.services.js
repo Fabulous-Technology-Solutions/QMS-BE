@@ -87,9 +87,9 @@ const fetchChatMessages = async (params) => {
             ],
         };
         const totalRecords = await message_modal_1.default.countDocuments(messagesQuery);
-        let messages = await message_modal_1.default.find(messagesQuery).populate('sender', '_id name profilePicture').sort({ createdAt: -1 }).skip(skipDocuments).limit(documentsLimit);
-        let messagesnew = messages?.map(message => {
-            const otherUserSettings = message?.userSettings?.find(setting => setting?.userId?.toString?.() !== userId?.toString?.());
+        let messages = await message_modal_1.default.find(messagesQuery).populate('sender', '_id name profilePicture').populate('reply').sort({ createdAt: -1 }).skip(skipDocuments).limit(documentsLimit);
+        let messagesnew = messages?.map((message) => {
+            const otherUserSettings = message?.userSettings?.find((setting) => setting?.userId?.toString?.() !== userId?.toString?.());
             return {
                 chatId: message?.chat,
                 messageId: message?._id,
@@ -103,6 +103,14 @@ const fetchChatMessages = async (params) => {
                 isRead: otherUserSettings?.readAt ? true : false,
                 isDelivered: otherUserSettings?.deliveredAt ? true : false,
                 createdAt: message?.createdAt,
+                reply: message?.reply ? {
+                    _id: message?.reply?._id,
+                    content: message?.reply?.content,
+                    contentTitle: message?.reply?.contentTitle,
+                    contentDescription: message?.reply?.contentDescription ?? '',
+                    contentType: message?.reply?.contentType ?? 'text',
+                    contentDescriptionType: message?.reply?.contentDescriptionType ?? 'text',
+                } : null
             };
         });
         const messageIds = messagesnew?.map((message) => message?.messageId);

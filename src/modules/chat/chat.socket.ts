@@ -246,7 +246,13 @@ export const chatEvent = async (io: Server, socket: AuthenticatedSocket) => {
         contentType: data?.contentType || 'text',
         contentDescriptionType: data?.contentDescriptionType,
         userSettings: userSettingsBody,
+        reply: data?.reply || null,
       };
+      let replymessage;
+      if (data?.reply) {
+        replymessage = await Message.findOne({ _id: data?.reply }).populate('sender', '_id name profilePicture');
+      }
+     
       const addMessage = await Message.create(messageBody);
 
       const messageEmitBody = {
@@ -259,14 +265,19 @@ export const chatEvent = async (io: Server, socket: AuthenticatedSocket) => {
             profilePicture: senderData?.profilePicture ?? '',
           },
           content: addMessage?.content,
-
           contentTitle: addMessage?.contentTitle,
-
           contentDescription: addMessage?.contentDescription,
           contentType: addMessage?.contentType,
           contentDescriptionType: addMessage?.contentDescriptionType ?? 'text',
           createdAt: addMessage?.createdAt,
-        },
+          reply: replymessage && {
+            _id: replymessage?._id,
+            content: replymessage?.content,
+            contentTitle: replymessage?.contentTitle,
+            contentDescription: replymessage?.contentDescription,
+            contentType: replymessage?.contentType,
+            contentDescriptionType: replymessage?.contentDescriptionType ?? 'text'
+          }}
       };
 
       // const messageDeliveryStatus =

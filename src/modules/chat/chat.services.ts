@@ -92,9 +92,9 @@ export const updateDeliveredAt = async (params: DeliveredMessage) => {
            
 
             const totalRecords = await Messages.countDocuments(messagesQuery);
-            let messages = await Messages.find(messagesQuery).populate('sender', '_id name profilePicture').sort({ createdAt: -1 }).skip(skipDocuments).limit(documentsLimit);
-           let messagesnew = messages?.map(message => {
-                const otherUserSettings = message?.userSettings?.find(setting => setting?.userId?.toString?.() !== userId?.toString?.());
+            let messages = await Messages.find(messagesQuery).populate('sender', '_id name profilePicture').populate('reply').sort({ createdAt: -1 }).skip(skipDocuments).limit(documentsLimit);
+           let messagesnew = messages?.map((message:any) => {
+                const otherUserSettings = message?.userSettings?.find((setting:any) => setting?.userId?.toString?.() !== userId?.toString?.());
                 return {
                     chatId: message?.chat,
                     messageId: message?._id,
@@ -111,7 +111,14 @@ export const updateDeliveredAt = async (params: DeliveredMessage) => {
                     isRead: otherUserSettings?.readAt ? true : false,
                     isDelivered: otherUserSettings?.deliveredAt ? true : false,
                     createdAt: message?.createdAt,
-                    
+                    reply: message?.reply ? {
+                        _id: message?.reply?._id,
+                        content: message?.reply?.content,
+                        contentTitle: message?.reply?.contentTitle,
+                        contentDescription: message?.reply?.contentDescription ?? '',
+                        contentType: message?.reply?.contentType ?? 'text',
+                        contentDescriptionType: message?.reply?.contentDescriptionType ?? 'text',
+                    } : null
                 }
             });
             
