@@ -1,13 +1,11 @@
-# Get User Chats Socket Event (Unread Only)
+# Get User Chats Socket Event
 
 ## Overview
-This socket event allows you to retrieve **only chats with unread messages** for a user with:
-- **Unread message counts** per chat (always > 0)
+This socket event allows you to retrieve all chats for a user with:
+- **Unread message counts** per chat
 - **Library names** associated with each chat
 - **Last message** details for each chat
 - **Pagination support** for efficient loading
-
-⚠️ **Important**: This event returns ONLY chats that have unread messages. Chats with all messages read are automatically filtered out.
 
 ## Socket Event Implementation
 
@@ -211,7 +209,6 @@ socket.on('mark-message-read-response', (data) => {
 
 ## Features
 
-✅ **Unread Messages Only**: Only returns chats with unread messages (unreadCount > 0)  
 ✅ **Unread Counts**: Shows number of unread messages per chat  
 ✅ **Library Names**: Displays the name/title of each library  
 ✅ **Last Message**: Shows the most recent message preview  
@@ -220,7 +217,6 @@ socket.on('mark-message-read-response', (data) => {
 ✅ **User Context**: Only shows chats where user is a participant  
 ✅ **Real-time Ready**: Can be combined with message events for live updates  
 ✅ **Validation**: Page/limit validation (limit max: 100)  
-✅ **Auto-filtered**: Chats with all messages read are excluded  
 
 ## Pagination Rules
 
@@ -232,15 +228,13 @@ socket.on('mark-message-read-response', (data) => {
 
 ## Use Cases
 
-1. **Unread Chat List**: Display only chats with unread messages
-2. **Notification Center**: Show chats requiring user attention
-3. **Initial Load**: Load first page of unread chats (20 items)
-4. **Load More**: Fetch next page when user scrolls
-5. **Unread Badge**: Show total unread chat count
-6. **Chat Preview**: Display last message for each unread chat
-7. **Library Context**: Show which library each chat belongs to
-8. **Infinite Scroll**: Automatically load next page on scroll
-9. **Priority View**: Focus on chats needing responses
+1. **Chat List**: Display all user's chats with unread badges
+2. **Initial Load**: Load first page of chats (20 items)
+3. **Load More**: Fetch next page when user scrolls
+4. **Unread Badge**: Show total unread count in navigation
+5. **Chat Preview**: Display last message for each chat
+6. **Library Context**: Show which library each chat belongs to
+7. **Infinite Scroll**: Automatically load next page on scroll
 
 ## How Unread Count Works
 
@@ -364,6 +358,4 @@ class ChatList {
 3. **Workspace Owner Check**: Also includes libraries from workspaces owned by the user
 4. **Chat Filtering**: Returns chats associated with these accessible libraries
 5. **Unread Count**: Calculates unread messages for each chat
-6. **Unread Filter**: **Filters out chats with unreadCount === 0**
-7. **Pagination**: Applies pagination AFTER filtering
-8. **Last Message**: Fetches the most recent message with sender details
+6. **Last Message**: Fetches the most recent message with sender details

@@ -834,7 +834,7 @@ export const chatEvent = async (io: Server, socket: AuthenticatedSocket) => {
 
   socket.on('get-user-chats', async (data) => {
     try {
-      const { page = 1, limit = 20 } = data;
+      const { page = 1, limit = 20, accountId } = data;
 
       // Validate pagination parameters
       const validPage = Math.max(1, parseInt(page) || 1);
@@ -844,6 +844,7 @@ export const chatEvent = async (io: Server, socket: AuthenticatedSocket) => {
         userId,
         page: validPage,
         limit: validLimit,
+        accountId,
       });
 
       if (!chatsResponse?.success) {

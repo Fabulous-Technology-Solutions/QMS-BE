@@ -277,7 +277,7 @@ export const markMessageAsRead = async (params: { chatId: string; userId: string
   try {
     console.log(`markMessageAsRead util called with params ${JSON.stringify(params)}`);
     const { chatId, userId } = params;
-    
+
     // Validate user is part of the chat using aggregation
     const chatDetails = await ChatModel.aggregate([
       {
@@ -382,7 +382,6 @@ export const getMessageReactions = async (params: { messageId: string; page?: nu
       total: totalReactions,
       totalPages: Math.ceil(totalReactions / limit),
       reactions: formattedReactions,
-     
     };
   } catch (error: any) {
     console.error(`Got error in getMessageReactions: ${error.message}`);
@@ -397,10 +396,35 @@ export const getMessageReactions = async (params: { messageId: string; page?: nu
   }
 };
 
-export const getUserChats = async (params: { userId: string; page?: number; limit?: number }) => {
+export const getUserChats = async (params: { userId: string; page?: number; limit?: number; accountId?: string }) => {
   try {
     console.log(`getUserChats util called with params ${JSON.stringify(params)}`);
-    const { userId, page = 1, limit = 20 } = params;
+    const { userId, page = 1, limit = 20, accountId } = params;
+
+    const query = [
+      {
+        $lookup: {
+          from: 'accounts',
+          let: { memberIds: '$members', managerIds: '$managers' },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $and: [
+                    { $eq: ['$user', new mongoose.Types.ObjectId(userId)] },
+                    { $eq: ['$accountId', new mongoose.Types.ObjectId(accountId)] },
+                    {
+                      $or: [{ $in: ['$_id', '$$memberIds'] }, { $in: ['$_id', '$$managerIds'] }],
+                    },
+                  ],
+                },
+              },
+            },
+          ],
+          as: 'userAccounts',
+        },
+      },
+    ];
 
     // Get all user chats with library details using aggregation
     // Chain: User -> Account -> Library -> Chat
@@ -415,30 +439,7 @@ export const getUserChats = async (params: { userId: string; page?: number; limi
                 $expr: { $eq: ['$_id', '$$objId'] },
               },
             },
-            {
-              $lookup: {
-                from: 'accounts',
-                let: { memberIds: '$members', managerIds: '$managers' },
-                pipeline: [
-                  {
-                    $match: {
-                      $expr: {
-                        $and: [
-                          { $eq: ['$user', new mongoose.Types.ObjectId(userId)] },
-                          {
-                            $or: [
-                              { $in: ['$_id', '$$memberIds'] },
-                              { $in: ['$_id', '$$managerIds'] },
-                            ],
-                          },
-                        ],
-                      },
-                    },
-                  },
-                ],
-                as: 'userAccounts',
-              },
-            },
+            ...(accountId ? query : []),
             {
               $lookup: {
                 from: 'workspaces',
@@ -452,6 +453,19 @@ export const getUserChats = async (params: { userId: string; page?: number; limi
                       localField: 'moduleId',
                       foreignField: '_id',
                       as: 'subscription',
+                      pipeline: [
+                        ...(!accountId
+                          ? [
+                              {
+                                $match: {
+                                  $expr: {
+                                    $eq: ['$userId', new mongoose.Types.ObjectId(userId)],
+                                  },
+                                },
+                              },
+                            ]
+                          : []),
+                      ],
                     },
                   },
                   {
@@ -473,7 +487,7 @@ export const getUserChats = async (params: { userId: string; page?: number; limi
               $match: {
                 $expr: {
                   $or: [
-                    { $gt: [{ $size: '$userAccounts' }, 0] },
+                    { $gt: [{ $size: { $ifNull: ['$userAccounts', []] } }, 0] },
                     { $eq: ['$workspace.subscription.userId', new mongoose.Types.ObjectId(userId)] },
                   ],
                 },
@@ -552,6 +566,8 @@ export const getUserChats = async (params: { userId: string; page?: number; limi
           chatOf: 1,
           obj: 1,
           libraryName: '$library.name',
+          workspaceid: '$library.workspace._id',
+          moduleId: '$library.workspace.moduleId',
           libraryTitle: '$library.title',
           libraryDescription: '$library.description',
           libraryStatus: '$library.status',
@@ -591,6 +607,8 @@ export const getUserChats = async (params: { userId: string; page?: number; limi
           libraryName: chat.libraryName || chat.libraryTitle || 'Unknown',
           libraryDescription: chat.libraryDescription,
           libraryStatus: chat.libraryStatus,
+          workspaceId: chat.workspaceid,
+          moduleId: chat.moduleId,
           unreadCount,
           lastMessage: chat.lastMessage
             ? {

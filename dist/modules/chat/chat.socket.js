@@ -731,7 +731,7 @@ const chatEvent = async (io, socket) => {
     });
     socket.on('get-user-chats', async (data) => {
         try {
-            const { page = 1, limit = 20 } = data;
+            const { page = 1, limit = 20, accountId } = data;
             // Validate pagination parameters
             const validPage = Math.max(1, parseInt(page) || 1);
             const validLimit = Math.min(100, Math.max(1, parseInt(limit) || 20));
@@ -739,6 +739,7 @@ const chatEvent = async (io, socket) => {
                 userId,
                 page: validPage,
                 limit: validLimit,
+                accountId,
             });
             if (!chatsResponse?.success) {
                 socket.emit('socket-error', { message: chatsResponse?.message });
