@@ -9,6 +9,7 @@ const mongoose_1 = __importDefault(require("mongoose"));
 const message_modal_1 = __importDefault(require("../message/message.modal"));
 const chat_services_1 = require("./chat.services");
 const chat_queries_1 = require("./chat.queries");
+const reaction_1 = require("../reaction");
 const chatEvent = async (io, socket) => {
     const user = socket?.user;
     const userId = socket?.user?._id.toString();
@@ -260,9 +261,9 @@ const chatEvent = async (io, socket) => {
                         contentTitle: replymessage?.contentTitle,
                         contentDescription: replymessage?.contentDescription,
                         contentType: replymessage?.contentType,
-                        contentDescriptionType: replymessage?.contentDescriptionType ?? 'text'
-                    }
-                }
+                        contentDescriptionType: replymessage?.contentDescriptionType ?? 'text',
+                    },
+                },
             };
             // const messageDeliveryStatus =
             //   msgDeliveryStatus({ userId, chat: { lastMessage: latestMessageData } }) || {};
@@ -271,7 +272,7 @@ const chatEvent = async (io, socket) => {
                 const receiverSocketId = io.sockets.adapter.rooms.get(receiverID?.toString?.());
                 if (receiverSocketId) {
                     userSettingsBody?.push({
-                        userId: receiverID,
+                        userId: receiverID?.toString?.(),
                         deliveredAt: new Date(),
                     });
                 }
@@ -310,27 +311,6 @@ const chatEvent = async (io, socket) => {
             io.to(userId.toString()).emit('receive-message', {
                 ...messageEmitBody,
             });
-            // const updateChatBody = {
-            //   lastMessage: addMessage?._id,
-            //   lastMessageSentAt: new Date(),
-            //   'userSettings.$[elem].hasUserDeletedChat': false,
-            // };
-            // const objectChatId = new mongoose.Types.ObjectId(chatId);
-            // const objectUserId = new mongoose.Types.ObjectId(userId);
-            // await ChatModel.updateOne(
-            //   { _id: objectChatId },
-            //   { $set: updateChatBody },
-            //   {
-            //     arrayFilters: [{ 'elem.userId': objectUserId }],
-            //   }
-            // );
-            // const allChatMessages = await Message.find({ chat: chatId }).distinct('_id');
-            // await updateReadAt({
-            //   userId,
-            //   chatId,
-            //   messageIds: allChatMessages
-            // });
-            // chatDetails?.markModified('userSettings');
         }
         catch (error) {
             console.log(error);
@@ -393,9 +373,390 @@ const chatEvent = async (io, socket) => {
             socket.emit('socket-error', { message: 'Error in fetching unseen chats.' });
         }
     });
-    socket.on('chat message', (msg) => {
-        console.log('message: ' + msg);
-        io.emit('chat message', msg);
+    socket.on('edit-message', async (data) => {
+        try {
+            const response = await (0, chat_services_1.editMessage)({ ...data, userId });
+            if (!response?.success) {
+                socket.emit('socket-error', { message: response?.message });
+                return;
+            }
+            let allParticipants = [];
+            if (response?.data?.chat) {
+                const validateUserChat = await chat_modal_1.default.aggregate([
+                    {
+                        $match: {
+                            _id: response?.data?.chat,
+                        },
+                    },
+                    ...chat_queries_1.chatQuery,
+                ]).then((result) => result[0]);
+                console.log('validateUserChat', validateUserChat?.participants);
+                if (!validateUserChat) {
+                    socket.emit('socket-error', { message: 'No chat found against chat id and user.' });
+                    return;
+                }
+                allParticipants =
+                    validateUserChat?.participants?.filter((participant) => participant._id.toString?.() !== userId?.toString()) || [];
+            }
+            let receiversData = Array.isArray(allParticipants) ? allParticipants : [];
+            if (!receiversData || receiversData?.length === 0) {
+                socket.emit('socket-error', { message: `Invalid receiver data.` });
+                return;
+            }
+            let chatId = response?.data?.chat;
+            const messageEmitBody = {
+                messageScreenBody: {
+                    chatId,
+                    messageId: response?.data?._id,
+                    sender: {
+                        _id: userId,
+                        name: user?.name,
+                        profilePicture: user?.profilePicture ?? '',
+                    },
+                    content: response?.data?.content,
+                    contentTitle: response?.data?.contentTitle,
+                    contentDescription: response?.data?.contentDescription,
+                    contentType: response?.data?.contentType,
+                    contentDescriptionType: response?.data?.contentDescriptionType ?? 'text',
+                    createdAt: response?.data?.createdAt,
+                    editedAt: response?.data?.editedAt,
+                    reply: response?.data?.reply && {
+                        _id: response?.data?.reply?._id,
+                        content: response?.data?.reply?.content,
+                        contentTitle: response?.data?.reply?.contentTitle,
+                        contentDescription: response?.data?.reply?.contentDescription,
+                        contentType: response?.data?.reply?.contentType,
+                        contentDescriptionType: response?.data?.reply?.contentDescriptionType ?? 'text',
+                    },
+                },
+            };
+            for (const receiver of receiversData) {
+                const receiverID = receiver?._id; // Ensure you have the ID from receiver object
+                const receiverSocketId = io.sockets.adapter.rooms.get(receiverID?.toString?.());
+                const unreadCount = await message_modal_1.default.countDocuments({
+                    chat: { $in: chatId },
+                    $or: [
+                        { userSettings: { $size: 0 } },
+                        { 'userSettings.userId': { $ne: receiverID } },
+                        {
+                            userSettings: {
+                                $elemMatch: {
+                                    userId: userId,
+                                    $or: [{ readAt: null }, { readAt: { $exists: false } }],
+                                },
+                            },
+                        },
+                    ],
+                });
+                if (receiverID.toString() !== userId.toString()) {
+                    if (receiverSocketId) {
+                        io.to(receiverID.toString()).emit('receive-edit-message', {
+                            ...messageEmitBody,
+                            unreadCounts: unreadCount,
+                        });
+                    }
+                }
+            }
+            io.to(userId.toString()).emit('receive-edit-message', {
+                ...messageEmitBody,
+            });
+        }
+        catch (error) {
+            console.log(error);
+            socket.emit('socket-error', { message: 'Failed to edit message' });
+        }
+    });
+    socket.on('add-reaction', async (data) => {
+        try {
+            const { emoji, messageId } = data;
+            if (!emoji || !messageId) {
+                socket.emit('socket-error', { message: 'Emoji and message id are required.' });
+                return;
+            }
+            const message = await message_modal_1.default.findById(messageId);
+            if (!message) {
+                socket.emit('socket-error', { message: 'Message not found.' });
+                return;
+            }
+            // Validate user is part of the chat
+            const chatDetails = await chat_modal_1.default.aggregate([
+                {
+                    $match: {
+                        _id: message.chat,
+                    },
+                },
+                ...chat_queries_1.chatQuery,
+            ]).then((result) => result[0]);
+            if (!chatDetails) {
+                socket.emit('socket-error', { message: 'Chat not found.' });
+                return;
+            }
+            const isParticipant = chatDetails?.participants?.some((participant) => participant?._id?.toString() === userId?.toString());
+            if (!isParticipant) {
+                socket.emit('socket-error', { message: 'User is not a part of chat.' });
+                return;
+            }
+            const userExistingReaction = await reaction_1.Reaction.findOne({
+                messageId: messageId,
+                userId: userId,
+            });
+            // Initialize reactionsCount if it doesn't exist
+            if (!message.reactionsCount) {
+                message.reactionsCount = new Map();
+            }
+            if (userExistingReaction) {
+                const existingEmoji = userExistingReaction.emoji;
+                if (existingEmoji && message.reactionsCount.get(existingEmoji) && message.reactionsCount.get(existingEmoji) > 0) {
+                    const newCount = message.reactionsCount.get(existingEmoji) - 1;
+                    if (newCount > 0) {
+                        message.reactionsCount.set(existingEmoji, newCount);
+                    }
+                    else {
+                        message.reactionsCount.delete(existingEmoji);
+                    }
+                }
+                userExistingReaction.emoji = emoji;
+                await userExistingReaction.save();
+            }
+            else {
+                const reactionBody = {
+                    messageId: messageId,
+                    userId: userId,
+                    emoji,
+                };
+                await reaction_1.Reaction.create(reactionBody);
+            }
+            message.reactionsCount.set(emoji, (message.reactionsCount.get(emoji) || 0) + 1);
+            message.markModified('reactionsCount');
+            await message.save();
+            const reactionsList = await reaction_1.Reaction.find({ messageId: messageId }).populate('userId', '_id name profilePicture');
+            const detailedReactions = reactionsList.map((reaction) => ({
+                userId: reaction.userId?._id,
+                userName: reaction.userId?.name,
+                profilePicture: reaction.userId?.profilePicture,
+                emoji: reaction.emoji,
+            }));
+            const payload = {
+                chatId: message.chat,
+                messageId,
+                emoji,
+                reactionsCount: Object.fromEntries(message.reactionsCount),
+                userId,
+                reactions: detailedReactions,
+            };
+            io.to(userId.toString()).emit('reaction', payload);
+            // Emit to other participants
+            const otherParticipants = chatDetails?.participants?.filter((participant) => participant?._id?.toString() !== userId?.toString()) || [];
+            for (const participant of otherParticipants) {
+                const participantId = participant?._id?.toString();
+                if (participantId) {
+                    io.to(participantId).emit('reaction', payload);
+                }
+            }
+            await (0, chat_services_1.addReaction)({ ...data, userId });
+        }
+        catch (error) {
+            console.log(`Got error in add-reaction:`, error);
+            socket.emit('socket-error', { message: 'Error in adding reaction.' });
+        }
+    });
+    socket.on('remove-reaction', async (data) => {
+        try {
+            const { emoji, messageId } = data;
+            if (!emoji || !messageId) {
+                socket.emit('socket-error', { message: 'Emoji and message id are required.' });
+                return;
+            }
+            const message = await message_modal_1.default.findById(messageId);
+            if (!message) {
+                socket.emit('socket-error', { message: 'Message not found.' });
+                return;
+            }
+            // Validate user is part of the chat
+            const chatDetails = await chat_modal_1.default.aggregate([
+                {
+                    $match: {
+                        _id: message.chat,
+                    },
+                },
+                ...chat_queries_1.chatQuery,
+            ]).then((result) => result[0]);
+            if (!chatDetails) {
+                socket.emit('socket-error', { message: 'Chat not found.' });
+                return;
+            }
+            const isParticipant = chatDetails?.participants?.some((participant) => participant?._id?.toString() === userId?.toString());
+            if (!isParticipant) {
+                socket.emit('socket-error', { message: 'User is not a part of chat.' });
+                return;
+            }
+            const userReaction = await reaction_1.Reaction.findOne({
+                messageId: messageId,
+                userId: userId,
+                emoji,
+            });
+            if (!userReaction) {
+                socket.emit('socket-error', {
+                    message: 'No reaction from the user found for the message or emoji.',
+                });
+                return;
+            }
+            // Initialize reactionsCount if it doesn't exist
+            if (!message.reactionsCount) {
+                message.reactionsCount = new Map();
+            }
+            // Remove the user's reaction
+            await userReaction.deleteOne();
+            // Update the reactions count
+            if (message.reactionsCount.has(emoji)) {
+                const currentCount = message.reactionsCount.get(emoji);
+                const newCount = currentCount - 1;
+                if (newCount > 0) {
+                    message.reactionsCount.set(emoji, newCount);
+                }
+                else {
+                    message.reactionsCount.delete(emoji);
+                }
+            }
+            message.markModified('reactionsCount');
+            await message.save();
+            // Get updated reactions list
+            const reactionsList = await reaction_1.Reaction.find({ messageId: messageId }).populate('userId', '_id name profilePicture');
+            const detailedReactions = reactionsList.map((reaction) => ({
+                userId: reaction.userId?._id,
+                userName: reaction.userId?.name,
+                profilePicture: reaction.userId?.profilePicture,
+                emoji: reaction.emoji,
+            }));
+            const payload = {
+                chatId: message.chat,
+                messageId,
+                emoji,
+                reactionsCount: Object.fromEntries(message.reactionsCount),
+                userId,
+                reactions: detailedReactions,
+            };
+            io.to(userId.toString()).emit('remove-reaction-response', payload);
+            // Emit to other participants
+            const otherParticipants = chatDetails?.participants?.filter((participant) => participant?._id?.toString() !== userId?.toString()) || [];
+            for (const participant of otherParticipants) {
+                const participantId = participant?._id?.toString();
+                if (participantId) {
+                    io.to(participantId).emit('remove-reaction-response', payload);
+                }
+            }
+            await (0, chat_services_1.removeReaction)({ ...data, userId });
+        }
+        catch (error) {
+            console.log(`Got error in remove-reaction:`, error);
+            socket.emit('socket-error', { message: 'Error in removing reaction.' });
+        }
+    });
+    socket.on('mark-message-as-read', async (data) => {
+        try {
+            const markAsReadResponse = await (0, chat_services_1.markMessageAsRead)({ ...data, userId });
+            if (!markAsReadResponse?.success) {
+                socket.emit('socket-error', { message: markAsReadResponse?.message });
+                return;
+            }
+            socket.emit('mark-message-read-response', { success: true });
+            const { chatId } = markAsReadResponse;
+            // Get chat details with participants using aggregation
+            const chatDetails = await chat_modal_1.default.aggregate([
+                {
+                    $match: {
+                        _id: new mongoose_1.default.Types.ObjectId(chatId),
+                    },
+                },
+                ...chat_queries_1.chatQuery,
+            ]).then((result) => result[0]);
+            if (!chatDetails) {
+                console.log('Chat not found');
+                return;
+            }
+            const otherParticipants = chatDetails?.participants?.filter((participant) => participant?._id?.toString() !== userId?.toString()) || [];
+            otherParticipants.forEach((otherParticipant) => {
+                const participantId = otherParticipant?._id?.toString();
+                if (participantId) {
+                    const isUserOnline = io.sockets.adapter.rooms.get(participantId) ? true : false;
+                    if (isUserOnline) {
+                        io.to(participantId).emit('mark-message-read-response', {
+                            success: true,
+                            chatId,
+                            userId,
+                            allMsgsRead: true,
+                        });
+                    }
+                }
+            });
+        }
+        catch (error) {
+            console.log(`Got error in mark-message-as-read: ${JSON.stringify(error?.stack)}`);
+            socket.emit('socket-error', { message: 'Error in marking message as read.' });
+        }
+    });
+    socket.on('get-message-reactions', async (data) => {
+        try {
+            const { messageId, page = 1, limit = 20 } = data;
+            if (!messageId) {
+                socket.emit('socket-error', { message: 'Message ID is required.' });
+                return;
+            }
+            // Validate pagination parameters
+            const validPage = Math.max(1, parseInt(page) || 1);
+            const validLimit = Math.min(100, Math.max(1, parseInt(limit) || 20));
+            const reactionsResponse = await (0, chat_services_1.getMessageReactions)({
+                messageId,
+                page: validPage,
+                limit: validLimit
+            });
+            if (!reactionsResponse?.success) {
+                socket.emit('socket-error', { message: reactionsResponse?.message });
+                return;
+            }
+            socket.emit('message-reactions-response', {
+                success: true,
+                messageId: reactionsResponse.messageId,
+                page: reactionsResponse.page,
+                limit: reactionsResponse.limit,
+                total: reactionsResponse.total,
+                totalPages: reactionsResponse.totalPages,
+                reactions: reactionsResponse.reactions,
+            });
+        }
+        catch (error) {
+            console.log(`Got error in get-message-reactions: ${JSON.stringify(error?.stack)}`);
+            socket.emit('socket-error', { message: 'Error in getting message reactions.' });
+        }
+    });
+    socket.on('get-user-chats', async (data) => {
+        try {
+            const { page = 1, limit = 20 } = data;
+            // Validate pagination parameters
+            const validPage = Math.max(1, parseInt(page) || 1);
+            const validLimit = Math.min(100, Math.max(1, parseInt(limit) || 20));
+            const chatsResponse = await (0, chat_services_1.getUserChats)({
+                userId,
+                page: validPage,
+                limit: validLimit,
+            });
+            if (!chatsResponse?.success) {
+                socket.emit('socket-error', { message: chatsResponse?.message });
+                return;
+            }
+            socket.emit('user-chats-response', {
+                success: true,
+                page: chatsResponse.page,
+                limit: chatsResponse.limit,
+                total: chatsResponse.total,
+                totalPages: chatsResponse.totalPages,
+                chats: chatsResponse.chats,
+            });
+        }
+        catch (error) {
+            console.log(`Got error in get-user-chats: ${JSON.stringify(error?.stack)}`);
+            socket.emit('socket-error', { message: 'Error in getting user chats.' });
+        }
     });
 };
 exports.chatEvent = chatEvent;

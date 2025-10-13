@@ -31,3 +31,9 @@ export interface IMessageIds {
   userId: string;
   messageIds: string[];
 }
+
+export interface IReactionParams {
+  messageId: string;
+  userId: string;
+  emoji: string;
+}
