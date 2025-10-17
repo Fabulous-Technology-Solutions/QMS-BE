@@ -273,7 +273,7 @@ export const removeReaction = async (params: { messageId: string; userId: string
   }
 };
 
-export const markMessageAsRead = async (params: { chatId: string; userId: string }) => {
+export const markMessageAsRead = async (params: { chatId: string; userId: string  }) => {
   try {
     console.log(`markMessageAsRead util called with params ${JSON.stringify(params)}`);
     const { chatId, userId } = params;

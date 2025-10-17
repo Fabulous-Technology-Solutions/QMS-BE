@@ -6,6 +6,8 @@ import Message from '../message/message.modal';
 import { addReaction, editMessage, fetchChatMessages, getMessageReactions, getUserChats, markMessageAsRead, removeReaction, updateDeliveredAt } from './chat.services';
 import { chatQuery } from './chat.queries';
 import { Reaction } from '../reaction';
+import { getUserNotifications, getUserUnreadNotifications, readUserNotifications, createNotification } from '../notification/notification.services';
+import AccountModel from './../account/account.modal';
 
 export const chatEvent = async (io: Server, socket: AuthenticatedSocket) => {
   const user = socket?.user;
@@ -87,8 +89,6 @@ export const chatEvent = async (io: Server, socket: AuthenticatedSocket) => {
         },
       },
     ]);
-
-    console.log('User Chats:..........', userChats);
 
     const userChatIds = userChats.map((chat) => chat._id);
     const undeliveredMessagesQuery = {
@@ -197,6 +197,9 @@ export const chatEvent = async (io: Server, socket: AuthenticatedSocket) => {
       }
 
       let allParticipants = [];
+
+
+      console.log('mention users in chat :', data?.mentionUsers);
 
       if (data?.chatId) {
         const validateUserChat = await ChatModel.aggregate([
@@ -325,6 +328,53 @@ export const chatEvent = async (io: Server, socket: AuthenticatedSocket) => {
           }
         }
       }
+
+      // Send notifications to mentioned users
+      if(data?.mentionUsers && Array.isArray(data?.mentionUsers) && data?.mentionUsers.length > 0){
+        const Accounts = await AccountModel.find({ _id: { $in: data?.mentionUsers } })
+          .populate('user', '_id name profilePicture')
+          .select('_id user accountId');
+
+        console.log('Accounts of mentioned users :', Accounts);
+
+        
+        // Send notification to each mentioned user
+        for (const account of Accounts) {
+          const mentionedUser = account.user as any;
+          const mentionedUserId = mentionedUser?._id;
+          
+          // Don't send notification to the sender
+          if (mentionedUserId && mentionedUserId?.toString() !== userId?.toString()) {
+            try {
+              // Get message preview (limit to 50 characters)
+              const messagePreview = data?.content 
+                ? data.content.substring(0, 50) + (data.content.length > 50 ? '...' : '')
+                : 'mentioned you in a message';
+
+              const notificationParams: any = {
+                userId: mentionedUserId,
+                title: 'You were mentioned',
+                message: `${senderData?.name || 'Someone'} mentioned you: ${messagePreview}`,
+                type: 'message',
+              };
+
+              // Only add accountId if it exists
+              if (account.accountId) {
+                notificationParams.accountId = account.accountId;
+              }
+
+              await createNotification(notificationParams);
+
+              console.log(`Notification sent to mentioned user: ${mentionedUserId}`);
+            } catch (notifError) {
+              console.error(`Failed to send notification to user ${mentionedUserId}:`, notifError);
+            }
+          }
+        }
+      }
+
+
+
 
       await Message.updateOne(
         { _id: addMessage._id },
@@ -863,6 +913,130 @@ export const chatEvent = async (io: Server, socket: AuthenticatedSocket) => {
     } catch (error: any) {
       console.log(`Got error in get-user-chats: ${JSON.stringify(error?.stack)}`);
       socket.emit('socket-error', { message: 'Error in getting user chats.' });
+    }
+  });
+
+  ////////////////////// Get User Notifications /////////////////////////
+  socket.on('get-user-notifications', async (data) => {
+    try {
+      const { page = 1, limit = 20 } = data;
+
+      // Validate pagination parameters
+      const validPage = Math.max(1, parseInt(page) || 1);
+      const validLimit = Math.min(100, Math.max(1, parseInt(limit) || 20));
+
+      const notificationsResponse = await getUserNotifications({
+        userId,
+        page: validPage,
+        limit: validLimit,
+      });
+
+      if (!notificationsResponse?.success) {
+        socket.emit('socket-error', { message: notificationsResponse?.message });
+        return;
+      }
+
+      socket.emit('user-notifications', {
+        success: true,
+        page: notificationsResponse.page,
+        limit: notificationsResponse.limit,
+        total: notificationsResponse.total,
+        totalPages: notificationsResponse.totalPages,
+        notifications: notificationsResponse.notifications,
+      });
+    } catch (error: any) {
+      console.log(`Got error in get-user-notifications: ${JSON.stringify(error?.stack)}`);
+      socket.emit('socket-error', { message: 'Error in fetching notifications.' });
+    }
+  });
+
+  ////////////////////// Get User Unread Notifications /////////////////////////
+  socket.on('get-user-unread-notifications', async (data) => {
+    try {
+      console.log('get-user-unread-notifications data:', data, userId);
+      const notificationsResponse = await getUserUnreadNotifications({ userId ,accountId:data?.accountId});
+
+      if (!notificationsResponse?.success) {
+        socket.emit('socket-error', { message: notificationsResponse?.message });
+        return;
+      }
+
+      socket.emit('user-unread-notifications', {
+        success: true,
+        total: notificationsResponse.total,
+        notifications: notificationsResponse.notifications,
+      });
+    } catch (error: any) {
+      console.log(`Got error in get-user-unread-notifications: ${JSON.stringify(error?.stack)}`);
+      socket.emit('socket-error', { message: 'Error in fetching unread notifications.' });
+    }
+  });
+
+  ////////////////////// Read User Notifications /////////////////////////
+  socket.on('read-user-notifications', async (data) => {
+    try {
+      const { accountId } = data;
+      console.log('read-user-notifications data:', data, userId);
+      const result = await readUserNotifications({ userId, accountId });
+
+      if (!result?.success) {
+        socket.emit('socket-error', { message: result?.message });
+        return;
+      }
+
+      socket.emit('notifications-read-response', {
+        success: true,
+        message: 'All notifications marked as read.',
+      });
+    } catch (error: any) {
+      console.log(`Got error in read-user-notifications: ${JSON.stringify(error?.stack)}`);
+      socket.emit('socket-error', { message: 'Error in marking notifications as read.' });
+    }
+  });
+
+  ////////////////////// Send Notification /////////////////////////
+  socket.on('send-notification', async (data) => {
+    try {
+      const { userId: targetUserId, title, message, type, accountId } = data;
+
+      // Validate required fields
+      if (!targetUserId || !title || !message || !type) {
+        socket.emit('socket-error', {
+          message: 'Missing required fields: userId, title, message, and type are required.',
+        });
+        return;
+      }
+
+      // Validate notification type
+      const validTypes = ['serviceListing', 'booking', 'user', 'review', 'message', 'payout'];
+      if (!validTypes.includes(type)) {
+        socket.emit('socket-error', {
+          message: `Invalid notification type. Must be one of: ${validTypes.join(', ')}`,
+        });
+        return;
+      }
+
+      const result = await createNotification({
+        userId: targetUserId,
+        title,
+        message,
+        type,
+        accountId,
+      });
+
+      if (!result?.success) {
+        socket.emit('socket-error', { message: result?.message });
+        return;
+      }
+
+      socket.emit('notification-sent-response', {
+        success: true,
+        notification: result.notification,
+        message: result.message,
+      });
+    } catch (error: any) {
+      console.log(`Got error in send-notification: ${JSON.stringify(error?.stack)}`);
+      socket.emit('socket-error', { message: 'Error in sending notification.' });
     }
   });
 };
