@@ -22,6 +22,10 @@ export interface ICreateNotificationParams {
   message: string;
   type: 'serviceListing' | 'booking' | 'user' | 'review' | 'message' | 'payout';
   accountId?: string | mongoose.Types.ObjectId;
+  forId?: string | mongoose.Types.ObjectId;
+  notificationFor?: string;
+  sendEmailNotification?: boolean;
+  link?: string;
 }
 
 export interface INotificationResponse {

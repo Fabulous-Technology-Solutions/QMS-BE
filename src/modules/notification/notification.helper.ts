@@ -6,13 +6,14 @@ import { ICreateNotificationParams } from './notification.interfaces';
  * Can be used anywhere in the codebase
  * 
  * @param params - Notification parameters
+ * @param sendEmail - Whether to send email notification (default: false)
  * @returns Promise with success status and notification data
  * 
  * @example
  * ```typescript
  * import { sendNotificationToUser } from '@/modules/notification/notification.helper';
  * 
- * // Send a message notification
+ * // Send a message notification without email
  * await sendNotificationToUser({
  *   userId: 'user_id_123',
  *   title: 'New Message',
@@ -20,13 +21,14 @@ import { ICreateNotificationParams } from './notification.interfaces';
  *   type: 'message'
  * });
  * 
- * // Send a booking notification with accountId
+ * // Send a booking notification with email
  * await sendNotificationToUser({
  *   userId: 'user_id_456',
  *   title: 'New Booking',
  *   message: 'You have a new booking request',
  *   type: 'booking',
- *   accountId: 'account_id_789'
+ *   accountId: 'account_id_789',
+ *   sendEmailNotification: true
  * });
  * ```
  */
@@ -44,17 +46,29 @@ export const sendNotificationToUser = async (
  * @param message - Notification message
  * @param type - Notification type
  * @param accountId - Optional account ID
+ * @param sendEmailNotification - Whether to send email notification (default: false)
  * @returns Promise with array of results
  * 
  * @example
  * ```typescript
  * import { sendNotificationToMultipleUsers } from '@/modules/notification/notification.helper';
  * 
+ * // Send notification without email
  * await sendNotificationToMultipleUsers(
  *   ['user_id_1', 'user_id_2', 'user_id_3'],
  *   'Team Update',
  *   'New task assigned to your team',
  *   'user'
+ * );
+ * 
+ * // Send notification with email
+ * await sendNotificationToMultipleUsers(
+ *   ['user_id_1', 'user_id_2'],
+ *   'Important Update',
+ *   'Please review the new policy',
+ *   'user',
+ *   undefined,
+ *   true
  * );
  * ```
  */
@@ -63,7 +77,8 @@ export const sendNotificationToMultipleUsers = async (
   title: string,
   message: string,
   type: ICreateNotificationParams['type'],
-  accountId?: string
+  accountId?: string,
+  sendEmailNotification: boolean = false
 ) => {
   const promises = userIds.map((userId) => {
     const params: ICreateNotificationParams = {
@@ -71,6 +86,7 @@ export const sendNotificationToMultipleUsers = async (
       title,
       message,
       type,
+      sendEmailNotification,
     };
     
     if (accountId) {

@@ -7,9 +7,11 @@ exports.deleteUserNotifications = exports.readUserNotifications = exports.getUse
 const mongoose_1 = __importDefault(require("mongoose"));
 const notification_modal_1 = __importDefault(require("./notification.modal"));
 const socket_initialize_1 = require("../socket/socket.initialize");
+const user_1 = require("../user");
+const email_service_1 = require("../email/email.service");
 const createNotification = async (params) => {
     try {
-        const { userId, title, message, type, accountId } = params;
+        const { userId, title, message, type, accountId, notificationFor, forId, sendEmailNotification = false, link } = params;
         // Convert userId to ObjectId if it's a string
         const userObjectId = typeof userId === 'string' ? new mongoose_1.default.Types.ObjectId(userId) : userId;
         // Convert accountId to ObjectId if provided and is a string
@@ -27,6 +29,9 @@ const createNotification = async (params) => {
             accountId: accountObjectId,
             isRead: false,
             isDelivered: false,
+            notificationFor,
+            forId,
+            link
         });
         await notification.save();
         // Emit notification to user via socket if they are connected
@@ -36,6 +41,32 @@ const createNotification = async (params) => {
                 success: true,
                 notification: notification.toObject(),
             });
+        }
+        // Send email notification if requested
+        if (sendEmailNotification) {
+            try {
+                const user = await user_1.User.findById(userObjectId).select('email name');
+                if (user && user.email) {
+                    const emailSubject = title;
+                    const emailText = `Hi ${user.name},\n\n${message}\n\nRegards,\nTeam`;
+                    const emailHtml = `
+            <div style="margin:30px; padding:30px; border:1px solid #e0e0e0; border-radius: 10px; font-family: Arial, sans-serif;">
+              <h4 style="color: #333;"><strong>Hi ${user.name},</strong></h4>
+              <p style="color: #555; line-height: 1.6;">${message}</p>
+              <p style="color: #555; margin-top: 20px;">You can view all your notifications by logging into your account.</p>
+              <p style="color: #777; margin-top: 30px; font-size: 12px;">If you did not expect this notification, please ignore this email.</p>
+              <p style="color: #555;">Regards,</p>
+              <p style="color: #555;"><strong>Team</strong></p>
+            </div>
+          `;
+                    await (0, email_service_1.sendEmail)(user.email, emailSubject, emailText, emailHtml);
+                    console.log(`Email notification sent to ${user.email}`);
+                }
+            }
+            catch (emailError) {
+                console.error('Error sending email notification:', emailError.message);
+                // Don't fail the notification creation if email fails
+            }
         }
         return {
             success: true,
@@ -65,6 +96,7 @@ const getUserNotifications = async (params) => {
         const total = await notification_modal_1.default.countDocuments({ userId: userObjectId });
         // Get paginated notifications
         const notifications = await notification_modal_1.default.find({ userId: userObjectId })
+            .populate('forId')
             .sort({ createdAt: -1 })
             .skip(skip)
             .limit(validLimit)
@@ -104,9 +136,7 @@ const getUserUnreadNotifications = async (params) => {
         }
         console.log('Unread notifications query:', query);
         // Get unread notifications
-        const notifications = await notification_modal_1.default.find(query)
-            .sort({ createdAt: -1 })
-            .lean();
+        const notifications = await notification_modal_1.default.find(query).sort({ createdAt: -1 }).lean();
         return {
             success: true,
             notifications,
@@ -124,11 +154,21 @@ const getUserUnreadNotifications = async (params) => {
 exports.getUserUnreadNotifications = getUserUnreadNotifications;
 const readUserNotifications = async (params) => {
     try {
-        const { userId } = params;
+        const { userId, accountId } = params;
         // Convert userId to ObjectId if it's a string
         const userObjectId = typeof userId === 'string' ? new mongoose_1.default.Types.ObjectId(userId) : userId;
-        // Mark all notifications as read instead of deleting them
-        await notification_modal_1.default.updateMany({ userId: userObjectId }, { $set: { isRead: true } });
+        // Build query based on accountId
+        const query = {
+            userId: userObjectId,
+        };
+        if (accountId) {
+            query.accountId = accountId;
+        }
+        else {
+            query.accountId = { $exists: false };
+        }
+        // Mark notifications as read based on query
+        await notification_modal_1.default.updateMany(query, { $set: { isRead: true } });
         return { success: true };
     }
     catch (error) {

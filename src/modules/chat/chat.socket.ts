@@ -200,9 +200,9 @@ export const chatEvent = async (io: Server, socket: AuthenticatedSocket) => {
 
 
       console.log('mention users in chat :', data?.mentionUsers);
-
+      let validateUserChat;
       if (data?.chatId) {
-        const validateUserChat = await ChatModel.aggregate([
+        validateUserChat = await ChatModel.aggregate([
           {
             $match: {
               _id: new mongoose.Types.ObjectId(data?.chatId),
@@ -356,6 +356,10 @@ export const chatEvent = async (io: Server, socket: AuthenticatedSocket) => {
                 title: 'You were mentioned',
                 message: `${senderData?.name || 'Someone'} mentioned you: ${messagePreview}`,
                 type: 'message',
+                notificationFor: validateUserChat?.chatOf,
+                forId: validateUserChat?.obj,
+                sendEmailNotification: true, // Send email for mentions
+                link: `/capa/${data.moduleId}/workspace/${data.workspaceId}/library/detail/${data.libraryId}?fromRecentChats=true` // Example link to the chat
               };
 
               // Only add accountId if it exists
@@ -372,9 +376,6 @@ export const chatEvent = async (io: Server, socket: AuthenticatedSocket) => {
           }
         }
       }
-
-
-
 
       await Message.updateOne(
         { _id: addMessage._id },
@@ -997,7 +998,7 @@ export const chatEvent = async (io: Server, socket: AuthenticatedSocket) => {
   ////////////////////// Send Notification /////////////////////////
   socket.on('send-notification', async (data) => {
     try {
-      const { userId: targetUserId, title, message, type, accountId } = data;
+      const { userId: targetUserId, title, message, type, accountId, sendEmail } = data;
 
       // Validate required fields
       if (!targetUserId || !title || !message || !type) {
@@ -1022,6 +1023,7 @@ export const chatEvent = async (io: Server, socket: AuthenticatedSocket) => {
         message,
         type,
         accountId,
+        sendEmailNotification: sendEmail || false,
       });
 
       if (!result?.success) {

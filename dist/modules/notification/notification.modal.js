@@ -27,6 +27,13 @@ const notificationSchema = new mongoose_1.Schema({
         required: true,
         index: true,
     },
+    notificationFor: {
+        type: String,
+    },
+    forId: {
+        type: mongoose_1.Schema.Types.ObjectId,
+        refPath: 'notificationFor',
+    },
     accountId: {
         type: mongoose_1.Schema.Types.ObjectId,
         ref: 'User',
@@ -44,11 +51,10 @@ const notificationSchema = new mongoose_1.Schema({
         enum: ['serviceListing', 'booking', 'user', 'review', 'message', 'payout'],
         required: true,
     },
-    isRead: {
-        type: Boolean,
-        default: false,
+    link: {
+        type: String,
     },
-    isDelivered: {
+    isRead: {
         type: Boolean,
         default: false,
     },

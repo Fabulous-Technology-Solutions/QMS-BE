@@ -1,10 +1,11 @@
 # Notification Module
 
-A complete notification system for the QMS application with real-time socket delivery, pagination, and helper utilities.
+A complete notification system for the QMS application with real-time socket delivery, optional email notifications, pagination, and helper utilities.
 
 ## Features
 
 - ✅ Real-time notification delivery via Socket.IO
+- ✅ **Optional email notifications** 📧
 - ✅ Create and send notifications to users
 - ✅ Paginated notification retrieval
 - ✅ Unread notification tracking
@@ -18,6 +19,7 @@ A complete notification system for the QMS application with real-time socket del
 
 - [Installation](#installation)
 - [Quick Start](#quick-start)
+- [Email Notifications](#email-notifications)
 - [Socket Events](#socket-events)
 - [Helper Functions](#helper-functions)
 - [Notification Templates](#notification-templates)
@@ -35,12 +37,21 @@ The notification module is already integrated into the QMS application. No addit
 ```typescript
 import { sendNotificationToUser, NotificationTypes } from '@/modules/notification';
 
-// Send a notification
+// Send a notification (socket only)
 await sendNotificationToUser({
   userId: 'user_id_123',
   title: 'New Message',
   message: 'You have a new message from John',
   type: NotificationTypes.MESSAGE
+});
+
+// Send a notification with email
+await sendNotificationToUser({
+  userId: 'user_id_123',
+  title: 'Important Update',
+  message: 'Please review the new policy document',
+  type: NotificationTypes.USER,
+  sendEmailNotification: true  // 📧 Sends email too!
 });
 ```
 
@@ -71,6 +82,121 @@ socket.on('user-notifications', (response) => {
 });
 ```
 
+## Email Notifications
+
+The notification system supports optional email notifications alongside real-time socket delivery. When enabled, users receive both a real-time notification and an email.
+
+### How It Works
+
+1. **Automatic Email Sending**: When `sendEmailNotification: true` is passed, the system:
+   - Creates the notification in the database
+   - Sends real-time socket notification (if user is online)
+   - Fetches user's email from the database
+   - Sends a formatted HTML email
+
+2. **Email Format**: The email includes:
+   - Personalized greeting with user's name
+   - The notification message
+   - A link to view all notifications
+   - Professional HTML formatting
+
+### Enable Email Notifications
+
+```typescript
+import { sendNotificationToUser, NotificationTypes } from '@/modules/notification';
+
+// Send notification with email
+await sendNotificationToUser({
+  userId: 'user_id_123',
+  title: 'Important: Action Required',
+  message: 'Please complete your profile verification by tomorrow',
+  type: NotificationTypes.USER,
+  sendEmailNotification: true  // 📧 Enable email
+});
+```
+
+### Email for Multiple Users
+
+```typescript
+import { sendNotificationToMultipleUsers, NotificationTypes } from '@/modules/notification';
+
+// Send to multiple users with email
+await sendNotificationToMultipleUsers(
+  ['user_id_1', 'user_id_2', 'user_id_3'],
+  'Team Meeting',
+  'Team meeting scheduled for tomorrow at 10 AM',
+  NotificationTypes.USER,
+  undefined,  // accountId
+  true        // sendEmailNotification
+);
+```
+
+### Email for Mentions
+
+**Mentions automatically send emails!** When a user is mentioned in a chat message, they receive both a real-time notification and an email notification.
+
+```javascript
+// Client sends message with mentions
+socket.emit('send-message', {
+  chatId: 'chat_123',
+  content: 'Hey @user123, please check this document',
+  mentionUsers: ['account_id_123'], // Array of account IDs
+  contentType: 'text'
+});
+
+// user123 receives:
+// 1. Real-time socket notification
+// 2. Email notification (automatic)
+```
+
+### Email Customization
+
+The email template includes:
+- **Subject**: The notification title
+- **Body**: Personalized message with user's name
+- **CTA Button**: Link to view notifications in the app
+- **Footer**: Professional team signature
+
+Example email received:
+```
+Subject: You were mentioned
+
+Hi John Doe,
+
+Someone mentioned you: Hey @user123, please check this document
+
+You can view all your notifications by logging into your account.
+
+[View Notifications Button]
+
+If you did not expect this notification, please ignore this email.
+
+Regards,
+Team
+```
+
+### Error Handling
+
+Email sending is **non-blocking**. If email delivery fails:
+- The notification is still created in the database
+- Socket notification is still sent
+- Error is logged but doesn't affect the main flow
+- User can still see the notification when they log in
+
+```typescript
+// Email failure won't break notification creation
+const result = await sendNotificationToUser({
+  userId: 'user_id',
+  title: 'Test',
+  message: 'Testing',
+  type: NotificationTypes.MESSAGE,
+  sendEmailNotification: true
+});
+
+// result.success will still be true even if email fails
+console.log(result.success); // true
+```
+
 ## Socket Events
 
 ### 1. `send-notification`
@@ -84,7 +210,8 @@ socket.emit('send-notification', {
   title: 'Notification Title',
   message: 'Notification message',
   type: 'message', // serviceListing, booking, user, review, message, payout
-  accountId: 'optional_account_id'
+  accountId: 'optional_account_id',
+  sendEmail: true  // Optional: send email notification (default: false)
 });
 ```
 

@@ -195,8 +195,9 @@ const chatEvent = async (io, socket) => {
             }
             let allParticipants = [];
             console.log('mention users in chat :', data?.mentionUsers);
+            let validateUserChat;
             if (data?.chatId) {
-                const validateUserChat = await chat_modal_1.default.aggregate([
+                validateUserChat = await chat_modal_1.default.aggregate([
                     {
                         $match: {
                             _id: new mongoose_1.default.Types.ObjectId(data?.chatId),
@@ -329,6 +330,10 @@ const chatEvent = async (io, socket) => {
                                 title: 'You were mentioned',
                                 message: `${senderData?.name || 'Someone'} mentioned you: ${messagePreview}`,
                                 type: 'message',
+                                notificationFor: validateUserChat?.chatOf,
+                                forId: validateUserChat?.obj,
+                                sendEmailNotification: true,
+                                link: `/capa/${data.moduleId}/workspace/${data.workspaceId}/library/detail/${data.libraryId}?fromRecentChats=true` // Example link to the chat
                             };
                             // Only add accountId if it exists
                             if (account.accountId) {
@@ -870,7 +875,7 @@ const chatEvent = async (io, socket) => {
     ////////////////////// Send Notification /////////////////////////
     socket.on('send-notification', async (data) => {
         try {
-            const { userId: targetUserId, title, message, type, accountId } = data;
+            const { userId: targetUserId, title, message, type, accountId, sendEmail } = data;
             // Validate required fields
             if (!targetUserId || !title || !message || !type) {
                 socket.emit('socket-error', {
@@ -892,6 +897,7 @@ const chatEvent = async (io, socket) => {
                 message,
                 type,
                 accountId,
+                sendEmailNotification: sendEmail || false,
             });
             if (!result?.success) {
                 socket.emit('socket-error', { message: result?.message });

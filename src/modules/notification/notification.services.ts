@@ -8,10 +8,13 @@ import {
   ICreateNotificationParams,
 } from './notification.interfaces';
 import { getSocketInstance } from '../socket/socket.initialize';
+import { User } from '../user';
+import { sendEmail } from '../email/email.service';
+
 
 export const createNotification = async (params: ICreateNotificationParams): Promise<INotificationResponse> => {
   try {
-    const { userId, title, message, type, accountId } = params;
+    const { userId, title, message, type, accountId, notificationFor, forId, sendEmailNotification = false, link } = params;
 
     // Convert userId to ObjectId if it's a string
     const userObjectId = typeof userId === 'string' ? new mongoose.Types.ObjectId(userId) : userId;
@@ -32,6 +35,9 @@ export const createNotification = async (params: ICreateNotificationParams): Pro
       accountId: accountObjectId,
       isRead: false,
       isDelivered: false,
+      notificationFor,
+      forId,
+      link
     });
 
     await notification.save();
@@ -43,6 +49,33 @@ export const createNotification = async (params: ICreateNotificationParams): Pro
         success: true,
         notification: notification.toObject(),
       });
+    }
+
+    // Send email notification if requested
+    if (sendEmailNotification) {
+      try {
+        const user = await User.findById(userObjectId).select('email name');
+        if (user && user.email) {
+          const emailSubject = title;
+          const emailText = `Hi ${user.name},\n\n${message}\n\nRegards,\nTeam`;
+          const emailHtml = `
+            <div style="margin:30px; padding:30px; border:1px solid #e0e0e0; border-radius: 10px; font-family: Arial, sans-serif;">
+              <h4 style="color: #333;"><strong>Hi ${user.name},</strong></h4>
+              <p style="color: #555; line-height: 1.6;">${message}</p>
+              <p style="color: #555; margin-top: 20px;">You can view all your notifications by logging into your account.</p>
+              <p style="color: #777; margin-top: 30px; font-size: 12px;">If you did not expect this notification, please ignore this email.</p>
+              <p style="color: #555;">Regards,</p>
+              <p style="color: #555;"><strong>Team</strong></p>
+            </div>
+          `;
+          
+          await sendEmail(user.email, emailSubject, emailText, emailHtml);
+          console.log(`Email notification sent to ${user.email}`);
+        }
+      } catch (emailError: any) {
+        console.error('Error sending email notification:', emailError.message);
+        // Don't fail the notification creation if email fails
+      }
     }
 
     return {
@@ -77,6 +110,7 @@ export const getUserNotifications = async (params: IGetUserNotificationsParams):
 
     // Get paginated notifications
     const notifications = await Notification.find({ userId: userObjectId })
+      .populate('forId')
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(validLimit)
@@ -108,8 +142,6 @@ export const getUserUnreadNotifications = async (
     // Convert userId to ObjectId if it's a string
     const userObjectId = typeof userId === 'string' ? new mongoose.Types.ObjectId(userId) : userId;
 
-
-
     const query: any = {
       userId: userObjectId,
       isRead: false,
@@ -123,9 +155,7 @@ export const getUserUnreadNotifications = async (
     console.log('Unread notifications query:', query);
 
     // Get unread notifications
-    const notifications = await Notification.find(query)
-      .sort({ createdAt: -1 })
-      .lean();
+    const notifications = await Notification.find(query).sort({ createdAt: -1 }).lean();
 
     return {
       success: true,
@@ -154,7 +184,7 @@ export const readUserNotifications = async (
     const query: any = {
       userId: userObjectId,
     };
-    
+
     if (accountId) {
       query.accountId = accountId;
     } else {

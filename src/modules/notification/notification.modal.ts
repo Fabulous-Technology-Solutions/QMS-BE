@@ -9,6 +9,9 @@ export interface INotification extends Document {
   isDelivered: boolean;
   createdAt: Date;
   accountId?: mongoose.Types.ObjectId;
+  notificationFor?: string;
+  forId?: mongoose.Types.ObjectId;
+  link?: string;
 }
 
 const notificationSchema = new Schema<INotification>({
@@ -17,6 +20,13 @@ const notificationSchema = new Schema<INotification>({
     ref: 'User',
     required: true,
     index: true,
+  },
+  notificationFor: {
+    type: String,
+  },
+  forId: {
+    type: Schema.Types.ObjectId,
+    refPath: 'notificationFor',
   },
   accountId: {
     type: Schema.Types.ObjectId,
@@ -34,6 +44,9 @@ const notificationSchema = new Schema<INotification>({
     type: String,
     enum: ['serviceListing', 'booking', 'user', 'review', 'message', 'payout'],
     required: true,
+  },
+  link:{
+    type: String,
   },
   isRead: {
     type: Boolean,
