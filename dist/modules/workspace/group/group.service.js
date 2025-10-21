@@ -24,7 +24,7 @@ const getGroupById = async (groupId) => {
                 pipeline: [
                     {
                         $lookup: {
-                            from: 'members',
+                            from: 'users',
                             localField: 'user',
                             foreignField: '_id',
                             as: 'user',
@@ -43,15 +43,68 @@ const getGroupById = async (groupId) => {
 };
 exports.getGroupById = getGroupById;
 const getGroupsByWorkspace = async (body) => {
-    const query = { workspace: body.workspace, isDeleted: false };
+    const matchStage = {
+        workspace: new mongoose_1.default.Types.ObjectId(body.workspace),
+        isDeleted: false,
+    };
     if (body.search) {
-        query.name = { $regex: body.search, $options: 'i' };
+        matchStage.name = { $regex: body.search, $options: 'i' };
     }
-    const data = await group_modal_1.default.find(query)
-        .skip((body.page - 1) * body.limit)
-        .limit(body.limit)
-        .populate('members', 'name email profilePicture');
-    const total = await group_modal_1.default.countDocuments(query);
+    const skip = (body.page - 1) * body.limit;
+    const limit = body.limit;
+    console.log('Match Stage:', matchStage);
+    const pipeline = [
+        { $match: matchStage },
+        // Lookup members from users collection
+        {
+            $lookup: {
+                from: 'accounts',
+                localField: 'members',
+                foreignField: '_id',
+                as: 'members',
+                pipeline: [
+                    {
+                        $lookup: {
+                            from: 'users',
+                            localField: 'user',
+                            foreignField: '_id',
+                            as: 'user',
+                            pipeline: [{ $project: { name: 1, email: 1, profilePicture: 1 } }],
+                        },
+                    },
+                    { $unwind: { path: '$user' } },
+                    {
+                        $project: { name: '$user.name', email: '$user.email', profilePicture: '$user.profilePicture', _id: 1 },
+                    },
+                ],
+            },
+        },
+        // Project only specific member fields
+        {
+            $project: {
+                name: 1,
+                workspace: 1,
+                description: 1,
+                createdBy: 1,
+                createdAt: 1,
+                updatedAt: 1,
+                isDeleted: 1,
+                members: {
+                    name: 1,
+                    email: 1,
+                    profilePicture: 1,
+                    _id: 1
+                },
+            },
+        },
+        // Pagination
+        { $skip: skip },
+        { $limit: limit },
+    ];
+    const data = await group_modal_1.default.aggregate(pipeline);
+    // Get total count separately
+    const totalResult = await group_modal_1.default.aggregate([{ $match: matchStage }, { $count: 'total' }]);
+    const total = totalResult.length > 0 ? totalResult[0].total : 0;
     return {
         data,
         total,
@@ -124,9 +177,7 @@ const getGroupUsers = async (groupId, search = '', page = 1, limit = 10) => {
                 localField: 'user',
                 foreignField: '_id',
                 as: 'user',
-                pipeline: [
-                    { $project: { name: 1, email: 1, profilePicture: 1 } },
-                ],
+                pipeline: [{ $project: { name: 1, email: 1, profilePicture: 1 } }],
             },
         },
         { $unwind: '$user' },
@@ -142,10 +193,7 @@ const getGroupUsers = async (groupId, search = '', page = 1, limit = 10) => {
         {
             $match: {
                 ...(search && {
-                    $or: [
-                        { name: { $regex: matchRegex } },
-                        { email: { $regex: matchRegex } },
-                    ],
+                    $or: [{ name: { $regex: matchRegex } }, { email: { $regex: matchRegex } }],
                 }),
             },
         },

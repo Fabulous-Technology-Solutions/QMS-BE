@@ -448,8 +448,9 @@ const removeMemberFromLibrary = async (libraryId, memberId) => {
         throw new Error('Member is not in the library');
     }
     library.members = library.members?.filter((member) => member['_id'].toString() !== memberId.toString());
+    const findandUpdate = await capalibrary_modal_1.LibraryModel.findOneAndUpdate({ _id: libraryId }, { members: library.members }, { new: true });
     console.log('Member removed from library:', memberId, library);
-    return await library.save();
+    return findandUpdate;
 };
 exports.removeMemberFromLibrary = removeMemberFromLibrary;
 const getLibraryMembers = async (libraryId, page = 1, limit = 10, search = '') => {

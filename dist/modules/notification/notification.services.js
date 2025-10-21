@@ -9,8 +9,20 @@ const notification_modal_1 = __importDefault(require("./notification.modal"));
 const socket_initialize_1 = require("../socket/socket.initialize");
 const user_1 = require("../user");
 const email_service_1 = require("../email/email.service");
-const createNotification = async (params) => {
+const notificationSetting_modal_1 = __importDefault(require("../workspace/notificationSetting/notificationSetting.modal"));
+const createNotification = async (params, workspaceId, key) => {
     try {
+        const findNotificationSetting = await notificationSetting_modal_1.default.findOne({ workspaceId: workspaceId });
+        if (findNotificationSetting) {
+            const isEnabled = findNotificationSetting[key];
+            if (!isEnabled || !findNotificationSetting.enableNotifications) {
+                console.log(`Notification is disabled for workspace: ${workspaceId}, key: ${key}`);
+                return {
+                    success: false,
+                    message: 'Notification is disabled for this workspace.',
+                };
+            }
+        }
         const { userId, title, message, type, accountId, notificationFor, forId, sendEmailNotification = false, link } = params;
         // Convert userId to ObjectId if it's a string
         const userObjectId = typeof userId === 'string' ? new mongoose_1.default.Types.ObjectId(userId) : userId;

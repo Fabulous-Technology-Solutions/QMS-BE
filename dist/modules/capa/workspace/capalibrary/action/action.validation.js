@@ -46,6 +46,19 @@ const createActionBody = {
         'string.base': 'Cause ID must be a string',
         'string.pattern.base': 'Cause ID must be a valid ObjectId',
     }),
+    workspaceId: joi_1.default.string().pattern(/^[0-9a-fA-F]{24}$/).messages({
+        'string.base': 'Workspace ID must be a string',
+        'string.pattern.base': 'Workspace ID must be a valid ObjectId',
+    }),
+    moduleId: joi_1.default.string().pattern(/^[0-9a-fA-F]{24}$/).messages({
+        'string.base': 'Module ID must be a string',
+        'string.pattern.base': 'Module ID must be a valid ObjectId',
+    }),
+    libraryId: joi_1.default.string().pattern(/^[0-9a-fA-F]{24}$/).messages({
+        'string.base': 'Library ID must be a string',
+        'string.pattern.base': 'Library ID must be a valid ObjectId',
+    }),
+    user: joi_1.default.object().optional(),
 };
 exports.createAction = {
     body: joi_1.default.object().keys(createActionBody).fork(['name', 'library', 'startDate', 'type', 'priority'], (schema) => schema.required()),

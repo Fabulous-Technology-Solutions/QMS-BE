@@ -1,22 +1,24 @@
-import {capaEdit,  capaView,capaadminRoles} from './modulesRole/capa.role';
-import { RiskadminRoles ,RiskEditer,RiskViewer} from './modulesRole/risk.role';
+import { capaEdit, capaView, capaadminRoles } from './modulesRole/capa.role';
+import { RiskadminRoles, RiskEditer, RiskViewer } from './modulesRole/risk.role';
 
 const allRoles = {
-  admin: ['getUsers', 'manageCapa', 'buySubscription', 'getSubscriptions', 'manageUsers', 'manageSites', 'manageProcesses','getWorkspaceById',
+  admin: [
+    'getUsers',
+    'manageCapa',
+    'buySubscription',
+    'getSubscriptions',
+    'manageUsers',
+    'manageSites',
+    'manageProcesses',
+    'getWorkspaceById',
     ...capaadminRoles,
-    ...RiskadminRoles
+    ...RiskadminRoles,
+    'updateNotificationSetting',
+    'getNotificationSetting',
   ],
   workspaceUser: {
-    view: [
-      'getWorkspaceById',
-      ...capaView,
-      ...RiskViewer
-    ],
-    edit: [
-      'getWorkspaceById',
-      ...capaEdit,
-      ...RiskEditer
-    ]
+    view: ['getWorkspaceById', ...capaView, ...RiskViewer, 'updateNotificationSetting', 'getNotificationSetting'],
+    edit: ['getWorkspaceById', ...capaEdit, ...RiskEditer, 'updateNotificationSetting', 'getNotificationSetting'],
   },
 };
 

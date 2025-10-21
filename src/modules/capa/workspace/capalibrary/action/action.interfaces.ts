@@ -1,3 +1,4 @@
+import { IUser } from '@/modules/user/user.interfaces';
 import mongoose, { Document } from 'mongoose';
 
 export interface ActionModel extends Document {
@@ -31,6 +32,10 @@ export interface CreateActionRequest {
   docfile?: string;
   docfileKey?: string;
   cause?: string; // Reference to Causes
+  user?:IUser;
+  libraryId?:string;
+  workspaceId ?:string;
+  moduleId?:string;
 }
 
 

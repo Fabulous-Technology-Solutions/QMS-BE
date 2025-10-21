@@ -1,0 +1,76 @@
+{
+  "info": {
+    "_postman_id": "notification-setting-collection-2025-10-21",
+    "name": "Notification Setting API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "Postman collection for Notification Setting routes."
+  },
+  "item": [
+    {
+      "name": "Create or Update Notification Setting",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Authorization", "value": "Bearer {{token}}" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"workspaceId\": \"{{workspaceId}}\",\n  \"settings\": {\n    \"email\": true,\n    \"sms\": false,\n    \"push\": true\n  }\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/v1/notification-setting",
+          "host": ["{{baseUrl}}"],
+          "path": ["v1", "notification-setting"]
+        }
+      }
+    },
+    {
+      "name": "Update Notification Setting",
+      "request": {
+        "method": "PUT",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Authorization", "value": "Bearer {{token}}" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"settings\": {\n    \"email\": false,\n    \"sms\": true,\n    \"push\": false\n  }\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/v1/notification-setting/{{workspaceId}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["v1", "notification-setting", "{{workspaceId}}"]
+        }
+      }
+    },
+    {
+      "name": "Delete Notification Setting",
+      "request": {
+        "method": "DELETE",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token}}" }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/v1/notification-setting/{{workspaceId}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["v1", "notification-setting", "{{workspaceId}}"]
+        }
+      }
+    },
+    {
+      "name": "Get Notification Setting by WorkspaceId",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token}}" }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/v1/notification-setting/{{workspaceId}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["v1", "notification-setting", "{{workspaceId}}"]
+        }
+      }
+    }
+  ]
+}

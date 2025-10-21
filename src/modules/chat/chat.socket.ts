@@ -367,7 +367,7 @@ export const chatEvent = async (io: Server, socket: AuthenticatedSocket) => {
                 notificationParams.accountId = account.accountId;
               }
 
-              await createNotification(notificationParams);
+              await createNotification(notificationParams,data.workspaceId,'mentationchat');
 
               console.log(`Notification sent to mentioned user: ${mentionedUserId}`);
             } catch (notifError) {
@@ -1024,7 +1024,7 @@ export const chatEvent = async (io: Server, socket: AuthenticatedSocket) => {
         type,
         accountId,
         sendEmailNotification: sendEmail || false,
-      });
+      }, data.workspaceId, 'custom');
 
       if (!result?.success) {
         socket.emit('socket-error', { message: result?.message });

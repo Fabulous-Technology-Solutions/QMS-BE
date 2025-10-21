@@ -35,6 +35,7 @@ const config_1 = __importDefault(require("../../config/config"));
 const logs_route_1 = __importDefault(require("./logs.route"));
 const site_route_1 = __importDefault(require("./site.route"));
 const process_route_1 = __importDefault(require("./process.route"));
+const notificationSetting_route_1 = __importDefault(require("./notificationSetting.route"));
 const capa = __importStar(require("./capa"));
 const risk = __importStar(require("./risk"));
 const router = express_1.default.Router();
@@ -82,7 +83,11 @@ const defaultIRoute = [
     {
         path: '/accounts',
         route: account_route_1.default,
-    }
+    },
+    {
+        path: '/notification-setting',
+        route: notificationSetting_route_1.default,
+    },
 ];
 const capaIRoute = [
     {

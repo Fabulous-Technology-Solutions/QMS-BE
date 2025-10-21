@@ -42,7 +42,19 @@ const createActionBody: Record<keyof CreateActionRequest, any> = {
     'string.base': 'Cause ID must be a string',
     'string.pattern.base': 'Cause ID must be a valid ObjectId',
   }),
-
+  workspaceId: Joi.string().pattern(/^[0-9a-fA-F]{24}$/).messages({
+    'string.base': 'Workspace ID must be a string',
+    'string.pattern.base': 'Workspace ID must be a valid ObjectId',
+  }),
+  moduleId: Joi.string().pattern(/^[0-9a-fA-F]{24}$/).messages({
+    'string.base': 'Module ID must be a string',
+    'string.pattern.base': 'Module ID must be a valid ObjectId',
+  }),
+  libraryId: Joi.string().pattern(/^[0-9a-fA-F]{24}$/).messages({
+    'string.base': 'Library ID must be a string',
+    'string.pattern.base': 'Library ID must be a valid ObjectId',
+  }),
+  user: Joi.object().optional(),
 };
 
 export const createAction = {

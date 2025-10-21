@@ -18,4 +18,3 @@ var notification_modal_1 = require("./notification.modal");
 Object.defineProperty(exports, "Notification", { enumerable: true, get: function () { return __importDefault(notification_modal_1).default; } });
 __exportStar(require("./notification.services"), exports);
 __exportStar(require("./notification.interfaces"), exports);
-__exportStar(require("./notification.helper"), exports);

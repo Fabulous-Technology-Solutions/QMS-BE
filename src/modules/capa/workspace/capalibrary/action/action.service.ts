@@ -1,10 +1,43 @@
+import AccountModel  from '../../../../account/account.modal';
 import { ActionMatchQuery, CreateActionRequest } from './action.interfaces';
 import Action from './action.modal';
 import mongoose from 'mongoose';
+import { createNotification } from '../../../../notification/notification.services';
 
 export const createAction = async (data: CreateActionRequest) => {
   const action = new Action(data);
   await action.save();
+  if (data.assignedTo && data.assignedTo.length > 0) {
+    if (data.assignedTo && data.assignedTo.length > 0) {
+      const assignedUsers = await AccountModel.find({
+        _id: { $in: data.assignedTo },
+      }).populate('user', 'name email _id');
+
+      // Loop through all assigned users
+      for (const account of assignedUsers) {
+        if (!account.user?._id) continue; // Skip if no linked user
+        const notificationParams: any = {
+          userId: account.user._id,
+          title: 'Task Assigned',
+          message: `${data?.user?.name || 'Someone'} assigned you a task`,
+          type: 'task',
+          notificationFor: 'Action',
+          forId: action._id,
+          sendEmailNotification: true,
+          link: `/capa/${data.moduleId}/workspace/${data.workspaceId}/library/detail/${data.library}?activeTabIndex=2`,
+        };
+
+        // Add accountId if available
+        if (account.accountId) {
+          notificationParams.accountId = account.accountId;
+        }
+
+        // Send notification for each assigned user
+        createNotification(notificationParams, data.workspaceId as string, 'taskassign');
+      }
+    }
+  }
+
   return action;
 };
 
@@ -228,8 +261,7 @@ export const getActionsByLibrary = async (libraryId: string, page: number = 1, l
         assignedTo: { name: 1, email: 1, profilePicture: 1, _id: 1 },
         library: { name: 1, description: 1, _id: 1 },
         docfile: 1,
-        docfileKey: 1
-
+        docfileKey: 1,
       },
     },
     {

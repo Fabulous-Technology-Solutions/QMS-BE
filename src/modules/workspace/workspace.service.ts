@@ -12,6 +12,7 @@ import { LibraryModel } from '../capa/workspace/capalibrary/capalibrary.modal';
 import Action from '../capa/workspace/capalibrary/action/action.modal';
 import { RiskLibraryModel } from '../risk/workspace/library';
 import { RiskActionModel } from '../risk/workspace/library/action';
+import { createOrUpdateNotificationSetting } from './notificationSetting/notificationSetting.services';
 
 export const createCapaworkspace = async (data: CreateCapaworkspaceServiceFunction) => {
   const { moduleId, name, imageUrl, imagekey, description, user } = data;
@@ -32,6 +33,7 @@ export const createCapaworkspace = async (data: CreateCapaworkspaceServiceFuncti
     });
   }
   await user.save();
+  await createOrUpdateNotificationSetting({ workspaceId: workspace._id });
   return await workspace.save();
 };
 

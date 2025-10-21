@@ -484,9 +484,14 @@ export const removeMemberFromLibrary = async (libraryId: string, memberId: strin
   }
 
   library.members = library.members?.filter((member: any) => member['_id'].toString() !== memberId.toString());
+  const findandUpdate = await LibraryModel.findOneAndUpdate(
+    { _id: libraryId },
+    { members: library.members },
+    { new: true }
+  );
 
   console.log('Member removed from library:', memberId, library);
-  return await library.save();
+  return findandUpdate;
 };
 
 export const getLibraryMembers = async (libraryId: string, page = 1, limit = 10, search = '') => {

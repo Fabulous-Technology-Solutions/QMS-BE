@@ -11,6 +11,7 @@ import config from '../../config/config';
 import logsRoutes from './logs.route';
 import SiteRoutes from "./site.route"
 import ProcessRoutes from "./process.route";
+import notificationSetting from './notificationSetting.route';
 import * as capa from "./capa"
 import * as risk from "./risk"
 const router = express.Router();
@@ -63,7 +64,11 @@ const defaultIRoute: IRoute[] = [
   {
     path: '/accounts',
     route: accountRoute,
-  }
+  },
+  {
+    path: '/notification-setting',
+    route: notificationSetting,
+  },
 ];
 const capaIRoute: IRoute[] = [
  

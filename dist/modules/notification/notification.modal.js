@@ -48,7 +48,7 @@ const notificationSchema = new mongoose_1.Schema({
     },
     type: {
         type: String,
-        enum: ['serviceListing', 'booking', 'user', 'review', 'message', 'payout'],
+        enum: ['message', 'task'],
         required: true,
     },
     link: {

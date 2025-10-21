@@ -1,5 +1,5 @@
 import mongoose, { ObjectId } from 'mongoose';
-import { CreateGroupRequest, GetGroupsParams, GetGroupsQuery } from './group.interfaces';
+import { CreateGroupRequest, GetGroupsParams } from './group.interfaces';
 import GroupModel from './group.modal';
 import { AccountModel } from '../../account';
 
@@ -20,7 +20,7 @@ export const getGroupById = async (groupId: string) => {
         pipeline: [
           {
             $lookup: {
-              from: 'members',
+              from: 'users',
               localField: 'user',
               foreignField: '_id',
               as: 'user',
@@ -39,16 +39,78 @@ export const getGroupById = async (groupId: string) => {
 };
 
 export const getGroupsByWorkspace = async (body: GetGroupsParams) => {
-  const query: GetGroupsQuery = { workspace: body.workspace, isDeleted: false };
+  const matchStage: any = {
+    workspace:  new mongoose.Types.ObjectId(body.workspace),
+    isDeleted: false,
+  };
+
   if (body.search) {
-    query.name = { $regex: body.search, $options: 'i' };
+    matchStage.name = { $regex: body.search, $options: 'i' };
   }
 
-  const data = await GroupModel.find(query)
-    .skip((body.page - 1) * body.limit)
-    .limit(body.limit)
-    .populate('members', 'name email profilePicture');
-  const total = await GroupModel.countDocuments(query);
+  const skip = (body.page - 1) * body.limit;
+  const limit = body.limit;
+  console.log('Match Stage:', matchStage);
+
+  const pipeline = [
+    { $match: matchStage },
+
+    // Lookup members from users collection
+    {
+      $lookup: {
+        from: 'accounts',
+        localField: 'members',
+        foreignField: '_id',
+        as: 'members',
+        pipeline: [
+          {
+            $lookup: {
+              from: 'users',
+              localField: 'user',
+              foreignField: '_id',
+              as: 'user',
+              pipeline: [{ $project: { name: 1, email: 1, profilePicture: 1 } }],
+            },
+          },
+          { $unwind: { path: '$user' } },
+          {
+            $project: { name: '$user.name', email: '$user.email', profilePicture: '$user.profilePicture', _id: 1 },
+          },
+        ],
+      },
+    },
+
+    // Project only specific member fields
+    {
+      $project: {
+        name: 1,
+        workspace: 1,
+        description: 1,
+        createdBy: 1,
+        createdAt: 1,
+        updatedAt: 1,
+        isDeleted: 1,
+        members: {
+          name: 1,
+          email: 1,
+          profilePicture: 1,
+          _id: 1
+        },
+      },
+    },
+
+    // Pagination
+    { $skip: skip },
+    { $limit: limit },
+  ];
+
+  const data = await GroupModel.aggregate(pipeline);
+
+  // Get total count separately
+  const totalResult = await GroupModel.aggregate([{ $match: matchStage }, { $count: 'total' }]);
+
+  const total = totalResult.length > 0 ? totalResult[0].total : 0;
+
   return {
     data,
     total,
@@ -113,12 +175,7 @@ export const removeMemberFromGroup = async (groupId: string, memberId: string) =
   );
 };
 
-export const getGroupUsers = async (
-  groupId: string,
-  search: string = '',
-  page: number = 1,
-  limit: number = 10
-) => {
+export const getGroupUsers = async (groupId: string, search: string = '', page: number = 1, limit: number = 10) => {
   const skip = (page - 1) * limit;
   const matchRegex = new RegExp(search, 'i');
 
@@ -137,19 +194,17 @@ export const getGroupUsers = async (
     {
       $lookup: {
         from: 'users',
-        localField: 'user',        // field inside AccountModel
+        localField: 'user', // field inside AccountModel
         foreignField: '_id',
         as: 'user',
-        pipeline: [
-          { $project: { name: 1, email: 1, profilePicture: 1 } },
-        ],
+        pipeline: [{ $project: { name: 1, email: 1, profilePicture: 1 } }],
       },
     },
     { $unwind: '$user' },
     {
       $project: {
-        _id: 1,  
-        status:1,                   // account id
+        _id: 1,
+        status: 1, // account id
         name: '$user.name',
         email: '$user.email',
         profilePicture: '$user.profilePicture',
@@ -158,10 +213,7 @@ export const getGroupUsers = async (
     {
       $match: {
         ...(search && {
-          $or: [
-            { name: { $regex: matchRegex } },
-            { email: { $regex: matchRegex } },
-          ],
+          $or: [{ name: { $regex: matchRegex } }, { email: { $regex: matchRegex } }],
         }),
       },
     },

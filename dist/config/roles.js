@@ -4,21 +4,23 @@ exports.roleRights = exports.roles = void 0;
 const capa_role_1 = require("./modulesRole/capa.role");
 const risk_role_1 = require("./modulesRole/risk.role");
 const allRoles = {
-    admin: ['getUsers', 'manageCapa', 'buySubscription', 'getSubscriptions', 'manageUsers', 'manageSites', 'manageProcesses', 'getWorkspaceById',
+    admin: [
+        'getUsers',
+        'manageCapa',
+        'buySubscription',
+        'getSubscriptions',
+        'manageUsers',
+        'manageSites',
+        'manageProcesses',
+        'getWorkspaceById',
         ...capa_role_1.capaadminRoles,
-        ...risk_role_1.RiskadminRoles
+        ...risk_role_1.RiskadminRoles,
+        'updateNotificationSetting',
+        'getNotificationSetting',
     ],
     workspaceUser: {
-        view: [
-            'getWorkspaceById',
-            ...capa_role_1.capaView,
-            ...risk_role_1.RiskViewer
-        ],
-        edit: [
-            'getWorkspaceById',
-            ...capa_role_1.capaEdit,
-            ...risk_role_1.RiskEditer
-        ]
+        view: ['getWorkspaceById', ...capa_role_1.capaView, ...risk_role_1.RiskViewer, 'updateNotificationSetting', 'getNotificationSetting'],
+        edit: ['getWorkspaceById', ...capa_role_1.capaEdit, ...risk_role_1.RiskEditer, 'updateNotificationSetting', 'getNotificationSetting'],
     },
 };
 exports.roles = Object.keys(allRoles);

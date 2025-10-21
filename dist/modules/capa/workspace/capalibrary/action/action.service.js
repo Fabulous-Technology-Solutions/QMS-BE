@@ -4,11 +4,41 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getActionsByWorkspace = exports.getActionsByAssignedTo = exports.deleteAction = exports.getActionsByLibrary = exports.getLibraryMembersByAction = exports.updateAction = exports.getActionById = exports.createAction = void 0;
+const account_modal_1 = __importDefault(require("../../../../account/account.modal"));
 const action_modal_1 = __importDefault(require("./action.modal"));
 const mongoose_1 = __importDefault(require("mongoose"));
+const notification_services_1 = require("../../../../notification/notification.services");
 const createAction = async (data) => {
     const action = new action_modal_1.default(data);
     await action.save();
+    if (data.assignedTo && data.assignedTo.length > 0) {
+        if (data.assignedTo && data.assignedTo.length > 0) {
+            const assignedUsers = await account_modal_1.default.find({
+                _id: { $in: data.assignedTo },
+            }).populate('user', 'name email _id');
+            // Loop through all assigned users
+            for (const account of assignedUsers) {
+                if (!account.user?._id)
+                    continue; // Skip if no linked user
+                const notificationParams = {
+                    userId: account.user._id,
+                    title: 'Task Assigned',
+                    message: `${data?.user?.name || 'Someone'} assigned you a task`,
+                    type: 'task',
+                    notificationFor: 'Action',
+                    forId: action._id,
+                    sendEmailNotification: true,
+                    link: `/capa/${data.moduleId}/workspace/${data.workspaceId}/library/detail/${data.library}?activeTabIndex=2`,
+                };
+                // Add accountId if available
+                if (account.accountId) {
+                    notificationParams.accountId = account.accountId;
+                }
+                // Send notification for each assigned user
+                (0, notification_services_1.createNotification)(notificationParams, data.workspaceId, 'taskassign');
+            }
+        }
+    }
     return action;
 };
 exports.createAction = createAction;
@@ -222,7 +252,7 @@ const getActionsByLibrary = async (libraryId, page = 1, limit = 10, search = '')
                 assignedTo: { name: 1, email: 1, profilePicture: 1, _id: 1 },
                 library: { name: 1, description: 1, _id: 1 },
                 docfile: 1,
-                docfileKey: 1
+                docfileKey: 1,
             },
         },
         {

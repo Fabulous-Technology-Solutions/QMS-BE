@@ -10,10 +10,24 @@ import {
 import { getSocketInstance } from '../socket/socket.initialize';
 import { User } from '../user';
 import { sendEmail } from '../email/email.service';
+import NotificationSettingModal from '../workspace/notificationSetting/notificationSetting.modal';
 
 
-export const createNotification = async (params: ICreateNotificationParams): Promise<INotificationResponse> => {
+export const createNotification = async (params: ICreateNotificationParams, workspaceId: string, key: string): Promise<INotificationResponse> => {
   try {
+
+    const findNotificationSetting = await NotificationSettingModal.findOne({ workspaceId: workspaceId });
+    if (findNotificationSetting) {
+      const isEnabled = (findNotificationSetting as any)[key];
+      if (!isEnabled || !findNotificationSetting.enableNotifications) {
+        console.log(`Notification is disabled for workspace: ${workspaceId}, key: ${key}`);
+        return {
+          success: false,
+          message: 'Notification is disabled for this workspace.',
+        };
+      }
+    }
+
     const { userId, title, message, type, accountId, notificationFor, forId, sendEmailNotification = false, link } = params;
 
     // Convert userId to ObjectId if it's a string

@@ -28,7 +28,8 @@ const actionService = __importStar(require("./action.service"));
 exports.createActionController = (0, catchAsync_1.default)(async (req, res) => {
     const action = await actionService.createAction({
         ...req.body,
-        createdBy: req.user._id
+        createdBy: req.user._id,
+        user: req.user
     });
     res.locals["message"] = "create action";
     res.locals["documentId"] = action._id;

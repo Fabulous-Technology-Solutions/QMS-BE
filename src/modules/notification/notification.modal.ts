@@ -42,7 +42,7 @@ const notificationSchema = new Schema<INotification>({
   },
   type: {
     type: String,
-    enum: ['serviceListing', 'booking', 'user', 'review', 'message', 'payout'],
+    enum: ['message', 'task'],
     required: true,
   },
   link:{

@@ -5,7 +5,8 @@ import * as actionService from './action.service';
 export const createActionController = catchAsync(async (req: Request, res: Response) => {
   const action = await actionService.createAction({
     ...req.body,
-    createdBy: req.user._id
+    createdBy: req.user._id,
+    user:req.user
   });
   res.locals["message"] = "create action"
   res.locals["documentId"] = action._id;

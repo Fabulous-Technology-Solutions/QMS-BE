@@ -339,7 +339,7 @@ const chatEvent = async (io, socket) => {
                             if (account.accountId) {
                                 notificationParams.accountId = account.accountId;
                             }
-                            await (0, notification_services_1.createNotification)(notificationParams);
+                            await (0, notification_services_1.createNotification)(notificationParams, data.workspaceId, 'mentationchat');
                             console.log(`Notification sent to mentioned user: ${mentionedUserId}`);
                         }
                         catch (notifError) {
@@ -898,7 +898,7 @@ const chatEvent = async (io, socket) => {
                 type,
                 accountId,
                 sendEmailNotification: sendEmail || false,
-            });
+            }, data.workspaceId, 'custom');
             if (!result?.success) {
                 socket.emit('socket-error', { message: result?.message });
                 return;

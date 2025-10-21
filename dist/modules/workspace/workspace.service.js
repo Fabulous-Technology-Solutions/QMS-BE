@@ -10,6 +10,7 @@ const capalibrary_modal_1 = require("../capa/workspace/capalibrary/capalibrary.m
 const action_modal_1 = __importDefault(require("../capa/workspace/capalibrary/action/action.modal"));
 const library_1 = require("../risk/workspace/library");
 const action_1 = require("../risk/workspace/library/action");
+const notificationSetting_services_1 = require("./notificationSetting/notificationSetting.services");
 const createCapaworkspace = async (data) => {
     const { moduleId, name, imageUrl, imagekey, description, user } = data;
     const workspace = new workspace_modal_1.default({
@@ -28,6 +29,7 @@ const createCapaworkspace = async (data) => {
         });
     }
     await user.save();
+    await (0, notificationSetting_services_1.createOrUpdateNotificationSetting)({ workspaceId: workspace._id });
     return await workspace.save();
 };
 exports.createCapaworkspace = createCapaworkspace;
