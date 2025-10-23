@@ -6,6 +6,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.getActionsByWorkspace = exports.getActionsByAssignedTo = exports.deleteAction = exports.getActionsByLibrary = exports.getLibraryMembersByAction = exports.updateAction = exports.getActionById = exports.createAction = void 0;
 const action_modal_1 = __importDefault(require("./action.modal"));
 const mongoose_1 = __importDefault(require("mongoose"));
+const account_modal_1 = __importDefault(require("../../../../account/account.modal"));
+const notification_services_1 = require("../../../../notification/notification.services");
 const createAction = async (data) => {
     const action = new action_modal_1.default(data);
     await action.save();
@@ -88,16 +90,73 @@ const getActionById = async (actionId, userId) => {
     return action;
 };
 exports.getActionById = getActionById;
-const updateAction = async (actionId, data, userId) => {
-    const match = { _id: actionId, isDeleted: false };
-    if (userId) {
-        match.assignedTo = { $in: [new mongoose_1.default.Types.ObjectId(userId)] };
-    }
-    const action = await action_modal_1.default.findOneAndUpdate({ _id: actionId, isDeleted: false }, data, { new: true });
-    if (!action) {
+const updateAction = async (actionId, data) => {
+    // Fetch the previous action to get current assignedTo list
+    const previousAction = await action_modal_1.default.findById(actionId);
+    if (!previousAction) {
         throw new Error('Action not found');
     }
-    return action;
+    // Update the action
+    const updatedAction = await action_modal_1.default.findOneAndUpdate({ _id: actionId, isDeleted: false }, data, { new: true });
+    if (!updatedAction) {
+        throw new Error('Action not found');
+    }
+    // Handle notifications for newly assigned users
+    if (data.assignedTo && data.assignedTo.length > 0) {
+        const previousAssignedIds = previousAction.assignedTo?.map((id) => id.toString()) || [];
+        const newAssignedIds = data.assignedTo.map((id) => id.toString());
+        // Find newly assigned users (in new list but not in previous list)
+        const newlyAssignedIds = newAssignedIds.filter((id) => !previousAssignedIds.includes(id));
+        if (newlyAssignedIds.length > 0) {
+            const assignedAccounts = await account_modal_1.default.find({
+                _id: { $in: newlyAssignedIds },
+            }).populate('user', 'name email _id');
+            // Send notifications to newly assigned users
+            for (const account of assignedAccounts) {
+                if (!account.user?._id)
+                    continue;
+                const notificationParams = {
+                    userId: account.user._id,
+                    title: 'Task Assigned',
+                    message: `${data?.user?.name || 'Someone'} assigned you a task`,
+                    type: 'task',
+                    notificationFor: 'Action',
+                    forId: updatedAction._id,
+                    sendEmailNotification: true,
+                    accountId: account._id,
+                    subId: account.accountId,
+                    link: `/risk/${data.moduleId}/workspace/${data.workspaceId}/library/detail/${data.library}?activeTabIndex=2`,
+                };
+                (0, notification_services_1.createNotification)(notificationParams, data.workspaceId, 'taskassign');
+            }
+        }
+        // Find removed users (in previous list but not in new list)
+        const removedAssignedIds = previousAssignedIds.filter((id) => !newAssignedIds.includes(id));
+        console.log('removedAssignedIds', removedAssignedIds);
+        if (removedAssignedIds.length > 0) {
+            const removedAccounts = await account_modal_1.default.find({
+                _id: { $in: removedAssignedIds },
+            }).populate('user', 'name email _id');
+            // Send notifications to removed users
+            for (const account of removedAccounts) {
+                if (!account.user?._id)
+                    continue;
+                const notificationParams = {
+                    userId: account.user._id,
+                    title: 'Task Unassigned',
+                    message: `${data?.user?.name || 'Someone'} removed you from a task`,
+                    type: 'task',
+                    notificationFor: 'Action',
+                    forId: updatedAction._id,
+                    sendEmailNotification: true,
+                    accountId: account._id,
+                    subId: account.accountId,
+                };
+                (0, notification_services_1.createNotification)(notificationParams, data.workspaceId, 'taskunassign');
+            }
+        }
+    }
+    return updatedAction;
 };
 exports.updateAction = updateAction;
 const getLibraryMembersByAction = async (actionId = '', search = '', page = 1, limit = 10) => {

@@ -13,6 +13,8 @@ const upload_middleware_1 = require("../../../../modules/upload/upload.middlewar
 const puppeteer_config_1 = require("../../../../utils/puppeteer.config");
 const workspace_modal_1 = __importDefault(require("../../../../modules/workspace/workspace.modal"));
 const chat_services_1 = require("../../../../modules/chat/chat.services");
+const account_modal_1 = __importDefault(require("../../../../modules/account/account.modal"));
+const notification_services_1 = require("../../../../modules/notification/notification.services");
 const CreateLibrary = async (body) => {
     const findWorkspace = await workspace_modal_1.default.aggregate([
         { $match: { _id: new mongoose_1.default.Types.ObjectId(body.workspace), isDeleted: false } },
@@ -41,7 +43,43 @@ const CreateLibrary = async (body) => {
         obj: library._id,
         chatOf: 'Library',
     });
-    return await library.save();
+    const savedLibrary = await library.save();
+    // Send notifications to managers when library is created
+    try {
+        if (body.managers && body.managers.length > 0) {
+            const managerAccounts = await account_modal_1.default.find({
+                _id: { $in: body.managers },
+            }).populate('user', 'name email _id');
+            // Send notification to each manager
+            for (const account of managerAccounts) {
+                if (!account.user?._id)
+                    continue;
+                const notificationParams = {
+                    userId: account.user._id?.toString() || '',
+                    title: 'New Library Created',
+                    message: `A new library "${library.name}" has been created and you have been assigned as a manager.`,
+                    type: 'library',
+                    notificationFor: 'Library',
+                    forId: savedLibrary._id?.toString(),
+                    sendEmailNotification: true,
+                    accountId: account._id?.toString() || '',
+                    subId: account.accountId?.toString() || '',
+                    link: `/capa/${body?.moduleId}/workspace/${body.workspace}/library`,
+                };
+                try {
+                    (0, notification_services_1.createNotification)(notificationParams, body.workspace, 'newprojectassigned');
+                }
+                catch (notificationError) {
+                    console.error(notificationError);
+                }
+            }
+        }
+    }
+    catch (error) {
+        console.error('❌ Error sending library creation notifications:', error);
+        // Don't throw error - library creation should not fail if notification fails
+    }
+    return savedLibrary;
 };
 exports.CreateLibrary = CreateLibrary;
 const getLibraryById = async (libraryId) => {
@@ -166,11 +204,15 @@ const getLibrariesByWorkspace = async (workspaceId, page, limit, search, isDelet
                     { $match: { isDeleted: false } },
                     {
                         $lookup: {
-                            from: 'users',
+                            from: 'accounts',
                             localField: 'assignedTo',
                             foreignField: '_id',
                             as: 'assignedTo',
-                            pipeline: [{ $project: { name: 1, email: 1, profilePicture: 1 } }],
+                            pipeline: [
+                                { $lookup: { from: 'users', localField: 'user', foreignField: '_id', as: 'user' } },
+                                { $unwind: { path: '$user' } },
+                                { $project: { name: '$user.name', email: '$user.email', profilePicture: '$user.profilePicture', _id: 1 } },
+                            ],
                         },
                     },
                 ],
@@ -389,11 +431,82 @@ const updateLibrary = async (libraryId, updateData) => {
     else if (updateData.status === 'pending' || updateData.status === 'in-progress') {
         updateData['endDate'] = null;
     }
-    const library = await capalibrary_modal_1.LibraryModel.findOneAndUpdate({ _id: libraryId, isDeleted: false }, updateData, { new: true })
-        .populate('members', 'name email profilePicture')
-        .populate('managers', 'name email profilePicture');
+    // Fetch existing library to detect manager changes
+    const existingLibrary = await capalibrary_modal_1.LibraryModel.findOne({ _id: libraryId, isDeleted: false });
+    if (!existingLibrary) {
+        throw new Error('Library not found');
+    }
+    // Detect manager assignments/removals only if managers field is provided in updateData
+    let addedManagers = [];
+    let removedManagers = [];
+    if (updateData.managers) {
+        const prevManagers = (existingLibrary.managers || []).map((m) => m.toString());
+        const newManagers = (updateData.managers || []).map((m) => m.toString());
+        addedManagers = newManagers.filter((m) => !prevManagers.includes(m));
+        removedManagers = prevManagers.filter((m) => !newManagers.includes(m));
+    }
+    // Apply update
+    const library = await capalibrary_modal_1.LibraryModel.findOneAndUpdate({ _id: libraryId, isDeleted: false }, updateData, { new: true });
     if (!library) {
         throw new Error('Library not found');
+    }
+    // Send notifications for added managers
+    try {
+        if (addedManagers && addedManagers.length > 0) {
+            const accounts = await account_modal_1.default.find({ _id: { $in: addedManagers } }).populate('user', 'name email _id');
+            for (const account of accounts) {
+                if (!account.user?._id)
+                    continue;
+                const notificationParams = {
+                    userId: account.user._id?.toString() || '',
+                    title: 'Assigned as Library Manager',
+                    message: `You have been assigned as a manager for the library "${library.name}".`,
+                    type: 'library',
+                    notificationFor: 'Library',
+                    forId: library._id?.toString(),
+                    sendEmailNotification: true,
+                    accountId: account._id?.toString() || '',
+                    subId: account.accountId?.toString() || '',
+                    link: `/capa/${updateData?.moduleId?.toString?.() || ''}/workspace/${library.workspace?.toString?.() || ''}/library`,
+                };
+                try {
+                    (0, notification_services_1.createNotification)(notificationParams, library.workspace?.toString?.() || '', 'newprojectassigned');
+                }
+                catch (notificationError) {
+                    console.error(notificationError);
+                }
+            }
+        }
+        // Send notifications for removed managers
+        if (removedManagers && removedManagers.length > 0) {
+            const accounts = await account_modal_1.default.find({ _id: { $in: removedManagers } }).populate('user', 'name email _id');
+            for (const account of accounts) {
+                if (!account.user?._id)
+                    continue;
+                const notificationParams = {
+                    userId: account.user._id?.toString() || '',
+                    title: 'Removed as Library Manager',
+                    message: `You have been removed as a manager from the library "${library.name}".`,
+                    type: 'library',
+                    notificationFor: 'Library',
+                    forId: library._id?.toString(),
+                    sendEmailNotification: true,
+                    accountId: account._id?.toString() || '',
+                    subId: account.accountId?.toString() || '',
+                    link: `/capa/${updateData?.moduleId?.toString?.() || ''}/workspace/${library.workspace?.toString?.() || ''}/library`,
+                };
+                try {
+                    (0, notification_services_1.createNotification)(notificationParams, library.workspace?.toString?.() || '', 'newprojectassigned');
+                }
+                catch (notificationError) {
+                    console.error(notificationError);
+                }
+            }
+        }
+    }
+    catch (err) {
+        console.error('❌ Error sending manager change notifications:', err);
+        // Do not fail the update if notifications error out
     }
     return library;
 };
@@ -1223,7 +1336,7 @@ const generateFilterReport = async (workspaceId, sites, processes, statuses) => 
         const query = {
             workspace: new mongoose_1.default.Types.ObjectId(workspaceId),
             ...(sites && { site: { $in: sites.map((site) => new mongoose_1.default.Types.ObjectId(site)) } }),
-            ...(processes && { "processdata.process": { $in: processes.map((process) => new mongoose_1.default.Types.ObjectId(process)) } }),
+            ...(processes && { 'processdata.process': { $in: processes.map((process) => new mongoose_1.default.Types.ObjectId(process)) } }),
             ...(statuses && { status: { $in: statuses } }),
         };
         console.log('Aggregation query:', query);

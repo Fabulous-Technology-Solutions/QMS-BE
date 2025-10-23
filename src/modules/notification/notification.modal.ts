@@ -10,8 +10,9 @@ export interface INotification extends Document {
   createdAt: Date;
   accountId?: mongoose.Types.ObjectId;
   notificationFor?: string;
-  forId?: mongoose.Types.ObjectId;
+  forId?: mongoose.Types.ObjectId;  
   link?: string;
+  subId?: mongoose.Types.ObjectId;
 }
 
 const notificationSchema = new Schema<INotification>({
@@ -30,7 +31,7 @@ const notificationSchema = new Schema<INotification>({
   },
   accountId: {
     type: Schema.Types.ObjectId,
-    ref: 'User',
+    ref: 'Account',
   },
   title: {
     type: String,
@@ -42,7 +43,7 @@ const notificationSchema = new Schema<INotification>({
   },
   type: {
     type: String,
-    enum: ['message', 'task'],
+    enum: ['message', 'task','library'],
     required: true,
   },
   link:{
@@ -56,6 +57,11 @@ const notificationSchema = new Schema<INotification>({
     type: Date,
     default: Date.now,
   },
+  subId: {
+    type: Schema.Types.ObjectId,
+    ref: 'User',
+  },
+
 });
 
 // Add index for better query performance

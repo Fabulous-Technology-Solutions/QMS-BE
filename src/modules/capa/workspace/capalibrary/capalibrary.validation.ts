@@ -75,6 +75,7 @@ const libraryBody: Record<keyof CreateLibraryRequest, any> = {
     description: Joi.string().allow(null, '').optional(),
     dueDate: Joi.date().optional(),
   }).optional(),
+  moduleId: Joi.string().optional()
 };
 
 export const libraryValidationSchema = { body: Joi.object().keys(libraryBody).fork(['name', 'description', 'workspace', 'priority'], (schema) => schema.required()) };

@@ -17,8 +17,11 @@ export const createNotification = async (params: ICreateNotificationParams, work
   try {
 
     const findNotificationSetting = await NotificationSettingModal.findOne({ workspaceId: workspaceId });
+    console.log(`Fetched notification setting for workspace: ${workspaceId}`, findNotificationSetting);
+
     if (findNotificationSetting) {
       const isEnabled = (findNotificationSetting as any)[key];
+      console.log(`Notification setting for workspace: ${workspaceId}, key: ${key} isEnabled: ${isEnabled}`,findNotificationSetting.enableNotifications);
       if (!isEnabled || !findNotificationSetting.enableNotifications) {
         console.log(`Notification is disabled for workspace: ${workspaceId}, key: ${key}`);
         return {
@@ -34,11 +37,11 @@ export const createNotification = async (params: ICreateNotificationParams, work
     const userObjectId = typeof userId === 'string' ? new mongoose.Types.ObjectId(userId) : userId;
 
     // Convert accountId to ObjectId if provided and is a string
-    const accountObjectId = accountId
-      ? typeof accountId === 'string'
-        ? new mongoose.Types.ObjectId(accountId)
-        : accountId
-      : undefined;
+    // const accountObjectId = accountId
+    //   ? typeof accountId === 'string'
+    //     ? new mongoose.Types.ObjectId(accountId)
+    //     : accountId
+    //   : undefined;
 
     // Create new notification
     const notification = new Notification({
@@ -46,7 +49,8 @@ export const createNotification = async (params: ICreateNotificationParams, work
       title,
       message,
       type,
-      accountId: accountObjectId,
+      accountId: accountId,
+      subId: params.subId ? new mongoose.Types.ObjectId(params.subId) : undefined,
       isRead: false,
       isDelivered: false,
       notificationFor,
@@ -59,7 +63,7 @@ export const createNotification = async (params: ICreateNotificationParams, work
     // Emit notification to user via socket if they are connected
     const io = getSocketInstance();
     if (io) {
-      io.to(userObjectId.toString()).emit('new-notification', {
+      io.to(userObjectId?.toString()).emit('new-notification', {
         success: true,
         notification: notification.toObject(),
       });
@@ -151,7 +155,7 @@ export const getUserUnreadNotifications = async (
   params: IGetUserUnreadNotificationsParams
 ): Promise<INotificationResponse> => {
   try {
-    const { userId, accountId } = params;
+    const { userId, subId } = params;
 
     // Convert userId to ObjectId if it's a string
     const userObjectId = typeof userId === 'string' ? new mongoose.Types.ObjectId(userId) : userId;
@@ -160,10 +164,10 @@ export const getUserUnreadNotifications = async (
       userId: userObjectId,
       isRead: false,
     };
-    if (accountId) {
-      query.accountId = accountId;
+    if (subId) {
+      query.subId = subId;
     } else {
-      query.accountId = { $exists: false };
+      query.subId = { $exists: false };
     }
 
     console.log('Unread notifications query:', query);
@@ -200,10 +204,12 @@ export const readUserNotifications = async (
     };
 
     if (accountId) {
-      query.accountId = accountId;
+      query.subId = accountId;
     } else {
-      query.accountId = { $exists: false };
+      query.subId = { $exists: false };
     }
+
+    console.log('Read notifications query:', query);
 
     // Mark notifications as read based on query
     await Notification.updateMany(query, { $set: { isRead: true } });

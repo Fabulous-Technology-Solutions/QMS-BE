@@ -31,6 +31,10 @@ export interface CreateActionRequest {
   cause?: string; // Reference to Causes
   personnel?: string;
   budget?: number;
+  user?: any;
+  libraryId?: string;
+  workspaceId?: string;
+  moduleId?: string;
 }
 
 

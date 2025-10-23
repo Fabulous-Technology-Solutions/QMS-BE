@@ -1,4 +1,4 @@
-import  catchAsync  from "../../../../utils/catchAsync";
+import catchAsync from '../../../../utils/catchAsync';
 import { Request, Response } from 'express';
 import * as actionService from './action.service';
 
@@ -6,13 +6,15 @@ export const createActionController = catchAsync(async (req: Request, res: Respo
   const action = await actionService.createAction({
     ...req.body,
     createdBy: req.user._id,
-    user:req.user
+    user: req.user,
+    accountId: req.headers['accountid']?.toString(),
+    subId: req.headers['subid']?.toString(),
   });
-  res.locals["message"] = "create action"
-  res.locals["documentId"] = action._id;
-  res.locals["collectionName"] = "Action";  
+  res.locals['message'] = 'create action';
+  res.locals['documentId'] = action._id;
+  res.locals['collectionName'] = 'Action';
   res.locals['logof'] = req.body.library || req.params['libraryId'] || null;
-  res.locals["changes"] = action;
+  res.locals['changes'] = action;
   res.status(201).json({
     success: true,
     message: 'Action created successfully',
@@ -21,8 +23,10 @@ export const createActionController = catchAsync(async (req: Request, res: Respo
 });
 
 export const getActionByIdController = catchAsync(async (req: Request, res: Response) => {
-
-  const action = await actionService.getActionById(req.params["actionId"] || '',req.headers["datatype"] === "mytasks" ? req.user._id : undefined);
+  const action = await actionService.getActionById(
+    req.params['actionId'] || '',
+    req.headers['datatype'] === 'mytasks' ? req.user._id : undefined
+  );
   res.status(200).json({
     success: true,
     message: 'Action retrieved successfully',
@@ -31,12 +35,17 @@ export const getActionByIdController = catchAsync(async (req: Request, res: Resp
 });
 
 export const updateActionController = catchAsync(async (req: Request, res: Response) => {
-  const action = await actionService.updateAction(req.params["actionId"] || '', req.body,req.headers["datatype"] === "mytasks" ? req.user._id : undefined);
-  res.locals["message"] = "update action"
-  res.locals["documentId"] = action._id;
-  res.locals["collectionName"] = "Action";
-  res.locals['logof'] = req.body.library || req.params['libraryId'] || null; 
-  res.locals["changes"] = action
+  const action = await actionService.updateAction(req.params['actionId'] || '', {
+    ...req.body,
+    user: req.user,
+    accountId: req.headers['accountid']?.toString(),
+    subId: req.headers['subid']?.toString(),
+  });
+  res.locals['message'] = 'update action';
+  res.locals['documentId'] = action._id;
+  res.locals['collectionName'] = 'Action';
+  res.locals['logof'] = req.body.library || req.params['libraryId'] || null;
+  res.locals['changes'] = action;
   res.status(200).json({
     success: true,
     message: 'Action updated successfully',
@@ -59,7 +68,12 @@ export const getLibraryMembersByActionController = catchAsync(async (req: Reques
 export const getActionsByLibraryController = catchAsync(async (req: Request, res: Response) => {
   const { libraryId } = req.params;
 
-  const actions = await actionService.getActionsByLibrary(libraryId as string, Number(req.query["page"]) || 1, Number(req.query["limit"]) || 10, req.query["search"] as string);
+  const actions = await actionService.getActionsByLibrary(
+    libraryId as string,
+    Number(req.query['page']) || 1,
+    Number(req.query['limit']) || 10,
+    req.query['search'] as string
+  );
 
   res.status(200).json({
     success: true,
@@ -68,12 +82,15 @@ export const getActionsByLibraryController = catchAsync(async (req: Request, res
   });
 });
 export const deleteActionController = catchAsync(async (req: Request, res: Response) => {
-  const action = await actionService.deleteAction(req.params["actionId"] || '',req.headers["datatype"] === "mytasks" ? req.user._id : undefined);
-  res.locals["message"] = "delete action"
-  res.locals["documentId"] = action._id;
-  res.locals["collectionName"] = "Action";
-  res.locals["changes"] = { isDeleted: true };
-  res.locals['logof'] =  req.params['libraryId'];
+  const action = await actionService.deleteAction(
+    req.params['actionId'] || '',
+    req.headers['datatype'] === 'mytasks' ? req.user._id : undefined
+  );
+  res.locals['message'] = 'delete action';
+  res.locals['documentId'] = action._id;
+  res.locals['collectionName'] = 'Action';
+  res.locals['changes'] = { isDeleted: true };
+  res.locals['logof'] = req.params['libraryId'];
   res.status(200).json({
     success: true,
     message: 'Action deleted successfully',
@@ -81,16 +98,18 @@ export const deleteActionController = catchAsync(async (req: Request, res: Respo
   });
 });
 
-export const getTasksByUserController = catchAsync(async (req: Request, res: Response) => { 
+export const getTasksByUserController = catchAsync(async (req: Request, res: Response) => {
   const userId = req.user._id as string;
   const { page = 1, limit = 10, search = '' } = req.query;
-  const tasks = await actionService.getActionsByAssignedTo(req.headers['accountid']?.toString() || userId, Number(page), Number(limit), search as string);
-  res.status(200).json({                                                                   
+  const tasks = await actionService.getActionsByAssignedTo(
+    req.headers['accountid']?.toString() || userId,
+    Number(page),
+    Number(limit),
+    search as string
+  );
+  res.status(200).json({
     success: true,
     message: 'Tasks retrieved successfully',
     data: tasks,
   });
-}
-);
-
-
+});

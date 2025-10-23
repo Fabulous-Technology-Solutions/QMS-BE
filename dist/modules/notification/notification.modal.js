@@ -36,7 +36,7 @@ const notificationSchema = new mongoose_1.Schema({
     },
     accountId: {
         type: mongoose_1.Schema.Types.ObjectId,
-        ref: 'User',
+        ref: 'Account',
     },
     title: {
         type: String,
@@ -48,7 +48,7 @@ const notificationSchema = new mongoose_1.Schema({
     },
     type: {
         type: String,
-        enum: ['message', 'task'],
+        enum: ['message', 'task', 'library'],
         required: true,
     },
     link: {
@@ -61,6 +61,10 @@ const notificationSchema = new mongoose_1.Schema({
     createdAt: {
         type: Date,
         default: Date.now,
+    },
+    subId: {
+        type: mongoose_1.Schema.Types.ObjectId,
+        ref: 'User',
     },
 });
 // Add index for better query performance

@@ -8,36 +8,35 @@ const account_modal_1 = __importDefault(require("../../../../account/account.mod
 const action_modal_1 = __importDefault(require("./action.modal"));
 const mongoose_1 = __importDefault(require("mongoose"));
 const notification_services_1 = require("../../../../notification/notification.services");
+const capalibrary_modal_1 = require("../capalibrary.modal");
 const createAction = async (data) => {
     const action = new action_modal_1.default(data);
     await action.save();
     if (data.assignedTo && data.assignedTo.length > 0) {
-        if (data.assignedTo && data.assignedTo.length > 0) {
-            const assignedUsers = await account_modal_1.default.find({
-                _id: { $in: data.assignedTo },
-            }).populate('user', 'name email _id');
-            // Loop through all assigned users
-            for (const account of assignedUsers) {
-                if (!account.user?._id)
-                    continue; // Skip if no linked user
-                const notificationParams = {
-                    userId: account.user._id,
-                    title: 'Task Assigned',
-                    message: `${data?.user?.name || 'Someone'} assigned you a task`,
-                    type: 'task',
-                    notificationFor: 'Action',
-                    forId: action._id,
-                    sendEmailNotification: true,
-                    link: `/capa/${data.moduleId}/workspace/${data.workspaceId}/library/detail/${data.library}?activeTabIndex=2`,
-                };
-                // Add accountId if available
-                if (account.accountId) {
-                    notificationParams.accountId = account.accountId;
-                }
-                // Send notification for each assigned user
-                (0, notification_services_1.createNotification)(notificationParams, data.workspaceId, 'taskassign');
-            }
+        const library = await capalibrary_modal_1.LibraryModel.findById(data.library);
+        const assignedUsers = await account_modal_1.default.find({
+            _id: { $in: data.assignedTo },
+        }).populate('user', 'name email _id');
+        // Loop through all assigned users
+        for (const account of assignedUsers) {
+            if (!account.user?._id)
+                continue; // Skip if no linked user
+            const notificationParams = {
+                userId: account.user._id,
+                title: 'Task Assigned',
+                message: `${data?.user?.name || 'Someone'} assigned you a task in ${library?.name || 'a library'}`,
+                type: 'task',
+                notificationFor: 'Action',
+                forId: action._id,
+                sendEmailNotification: true,
+                accountId: account._id,
+                subId: account.accountId,
+                link: `/capa/${data.moduleId}/workspace/${data.workspaceId}/my-tasks`,
+            };
+            (0, notification_services_1.createNotification)(notificationParams, data.workspaceId, 'taskassign');
         }
+        // Note: Deadline reminders are automatically sent by the cron job 
+        // (nodeCrone.ts) for actions with upcoming deadlines within 24 hours
     }
     return action;
 };
@@ -116,16 +115,100 @@ const getActionById = async (actionId, userId) => {
     return action;
 };
 exports.getActionById = getActionById;
-const updateAction = async (actionId, data, userId) => {
-    const match = { _id: actionId, isDeleted: false };
-    if (userId) {
-        match.assignedTo = { $in: [new mongoose_1.default.Types.ObjectId(userId)] };
-    }
-    const action = await action_modal_1.default.findOneAndUpdate({ _id: actionId, isDeleted: false }, data, { new: true });
-    if (!action) {
+const updateAction = async (actionId, data) => {
+    // Fetch the previous action to get current assignedTo list
+    const previousAction = await action_modal_1.default.findById(actionId);
+    if (!previousAction) {
         throw new Error('Action not found');
     }
-    return action;
+    // Update the action
+    const updatedAction = await action_modal_1.default.findOneAndUpdate({ _id: actionId, isDeleted: false }, data, { new: true });
+    if (!updatedAction) {
+        throw new Error('Action not found');
+    }
+    const findLibrary = await capalibrary_modal_1.LibraryModel.findById(previousAction.library);
+    // Handle notifications for newly assigned users
+    if (data.assignedTo && data.assignedTo.length > 0) {
+        const previousAssignedIds = previousAction.assignedTo?.map((id) => id.toString()) || [];
+        const newAssignedIds = data.assignedTo.map((id) => id.toString());
+        // Find newly assigned users (in new list but not in previous list)
+        const newlyAssignedIds = newAssignedIds.filter((id) => !previousAssignedIds.includes(id));
+        if (newlyAssignedIds.length > 0) {
+            const assignedAccounts = await account_modal_1.default.find({
+                _id: { $in: newlyAssignedIds },
+            }).populate('user', 'name email _id');
+            // Send notifications to newly assigned users
+            for (const account of assignedAccounts) {
+                if (!account.user?._id)
+                    continue;
+                const notificationParams = {
+                    userId: account.user._id,
+                    title: 'Task Assigned',
+                    message: `${data?.user?.name || 'Someone'} assigned you a task in ${findLibrary?.name || 'a library'}`,
+                    type: 'task',
+                    notificationFor: 'Action',
+                    forId: updatedAction._id,
+                    sendEmailNotification: true,
+                    accountId: account._id,
+                    subId: account.accountId,
+                    link: `/capa/${data.moduleId}/workspace/${data.workspaceId}/my-tasks`,
+                };
+                (0, notification_services_1.createNotification)(notificationParams, data.workspaceId, 'taskassign');
+            }
+        }
+        // Find removed users (in previous list but not in new list)
+        const removedAssignedIds = previousAssignedIds.filter((id) => !newAssignedIds.includes(id));
+        console.log('Removed Assigned IDs:', removedAssignedIds);
+        if (removedAssignedIds.length > 0) {
+            const removedAccounts = await account_modal_1.default.find({
+                _id: { $in: removedAssignedIds },
+            }).populate('user', 'name email _id');
+            // Send notifications to removed users
+            for (const account of removedAccounts) {
+                if (!account.user?._id)
+                    continue;
+                const notificationParams = {
+                    userId: account.user._id,
+                    title: 'Task Unassigned',
+                    message: `${data?.user?.name || 'Someone'} removed you from a task in ${findLibrary?.name || 'a library'}`,
+                    type: 'task',
+                    notificationFor: 'Action',
+                    forId: updatedAction._id,
+                    sendEmailNotification: true,
+                    accountId: account._id,
+                    subId: account.accountId,
+                };
+                (0, notification_services_1.createNotification)(notificationParams, data.workspaceId, 'taskassign');
+            }
+        }
+    }
+    // Handle notification when status is changed to 'completed'
+    if (data.status && data.status === 'completed' && previousAction.status !== 'completed') {
+        if (updatedAction.assignedTo && updatedAction.assignedTo.length > 0) {
+            const assignedAccounts = await account_modal_1.default.find({
+                _id: { $in: updatedAction.assignedTo },
+            }).populate('user', 'name email _id');
+            // Send notifications to all assigned users about task completion
+            for (const account of assignedAccounts) {
+                if (!account.user?._id)
+                    continue;
+                const notificationParams = {
+                    userId: account.user._id,
+                    title: 'Task Completed',
+                    message: `${data?.user?.name || 'Someone'} marked the task as completed in ${findLibrary?.name || 'a library'}`,
+                    type: 'task',
+                    notificationFor: 'Action',
+                    forId: updatedAction._id,
+                    sendEmailNotification: true,
+                    accountId: account._id,
+                    subId: account.accountId,
+                    link: `/capa/${data.moduleId}/workspace/${data.workspaceId}/my-tasks`,
+                };
+                (0, notification_services_1.createNotification)(notificationParams, data.workspaceId, 'taskcompleted');
+            }
+        }
+    }
+    return updatedAction;
 };
 exports.updateAction = updateAction;
 const getLibraryMembersByAction = async (actionId = '', search = '', page = 1, limit = 10) => {

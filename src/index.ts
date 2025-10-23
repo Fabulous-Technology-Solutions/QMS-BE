@@ -3,6 +3,7 @@ import app from './app';
 import config from './config/config';
 import logger from './modules/logger/logger';
 import { initializeSocket } from './modules/socket/socket.initialize';
+import { ActionCron } from './modules/capa/workspace/capalibrary/action';
 
 // import { seedPlans } from './modules/plans';
 
@@ -18,8 +19,13 @@ mongoose.connect(config.mongoose.url).then(() => {
   server.keepAliveTimeout = 610000; // 10 minutes + 10 seconds
   server.headersTimeout = 620000; // 10 minutes + 20 seconds
   initializeSocket(server);
+  
+  // Initialize Action Deadline Reminder Cron Job
+  ActionCron.startActionDeadlineReminderCron();
+  
   logger.info('Connected to MongoDB database');
   logger.info('Server timeouts configured for long-running operations');
+  logger.info('Action Deadline Reminder Cron Job initialized');
   // seedPlans();
 
 

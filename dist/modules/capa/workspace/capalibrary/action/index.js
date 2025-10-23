@@ -19,10 +19,12 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.ActionService = exports.ActionValidation = exports.ActionController = void 0;
+exports.ActionCron = exports.ActionService = exports.ActionValidation = exports.ActionController = void 0;
 const ActionController = __importStar(require("./action.controller"));
 exports.ActionController = ActionController;
 const ActionValidation = __importStar(require("./action.validation"));
 exports.ActionValidation = ActionValidation;
 const ActionService = __importStar(require("./action.service"));
 exports.ActionService = ActionService;
+const ActionCron = __importStar(require("./action.cron"));
+exports.ActionCron = ActionCron;

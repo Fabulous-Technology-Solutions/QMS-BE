@@ -79,6 +79,7 @@ const libraryBody = {
         description: joi_1.default.string().allow(null, '').optional(),
         dueDate: joi_1.default.date().optional(),
     }).optional(),
+    moduleId: joi_1.default.string().optional()
 };
 exports.libraryValidationSchema = { body: joi_1.default.object().keys(libraryBody).fork(['name', 'description', 'workspace', 'priority'], (schema) => schema.required()) };
 exports.updateLibraryValidationSchema = {

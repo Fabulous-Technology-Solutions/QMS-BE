@@ -472,6 +472,12 @@ const getUserChats = async (params) => {
                             },
                         },
                         {
+                            $unwind: {
+                                path: '$userAccounts',
+                                preserveNullAndEmptyArrays: true,
+                            },
+                        },
+                        {
                             $project: {
                                 name: 1,
                                 title: 1,
@@ -480,6 +486,7 @@ const getUserChats = async (params) => {
                                 members: 1,
                                 managers: 1,
                                 workspace: 1,
+                                accountId: '$userAccounts._id',
                             },
                         },
                     ],
@@ -551,6 +558,7 @@ const getUserChats = async (params) => {
                     libraryStatus: '$library.status',
                     lastMessage: 1,
                     createdAt: 1,
+                    accountId: '$library.accountId',
                 },
             },
             { $sort: { 'lastMessage.createdAt': -1, createdAt: -1 } },
@@ -578,12 +586,9 @@ const getUserChats = async (params) => {
             return {
                 chatId: chat._id,
                 chatOf: chat.chatOf,
-                libraryId: chat.obj,
                 libraryName: chat.libraryName || chat.libraryTitle || 'Unknown',
                 libraryDescription: chat.libraryDescription,
                 libraryStatus: chat.libraryStatus,
-                workspaceId: chat.workspaceid,
-                moduleId: chat.moduleId,
                 unreadCount,
                 lastMessage: chat.lastMessage
                     ? {
@@ -594,6 +599,8 @@ const getUserChats = async (params) => {
                     }
                     : null,
                 createdAt: chat.createdAt,
+                accountId: chat.accountId,
+                link: `/capa/${chat.moduleId}/workspace/${chat.workspaceid}/library/detail/${chat.obj}?fromRecentChats=true`
             };
         }));
         // Filter to only include chats with unread messages

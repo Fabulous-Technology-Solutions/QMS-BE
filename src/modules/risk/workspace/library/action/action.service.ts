@@ -1,6 +1,8 @@
 import { ActionMatchQuery, CreateActionRequest } from './action.interfaces';
 import Action from './action.modal';
 import mongoose from 'mongoose';
+import AccountModel from '../../../../account/account.modal';
+import { createNotification } from '../../../../notification/notification.services';
 
 export const createAction = async (data: CreateActionRequest) => {
   const action = new Action(data);
@@ -86,17 +88,82 @@ export const getActionById = async (actionId: string, userId: string | undefined
   return action;
 };
 
-export const updateAction = async (actionId: string, data: Partial<CreateActionRequest>, userId: string | undefined) => {
-  const match: ActionMatchQuery = { _id: actionId, isDeleted: false };
-  if (userId) {
-    match.assignedTo = { $in: [new mongoose.Types.ObjectId(userId)] };
-  }
-
-  const action = await Action.findOneAndUpdate({ _id: actionId, isDeleted: false }, data, { new: true });
-  if (!action) {
+export const updateAction = async (actionId: string, data: Partial<CreateActionRequest>) => {
+  // Fetch the previous action to get current assignedTo list
+  const previousAction = await Action.findById(actionId);
+  if (!previousAction) {
     throw new Error('Action not found');
   }
-  return action;
+
+  // Update the action
+  const updatedAction = await Action.findOneAndUpdate({ _id: actionId, isDeleted: false }, data, { new: true });
+  if (!updatedAction) {
+    throw new Error('Action not found');
+  }
+
+  // Handle notifications for newly assigned users
+  if (data.assignedTo && data.assignedTo.length > 0) {
+    const previousAssignedIds = previousAction.assignedTo?.map((id: any) => id.toString()) || [];
+    const newAssignedIds = data.assignedTo.map((id: any) => id.toString());
+
+    // Find newly assigned users (in new list but not in previous list)
+    const newlyAssignedIds = newAssignedIds.filter((id: string) => !previousAssignedIds.includes(id));
+
+    if (newlyAssignedIds.length > 0) {
+      const assignedAccounts = await AccountModel.find({
+        _id: { $in: newlyAssignedIds },
+      }).populate('user', 'name email _id');
+
+      // Send notifications to newly assigned users
+      for (const account of assignedAccounts) {
+        if (!account.user?._id) continue;
+        const notificationParams: any = {
+          userId: account.user._id,
+          title: 'Task Assigned',
+          message: `${data?.user?.name || 'Someone'} assigned you a task`,
+          type: 'task',
+          notificationFor: 'Action',
+          forId: updatedAction._id,
+          sendEmailNotification: true,
+          accountId: account._id,
+          subId: account.accountId,
+          link: `/risk/${data.moduleId}/workspace/${data.workspaceId}/library/detail/${data.library}?activeTabIndex=2`,
+        };
+
+        createNotification(notificationParams, data.workspaceId as string, 'taskassign');
+      }
+    }
+
+    // Find removed users (in previous list but not in new list)
+    const removedAssignedIds = previousAssignedIds.filter((id: string) => !newAssignedIds.includes(id));
+    console.log('removedAssignedIds', removedAssignedIds);
+
+    if (removedAssignedIds.length > 0) {
+      const removedAccounts = await AccountModel.find({
+        _id: { $in: removedAssignedIds },
+      }).populate('user', 'name email _id');
+
+      // Send notifications to removed users
+      for (const account of removedAccounts) {
+        if (!account.user?._id) continue;
+        const notificationParams: any = {
+          userId: account.user._id,
+          title: 'Task Unassigned',
+          message: `${data?.user?.name || 'Someone'} removed you from a task`,
+          type: 'task',
+          notificationFor: 'Action',
+          forId: updatedAction._id,
+          sendEmailNotification: true,
+          accountId: account._id,
+          subId: account.accountId,
+        };
+
+        createNotification(notificationParams, data.workspaceId as string, 'taskunassign');
+      }
+    }
+  }
+
+  return updatedAction;
 };
 
 export const getLibraryMembersByAction = async (

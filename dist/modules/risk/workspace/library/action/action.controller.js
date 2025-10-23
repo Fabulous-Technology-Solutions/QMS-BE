@@ -50,7 +50,7 @@ exports.getActionByIdController = (0, catchAsync_1.default)(async (req, res) => 
     });
 });
 exports.updateActionController = (0, catchAsync_1.default)(async (req, res) => {
-    const action = await actionService.updateAction(req.params["actionId"] || '', req.body, req.headers["datatype"] === "mytasks" ? req.user._id : undefined);
+    const action = await actionService.updateAction(req.params["actionId"] || '', req.body);
     res.locals["message"] = "update action";
     res.locals["documentId"] = action._id;
     res.locals["collectionName"] = "RiskAction";

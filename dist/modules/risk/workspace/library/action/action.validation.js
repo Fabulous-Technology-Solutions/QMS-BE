@@ -51,7 +51,20 @@ const createActionBody = {
     budget: joi_1.default.number().min(0).messages({
         'number.base': 'Budget must be a number',
         'number.min': 'Budget must be a non-negative number',
-    })
+    }),
+    workspaceId: joi_1.default.string().pattern(/^[0-9a-fA-F]{24}$/).messages({
+        'string.base': 'Workspace ID must be a string',
+        'string.pattern.base': 'Workspace ID must be a valid ObjectId',
+    }),
+    moduleId: joi_1.default.string().pattern(/^[0-9a-fA-F]{24}$/).messages({
+        'string.base': 'Module ID must be a string',
+        'string.pattern.base': 'Module ID must be a valid ObjectId',
+    }),
+    libraryId: joi_1.default.string().pattern(/^[0-9a-fA-F]{24}$/).messages({
+        'string.base': 'Library ID must be a string',
+        'string.pattern.base': 'Library ID must be a valid ObjectId',
+    }),
+    user: joi_1.default.object().optional(),
 };
 exports.createAction = {
     body: joi_1.default.object().keys(createActionBody).fork(['name', 'description', 'library', 'startDate', 'endDate'], (schema) => schema.required()),

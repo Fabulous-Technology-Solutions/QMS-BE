@@ -8,7 +8,7 @@ export interface IGetUserNotificationsParams {
 
 export interface IGetUserUnreadNotificationsParams {
   userId: string | mongoose.Types.ObjectId;
-  accountId: string | mongoose.Types.ObjectId;
+  subId: string | mongoose.Types.ObjectId;
 }
 
 export interface IReadUserNotificationsParams {
@@ -22,6 +22,7 @@ export interface ICreateNotificationParams {
   message: string;
   type: 'serviceListing' | 'booking' | 'user' | 'review' | 'message' | 'payout';
   accountId?: string | mongoose.Types.ObjectId;
+  subId?: string | mongoose.Types.ObjectId;
   forId?: string | mongoose.Types.ObjectId;
   notificationFor?: string;
   sendEmailNotification?: boolean;

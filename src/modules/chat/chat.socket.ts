@@ -3,10 +3,24 @@ import { AuthenticatedSocket } from '../socket/socket.middleware';
 import ChatModel from './chat.modal';
 import mongoose, { ObjectId } from 'mongoose';
 import Message from '../message/message.modal';
-import { addReaction, editMessage, fetchChatMessages, getMessageReactions, getUserChats, markMessageAsRead, removeReaction, updateDeliveredAt } from './chat.services';
+import {
+  addReaction,
+  editMessage,
+  fetchChatMessages,
+  getMessageReactions,
+  getUserChats,
+  markMessageAsRead,
+  removeReaction,
+  updateDeliveredAt,
+} from './chat.services';
 import { chatQuery } from './chat.queries';
 import { Reaction } from '../reaction';
-import { getUserNotifications, getUserUnreadNotifications, readUserNotifications, createNotification } from '../notification/notification.services';
+import {
+  getUserNotifications,
+  getUserUnreadNotifications,
+  readUserNotifications,
+  createNotification,
+} from '../notification/notification.services';
 import AccountModel from './../account/account.modal';
 
 export const chatEvent = async (io: Server, socket: AuthenticatedSocket) => {
@@ -198,7 +212,6 @@ export const chatEvent = async (io: Server, socket: AuthenticatedSocket) => {
 
       let allParticipants = [];
 
-
       console.log('mention users in chat :', data?.mentionUsers);
       let validateUserChat;
       if (data?.chatId) {
@@ -330,24 +343,23 @@ export const chatEvent = async (io: Server, socket: AuthenticatedSocket) => {
       }
 
       // Send notifications to mentioned users
-      if(data?.mentionUsers && Array.isArray(data?.mentionUsers) && data?.mentionUsers.length > 0){
+      if (data?.mentionUsers && Array.isArray(data?.mentionUsers) && data?.mentionUsers.length > 0) {
         const Accounts = await AccountModel.find({ _id: { $in: data?.mentionUsers } })
           .populate('user', '_id name profilePicture')
           .select('_id user accountId');
 
         console.log('Accounts of mentioned users :', Accounts);
 
-        
         // Send notification to each mentioned user
         for (const account of Accounts) {
           const mentionedUser = account.user as any;
           const mentionedUserId = mentionedUser?._id;
-          
+
           // Don't send notification to the sender
           if (mentionedUserId && mentionedUserId?.toString() !== userId?.toString()) {
             try {
               // Get message preview (limit to 50 characters)
-              const messagePreview = data?.content 
+              const messagePreview = data?.content
                 ? data.content.substring(0, 50) + (data.content.length > 50 ? '...' : '')
                 : 'mentioned you in a message';
 
@@ -359,15 +371,19 @@ export const chatEvent = async (io: Server, socket: AuthenticatedSocket) => {
                 notificationFor: validateUserChat?.chatOf,
                 forId: validateUserChat?.obj,
                 sendEmailNotification: true, // Send email for mentions
-                link: `/capa/${data.moduleId}/workspace/${data.workspaceId}/library/detail/${data.libraryId}?fromRecentChats=true` // Example link to the chat
+                subId: data?.subId==='default'? account.accountId || userId : data?.subId,
+                accountId: account._id,
+                link: `/capa/${data.moduleId}/workspace/${data.workspaceId}/library/detail/${data.libraryId}?fromRecentChats=true`, // Example link to the chat
               };
 
-              // Only add accountId if it exists
-              if (account.accountId) {
-                notificationParams.accountId = account.accountId;
+     
+              if (data?.subId) {
+                console.log(`Sub ID for notification: ${data.subId}`);
+                // notificationParams.subId = data.subId;
               }
+              console.log(notificationParams);
 
-              await createNotification(notificationParams,data.workspaceId,'mentationchat');
+              await createNotification(notificationParams, data.workspaceId, 'mentationchat');
 
               console.log(`Notification sent to mentioned user: ${mentionedUserId}`);
             } catch (notifError) {
@@ -802,7 +818,7 @@ export const chatEvent = async (io: Server, socket: AuthenticatedSocket) => {
       }
       socket.emit('mark-message-read-response', { success: true });
       const { chatId } = markAsReadResponse;
-      
+
       // Get chat details with participants using aggregation
       const chatDetails = await ChatModel.aggregate([
         {
@@ -856,12 +872,12 @@ export const chatEvent = async (io: Server, socket: AuthenticatedSocket) => {
       const validPage = Math.max(1, parseInt(page) || 1);
       const validLimit = Math.min(100, Math.max(1, parseInt(limit) || 20));
 
-      const reactionsResponse = await getMessageReactions({ 
-        messageId, 
-        page: validPage, 
-        limit: validLimit 
+      const reactionsResponse = await getMessageReactions({
+        messageId,
+        page: validPage,
+        limit: validLimit,
       });
-      
+
       if (!reactionsResponse?.success) {
         socket.emit('socket-error', { message: reactionsResponse?.message });
         return;
@@ -875,7 +891,6 @@ export const chatEvent = async (io: Server, socket: AuthenticatedSocket) => {
         total: reactionsResponse.total,
         totalPages: reactionsResponse.totalPages,
         reactions: reactionsResponse.reactions,
-
       });
     } catch (error: any) {
       console.log(`Got error in get-message-reactions: ${JSON.stringify(error?.stack)}`);
@@ -885,7 +900,7 @@ export const chatEvent = async (io: Server, socket: AuthenticatedSocket) => {
 
   socket.on('get-user-chats', async (data) => {
     try {
-      const { page = 1, limit = 20, accountId } = data;
+      const { page = 1, limit = 20 } = data;
 
       // Validate pagination parameters
       const validPage = Math.max(1, parseInt(page) || 1);
@@ -895,7 +910,7 @@ export const chatEvent = async (io: Server, socket: AuthenticatedSocket) => {
         userId,
         page: validPage,
         limit: validLimit,
-        accountId,
+        accountId:data?.subId,
       });
 
       if (!chatsResponse?.success) {
@@ -955,7 +970,7 @@ export const chatEvent = async (io: Server, socket: AuthenticatedSocket) => {
   socket.on('get-user-unread-notifications', async (data) => {
     try {
       console.log('get-user-unread-notifications data:', data, userId);
-      const notificationsResponse = await getUserUnreadNotifications({ userId ,accountId:data?.accountId});
+      const notificationsResponse = await getUserUnreadNotifications({ userId, subId: data?.subId });
 
       if (!notificationsResponse?.success) {
         socket.emit('socket-error', { message: notificationsResponse?.message });
@@ -1017,14 +1032,18 @@ export const chatEvent = async (io: Server, socket: AuthenticatedSocket) => {
         return;
       }
 
-      const result = await createNotification({
-        userId: targetUserId,
-        title,
-        message,
-        type,
-        accountId,
-        sendEmailNotification: sendEmail || false,
-      }, data.workspaceId, 'custom');
+      const result = await createNotification(
+        {
+          userId: targetUserId,
+          title,
+          message,
+          type,
+          accountId,
+          sendEmailNotification: sendEmail || false,
+        },
+        data.workspaceId,
+        'custom'
+      );
 
       if (!result?.success) {
         socket.emit('socket-error', { message: result?.message });

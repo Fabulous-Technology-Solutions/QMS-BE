@@ -333,12 +333,15 @@ const chatEvent = async (io, socket) => {
                                 notificationFor: validateUserChat?.chatOf,
                                 forId: validateUserChat?.obj,
                                 sendEmailNotification: true,
-                                link: `/capa/${data.moduleId}/workspace/${data.workspaceId}/library/detail/${data.libraryId}?fromRecentChats=true` // Example link to the chat
+                                subId: data?.subId === 'default' ? account.accountId || userId : data?.subId,
+                                accountId: account._id,
+                                link: `/capa/${data.moduleId}/workspace/${data.workspaceId}/library/detail/${data.libraryId}?fromRecentChats=true`, // Example link to the chat
                             };
-                            // Only add accountId if it exists
-                            if (account.accountId) {
-                                notificationParams.accountId = account.accountId;
+                            if (data?.subId) {
+                                console.log(`Sub ID for notification: ${data.subId}`);
+                                // notificationParams.subId = data.subId;
                             }
+                            console.log(notificationParams);
                             await (0, notification_services_1.createNotification)(notificationParams, data.workspaceId, 'mentationchat');
                             console.log(`Notification sent to mentioned user: ${mentionedUserId}`);
                         }
@@ -751,7 +754,7 @@ const chatEvent = async (io, socket) => {
             const reactionsResponse = await (0, chat_services_1.getMessageReactions)({
                 messageId,
                 page: validPage,
-                limit: validLimit
+                limit: validLimit,
             });
             if (!reactionsResponse?.success) {
                 socket.emit('socket-error', { message: reactionsResponse?.message });
@@ -774,7 +777,7 @@ const chatEvent = async (io, socket) => {
     });
     socket.on('get-user-chats', async (data) => {
         try {
-            const { page = 1, limit = 20, accountId } = data;
+            const { page = 1, limit = 20 } = data;
             // Validate pagination parameters
             const validPage = Math.max(1, parseInt(page) || 1);
             const validLimit = Math.min(100, Math.max(1, parseInt(limit) || 20));
@@ -782,7 +785,7 @@ const chatEvent = async (io, socket) => {
                 userId,
                 page: validPage,
                 limit: validLimit,
-                accountId,
+                accountId: data?.subId,
             });
             if (!chatsResponse?.success) {
                 socket.emit('socket-error', { message: chatsResponse?.message });
@@ -836,7 +839,7 @@ const chatEvent = async (io, socket) => {
     socket.on('get-user-unread-notifications', async (data) => {
         try {
             console.log('get-user-unread-notifications data:', data, userId);
-            const notificationsResponse = await (0, notification_services_1.getUserUnreadNotifications)({ userId, accountId: data?.accountId });
+            const notificationsResponse = await (0, notification_services_1.getUserUnreadNotifications)({ userId, subId: data?.subId });
             if (!notificationsResponse?.success) {
                 socket.emit('socket-error', { message: notificationsResponse?.message });
                 return;

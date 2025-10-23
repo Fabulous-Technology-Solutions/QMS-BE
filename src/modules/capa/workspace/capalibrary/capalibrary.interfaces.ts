@@ -1,6 +1,7 @@
 import mongoose, { Document, ObjectId } from 'mongoose';
 
 export interface LibraryModal extends Document {
+  
   name: string;
   description: string;
   site: ObjectId[];
@@ -80,6 +81,7 @@ export interface CreateLibraryRequest {
     how?: string;
     howImpacted?: string;
   };
+  moduleId?: string;
 }
 
 export interface GetLibrariesQuery {

@@ -19,7 +19,7 @@ import {
 } from './capalibrary.service';
 
 export const createLibrary = catchAsync(async (req: Request, res: Response) => {
-  const library = await CreateLibrary({ ...req.body, createdBy: req.user._id });
+  const library = await CreateLibrary({ ...req.body, createdBy: req.user._id  });
   res.locals["message"] = "create library"
   res.locals["documentId"] = library._id;
   res.locals["collectionName"] = "Library";
