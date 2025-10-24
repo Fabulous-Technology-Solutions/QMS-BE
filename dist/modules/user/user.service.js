@@ -11,6 +11,7 @@ const axios_1 = __importDefault(require("axios"));
 const user_subAdmin_1 = __importDefault(require("./user.subAdmin"));
 const email_service_1 = require("../email/email.service");
 const token_1 = require("../token");
+const account_1 = require("../account");
 /**
  * Create a user
  * @param {NewCreatedUser} userBody
@@ -44,7 +45,9 @@ const registerUser = async (userBody) => {
     if (await user_model_1.default.isEmailTaken(userBody.email)) {
         throw new ApiError_1.default('Email already taken', http_status_1.default.BAD_REQUEST);
     }
-    return user_model_1.default.create({ ...userBody, role: 'admin', isEmailVerified: false, providers: ['local'] });
+    const user = await user_model_1.default.create({ ...userBody, role: 'admin', isEmailVerified: false, providers: ['local'] });
+    await account_1.AccountModel.create({ user: user._id, role: 'admin', status: 'active', accountId: user._id, accountType: 'default' });
+    return user;
 };
 exports.registerUser = registerUser;
 const googleprofiledata = async (access_token) => {
@@ -113,6 +116,7 @@ const loginWithGoogle = async (body) => {
         isEmailVerified: true,
         providers: ['google'],
     });
+    await account_1.AccountModel.create({ user: user._id, role: 'admin', status: 'active', accountId: user._id, accountType: 'default' });
     return user;
 };
 exports.loginWithGoogle = loginWithGoogle;
@@ -145,12 +149,13 @@ const getme = async (userId) => {
                             status: { $first: '$status' },
                             orgName: { $first: '$userDetails.orgName' },
                             createdAt: { $first: '$createdAt' },
+                            accountType: { $first: '$accountType' }
                         },
                     },
                     {
                         $sort: { createdAt: 1 },
                     },
-                    { $project: { _id: 1, role: 1, status: 1, orgName: 1, createdAt: 1 } },
+                    { $project: { _id: 1, role: 1, status: 1, orgName: 1, createdAt: 1, accountType: 1 } },
                 ],
             },
         },

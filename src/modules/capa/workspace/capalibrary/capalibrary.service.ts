@@ -21,6 +21,7 @@ import AccountModel from '../../../../modules/account/account.modal';
 import { createNotification } from '../../../../modules/notification/notification.services';
 import { ICreateNotificationParams } from '../../../../modules/notification/notification.interfaces';
 
+
 export const CreateLibrary = async (body: CreateLibraryRequest) => {
   const findWorkspace = await CapaworkspaceModel.aggregate([
     { $match: { _id: new mongoose.Types.ObjectId(body.workspace), isDeleted: false } },
@@ -537,6 +538,43 @@ export const updateLibrary = async (libraryId: string, updateData: Partial<Creat
   } catch (err) {
     console.error('❌ Error sending manager change notifications:', err);
     // Do not fail the update if notifications error out
+  }
+
+  // Send notification to managers and members when status changes to 'completed'
+  try {
+    // Only notify when status changed to completed
+    if (library.status === 'completed' && existingLibrary.status !== 'completed') {
+      const managerIds = (library.managers || []).map((m: mongoose.Schema.Types.ObjectId) => m.toString());
+      const memberIds = (library.members || []).map((m: mongoose.Schema.Types.ObjectId) => m.toString());
+      const accountIds = Array.from(new Set([...managerIds, ...memberIds]));
+
+      if (accountIds.length > 0) {
+        const accounts = await AccountModel.find({ _id: { $in: accountIds } }).populate('user', 'name email _id');
+        for (const account of accounts) {
+          if (!account.user?._id) continue;
+          const notificationParams: ICreateNotificationParams = {
+            userId: account.user._id?.toString() || '',
+            title: 'Library Completed',
+            message: `The library "${library.name}" has been marked as completed.`,
+            type: 'library' as any,
+            notificationFor: 'Library',
+            forId: library._id?.toString(),
+            sendEmailNotification: true,
+            accountId: account._id?.toString() || '',
+            subId: account.accountId?.toString() || '',
+            link: `/capa/${(updateData as any)?.moduleId?.toString?.() || ''}/workspace/${(library.workspace as any)?.toString?.() || ''}/library`,
+          };
+          try {
+            createNotification(notificationParams, (library.workspace as any)?.toString?.() || '', 'projectcompleted');
+          } catch (notificationError) {
+            console.error('Error sending library completed notification:', notificationError);
+          }
+        }
+      }
+    }
+  } catch (err) {
+    console.error('❌ Error sending library completed notifications:', err);
+    // Do not fail update on notification errors
   }
 
   return library;

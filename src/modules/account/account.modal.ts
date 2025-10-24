@@ -2,6 +2,7 @@ import { IaccountDoc } from './account.interfaces';
 import mongoose, { model, Schema } from 'mongoose';
 const accountSchema = new Schema<IaccountDoc>(
   {
+    accountType: { type: String, enum: ['default', 'invited'],default: 'invited' },
     role: { type: String, enum: ['admin', 'workspaceUser'], required: true },
     Permissions: [
       {

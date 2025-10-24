@@ -9,6 +9,7 @@ export interface Iaccount {
   accountId?: string;
   user: string;
   status: 'active' | 'inactive';
+  accountType: 'default' | 'invited';
 }
 
 export interface IaccountDoc extends Document {
@@ -21,4 +22,5 @@ export interface IaccountDoc extends Document {
   }>;
   accountId?: mongoose.Types.ObjectId;
   user: mongoose.Types.ObjectId;
+  accountType: 'default' | 'invited';
 }

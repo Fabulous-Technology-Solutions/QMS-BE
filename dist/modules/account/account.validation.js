@@ -17,5 +17,6 @@ const accountBodySchema = {
     accountId: joi_1.default.string(),
     user: joi_1.default.string(),
     status: joi_1.default.string().valid('active', 'inactive'),
+    accountType: joi_1.default.string().valid('default', 'invited').optional(),
 };
 exports.updateAccountValidationSchema = { body: joi_1.default.object().keys(accountBodySchema).min(1) };

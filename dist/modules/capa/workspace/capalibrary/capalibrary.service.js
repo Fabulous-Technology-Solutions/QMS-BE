@@ -508,6 +508,44 @@ const updateLibrary = async (libraryId, updateData) => {
         console.error('❌ Error sending manager change notifications:', err);
         // Do not fail the update if notifications error out
     }
+    // Send notification to managers and members when status changes to 'completed'
+    try {
+        // Only notify when status changed to completed
+        if (library.status === 'completed' && existingLibrary.status !== 'completed') {
+            const managerIds = (library.managers || []).map((m) => m.toString());
+            const memberIds = (library.members || []).map((m) => m.toString());
+            const accountIds = Array.from(new Set([...managerIds, ...memberIds]));
+            if (accountIds.length > 0) {
+                const accounts = await account_modal_1.default.find({ _id: { $in: accountIds } }).populate('user', 'name email _id');
+                for (const account of accounts) {
+                    if (!account.user?._id)
+                        continue;
+                    const notificationParams = {
+                        userId: account.user._id?.toString() || '',
+                        title: 'Library Completed',
+                        message: `The library "${library.name}" has been marked as completed.`,
+                        type: 'library',
+                        notificationFor: 'Library',
+                        forId: library._id?.toString(),
+                        sendEmailNotification: true,
+                        accountId: account._id?.toString() || '',
+                        subId: account.accountId?.toString() || '',
+                        link: `/capa/${updateData?.moduleId?.toString?.() || ''}/workspace/${library.workspace?.toString?.() || ''}/library`,
+                    };
+                    try {
+                        (0, notification_services_1.createNotification)(notificationParams, library.workspace?.toString?.() || '', 'projectcompleted');
+                    }
+                    catch (notificationError) {
+                        console.error('Error sending library completed notification:', notificationError);
+                    }
+                }
+            }
+        }
+    }
+    catch (err) {
+        console.error('❌ Error sending library completed notifications:', err);
+        // Do not fail update on notification errors
+    }
     return library;
 };
 exports.updateLibrary = updateLibrary;

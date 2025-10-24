@@ -3,7 +3,7 @@ import {
   CreateCapaworkspaceRequest,
   CreateCapaworkspaceServiceFunction,
   getworkspacesofuserRequest,
-  IMAP,
+
   IqueryofGetworkspaces,
 } from './workspace.interfaces';
 import CapaworkspaceModel from './workspace.modal';
@@ -13,6 +13,7 @@ import Action from '../capa/workspace/capalibrary/action/action.modal';
 import { RiskLibraryModel } from '../risk/workspace/library';
 import { RiskActionModel } from '../risk/workspace/library/action';
 import { createOrUpdateNotificationSetting } from './notificationSetting/notificationSetting.services';
+import { AccountModel } from '../account';
 
 export const createCapaworkspace = async (data: CreateCapaworkspaceServiceFunction) => {
   const { moduleId, name, imageUrl, imagekey, description, user } = data;
@@ -25,13 +26,15 @@ export const createCapaworkspace = async (data: CreateCapaworkspaceServiceFuncti
     description,
     createdBy: user._id,
   });
-  if (user.role !== 'admin') {
-    (user.adminOF as IMAP[] | undefined)?.forEach((admin: IMAP) => {
-      if (admin.method.equals(moduleId)) {
-        admin.workspacePermissions.push(workspace._id);
-      }
+  const findDefaultAccount = await AccountModel.findOne({ user: user._id, accountId: user._id, accountType: 'default' });
+
+  if (findDefaultAccount) {
+    findDefaultAccount?.Permissions?.push({
+      permission: 'admin',
+      workspace: workspace._id,
     });
   }
+  await findDefaultAccount?.save();
   await user.save();
   await createOrUpdateNotificationSetting({ workspaceId: workspace._id });
   return await workspace.save();
@@ -169,8 +172,6 @@ export const dashboardAnalytics = async (workspaceId: string) => {
   };
 };
 
-
-
 export const RiskdashboardAnalytics = async (workspaceId: string) => {
   const result = await RiskLibraryModel.aggregate([
     {
@@ -202,7 +203,7 @@ export const RiskdashboardAnalytics = async (workspaceId: string) => {
       $match: {
         library: { $in: libraryIds },
         isDeleted: false,
-        status: { $in: ['open', 'in-progress','closed'] },
+        status: { $in: ['open', 'in-progress', 'closed'] },
       },
     },
     {

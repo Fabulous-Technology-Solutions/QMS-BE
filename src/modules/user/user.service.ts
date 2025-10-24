@@ -8,6 +8,7 @@ import axios from 'axios';
 import subAdmin from './user.subAdmin';
 import { sendEmail } from '../email/email.service';
 import { tokenService } from '../token';
+import { AccountModel } from '../account';
 
 /**
  * Create a user
@@ -42,7 +43,9 @@ export const registerUser = async (userBody: NewRegisteredUser): Promise<IUserDo
   if (await User.isEmailTaken(userBody.email)) {
     throw new ApiError('Email already taken', httpStatus.BAD_REQUEST);
   }
-  return User.create({ ...userBody, role: 'admin', isEmailVerified: false, providers: ['local'] });
+  const user = await User.create({ ...userBody, role: 'admin', isEmailVerified: false, providers: ['local'] });
+  await AccountModel.create({ user: user._id, role: 'admin', status: 'active', accountId: user._id, accountType: 'default' });
+  return user;
 };
 
 export const googleprofiledata = async (access_token: string) => {
@@ -114,6 +117,7 @@ export const loginWithGoogle = async (body: any): Promise<IUserDoc> => {
       await user.save();
     }
 
+
     return user;
   }
 
@@ -126,6 +130,8 @@ export const loginWithGoogle = async (body: any): Promise<IUserDoc> => {
     isEmailVerified: true,
     providers: ['google'],
   });
+
+  await AccountModel.create({ user: user._id, role: 'admin', status: 'active', accountId: user._id, accountType: 'default' });
 
   return user;
 };
@@ -159,12 +165,13 @@ export const getme = async (userId: mongoose.Types.ObjectId) => {
               status: { $first: '$status' },
               orgName: { $first: '$userDetails.orgName' },
               createdAt: { $first: '$createdAt' },
+              accountType: { $first: '$accountType' }
             },
           },
           {
             $sort: { createdAt: 1 },
           },
-          { $project: { _id: 1, role: 1, status: 1, orgName: 1, createdAt: 1 } },
+          { $project: { _id: 1, role: 1, status: 1, orgName: 1, createdAt: 1 ,accountType: 1} },
         ],
       },
     },

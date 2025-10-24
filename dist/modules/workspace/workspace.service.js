@@ -11,6 +11,7 @@ const action_modal_1 = __importDefault(require("../capa/workspace/capalibrary/ac
 const library_1 = require("../risk/workspace/library");
 const action_1 = require("../risk/workspace/library/action");
 const notificationSetting_services_1 = require("./notificationSetting/notificationSetting.services");
+const account_1 = require("../account");
 const createCapaworkspace = async (data) => {
     const { moduleId, name, imageUrl, imagekey, description, user } = data;
     const workspace = new workspace_modal_1.default({
@@ -21,13 +22,14 @@ const createCapaworkspace = async (data) => {
         description,
         createdBy: user._id,
     });
-    if (user.role !== 'admin') {
-        user.adminOF?.forEach((admin) => {
-            if (admin.method.equals(moduleId)) {
-                admin.workspacePermissions.push(workspace._id);
-            }
+    const findDefaultAccount = await account_1.AccountModel.findOne({ user: user._id, accountId: user._id, accountType: 'default' });
+    if (findDefaultAccount) {
+        findDefaultAccount?.Permissions?.push({
+            permission: 'admin',
+            workspace: workspace._id,
         });
     }
+    await findDefaultAccount?.save();
     await user.save();
     await (0, notificationSetting_services_1.createOrUpdateNotificationSetting)({ workspaceId: workspace._id });
     return await workspace.save();

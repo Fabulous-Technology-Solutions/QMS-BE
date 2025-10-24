@@ -21,6 +21,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const mongoose_1 = __importStar(require("mongoose"));
 const accountSchema = new mongoose_1.Schema({
+    accountType: { type: String, enum: ['default', 'invited'], default: 'invited' },
     role: { type: String, enum: ['admin', 'workspaceUser'], required: true },
     Permissions: [
         {
